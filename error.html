@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erro na Análise - RH Super</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0047AB;
+            --primary-dark: #003380;
+            --secondary: #FF6B35;
+            --light-bg: #F8F9FA;
+            --white: #FFFFFF;
+            --text-dark: #212529;
+            --text-gray: #6C757D;
+            --border-color: #DEE2E6;
+            --danger: #DC3545;
+            --border-radius: 8px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .logo {
+            height: 50px;
+            margin-bottom: 30px;
+        }
+
+        .error-card {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--danger);
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: var(--text-dark);
+            font-size: 1.2rem;
+            margin: 20px 0 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+        }
+
+        .error-message {
+            margin-bottom: 20px;
+            color: var(--text-dark);
+        }
+
+        .error-details {
+            background-color: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: left;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .storage-details {
+            background-color: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: left;
+            overflow-x: auto;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .troubleshooting {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .troubleshooting li {
+            margin-bottom: 8px;
+        }
+
+        .action-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition);
+            margin: 5px;
+        }
+
+        .action-button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .secondary-button {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .secondary-button:hover {
+            background-color: rgba(0, 71, 171, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <img src="frontend/assets/img/logo.png" alt="RH Super" class="logo">
+
+        <div class="error-card">
+            <h1>Ocorreu um erro na análise</h1>
+
+            <p class="error-message">Não foi possível completar a análise do seu currículo. Por favor, veja os detalhes
+                abaixo para resolver o problema.</p>
+
+            <h2>Detalhes do Erro</h2>
+            <div class="error-details" id="errorDetails">
+                Carregando detalhes do erro...
+            </div>
+
+            <h2>Status dos Dados</h2>
+            <div class="storage-details" id="storageDetails">
+                Verificando dados...
+            </div>
+
+            <h2>Recomendações</h2>
+            <ul class="troubleshooting" id="troubleshootingList">
+                <li>Certifique-se de que um arquivo de currículo foi selecionado na página inicial.</li>
+                <li>Verifique se o formato do arquivo é PDF ou DOCX.</li>
+                <li>Tente limpar o cache do navegador e reiniciar a aplicação.</li>
+                <li>Verifique se o servidor backend está em execução (http://localhost:5000).</li>
+                <li>Verifique a conexão com a internet.</li>
+            </ul>
+
+            <div>
+                <a href="index.html" class="action-button">Voltar para o início</a>
+                <button id="clearStorageBtn" class="action-button secondary-button">Limpar dados armazenados</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Recuperar detalhes do erro do localStorage
+            const errorData = localStorage.getItem('apiError');
+            const errorDetails = document.getElementById('errorDetails');
+            const storageDetails = document.getElementById('storageDetails');
+            const troubleshootingList = document.getElementById('troubleshootingList');
+
+            // Exibir detalhes do erro
+            if (errorData) {
+                try {
+                    const error = JSON.parse(errorData);
+                    errorDetails.textContent = JSON.stringify(error, null, 2);
+                } catch (e) {
+                    errorDetails.textContent = errorData;
+                }
+            } else {
+                errorDetails.textContent = 'Nenhum detalhe de erro disponível.';
+            }
+
+            // Verificar e exibir o estado do localStorage
+            const storageInfo = {
+                'uploadedFile': localStorage.getItem('uploadedFile') ? 'Presente (tamanho: ' + (localStorage.getItem('uploadedFile').length / 1024).toFixed(2) + ' KB)' : 'Ausente',
+                'fileName': localStorage.getItem('fileName') || 'Ausente',
+                'jobLinks': localStorage.getItem('jobLinks') || 'Ausente',
+                'temAnaliseDaAPI': localStorage.getItem('analysisResults') ? 'Sim' : 'Não'
+            };
+
+            let storageHtml = '';
+            for (let key in storageInfo) {
+                storageHtml += `<div><strong>${key}:</strong> ${storageInfo[key]}</div>`;
+            }
+            storageDetails.innerHTML = storageHtml;
+
+            // Adicionar recomendações específicas com base no erro
+            if (errorData && errorData.includes('Nenhum arquivo foi carregado')) {
+                const newItem = document.createElement('li');
+                newItem.innerHTML = '<strong>Erro de arquivo:</strong> Retorne à página inicial e selecione um arquivo de currículo antes de prosseguir.';
+                troubleshootingList.prepend(newItem);
+            }
+
+            if (errorData && errorData.includes('HTTP error')) {
+                const newItem = document.createElement('li');
+                newItem.innerHTML = '<strong>Erro de conexão:</strong> Verifique se o servidor backend está em execução em http://localhost:5000.';
+                troubleshootingList.prepend(newItem);
+            }
+
+            // Botão para limpar localStorage
+            document.getElementById('clearStorageBtn').addEventListener('click', function () {
+                localStorage.clear();
+                alert('Dados limpos com sucesso! Redirecionando para a página inicial.');
+                window.location.href = 'index.html';
+            });
+
+            // Também exibir informações do console
+            console.log('Detalhes do erro:', errorData);
+            console.log('Estado do localStorage:', storageInfo);
+        });
+    </script>
+</body>
+
+</html>

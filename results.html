@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Currículo</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: #FFFCF9;
+            color: #505050;
+        }
+
+        .header-bg {
+            width: 100%;
+            height: 770px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: #F3EADA;
+            z-index: -1;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1440px;
+            position: relative;
+            margin: 0 auto;
+            padding: 0 20px;
+            overflow-x: hidden;
+        }
+
+        .header-content {
+            width: 100%;
+            max-width: 652px;
+            position: relative;
+            margin: 312px auto 0 166px;
+        }
+
+        @media (max-width: 1440px) {
+            .header-content {
+                margin-left: 10%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                margin-left: 5%;
+                margin-top: 200px;
+            }
+        }
+
+        .header-title {
+            width: 100%;
+            max-width: 652px;
+            color: #583819;
+            font-size: 45px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        @media (max-width: 768px) {
+            .header-title {
+                font-size: 32px;
+            }
+        }
+
+        .file-badge {
+            width: 232px;
+            height: 28px;
+            padding: 5px 19px;
+            background: #ECD9B5;
+            border-radius: 5px;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .file-icon {
+            width: 13px;
+            height: 15.79px;
+            background: #583819;
+            margin-right: 8px;
+        }
+
+        .file-name {
+            color: #583819;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 18px;
+        }
+
+        .header-description {
+            width: 100%;
+            max-width: 554px;
+            margin-top: 60px;
+            color: #505050;
+            font-size: 17px;
+            font-weight: 400;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 768px) {
+            .header-description {
+                font-size: 15px;
+                margin-top: 40px;
+            }
+        }
+
+        .header-description strong {
+            font-weight: 600;
+        }
+
+        .icons-grid {
+            width: 324px;
+            height: 333px;
+            position: absolute;
+            top: 297px;
+            right: 10%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .icons-grid {
+                right: 5%;
+                width: 280px;
+                height: 280px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .icons-grid {
+                position: relative;
+                top: 50px;
+                right: auto;
+                margin: 0 auto;
+            }
+        }
+
+        .icon-box {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: #ECD9B5;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .section {
+            width: 100%;
+            max-width: 1110px;
+            margin: 100px auto 0;
+            padding: 0 20px;
+        }
+
+        @media (max-width: 1440px) {
+            .section {
+                margin-left: 10%;
+                margin-right: 10%;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .section {
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+
+        .section-header {
+            width: 100%;
+            height: 60px;
+            position: relative;
+        }
+
+        .section-title {
+            width: 100%;
+            color: #583819;
+            font-size: 25px;
+            font-weight: 700;
+            line-height: 1.5;
+            margin-left: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 22px;
+            }
+        }
+
+        .section-divider {
+            width: 100%;
+            height: 2px;
+            background: #D2BE99;
+            position: absolute;
+            bottom: 0;
+        }
+
+        .section-divider::before {
+            content: "";
+            width: 120px;
+            height: 4px;
+            background: #583819;
+            position: absolute;
+            top: -1px;
+            left: 0;
+        }
+
+        .keywords-grid {
+            width: 100%;
+            max-width: 1000px;
+            margin: 60px auto 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .keyword-tag {
+            height: 40px;
+            padding: 15px;
+            background: #ECD9B5;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .keyword-tag span {
+            text-align: center;
+            color: #583819;
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 20px;
+            white-space: nowrap;
+        }
+
+        .keyword-row {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 35px;
+        }
+
+        .keyword-item {
+            width: 100%;
+            height: auto;
+            min-height: 72px;
+            padding: 14px 15px;
+            border-radius: 8px;
+            border: 1px solid #BBB7B7;
+            display: flex;
+            align-items: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .keyword-item {
+                padding: 10px;
+            }
+        }
+
+        .keyword-box {
+            width: 145px;
+            padding: 15px;
+            background: #ECD9B5;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .keyword-box {
+                width: 120px;
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+        }
+
+        .keyword-box span {
+            text-align: center;
+            color: #583819;
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .keyword-box span {
+                font-size: 14px;
+            }
+        }
+
+        .keyword-separator {
+            color: #505050;
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 44px;
+            margin: 0 6px;
+        }
+
+        .keyword-info {
+            flex: 1;
+        }
+
+        .keyword-info strong {
+            color: #505050;
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .keyword-info span {
+            color: #505050;
+            font-size: 17px;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .keyword-info strong,
+            .keyword-info span {
+                font-size: 14px;
+            }
+        }
+
+        .recommendations {
+            color: #505050;
+            font-size: 17px;
+            font-weight: 400;
+            line-height: 1.8;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .recommendations {
+                font-size: 15px;
+            }
+        }
+
+        .recommendations-bold {
+            color: #505050;
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 1.8;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .recommendations-bold {
+                font-size: 15px;
+            }
+        }
+
+        .footer {
+            width: 100%;
+            height: 90px;
+            background: #583819;
+            margin-top: 100px;
+        }
+
+        #all-job-keywords-container, 
+        #keywords-found-container, 
+        #keywords-missing-container {
+            margin-top: 60px;
+        }
+
+        @media (max-width: 768px) {
+            #all-job-keywords-container, 
+            #keywords-found-container, 
+            #keywords-missing-container {
+                margin-top: 40px;
+            }
+        }
+
+        /* Responsive logo */
+        .logo {
+            width: 177px;
+            height: 150px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                width: 120px;
+                height: 100px;
+                top: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header-bg"></div>
+    <div class="container">
+        <img src="frontend/assets/img/logo.png" alt="Logo" class="logo">
+
+        <div class="header-content">
+            <div class="header-title">Análise de Currículo</div>
+            <div class="file-badge">
+                <div class="file-icon"></div>
+                <div class="file-name" id="cv-filename">Currículo Rafael de Novaes.pdf</div>
+            </div>
+            <div class="header-description" id="cv-introduction">
+                Potencialize suas chances de sucesso com uma visão clara das palavras-chave que importam. Descubra os termos essenciais para as vagas desejadas e como seu currículo se posiciona em relação a eles.
+            </div>
+        </div>
+
+        <div class="icons-grid">
+            <div class="icon-box">
+                <svg width="54" height="59" viewBox="0 0 54 59" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2.5 56.5V2.5H51.5V56.5H2.5Z" stroke="#583819" stroke-width="5"/>
+                </svg>
+            </div>
+            <div class="icon-box">
+                <svg width="62" height="62" viewBox="0 0 62 62" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="31" cy="31" r="28.5" stroke="#583819" stroke-width="4.5"/>
+                </svg>
+            </div>
+            <div class="icon-box">
+                <svg width="56" height="62" viewBox="0 0 56 62" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2.5 59.5V2.5H53.5V59.5L28 45.5L2.5 59.5Z" stroke="#583819" stroke-width="4.5"/>
+                </svg>
+            </div>
+            <div class="icon-box">
+                <svg width="50" height="62" viewBox="0 0 50 62" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2.5 2.5H46.5V52.5H2.5V2.5Z" stroke="#583819" stroke-width="4.5"/>
+                    <path d="M17 2.5V52.5" stroke="#583819" stroke-width="4.5"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Seção de Palavras-chave Identificadas na Vaga -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">Palavras-chaves Identificadas na Vaga:</div>
+                <div class="section-divider"></div>
+            </div>
+            <div id="all-job-keywords-container" class="keywords-grid">
+                <!-- Será preenchido via JavaScript -->
+            </div>
+        </div>
+
+        <!-- Seção de Palavras-chave Presentes no Currículo -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">Palavras-chaves Presentes em seu Currículo:</div>
+                <div class="section-divider"></div>
+            </div>
+            <div id="keywords-found-container">
+                <!-- Será preenchido via JavaScript -->
+            </div>
+        </div>
+
+        <!-- Seção de Palavras-chave Ausentes no Currículo -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">Palavras-chaves Ausentes em seu Currículo:</div>
+                <div class="section-divider"></div>
+            </div>
+            <div id="keywords-missing-container">
+                <!-- Será preenchido via JavaScript -->
+            </div>
+        </div>
+
+        <!-- Seção de Recomendações -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">Recomendações</div>
+                <div class="section-divider"></div>
+            </div>
+            <div id="recommendations-container" class="recommendations">
+                Adicione as palavras-chave ausentes identificadas ao seu currículo.<br>
+                Destaque as palavras-chave presentes em seu currículo.<br>
+                Considere adicionar mais detalhes sobre suas experiências.
+            </div>
+        </div>
+
+        <!-- Seção de Conclusão -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">Conclusão</div>
+                <div class="section-divider"></div>
+            </div>
+            <div id="conclusion-container" class="recommendations-bold">
+                <!-- Será preenchido via JavaScript com uma conclusão detalhada -->
+            </div>
+        </div>
+
+        <!-- Seção de Debug removida -->
+
+        <div class="footer"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Recuperar os resultados do localStorage
+            const analysisResults = JSON.parse(localStorage.getItem('analysisResults'));
+            
+            // Se não houver resultados, volta para a página inicial
+            if (!analysisResults) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Exibir o nome do arquivo
+            const fileName = localStorage.getItem('fileName');
+            if (fileName) {
+                document.getElementById('cv-filename').textContent = fileName;
+            }
+            
+            // Exibir a conclusão detalhada
+            if (analysisResults.motivational_conclusion) {
+                // Exibir a conclusão detalhada na seção de conclusão
+                document.getElementById('conclusion-container').innerHTML = analysisResults.motivational_conclusion;
+            }
+            
+            // Exibir todas as palavras-chave das vagas
+            displayAllJobKeywords(analysisResults);
+            
+            // Exibir palavras-chave presentes no currículo
+            displayKeywordsFound(analysisResults);
+            
+            // Exibir palavras-chave ausentes no currículo
+            displayKeywordsMissing(analysisResults);
+            
+            // Exibir recomendações
+            if (analysisResults.ats_recommendations && analysisResults.ats_recommendations.length > 0) {
+                document.getElementById('recommendations-container').innerHTML = 
+                    analysisResults.ats_recommendations.join('<br>');
+            }
+            
+            // Remover referência à resposta da API para debug
+        });
+        
+        // Função para exibir todas as palavras-chave das vagas
+        function displayAllJobKeywords(data) {
+            const container = document.getElementById('all-job-keywords-container');
+            container.innerHTML = '';
+            
+            if (data.all_job_keywords && data.all_job_keywords.length > 0) {
+                // Dividir as palavras-chave em 4 linhas
+                const keywordsPerRow = Math.ceil(data.all_job_keywords.length / 4);
+                
+                for (let i = 0; i < 4; i++) {
+                    const rowDiv = document.createElement('div');
+                    rowDiv.className = 'keyword-row';
+                    
+                    const startIndex = i * keywordsPerRow;
+                    const endIndex = Math.min((i + 1) * keywordsPerRow, data.all_job_keywords.length);
+                    
+                    for (let j = startIndex; j < endIndex; j++) {
+                        const keyword = data.all_job_keywords[j];
+                        
+                        const keywordDiv = document.createElement('div');
+                        keywordDiv.className = 'keyword-tag';
+                        
+                        const keywordSpan = document.createElement('span');
+                        keywordSpan.textContent = keyword;
+                        
+                        keywordDiv.appendChild(keywordSpan);
+                        rowDiv.appendChild(keywordDiv);
+                    }
+                    
+                    container.appendChild(rowDiv);
+                }
+            } else {
+                container.innerHTML = '<p>Nenhuma palavra-chave identificada nas vagas.</p>';
+            }
+        }
+        
+        // Função para exibir palavras-chave presentes no currículo
+        function displayKeywordsFound(data) {
+            const container = document.getElementById('keywords-found-container');
+            container.innerHTML = '';
+            
+            if (data.keywords_found && data.keywords_found.length > 0) {
+                // Mostrar todas as palavras-chave encontradas
+                data.keywords_found.forEach((keyword, index) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'keyword-item';
+                    
+                    const keywordBox = document.createElement('div');
+                    keywordBox.className = 'keyword-box';
+                    
+                    const keywordSpan = document.createElement('span');
+                    keywordSpan.textContent = keyword;
+                    keywordBox.appendChild(keywordSpan);
+                    
+                    const separator = document.createElement('div');
+                    separator.className = 'keyword-separator';
+                    separator.textContent = '-';
+                    
+                    const infoDiv = document.createElement('div');
+                    infoDiv.className = 'keyword-info';
+                    infoDiv.innerHTML = `<strong>Presente em: </strong><span>Experiência Profissional</span>`;
+                    
+                    itemDiv.appendChild(keywordBox);
+                    itemDiv.appendChild(separator);
+                    itemDiv.appendChild(infoDiv);
+                    
+                    container.appendChild(itemDiv);
+                });
+            } else {
+                container.innerHTML = '<p>Nenhuma palavra-chave encontrada no currículo.</p>';
+            }
+        }
+        
+        // Função para exibir palavras-chave ausentes no currículo
+        function displayKeywordsMissing(data) {
+            const container = document.getElementById('keywords-missing-container');
+            container.innerHTML = '';
+            
+            if (data.keywords_missing && data.keywords_missing.length > 0) {
+                // Mostrar todas as palavras-chave ausentes
+                data.keywords_missing.forEach((keyword, index) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'keyword-item';
+                    
+                    const keywordBox = document.createElement('div');
+                    keywordBox.className = 'keyword-box';
+                    
+                    const keywordSpan = document.createElement('span');
+                    keywordSpan.textContent = keyword;
+                    keywordBox.appendChild(keywordSpan);
+                    
+                    const separator = document.createElement('div');
+                    separator.className = 'keyword-separator';
+                    separator.textContent = '-';
+                    
+                    const infoDiv = document.createElement('div');
+                    infoDiv.className = 'keyword-info';
+                    infoDiv.innerHTML = `<strong>Recomendação: </strong><span>Adicionar em Experiência Profissional</span>`;
+                    
+                    itemDiv.appendChild(keywordBox);
+                    itemDiv.appendChild(separator);
+                    itemDiv.appendChild(infoDiv);
+                    
+                    container.appendChild(itemDiv);
+                });
+            } else {
+                container.innerHTML = '<p>Nenhuma palavra-chave ausente no currículo.</p>';
+            }
+        }
+    </script>
+</body>
+
+</html>

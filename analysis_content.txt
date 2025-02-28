@@ -1,0 +1,69 @@
+﻿// LÃ³gica de anÃ¡lise do currÃ­culo
+document.addEventListener('DOMContentLoaded', function() {
+    // Elementos
+    const analyzeButton = document.querySelector('.analyze-button');
+    const jobLinkInputs = document.querySelectorAll('.job-link-input');
+    
+    // Estado
+    let fileUploaded = false;
+    
+    // Escutar eventos de upload/remoÃ§Ã£o de arquivo
+    document.addEventListener('fileUploaded', function() {
+        fileUploaded = true;
+    });
+    
+    document.addEventListener('fileRemoved', function() {
+        fileUploaded = false;
+    });
+    
+    // BotÃ£o de anÃ¡lise
+    analyzeButton.addEventListener('click', function() {
+        // Se nÃ£o houver arquivo, alerta o usuÃ¡rio
+        if (!fileUploaded) {
+            alert('Por favor, selecione um currÃ­culo antes de continuar.');
+            return;
+        }
+        
+        // Coleta os links das vagas
+        const jobLinks = Array.from(jobLinkInputs)
+            .map(input => input.value)
+            .filter(link => link.trim() !== '');
+        
+        // Aqui seria feita a integraÃ§Ã£o com o backend para anÃ¡lise
+        console.log('Links de vagas:', jobLinks);
+        
+        // SimulaÃ§Ã£o de processamento
+        analyzeButton.textContent = 'Analisando...';
+        analyzeButton.disabled = true;
+        
+        // Em uma aplicaÃ§Ã£o real, aqui farÃ­amos uma chamada fetch para o backend
+        setTimeout(() => {
+            // SimulaÃ§Ã£o de resposta do servidor
+            const mockResponse = {
+                "termos_tecnicos": {
+                    "Python": { "termo": "Python", "frequencia": 3, "relevancia": "Alta" },
+                    "JavaScript": { "termo": "JavaScript", "frequencia": 2, "relevancia": "Alta" },
+                    "React": { "termo": "React", "frequencia": 2, "relevancia": "Alta" },
+                    "SQL": { "termo": "SQL", "frequencia": 1, "relevancia": "MÃ©dia" },
+                    "Git": { "termo": "Git", "frequencia": 1, "relevancia": "MÃ©dia" }
+                },
+                "competencias_comportamentais": [
+                    "LideranÃ§a", 
+                    "ComunicaÃ§Ã£o", 
+                    "Trabalho em equipe", 
+                    "ResoluÃ§Ã£o de problemas"
+                ],
+                "palavras_chave_criticas": [
+                    { "termo": "Product Owner", "presente": false },
+                    { "termo": "Scrum", "presente": true },
+                    { "termo": "Metodologias Ã¡geis", "presente": true },
+                    { "termo": "GestÃ£o de projetos", "presente": false },
+                    { "termo": "Node.js", "presente": false }
+                ],
+                "ajustes_prioritarios": [
+                    "Incluir mais experiÃªncias quantificÃ¡veis (nÃºmeros, percentuais, resultados)",
+                    "Adicionar seÃ§Ã£o de certificaÃ§Ãµes relevantes para a Ã¡rea",
+                    "Destacar experiÃªncia com metodologias Ã¡geis",
+                    "Incluir palavras-chave ausentes que sÃ£o crÃ­ticas para as vagas"
+                ]
+            };

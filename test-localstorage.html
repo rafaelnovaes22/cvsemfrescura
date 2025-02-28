@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test LocalStorage</title>
+</head>
+<body>
+    <h1>Test LocalStorage</h1>
+    <div id="output"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const output = document.getElementById('output');
+            
+            // Retrieve data from localStorage
+            const analysisResults = localStorage.getItem('analysisResults');
+            
+            // Display the data
+            output.innerHTML = `
+                <h2>Analysis Results</h2>
+                <pre>${analysisResults ? JSON.stringify(JSON.parse(analysisResults), null, 2) : 'No data found'}</pre>
+            `;
+        });
+    </script>
+</body>
+</html>

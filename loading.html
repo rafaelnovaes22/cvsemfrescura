@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisando Currículo</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: #F3EADA;
+            color: #505050;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1440px;
+            height: 100vh;
+            position: relative;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo {
+            width: 177px;
+            height: 150px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                width: 120px;
+                height: 100px;
+                top: 20px;
+            }
+        }
+
+        .loading-spinner {
+            width: 134px;
+            height: 134px;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .spinner-outer {
+            width: 134px;
+            height: 134px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            border-radius: 50%;
+            border: 19px #F3EADA solid;
+            box-sizing: border-box;
+        }
+
+        .spinner-inner {
+            width: 134px;
+            height: 134px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            border-radius: 50%;
+            border: 19px transparent solid;
+            border-top-color: #583819;
+            animation: spin 1s linear infinite;
+            box-sizing: border-box;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .text-container {
+            width: 100%;
+            max-width: 775px;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .title {
+            color: #583819;
+            font-size: 35px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 28px;
+            }
+        }
+
+        .subtitle {
+            color: #505050;
+            font-size: 17px;
+            font-weight: 400;
+            line-height: 1.5;
+            max-width: 672px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .subtitle {
+                font-size: 15px;
+                padding: 0 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <img src="frontend/assets/img/logo.png" alt="Logo" class="logo">
+        
+        <div class="loading-spinner">
+            <div class="spinner-outer"></div>
+            <div class="spinner-inner"></div>
+        </div>
+        
+        <div class="text-container">
+            <div class="title">Analisando seu currículo</div>
+            <div class="subtitle">Siga nossas recomendações para se destacar nos processos seletivos</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Recuperar dados do localStorage
+            const fileData = localStorage.getItem('uploadedFile');
+            const fileName = localStorage.getItem('fileName');
+            const jobLinks = JSON.parse(localStorage.getItem('jobLinks') || '[]');
+
+            // Verificar se há arquivo para analisar
+            if (!fileData || !fileName) {
+                // Redirecionar para página de erro
+                localStorage.setItem('apiError', 'Nenhum arquivo foi carregado para análise');
+                window.location.href = 'error.html';
+                return;
+            }
+
+            // Preparar dados para envio
+            const formData = new FormData();
+            formData.append('file', dataURItoBlob(fileData), fileName);
+            for (let i = 0; i < jobLinks.length; i++) {
+                formData.append('job_links[]', jobLinks[i]);
+            }
+
+            // Função para converter data URI para Blob
+            function dataURItoBlob(dataURI) {
+                const byteString = atob(dataURI.split(',')[1]);
+                const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+                const ab = new ArrayBuffer(byteString.length);
+                const ia = new Uint8Array(ab);
+                for (let i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                }
+                return new Blob([ab], { type: mimeString });
+            }
+
+            // Log para debug
+            console.log('Enviando arquivo:', fileName);
+            console.log('Links de vagas:', jobLinks);
+            
+            // Enviar dados para o backend
+            fetch('http://localhost:5000/api/analyze', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                // Verificar se a resposta é bem-sucedida
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Log detalhado para debug
+                console.log('Resposta completa da API:', data);
+
+                // Verificar se a resposta contém os dados necessários
+                if (!data || !data.termos_tecnicos) {
+                    throw new Error('Formato de resposta inválido: dados ausentes');
+                }
+
+                // Salvar os dados no localStorage
+                localStorage.setItem('analysisResults', JSON.stringify(data));
+
+                // Esperar um pouco antes de redirecionar
+                setTimeout(function () {
+                    window.location.href = 'results.html';
+                }, 2000);
+            })
+            .catch(error => {
+                // Exibir mensagem de erro e log detalhado
+                console.error('Erro ao processar currículo:', error);
+                
+                // Criar um objeto de erro mais detalhado
+                const errorDetails = {
+                    message: error.toString(),
+                    timestamp: new Date().toISOString(),
+                    fileName: fileName,
+                    jobLinks: jobLinks
+                };
+                
+                // Salvar detalhes do erro no localStorage
+                localStorage.setItem('apiError', JSON.stringify(errorDetails));
+                
+                // Adicionar um elemento de erro na página para debug
+                const errorDiv = document.createElement('div');
+                errorDiv.style.position = 'fixed';
+                errorDiv.style.bottom = '0';
+                errorDiv.style.left = '0';
+                errorDiv.style.right = '0';
+                errorDiv.style.padding = '20px';
+                errorDiv.style.background = 'rgba(255, 0, 0, 0.1)';
+                errorDiv.style.color = 'red';
+                errorDiv.style.zIndex = '9999';
+                errorDiv.innerHTML = `<h3>Erro ao processar currículo:</h3><pre>${error.toString()}</pre>`;
+                document.body.appendChild(errorDiv);
+                
+                // Esperar um pouco antes de redirecionar
+                setTimeout(function () {
+                    window.location.href = 'error.html';
+                }, 10000); // Aumentado para 10 segundos para dar tempo de ver o erro
+            });
+        });
+    </script>
+</body>
+
+</html>

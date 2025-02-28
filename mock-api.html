@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock API Response</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #583819;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mock API Response</h1>
+    <p>Esta página simula uma resposta da API para testar o frontend.</p>
+    
+    <button id="mockApiButton">Gerar Resposta Mock da API</button>
+    <div id="status"></div>
+    
+    <h2>Resposta Simulada:</h2>
+    <pre id="mockResponse"></pre>
+    
+    <script>
+        document.getElementById('mockApiButton').addEventListener('click', function() {
+            // Criar uma resposta mock da API
+            const mockResponse = {
+                "all_job_keywords": [
+                    "Product Owner", 
+                    "Adquirência", 
+                    "Sub-adquirência", 
+                    "Meios de Pagamento", 
+                    "Metodologias Ágeis", 
+                    "Scrum", 
+                    "Kanban", 
+                    "Backlog", 
+                    "Sprint", 
+                    "Equipe de Desenvolvimento",
+                    "Produtos Financeiros",
+                    "Equipes Internas",
+                    "Backlog do Produto",
+                    "Desenvolvimento Ágil",
+                    "Scrum/Kanban",
+                    "Metodologias Tradicionais",
+                    "Regulamentação do Setor",
+                    "KPIs",
+                    "Testes e Validações",
+                    "Gestão de Projetos",
+                    "Miro/Figma",
+                    "Comunicação de Stakeholders",
+                    "Especificações do Produto",
+                    "Ciclo de Vida do Produto",
+                    "Tarefas",
+                    "Métricas",
+                    "Qualidade Final do Produto",
+                    "Stakeholders",
+                    "Funcionalidades e Melhorias"
+                ],
+                "keywords_found": [
+                    "Product Owner",
+                    "Metodologias Ágeis",
+                    "Scrum",
+                    "Kanban",
+                    "Backlog",
+                    "Sprint",
+                    "Equipe de Desenvolvimento",
+                    "Backlog do Produto",
+                    "Desenvolvimento Ágil",
+                    "Scrum/Kanban",
+                    "KPIs",
+                    "Gestão de Projetos",
+                    "Stakeholders"
+                ],
+                "keywords_missing": [
+                    "Adquirência",
+                    "Sub-adquirência",
+                    "Meios de Pagamento",
+                    "Produtos Financeiros",
+                    "Equipes Internas",
+                    "Metodologias Tradicionais",
+                    "Regulamentação do Setor",
+                    "Testes e Validações",
+                    "Miro/Figma",
+                    "Comunicação de Stakeholders",
+                    "Especificações do Produto",
+                    "Ciclo de Vida do Produto",
+                    "Tarefas",
+                    "Métricas",
+                    "Qualidade Final do Produto",
+                    "Funcionalidades e Melhorias"
+                ],
+                "ats_recommendations": [
+                    "Adicione as palavras-chave ausentes identificadas ao seu currículo.",
+                    "Destaque as palavras-chave presentes em seu currículo.",
+                    "Considere adicionar mais detalhes sobre suas experiências com metodologias ágeis.",
+                    "Inclua experiências específicas com ferramentas como Miro e Figma.",
+                    "Mencione conhecimentos em adquirência e sub-adquirência."
+                ],
+                "motivational_conclusion": "Rafael possui uma sólida experiência como Product Owner e um amplo conhecimento de metodologias ágeis, o que é essencial para as posições. Além disso, ele tem um forte histórico de trabalho com equipes multidisciplinares e a entrega de resultados. No entanto, ele poderia melhorar em áreas específicas do mercado, como adquirência e meios de pagamento, e ter uma experiência mais direta com APPs.",
+                "termos_tecnicos": {
+                    "Product Owner": {
+                        "termo": "Product Owner",
+                        "frequencia": 5,
+                        "relevancia": "Alta"
+                    },
+                    "Scrum": {
+                        "termo": "Scrum",
+                        "frequencia": 3,
+                        "relevancia": "Alta"
+                    },
+                    "Kanban": {
+                        "termo": "Kanban",
+                        "frequencia": 2,
+                        "relevancia": "Média"
+                    },
+                    "Backlog": {
+                        "termo": "Backlog",
+                        "frequencia": 4,
+                        "relevancia": "Alta"
+                    },
+                    "Sprint": {
+                        "termo": "Sprint",
+                        "frequencia": 3,
+                        "relevancia": "Média"
+                    }
+                },
+                "competencias_comportamentais": [
+                    "Liderança",
+                    "Comunicação",
+                    "Trabalho em equipe",
+                    "Resolução de problemas",
+                    "Organização"
+                ]
+            };
+            
+            // Salvar no localStorage
+            localStorage.setItem('analysisResults', JSON.stringify(mockResponse));
+            
+            // Exibir a resposta na página
+            document.getElementById('mockResponse').textContent = JSON.stringify(mockResponse, null, 2);
+            
+            // Atualizar status
+            document.getElementById('status').innerHTML = '<p class="success">Resposta mock salva no localStorage! Agora você pode ir para a <a href="results.html">página de resultados</a>.</p>';
+        });
+    </script>
+</body>
+</html>

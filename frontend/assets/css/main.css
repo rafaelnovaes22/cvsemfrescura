@@ -1,0 +1,121 @@
+/* Estilos Gerais */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background-color: #F3EADA;
+    color: #505050;
+}
+
+.container {
+    max-width: 1440px;
+    margin: 0 auto;
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+header {
+    padding: 40px 0;
+    text-align: center;
+}
+
+.logo {
+    width: 177px;
+    height: 150px;
+}
+
+/* Seção Hero */
+.hero {
+    text-align: center;
+    padding: 60px 0 40px;
+}
+
+.hero h1 {
+    font-size: 35px;
+    font-weight: 700;
+    color: #583819;
+    line-height: 44px;
+    max-width: 775px;
+    margin: 0 auto 5px;
+}
+
+.hero p {
+    font-size: 17px;
+    line-height: 26px;
+    max-width: 672px;
+    margin: 0 auto;
+}
+
+/* Upload Area */
+.upload-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px;
+    margin-bottom: 40px;
+}
+
+.upload-box {
+    width: 100%;
+    max-width: 802px;
+    padding: 30px;
+    background: white;
+    border-radius: 10px;
+    margin-bottom: 40px;
+}
+
+/* Button Styles */
+.analyze-button {
+    width: 349px;
+    height: 50px;
+    background: #512808;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    box-shadow: 0px 4px 6px rgba(33, 33, 33, 0.04);
+    transition: background-color 0.3s;
+}
+
+.analyze-button:hover {
+    background: #6b3a0c;
+}
+
+.analyze-button:disabled {
+    background: #8a6d56;
+    cursor: not-allowed;
+}
+
+/* Features Section */
+.features {
+    display: flex;
+    justify-content: center;
+    gap: 152px;
+    padding: 74px 0;
+    background: #FFFCF9;
+    margin-top: auto;
+}
+
+.feature {
+    width: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.feature-icon {
+    width: 33px;
+    height: 33px;
+    background: #583819;
+    border-radius: 3px;
+}
