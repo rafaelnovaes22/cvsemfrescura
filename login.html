@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CV Sem Frescura</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="frontend/assets/css/main.css">
+    <link rel="stylesheet" href="frontend/assets/css/components.css">
+    <link rel="stylesheet" href="frontend/assets/css/responsive.css">
+    <style>
+        :root {
+            --primary: #583819;
+            --primary-dark: #512808;
+            --background: #F3EADA;
+            --card-bg: #FFFCF9;
+            --white: #FFFFFF;
+            --text-dark: #583819;
+            --text-gray: #505050;
+            --border-color: #D1D1D1;
+            --selected-file-bg: #ECD9B5;
+            --border-radius: 10px;
+            --shadow: 0px 4px 6px rgba(33, 33, 33, 0.04);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: var(--background);
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+        }
+
+        .logo {
+            height: auto;
+            max-height: 150px;
+            width: auto;
+            max-width: 80%;
+        }
+
+        .main-content {
+            padding: 10px 0;
+            flex: 1 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-section {
+            max-width: 450px;
+            width: 95%;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .login-title {
+            color: var(--text-dark);
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 7px;
+            font-size: 14px;
+            font-family: 'IBM Plex Sans', sans-serif;
+            color: var(--text-gray);
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .forgot-password {
+            display: block;
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        .login-button {
+            width: 100%;
+            height: 50px;
+            background-color: var(--primary-dark);
+            color: var(--white);
+            border: none;
+            border-radius: 7px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            margin-bottom: 15px;
+        }
+
+        .login-button:hover {
+            opacity: 0.9;
+        }
+
+        .register-link-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .register-text {
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+
+        .register-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .register-link:hover {
+            text-decoration: underline;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .divider-line {
+            flex-grow: 1;
+            height: 1px;
+            background-color: var(--border-color);
+        }
+
+        .divider-text {
+            padding: 0 15px;
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+
+        .social-login {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .social-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 40px;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 7px;
+            background-color: var(--white);
+            color: var(--text-dark);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .social-button:hover {
+            background-color: #f5f5f5;
+        }
+
+        .social-icon {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+        }
+
+        footer {
+            background-color: var(--primary-dark);
+            color: var(--white);
+            padding: 20px 0;
+            flex-shrink: 0;
+            margin-top: auto;
+        }
+
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-logo {
+            height: 40px;
+            width: auto;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-link:hover {
+            color: var(--white);
+        }
+
+        .copyright {
+            margin-top: 5px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+        }
+
+        /* Estilos responsivos aprimorados */
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 95%;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .login-section {
+                max-width: 400px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .login-section {
+                max-width: 90%;
+                padding: 20px;
+            }
+
+            .footer-container {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+
+            .footer-links {
+                justify-content: center;
+            }
+
+            .login-title {
+                font-size: 22px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .logo {
+                max-height: 120px;
+            }
+
+            .login-section {
+                padding: 15px;
+                width: 100%;
+                margin: 0 10px;
+            }
+
+            .form-input {
+                padding: 10px 12px;
+            }
+
+            .login-button {
+                height: 45px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                max-height: 100px;
+            }
+
+            .social-login {
+                flex-direction: column;
+            }
+
+            .social-button {
+                margin-bottom: 10px;
+            }
+
+            .login-title {
+                font-size: 20px;
+            }
+
+            .form-label {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .login-section {
+                padding: 12px;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        /* Garantir que a página se adapte a qualquer altura */
+        @media (max-height: 700px) {
+            .logo {
+                max-height: 80px;
+            }
+
+            .login-section {
+                margin-bottom: 15px;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .main-content {
+                padding: 5px 0;
+            }
+
+            .logo-container {
+                padding: 10px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="logo-container">
+        <img src="frontend/assets/img/logo.png" alt="Logo RH Super" class="logo">
+    </div>
+
+    <main class="main-content">
+        <div class="container">
+            <section class="login-section">
+                <h1 class="login-title">Acesse sua conta</h1>
+                
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email" class="form-label">E-mail</label>
+                        <input type="email" id="email" class="form-input" placeholder="Seu e-mail" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password" class="form-label">Senha</label>
+                        <input type="password" id="password" class="form-input" placeholder="Sua senha" required>
+                    </div>
+                    
+                    <a href="#" class="forgot-password">Esqueceu a senha?</a>
+                    
+                    <button type="submit" class="login-button">Entrar</button>
+                    
+                    <div class="divider">
+                        <div class="divider-line"></div>
+                        <span class="divider-text">ou</span>
+                        <div class="divider-line"></div>
+                    </div>
+                    
+                    <div class="social-login">
+                        <!-- Botões de login social customizados -->
+                        <button type="button" class="social-button" id="customGoogleLogin">
+                            <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+                                <path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"/>
+                            </svg>
+                            Google
+                        </button>
+                        
+                        <!-- LinkedIn Sign-In Button -->
+                        <button type="button" class="social-button" id="linkedinLogin">
+                            <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                                <path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/>
+                            </svg>
+                            LinkedIn
+                        </button>
+                    </div>
+                    
+                    <!-- Removido o div para o Google Sign-In API, usando apenas o botão customizado -->
+                    
+                    <div class="register-link-container">
+                        <p class="register-text">Não tem uma conta? <a href="#" class="register-link">Cadastre-se</a></p>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container footer-container">
+            <div>
+                <img src="frontend/assets/img/logo.png" alt="RH Super" class="footer-logo">
+                <p class="copyright">© 2024 RH Super. Todos os direitos reservados.</p>
+            </div>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Políticas de Privacidade</a>
+                <a href="#" class="footer-link">Termos de Uso</a>
+                <a href="#" class="footer-link">Contato</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Google Sign-In API -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <!-- Política de Privacidade e Termos de Serviço (necessários para conformidade com o Google) -->
+    <script>
+        // Adicionar links de política de privacidade e termos de serviço
+        // Estes são necessários para conformidade com as políticas do Google OAuth
+        document.addEventListener('DOMContentLoaded', function() {
+            const footerLinks = document.querySelector('.footer-links');
+            
+            // Verificar se os links já existem
+            const privacyLink = document.querySelector('a[href="privacy.html"]');
+            const termsLink = document.querySelector('a[href="terms.html"]');
+            
+            if (!privacyLink) {
+                const privacyLinkElement = document.createElement('a');
+                privacyLinkElement.href = 'privacy.html';
+                privacyLinkElement.className = 'footer-link';
+                privacyLinkElement.textContent = 'Políticas de Privacidade';
+                footerLinks.appendChild(privacyLinkElement);
+            }
+            
+            if (!termsLink) {
+                const termsLinkElement = document.createElement('a');
+                termsLinkElement.href = 'terms.html';
+                termsLinkElement.className = 'footer-link';
+                termsLinkElement.textContent = 'Termos de Uso';
+                footerLinks.appendChild(termsLinkElement);
+            }
+        });
+    </script>
+    
+    <!-- LinkedIn Sign-In API -->
+    <script src="https://platform.linkedin.com/in.js" type="text/javascript">
+        api_key: YOUR_LINKEDIN_API_KEY
+        authorize: true
+    </script>
+    
+    <script src="frontend/assets/js/login.js"></script>
+</body>
+
+</html>

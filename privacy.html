@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidade - CV Sem Frescura</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="frontend/assets/css/main.css">
+    <link rel="stylesheet" href="frontend/assets/css/components.css">
+    <link rel="stylesheet" href="frontend/assets/css/responsive.css">
+    <style>
+        :root {
+            --primary: #583819;
+            --primary-dark: #512808;
+            --background: #F3EADA;
+            --card-bg: #FFFCF9;
+            --white: #FFFFFF;
+            --text-dark: #583819;
+            --text-gray: #505050;
+            --border-color: #D1D1D1;
+            --selected-file-bg: #ECD9B5;
+            --border-radius: 10px;
+            --shadow: 0px 4px 6px rgba(33, 33, 33, 0.04);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: var(--background);
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+        }
+
+        .logo {
+            height: auto;
+            max-height: 150px;
+            width: auto;
+            max-width: 80%;
+        }
+
+        .main-content {
+            padding: 40px 0;
+            flex: 1 0 auto;
+        }
+
+        .privacy-section {
+            max-width: 800px;
+            width: 95%;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .privacy-title {
+            color: var(--text-dark);
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .privacy-subtitle {
+            color: var(--text-dark);
+            font-size: 20px;
+            font-weight: 600;
+            margin: 25px 0 15px;
+        }
+
+        .privacy-text {
+            color: var(--text-gray);
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .privacy-list {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .privacy-list li {
+            color: var(--text-gray);
+            margin-bottom: 8px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            background-color: var(--primary-dark);
+            color: var(--white);
+            padding: 20px 0;
+            flex-shrink: 0;
+            margin-top: auto;
+        }
+
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-logo {
+            height: 40px;
+            width: auto;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-link:hover {
+            color: var(--white);
+        }
+
+        .copyright {
+            margin-top: 5px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .privacy-section {
+                padding: 20px;
+            }
+
+            .footer-container {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+
+            .footer-links {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="logo-container">
+        <img src="frontend/assets/img/logo.png" alt="Logo CV Sem Frescura" class="logo">
+    </div>
+
+    <main class="main-content">
+        <div class="container">
+            <section class="privacy-section">
+                <h1 class="privacy-title">Política de Privacidade</h1>
+                
+                <p class="privacy-text">
+                    Última atualização: 01 de março de 2025
+                </p>
+                
+                <p class="privacy-text">
+                    Esta Política de Privacidade descreve como o CV Sem Frescura ("nós", "nosso" ou "nossos") coleta, usa e compartilha suas informações pessoais quando você utiliza nosso site e serviços.
+                </p>
+                
+                <h2 class="privacy-subtitle">Informações que Coletamos</h2>
+                
+                <p class="privacy-text">
+                    Coletamos os seguintes tipos de informações:
+                </p>
+                
+                <ul class="privacy-list">
+                    <li>Informações de identificação pessoal (nome, endereço de e-mail, etc.) que você nos fornece ao criar uma conta ou utilizar nossos serviços.</li>
+                    <li>Informações contidas em seu currículo e documentos relacionados que você envia para análise.</li>
+                    <li>Informações sobre as vagas de emprego que você está interessado.</li>
+                    <li>Informações de autenticação quando você utiliza serviços de login social como Google e LinkedIn.</li>
+                    <li>Informações de uso e navegação coletadas automaticamente quando você utiliza nosso site.</li>
+                </ul>
+                
+                <h2 class="privacy-subtitle">Como Utilizamos Suas Informações</h2>
+                
+                <p class="privacy-text">
+                    Utilizamos suas informações para:
+                </p>
+                
+                <ul class="privacy-list">
+                    <li>Fornecer, manter e melhorar nossos serviços de análise de currículo.</li>
+                    <li>Processar e analisar seu currículo para fornecer feedback personalizado.</li>
+                    <li>Autenticar sua identidade e gerenciar sua conta.</li>
+                    <li>Comunicar-nos com você sobre atualizações, recursos e ofertas.</li>
+                    <li>Detectar, prevenir e resolver problemas técnicos e de segurança.</li>
+                </ul>
+                
+                <h2 class="privacy-subtitle">Compartilhamento de Informações</h2>
+                
+                <p class="privacy-text">
+                    Não vendemos suas informações pessoais a terceiros. Podemos compartilhar suas informações nas seguintes circunstâncias:
+                </p>
+                
+                <ul class="privacy-list">
+                    <li>Com provedores de serviços que nos ajudam a operar nosso site e fornecer nossos serviços.</li>
+                    <li>Para cumprir obrigações legais, como responder a intimações ou ordens judiciais.</li>
+                    <li>Para proteger nossos direitos, propriedade ou segurança, ou a de nossos usuários.</li>
+                    <li>Com seu consentimento ou mediante suas instruções.</li>
+                </ul>
+                
+                <h2 class="privacy-subtitle">Segurança de Dados</h2>
+                
+                <p class="privacy-text">
+                    Implementamos medidas de segurança técnicas e organizacionais para proteger suas informações pessoais contra acesso não autorizado, perda ou alteração. No entanto, nenhum método de transmissão pela Internet ou método de armazenamento eletrônico é 100% seguro.
+                </p>
+                
+                <h2 class="privacy-subtitle">Seus Direitos</h2>
+                
+                <p class="privacy-text">
+                    Dependendo da sua localização, você pode ter certos direitos em relação às suas informações pessoais, incluindo:
+                </p>
+                
+                <ul class="privacy-list">
+                    <li>Direito de acesso às suas informações pessoais.</li>
+                    <li>Direito de retificação de informações incorretas ou incompletas.</li>
+                    <li>Direito de exclusão de suas informações pessoais.</li>
+                    <li>Direito de restringir ou opor-se ao processamento de suas informações.</li>
+                    <li>Direito à portabilidade de dados.</li>
+                </ul>
+                
+                <h2 class="privacy-subtitle">Cookies e Tecnologias Semelhantes</h2>
+                
+                <p class="privacy-text">
+                    Utilizamos cookies e tecnologias semelhantes para melhorar sua experiência em nosso site, entender como você interage com nossos serviços e personalizar nosso conteúdo.
+                </p>
+                
+                <h2 class="privacy-subtitle">Alterações nesta Política</h2>
+                
+                <p class="privacy-text">
+                    Podemos atualizar esta Política de Privacidade periodicamente. Notificaremos você sobre quaisquer alterações significativas publicando a nova Política de Privacidade em nosso site e, quando apropriado, enviando um e-mail.
+                </p>
+                
+                <h2 class="privacy-subtitle">Contato</h2>
+                
+                <p class="privacy-text">
+                    Se você tiver dúvidas ou preocupações sobre esta Política de Privacidade ou sobre como tratamos suas informações pessoais, entre em contato conosco pelo e-mail: contato@cvsemfrescura.com.br
+                </p>
+                
+                <a href="index.html" class="back-link">← Voltar para a página inicial</a>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container footer-container">
+            <div>
+                <img src="frontend/assets/img/logo.png" alt="Logo CV Sem Frescura" class="footer-logo">
+                <p class="copyright">© 2024 CV Sem Frescura. Todos os direitos reservados.</p>
+            </div>
+            <div class="footer-links">
+                <a href="index.html" class="footer-link">Página Inicial</a>
+                <a href="privacy.html" class="footer-link">Políticas de Privacidade</a>
+                <a href="terms.html" class="footer-link">Termos de Uso</a>
+                <a href="#" class="footer-link">Contato</a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

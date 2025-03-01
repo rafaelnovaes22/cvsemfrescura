@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análise de Currículo - RH Super</title>
+    <title>Análise de Currículo - CV Sem Frescura</title>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet">
     <style>
@@ -451,15 +451,51 @@
 </head>
 
 <body>
-    <div class="logo-container">
-        <img src="frontend/assets/img/logo.png" alt="Logo Análise de Currículo" class="logo">
-    </div>
+<div class="logo-container">
+    <img src="frontend/assets/img/logo.png" alt="Logo Análise de Currículo" class="logo">
+    <a href="login.html" class="login-link">Entrar</a>
+</div>
+
+<style>
+    .logo-container {
+        position: relative;
+    }
+    
+    .login-link {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: var(--primary);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        transition: background-color 0.3s;
+    }
+    
+    .login-link:hover {
+        background-color: var(--primary-dark);
+    }
+    
+    @media (max-width: 768px) {
+        .login-link {
+            position: static;
+            display: block;
+            width: fit-content;
+            margin: 10px auto 0;
+            transform: none;
+        }
+    }
+</style>
 
     <main class="main-content">
         <div class="container">
             <section class="header-section">
-                <h1 class="main-title">Otimize seu currículo com inteligência artificial</h1>
-                <p class="main-description">Aumente as chances de ser selecionado para a vaga dos seus sonhos</p>
+                <h1 class="main-title">CV Sem Frescura</h1>
+                <p class="main-description">Otimize seu currículo com inteligência artificial.</p>
             </section>
 
             <section class="upload-section">
@@ -547,6 +583,7 @@
         const selectedFile = document.getElementById('selectedFile');
         const jobLinksContainer = document.getElementById('jobLinksContainer');
         const analyzeBtn = document.getElementById('analyzeBtn');
+        const loginLink = document.querySelector('.login-link');
 
         // Variável para controlar se um arquivo foi carregado
         let fileUploaded = false;
@@ -728,6 +765,124 @@
                 inputs[i].value = savedLinks[i];
             }
         }
+        
+        // Verificar se o usuário está logado
+        function checkUserLogin() {
+            const userLoggedIn = localStorage.getItem('userLoggedIn');
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            
+            if (userLoggedIn && userData) {
+                // Usuário está logado, atualizar a UI
+                if (loginLink) {
+                    // Substituir o link de login por um menu de usuário
+                    loginLink.innerHTML = `
+                        <span class="user-name">${userData.name || 'Usuário'}</span>
+                        <span class="dropdown-icon">▼</span>
+                    `;
+                    loginLink.href = '#';
+                    loginLink.classList.add('user-menu');
+                    
+                    // Adicionar menu dropdown
+                    const dropdownMenu = document.createElement('div');
+                    dropdownMenu.className = 'dropdown-menu';
+                    dropdownMenu.innerHTML = `
+                        <a href="#" class="dropdown-item">Meu Perfil</a>
+                        <a href="#" class="dropdown-item">Meus Currículos</a>
+                        <a href="#" class="dropdown-item logout-btn">Sair</a>
+                    `;
+                    
+                    // Inserir o menu dropdown após o link de login
+                    loginLink.parentNode.insertBefore(dropdownMenu, loginLink.nextSibling);
+                    
+                    // Adicionar estilos para o menu de usuário
+                    const style = document.createElement('style');
+                    style.textContent = `
+                        .user-menu {
+                            display: flex;
+                            align-items: center;
+                            gap: 5px;
+                        }
+                        
+                        .user-name {
+                            max-width: 120px;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+                        
+                        .dropdown-icon {
+                            font-size: 10px;
+                        }
+                        
+                        .dropdown-menu {
+                            position: absolute;
+                            top: calc(100% + 5px);
+                            right: 20px;
+                            background-color: white;
+                            border-radius: 5px;
+                            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                            display: none;
+                            flex-direction: column;
+                            min-width: 150px;
+                            z-index: 100;
+                        }
+                        
+                        .user-menu:hover + .dropdown-menu,
+                        .dropdown-menu:hover {
+                            display: flex;
+                        }
+                        
+                        .dropdown-item {
+                            padding: 10px 15px;
+                            color: var(--text-dark);
+                            text-decoration: none;
+                            transition: background-color 0.3s;
+                        }
+                        
+                        .dropdown-item:hover {
+                            background-color: #f5f5f5;
+                        }
+                        
+                        .dropdown-item.logout-btn {
+                            color: #d32f2f;
+                            border-top: 1px solid #eee;
+                        }
+                        
+                        @media (max-width: 768px) {
+                            .dropdown-menu {
+                                position: static;
+                                margin: 10px auto;
+                                width: 200px;
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                    
+                    // Adicionar event listener para o botão de logout
+                    document.querySelector('.logout-btn').addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        // Limpar dados de login
+                        localStorage.removeItem('userLoggedIn');
+                        localStorage.removeItem('userData');
+                        
+                        // Recarregar a página
+                        window.location.reload();
+                    });
+                    
+                    // Adicionar event listeners para os outros itens do menu
+                    document.querySelectorAll('.dropdown-item:not(.logout-btn)').forEach(item => {
+                        item.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            alert('Esta funcionalidade não está disponível na versão de demonstração.');
+                        });
+                    });
+                }
+            }
+        }
+        
+        // Verificar login ao carregar a página
+        checkUserLogin();
     </script>
 </body>
 

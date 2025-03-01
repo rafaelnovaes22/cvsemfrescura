@@ -1,12 +1,14 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 import os
 import json
 import logging
 import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 from modules.cv_analysis import analyze_cv
+from modules.auth import init_auth
 from database.database import init_db, save_analysis
 from utils.file_handlers import allowed_file, verify_file_content, safe_delete_file, ensure_directory_exists
 import config
@@ -42,10 +44,21 @@ logger = logging.getLogger(__name__)
 logger.info("Iniciando aplicação...")
 
 app = Flask(__name__)
-CORS(app)  # Permite requisições cross-origin
+# Configurar CORS para permitir requisições de qualquer origem durante o desenvolvimento
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Carregar configurações
 app.config.from_object(config.Config)
+
+# Configurar JWT
+app.config['JWT_SECRET_KEY'] = app.config['JWT_SECRET_KEY']
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(seconds=app.config['JWT_ACCESS_TOKEN_EXPIRES'])
+jwt = JWTManager(app)
+logger.info("JWT configurado")
+
+# Inicializar módulo de autenticação
+init_auth(app, jwt)
+logger.info("Módulo de autenticação inicializado")
 
 # Garantir que o diretório de uploads existe
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -168,6 +181,22 @@ def analyze_cv_endpoint():
 @app.route('/api/health', methods=['GET'])
 def health_check():
     return jsonify({'status': 'ok'}), 200
+
+# Configurar diretório raiz do projeto
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+logger.info(f"Diretório raiz do projeto: {ROOT_DIR}")
+
+# Rota para a raiz (/) - serve index.html
+@app.route('/')
+def serve_index():
+    logger.info("Servindo página inicial (index.html)")
+    return send_from_directory(ROOT_DIR, 'index.html')
+
+# Rota para servir arquivos estáticos do diretório raiz
+@app.route('/<path:path>')
+def serve_static(path):
+    logger.info(f"Servindo arquivo estático: {path}")
+    return send_from_directory(ROOT_DIR, path)
 
 if __name__ == '__main__':
     init_db()  # Inicializar banco de dados

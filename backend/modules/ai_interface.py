@@ -16,11 +16,29 @@ if not Config.ANTHROPIC_API_KEY:
 
 # Configurar o cliente da Anthropic
 try:
+    # Inicializar o cliente Anthropic apenas com a API key, sem parâmetros adicionais
     anthropic = Anthropic(api_key=Config.ANTHROPIC_API_KEY)
     logger.info("Cliente Anthropic inicializado com sucesso")
 except Exception as e:
     logger.critical(f"Falha ao inicializar cliente Anthropic: {str(e)}")
-    raise
+    print(f"Falha ao inicializar cliente Anthropic: {str(e)}")
+    # Criar um cliente mock para permitir que o servidor inicie mesmo sem Anthropic
+    class MockAnthropic:
+        def __init__(self):
+            self.messages = MockMessages()
+            
+    class MockMessages:
+        def create(self, **kwargs):
+            class MockResponse:
+                def __init__(self):
+                    self.content = [MockContent()]
+            class MockContent:
+                def __init__(self):
+                    self.text = '{"error": "Anthropic API não disponível"}'
+            return MockResponse()
+            
+    anthropic = MockAnthropic()
+    logger.warning("Usando cliente Anthropic mock devido a erro de inicialização")
 
 def get_ai_analysis(cv_text, job_requirements=[], max_retries=3):
     """
