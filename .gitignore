@@ -12,6 +12,7 @@ make-*.js
 # Development and utility scripts
 check_*.py
 add_credits.py
+*.bat
 
 # Documentation (except main README)
 *.md
