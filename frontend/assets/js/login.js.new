@@ -1,0 +1,821 @@
+/**
+ * Login Page JavaScript
+ * Handles login form submission, validation, and authentication
+ */
+
+document.addEventListener('DOMContentLoaded', function() {
+    // DOM Elements
+    const loginForm = document.getElementById('loginForm');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const togglePasswordButton = document.getElementById('togglePassword');
+    
+    // Toggle password visibility
+    togglePasswordButton.addEventListener('click', function() {
+        // Toggle the type attribute of the password input
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // Toggle the eye icon
+        if (type === 'password') {
+            togglePasswordButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+            `;
+        } else {
+            togglePasswordButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <line x1="3" y1="3" x2="21" y2="21"></line>
+                </svg>
+            `;
+        }
+    });
+    
+    // Form submission handler
+    loginForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        // Get form values
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+        
+        // Validate form
+        if (!validateForm(email, password)) {
+            return;
+        }
+        
+        // Attempt login
+        attemptLogin(email, password);
+    });
+    
+    
+    // Form validation
+    function validateForm(email, password) {
+        // Reset previous error states
+        resetFormErrors();
+        
+        let isValid = true;
+        
+        // Validate email
+        if (!email) {
+            showInputError(emailInput, 'Por favor, informe seu e-mail');
+            isValid = false;
+        } else if (!isValidEmail(email)) {
+            showInputError(emailInput, 'Por favor, informe um e-mail válido');
+            isValid = false;
+        }
+        
+        // Validate password
+        if (!password) {
+            showInputError(passwordInput, 'Por favor, informe sua senha');
+            isValid = false;
+        } else if (password.length < 6) {
+            showInputError(passwordInput, 'A senha deve ter pelo menos 6 caracteres');
+            isValid = false;
+        }
+        
+        return isValid;
+    }
+    
+    // Email validation helper
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+    
+    // Show input error
+    function showInputError(inputElement, errorMessage) {
+        inputElement.classList.add('error');
+        
+        // Create error message element if it doesn't exist
+        let errorElement = inputElement.parentElement.querySelector('.error-message');
+        if (!errorElement) {
+            errorElement = document.createElement('div');
+            errorElement.className = 'error-message';
+            inputElement.parentElement.appendChild(errorElement);
+        }
+        
+        errorElement.textContent = errorMessage;
+        errorElement.style.color = '#d32f2f';
+        errorElement.style.fontSize = '12px';
+        errorElement.style.marginTop = '5px';
+    }
+    
+    // Reset form errors
+    function resetFormErrors() {
+        const errorMessages = document.querySelectorAll('.error-message');
+        errorMessages.forEach(element => element.remove());
+        
+        emailInput.classList.remove('error');
+        passwordInput.classList.remove('error');
+    }
+    
+    // Attempt login
+    function attemptLogin(email, password) {
+        // Mostrar indicador de carregamento
+        const loadingIndicator = showLoadingIndicator();
+        
+        // Fazer requisição para a API de autenticação
+        fetch('http://localhost:5000/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        })
+        .then(response => {
+            // Remover indicador de carregamento
+            loadingIndicator.remove();
+            
+            if (!response.ok) {
+                throw new Error('Falha na autenticação');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Login bem-sucedido
+            const userData = {
+                email: data.user.email,
+                name: data.user.name,
+                id: data.user.id,
+                token: data.access_token
+            };
+            
+            loginSuccess(userData);
+        })
+        .catch(error => {
+            console.error('Erro ao fazer login:', error);
+            showLoginError('E-mail ou senha incorretos. Por favor, tente novamente.');
+        });
+    }
+    
+    // Mostrar indicador de carregamento
+    function showLoadingIndicator() {
+        const loadingIndicator = document.createElement('div');
+        loadingIndicator.className = 'loading-indicator';
+        loadingIndicator.innerHTML = `
+            <div class="spinner"></div>
+            <p>Autenticando...</p>
+        `;
+        
+        // Estilos para o indicador de carregamento
+        loadingIndicator.style.position = 'fixed';
+        loadingIndicator.style.top = '0';
+        loadingIndicator.style.left = '0';
+        loadingIndicator.style.width = '100%';
+        loadingIndicator.style.height = '100%';
+        loadingIndicator.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+        loadingIndicator.style.display = 'flex';
+        loadingIndicator.style.flexDirection = 'column';
+        loadingIndicator.style.alignItems = 'center';
+        loadingIndicator.style.justifyContent = 'center';
+        loadingIndicator.style.zIndex = '9999';
+        
+        // Estilos para o spinner
+        const spinnerStyle = document.createElement('style');
+        spinnerStyle.textContent = `
+            .spinner {
+                width: 40px;
+                height: 40px;
+                border: 4px solid #f3f3f3;
+                border-top: 4px solid var(--primary);
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin-bottom: 10px;
+            }
+            
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(spinnerStyle);
+        
+        // Adicionar ao documento
+        document.body.appendChild(loadingIndicator);
+        
+        return loadingIndicator;
+    }
+    
+    
+    // Login success handler
+    function loginSuccess(userData) {
+        // Store user data in localStorage 
+        localStorage.setItem('userLoggedIn', 'true');
+        localStorage.setItem('userData', JSON.stringify(userData));
+        
+        // Show success message
+        showMessage('Login realizado com sucesso! Redirecionando...', 'success');
+        
+        // Check if there's a redirect parameter in the form
+        const redirectInput = document.getElementById('redirectPage');
+        const redirectPage = redirectInput ? redirectInput.value : null;
+        
+        // Redirect to appropriate page after a short delay
+        setTimeout(() => {
+            if (redirectPage) {
+                window.location.href = `${redirectPage}.html?auth=true`;
+            } else {
+                window.location.href = 'index.html?auth=true';
+            }
+        }, 1500);
+    }
+    
+    // Show login error
+    function showLoginError(message) {
+        const errorContainer = document.createElement('div');
+        errorContainer.className = 'login-error';
+        errorContainer.textContent = message;
+        errorContainer.style.backgroundColor = '#ffebee';
+        errorContainer.style.color = '#d32f2f';
+        errorContainer.style.padding = '10px';
+        errorContainer.style.borderRadius = '5px';
+        errorContainer.style.marginBottom = '15px';
+        errorContainer.style.textAlign = 'center';
+        
+        // Insert at the top of the form
+        loginForm.insertBefore(errorContainer, loginForm.firstChild);
+        
+        // Remove after 5 seconds
+        setTimeout(() => {
+            errorContainer.remove();
+        }, 5000);
+    }
+    
+    // Show message (for notifications)
+    function showMessage(message, type = 'info') {
+        // Create message element
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message ' + type;
+        messageElement.textContent = message;
+        
+        // Style based on type
+        if (type === 'success') {
+            messageElement.style.backgroundColor = '#e8f5e9';
+            messageElement.style.color = '#2e7d32';
+        } else if (type === 'info') {
+            messageElement.style.backgroundColor = '#e3f2fd';
+            messageElement.style.color = '#1565c0';
+        } else if (type === 'warning') {
+            messageElement.style.backgroundColor = '#fff8e1';
+            messageElement.style.color = '#f57f17';
+        }
+        
+        // Common styles
+        messageElement.style.padding = '10px';
+        messageElement.style.borderRadius = '5px';
+        messageElement.style.marginBottom = '15px';
+        messageElement.style.textAlign = 'center';
+        messageElement.style.position = 'fixed';
+        messageElement.style.top = '20px';
+        messageElement.style.left = '50%';
+        messageElement.style.transform = 'translateX(-50%)';
+        messageElement.style.zIndex = '1000';
+        messageElement.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+        messageElement.style.minWidth = '300px';
+        
+        // Add to document
+        document.body.appendChild(messageElement);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            messageElement.style.opacity = '0';
+            messageElement.style.transition = 'opacity 0.5s';
+            
+            setTimeout(() => {
+                messageElement.remove();
+            }, 500);
+        }, 3000);
+    }
+    
+    // Handle "Forgot Password" link
+    document.querySelector('.forgot-password').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Redirect to password recovery page
+        window.location.href = 'password-recovery.html';
+    });
+    
+    // Handle "Register" link
+    document.querySelector('.register-link').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Show registration form modal
+        showRegistrationModal();
+    });
+    
+    // Function to show registration modal
+    function showRegistrationModal() {
+        // Create modal container
+        const modalContainer = document.createElement('div');
+        modalContainer.className = 'modal-container';
+        modalContainer.style.position = 'fixed';
+        modalContainer.style.top = '0';
+        modalContainer.style.left = '0';
+        modalContainer.style.width = '100%';
+        modalContainer.style.height = '100%';
+        modalContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        modalContainer.style.display = 'flex';
+        modalContainer.style.justifyContent = 'center';
+        modalContainer.style.alignItems = 'center';
+        modalContainer.style.zIndex = '1000';
+        
+        // Create modal content
+        const modalContent = document.createElement('div');
+        modalContent.className = 'modal-content';
+        modalContent.style.backgroundColor = 'white';
+        modalContent.style.borderRadius = '10px';
+        modalContent.style.padding = '20px';
+        modalContent.style.width = '90%';
+        modalContent.style.maxWidth = '450px';
+        modalContent.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+        
+        // Create modal header
+        const modalHeader = document.createElement('div');
+        modalHeader.className = 'modal-header';
+        modalHeader.style.display = 'flex';
+        modalHeader.style.justifyContent = 'space-between';
+        modalHeader.style.alignItems = 'center';
+        modalHeader.style.marginBottom = '20px';
+        
+        const modalTitle = document.createElement('h2');
+        modalTitle.textContent = 'Cadastre-se';
+        modalTitle.style.color = 'var(--text-dark)';
+        modalTitle.style.margin = '0';
+        
+        const closeButton = document.createElement('button');
+        closeButton.innerHTML = '&times;';
+        closeButton.style.background = 'none';
+        closeButton.style.border = 'none';
+        closeButton.style.fontSize = '24px';
+        closeButton.style.cursor = 'pointer';
+        closeButton.style.color = 'var(--text-gray)';
+        closeButton.addEventListener('click', () => {
+            document.body.removeChild(modalContainer);
+        });
+        
+        modalHeader.appendChild(modalTitle);
+        modalHeader.appendChild(closeButton);
+        
+        // Create registration form
+        const registrationForm = document.createElement('form');
+        registrationForm.id = 'registrationForm';
+        
+        // Name field
+        const nameGroup = document.createElement('div');
+        nameGroup.className = 'form-group';
+        nameGroup.style.marginBottom = '15px';
+        
+        const nameLabel = document.createElement('label');
+        nameLabel.htmlFor = 'register-name';
+        nameLabel.className = 'form-label';
+        nameLabel.textContent = 'Nome completo';
+        nameLabel.style.display = 'block';
+        nameLabel.style.marginBottom = '8px';
+        nameLabel.style.fontWeight = '500';
+        nameLabel.style.fontSize = '14px';
+        
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.id = 'register-name';
+        nameInput.className = 'form-input';
+        nameInput.placeholder = 'Seu nome completo';
+        nameInput.required = true;
+        nameInput.style.width = '100%';
+        nameInput.style.padding = '12px 15px';
+        nameInput.style.border = '1px solid var(--border-color)';
+        nameInput.style.borderRadius = '7px';
+        nameInput.style.fontSize = '14px';
+        
+        nameGroup.appendChild(nameLabel);
+        nameGroup.appendChild(nameInput);
+        
+        // Email field
+        const emailGroup = document.createElement('div');
+        emailGroup.className = 'form-group';
+        emailGroup.style.marginBottom = '15px';
+        
+        const emailLabel = document.createElement('label');
+        emailLabel.htmlFor = 'register-email';
+        emailLabel.className = 'form-label';
+        emailLabel.textContent = 'E-mail';
+        emailLabel.style.display = 'block';
+        emailLabel.style.marginBottom = '8px';
+        emailLabel.style.fontWeight = '500';
+        emailLabel.style.fontSize = '14px';
+        
+        const emailInput = document.createElement('input');
+        emailInput.type = 'email';
+        emailInput.id = 'register-email';
+        emailInput.className = 'form-input';
+        emailInput.placeholder = 'Seu e-mail';
+        emailInput.required = true;
+        emailInput.style.width = '100%';
+        emailInput.style.padding = '12px 15px';
+        emailInput.style.border = '1px solid var(--border-color)';
+        emailInput.style.borderRadius = '7px';
+        emailInput.style.fontSize = '14px';
+        
+        emailGroup.appendChild(emailLabel);
+        emailGroup.appendChild(emailInput);
+        
+        // Password field
+        const passwordGroup = document.createElement('div');
+        passwordGroup.className = 'form-group';
+        passwordGroup.style.marginBottom = '15px';
+        
+        const passwordLabel = document.createElement('label');
+        passwordLabel.htmlFor = 'register-password';
+        passwordLabel.className = 'form-label';
+        passwordLabel.textContent = 'Senha';
+        passwordLabel.style.display = 'block';
+        passwordLabel.style.marginBottom = '8px';
+        passwordLabel.style.fontWeight = '500';
+        passwordLabel.style.fontSize = '14px';
+        
+        const passwordContainer = document.createElement('div');
+        passwordContainer.className = 'password-container';
+        passwordContainer.style.position = 'relative';
+        passwordContainer.style.display = 'flex';
+        passwordContainer.style.alignItems = 'center';
+        
+        const passwordInput = document.createElement('input');
+        passwordInput.type = 'password';
+        passwordInput.id = 'register-password';
+        passwordInput.className = 'form-input';
+        passwordInput.placeholder = 'Crie uma senha';
+        passwordInput.required = true;
+        passwordInput.style.width = '100%';
+        passwordInput.style.padding = '12px 15px';
+        passwordInput.style.paddingRight = '40px';
+        passwordInput.style.border = '1px solid var(--border-color)';
+        passwordInput.style.borderRadius = '7px';
+        passwordInput.style.fontSize = '14px';
+        
+        const togglePasswordBtn = document.createElement('button');
+        togglePasswordBtn.type = 'button';
+        togglePasswordBtn.className = 'toggle-password';
+        togglePasswordBtn.setAttribute('aria-label', 'Mostrar senha');
+        togglePasswordBtn.style.position = 'absolute';
+        togglePasswordBtn.style.right = '10px';
+        togglePasswordBtn.style.top = '50%';
+        togglePasswordBtn.style.transform = 'translateY(-50%)';
+        togglePasswordBtn.style.background = 'none';
+        togglePasswordBtn.style.border = 'none';
+        togglePasswordBtn.style.cursor = 'pointer';
+        togglePasswordBtn.style.padding = '5px';
+        togglePasswordBtn.style.display = 'flex';
+        togglePasswordBtn.style.alignItems = 'center';
+        togglePasswordBtn.style.justifyContent = 'center';
+        togglePasswordBtn.style.color = 'var(--text-gray)';
+        togglePasswordBtn.style.transition = 'color 0.3s';
+        togglePasswordBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+        `;
+        
+        // Add toggle password functionality
+        togglePasswordBtn.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Toggle the eye icon
+            if (type === 'password') {
+                togglePasswordBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                `;
+            } else {
+                togglePasswordBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <line x1="3" y1="3" x2="21" y2="21"></line>
+                    </svg>
+                `;
+            }
+        });
+        
+        passwordContainer.appendChild(passwordInput);
+        passwordContainer.appendChild(togglePasswordBtn);
+        
+        passwordGroup.appendChild(passwordLabel);
+        passwordGroup.appendChild(passwordContainer);
+        
+        // Confirm Password field
+        const confirmPasswordGroup = document.createElement('div');
+        confirmPasswordGroup.className = 'form-group';
+        confirmPasswordGroup.style.marginBottom = '20px';
+        
+        const confirmPasswordLabel = document.createElement('label');
+        confirmPasswordLabel.htmlFor = 'register-confirm-password';
+        confirmPasswordLabel.className = 'form-label';
+        confirmPasswordLabel.textContent = 'Confirme a senha';
+        confirmPasswordLabel.style.display = 'block';
+        confirmPasswordLabel.style.marginBottom = '8px';
+        confirmPasswordLabel.style.fontWeight = '500';
+        confirmPasswordLabel.style.fontSize = '14px';
+        
+        const confirmPasswordContainer = document.createElement('div');
+        confirmPasswordContainer.className = 'password-container';
+        confirmPasswordContainer.style.position = 'relative';
+        confirmPasswordContainer.style.display = 'flex';
+        confirmPasswordContainer.style.alignItems = 'center';
+        
+        const confirmPasswordInput = document.createElement('input');
+        confirmPasswordInput.type = 'password';
+        confirmPasswordInput.id = 'register-confirm-password';
+        confirmPasswordInput.className = 'form-input';
+        confirmPasswordInput.placeholder = 'Confirme sua senha';
+        confirmPasswordInput.required = true;
+        confirmPasswordInput.style.width = '100%';
+        confirmPasswordInput.style.padding = '12px 15px';
+        confirmPasswordInput.style.paddingRight = '40px';
+        confirmPasswordInput.style.border = '1px solid var(--border-color)';
+        confirmPasswordInput.style.borderRadius = '7px';
+        confirmPasswordInput.style.fontSize = '14px';
+        
+        const toggleConfirmPasswordBtn = document.createElement('button');
+        toggleConfirmPasswordBtn.type = 'button';
+        toggleConfirmPasswordBtn.className = 'toggle-password';
+        toggleConfirmPasswordBtn.setAttribute('aria-label', 'Mostrar senha');
+        toggleConfirmPasswordBtn.style.position = 'absolute';
+        toggleConfirmPasswordBtn.style.right = '10px';
+        toggleConfirmPasswordBtn.style.top = '50%';
+        toggleConfirmPasswordBtn.style.transform = 'translateY(-50%)';
+        toggleConfirmPasswordBtn.style.background = 'none';
+        toggleConfirmPasswordBtn.style.border = 'none';
+        toggleConfirmPasswordBtn.style.cursor = 'pointer';
+        toggleConfirmPasswordBtn.style.padding = '5px';
+        toggleConfirmPasswordBtn.style.display = 'flex';
+        toggleConfirmPasswordBtn.style.alignItems = 'center';
+        toggleConfirmPasswordBtn.style.justifyContent = 'center';
+        toggleConfirmPasswordBtn.style.color = 'var(--text-gray)';
+        toggleConfirmPasswordBtn.style.transition = 'color 0.3s';
+        toggleConfirmPasswordBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+        `;
+        
+        // Add toggle password functionality
+        toggleConfirmPasswordBtn.addEventListener('click', function() {
+            const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            confirmPasswordInput.setAttribute('type', type);
+            
+            // Toggle the eye icon
+            if (type === 'password') {
+                toggleConfirmPasswordBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                `;
+            } else {
+                toggleConfirmPasswordBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <line x1="3" y1="3" x2="21" y2="21"></line>
+                    </svg>
+                `;
+            }
+        });
+        
+        confirmPasswordContainer.appendChild(confirmPasswordInput);
+        confirmPasswordContainer.appendChild(toggleConfirmPasswordBtn);
+        
+        confirmPasswordGroup.appendChild(confirmPasswordLabel);
+        confirmPasswordGroup.appendChild(confirmPasswordContainer);
+        
+        // Submit button
+        const submitButton = document.createElement('button');
+        submitButton.type = 'submit';
+        submitButton.className = 'login-button';
+        submitButton.textContent = 'Cadastrar';
+        submitButton.style.width = '100%';
+        submitButton.style.height = '50px';
+        submitButton.style.backgroundColor = 'var(--primary-dark)';
+        submitButton.style.color = 'white';
+        submitButton.style.border = 'none';
+        submitButton.style.borderRadius = '7px';
+        submitButton.style.fontSize = '16px';
+        submitButton.style.fontWeight = '700';
+        submitButton.style.cursor = 'pointer';
+        submitButton.style.marginTop = '10px';
+        
+        // Add all elements to form
+        registrationForm.appendChild(nameGroup);
+        registrationForm.appendChild(emailGroup);
+        registrationForm.appendChild(passwordGroup);
+        registrationForm.appendChild(confirmPasswordGroup);
+        registrationForm.appendChild(submitButton);
+        
+        // Add form submission handler
+        registrationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const name = nameInput.value.trim();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+            const confirmPassword = confirmPasswordInput.value.trim();
+            
+            // Validate form
+            if (!validateRegistrationForm(name, email, password, confirmPassword, registrationForm)) {
+                return;
+            }
+            
+            // Show loading indicator
+            const loadingIndicator = showLoadingIndicator();
+            
+            // Make API call to register user
+            console.log('Enviando requisição para registrar usuário:', { name, email });
+            
+            fetch('http://localhost:5000/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, email, password })
+            })
+            .then(response => {
+                // Remove loading indicator
+                loadingIndicator.remove();
+                
+                console.log('Resposta recebida:', response.status);
+                
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        console.error('Erro na resposta:', data);
+                        
+                        // Tratamento específico para erros comuns
+                        if (data.error && data.error.includes("já está em uso")) {
+                            throw new Error("Este e-mail já está cadastrado. Por favor, use outro e-mail ou faça login com sua conta existente.");
+                        } else {
+                            throw new Error(data.error || 'Erro ao registrar usuário');
+                        }
+                    }).catch(err => {
+                        console.error('Erro ao processar resposta JSON:', err);
+                        
+                        // Verificar se é um erro que já foi tratado (com mensagem personalizada)
+                        if (err.message && (
+                            err.message.includes("já está cadastrado") || 
+                            err.message.includes("Erro ao registrar usuário")
+                        )) {
+                            throw err; // Repassar o erro já tratado
+                        }
+                        
+                        throw new Error('Não foi possível completar seu cadastro. Por favor, tente novamente mais tarde.');
+                    });
+                }
+                return response.json().catch(err => {
+                    console.error('Erro ao processar resposta JSON de sucesso:', err);
+                    throw new Error('Não foi possível completar seu cadastro. Por favor, tente novamente mais tarde.');
+                });
+            })
+            .then(data => {
+                // Close modal
+                document.body.removeChild(modalContainer);
+                
+                // Show success message
+                showMessage('Cadastro realizado com sucesso! Você já pode fazer login.', 'success');
+                
+                // Optional: Auto-login the user
+                const userData = {
+                    email: data.user.email,
+                    name: data.user.name,
+                    id: data.user.id,
+                    token: data.access_token
+                };
+                
+                loginSuccess(userData);
+            })
+            .catch(error => {
+                console.error('Erro ao registrar:', error);
+                
+                // Determinar a mensagem de erro apropriada
+                let errorText = error.message || 'Não foi possível completar seu cadastro. Por favor, tente novamente.';
+                
+                // Verificar se é um erro de e-mail já em uso
+                const isEmailInUseError = errorText.includes("já está cadastrado");
+                
+                // Show error message at the top of the form
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'error-message';
+                errorMessage.textContent = errorText;
+                errorMessage.style.color = '#d32f2f';
+                errorMessage.style.backgroundColor = '#ffebee';
+                errorMessage.style.padding = '10px';
+                errorMessage.style.borderRadius = '5px';
+                errorMessage.style.marginBottom = '15px';
+                errorMessage.style.textAlign = 'center';
+                
+                // Se for erro de e-mail já em uso, destacar o campo de e-mail
+                if (isEmailInUseError) {
+                    const emailInput = document.getElementById('register-email');
+                    emailInput.style.borderColor = '#d32f2f';
+                    
+                    // Adicionar link para recuperação de senha
+                    const loginLink = document.createElement('div');
+                    loginLink.innerHTML = '<a href="#" style="color: #1565c0; text-decoration: underline; margin-top: 5px; display: inline-block;">Esqueceu sua senha?</a>';
+                    loginLink.style.marginTop = '5px';
+                    loginLink.style.fontSize = '14px';
+                    
+                    loginLink.querySelector('a').addEventListener('click', (e) => {
+                        e.preventDefault();
+                        document.body.removeChild(modalContainer);
+                        window.location.href = 'password-recovery.html';
+                    });
+                    
+                    errorMessage.appendChild(document.createElement('br'));
+                    errorMessage.appendChild(loginLink);
+                }
+                
+                registrationForm.insertBefore(errorMessage, registrationForm.firstChild);
+                
+                // Remove after 8 seconds (mais tempo para ler a mensagem completa)
+                setTimeout(() => {
+                    errorMessage.remove();
+                }, 8000);
+            });
+        });
+        
+        // Add form to modal content
+        modalContent.appendChild(modalHeader);
+        modalContent.appendChild(registrationForm);
+        
+        // Add modal content to container
+        modalContainer.appendChild(modalContent);
+        
+        // Add modal to body
+        document.body.appendChild(modalContainer);
+    }
+    
+    // Function to validate registration form
+    function validateRegistrationForm(name, email, password, confirmPassword, form) {
+        // Clear previous errors
+        const errorMessages = form.querySelectorAll('.error-message');
+        errorMessages.forEach(element => element.remove());
+        
+        let isValid = true;
+        
+        // Validate name
+        if (!name) {
+            showFormError(form.querySelector('#register-name'), 'Por favor, informe seu nome completo');
+            isValid = false;
+        }
+        
+        // Validate email
+        if (!email) {
+            showFormError(form.querySelector('#register-email'), 'Por favor, informe seu e-mail');
+            isValid = false;
+        } else if (!isValidEmail(email)) {
+            showFormError(form.querySelector('#register-email'), 'Por favor, informe um e-mail válido');
+            isValid = false;
+        }
+        
+        // Validate password
+        if (!password) {
+            showFormError(form.querySelector('#register-password'), 'Por favor, crie uma senha');
+            isValid = false;
+        } else if (password.length < 6) {
+            showFormError(form.querySelector('#register-password'), 'A senha deve ter pelo menos 6 caracteres');
+            isValid = false;
+        }
+        
+        // Validate confirm password
+        if (!confirmPassword) {
+            showFormError(form.querySelector('#register-confirm-password'), 'Por favor, confirme sua senha');
+            isValid = false;
+        } else if (password !== confirmPassword) {
+            showFormError(form.querySelector('#register-confirm-password'), 'As senhas não coincidem');
+            isValid = false;
+        }
+        
+        return isValid;
+    }
+    
+    // Function to show form error
+    function showFormError(inputElement, errorMessage) {
+        inputElement.style.borderColor = '#d32f2f';
+        
+        const errorElement = document.createElement('div');
+        errorElement.className = 'error-message';
+        errorElement.textContent = errorMessage;
+        errorElement.style.color = '#d32f2f';
+        errorElement.style.fontSize = '12px';
+        errorElement.style.marginTop = '5px';
+        
+        inputElement.parentElement.appendChild(errorElement);
+    }
+});

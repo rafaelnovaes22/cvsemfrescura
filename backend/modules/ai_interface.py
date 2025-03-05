@@ -3,46 +3,51 @@ import logging
 import json
 import re
 import traceback
-from anthropic import Anthropic, APIError, APIConnectionError, APITimeoutError, RateLimitError
+import openai
 from config import Config
 
 # Obter logger configurado
 logger = logging.getLogger(__name__)
 
 # Verificar a chave da API
-if not Config.ANTHROPIC_API_KEY:
-    logger.critical("ANTHROPIC_API_KEY não está configurada no arquivo .env")
-    raise ValueError("ANTHROPIC_API_KEY não está configurada. Verifique o arquivo .env")
+if not Config.OPENAI_API_KEY:
+    logger.critical("OPENAI_API_KEY não está configurada no arquivo .env")
+    raise ValueError("OPENAI_API_KEY não está configurada. Verifique o arquivo .env")
 
-# Configurar o cliente da Anthropic
+# Configurar o cliente da OpenAI
 try:
-    # Inicializar o cliente Anthropic apenas com a API key, sem parâmetros adicionais
-    anthropic = Anthropic(api_key=Config.ANTHROPIC_API_KEY)
-    logger.info("Cliente Anthropic inicializado com sucesso")
+    # Inicializar o cliente OpenAI com a API key
+    openai.api_key = Config.OPENAI_API_KEY
+    logger.info("Cliente OpenAI inicializado com sucesso")
 except Exception as e:
-    logger.critical(f"Falha ao inicializar cliente Anthropic: {str(e)}")
-    print(f"Falha ao inicializar cliente Anthropic: {str(e)}")
-    # Criar um cliente mock para permitir que o servidor inicie mesmo sem Anthropic
-    class MockAnthropic:
-        def __init__(self):
-            self.messages = MockMessages()
-            
-    class MockMessages:
-        def create(self, **kwargs):
-            class MockResponse:
-                def __init__(self):
-                    self.content = [MockContent()]
-            class MockContent:
-                def __init__(self):
-                    self.text = '{"error": "Anthropic API não disponível"}'
-            return MockResponse()
-            
-    anthropic = MockAnthropic()
-    logger.warning("Usando cliente Anthropic mock devido a erro de inicialização")
+    logger.critical(f"Falha ao inicializar cliente OpenAI: {str(e)}")
+    print(f"Falha ao inicializar cliente OpenAI: {str(e)}")
+    print("Nota: Este erro não afeta o teste do sistema de pagamentos")
+    # Criar um cliente mock para permitir que o servidor inicie mesmo sem OpenAI
+    class MockOpenAI:
+        @staticmethod
+        def ChatCompletion():
+            class MockChatCompletion:
+                @staticmethod
+                def create(**kwargs):
+                    return {
+                        "choices": [
+                            {
+                                "message": {
+                                    "content": '{"error": "OpenAI API não disponível"}'
+                                }
+                            }
+                        ]
+                    }
+            return MockChatCompletion
+    
+    # Substituir o módulo openai pelo mock
+    openai = MockOpenAI()
+    logger.warning("Usando cliente OpenAI mock devido a erro de inicialização")
 
 def get_ai_analysis(cv_text, job_requirements=[], max_retries=3):
     """
-    Obter análise da IA para o currículo usando Claude da Anthropic
+    Obter análise da IA para o currículo usando GPT da OpenAI
 
     Args:
         cv_text (str): Texto extraído do currículo
@@ -50,7 +55,7 @@ def get_ai_analysis(cv_text, job_requirements=[], max_retries=3):
         max_retries (int): Número máximo de tentativas para obter uma resposta válida
 
     Returns:
-        str: Resposta da API da Anthropic em formato texto
+        str: Resposta da API da OpenAI em formato texto
     """
     # Verificar se o texto do currículo é válido
     if not cv_text or len(cv_text.strip()) < 50:
@@ -72,7 +77,7 @@ def get_ai_analysis(cv_text, job_requirements=[], max_retries=3):
     logger.debug(f"Tamanho do texto da vaga 1: {len(job_text_1)} caracteres")
     logger.debug(f"Tamanho do texto da vaga 2: {len(job_text_2)} caracteres")
 
-    # Prompt base especializado para o Claude
+    # Prompt base especializado para o GPT
     base_prompt = f"""
     Você é especializado em análise de currículos com extrema precisão. Sua tarefa é extrair EXCLUSIVAMENTE núcleos substantivos concisos das descrições de vagas e verificar sua presença no currículo:
 
@@ -129,7 +134,7 @@ def get_ai_analysis(cv_text, job_requirements=[], max_retries=3):
     # Sistema de retry
     for attempt in range(max_retries):
         try:
-            logger.info(f"Tentativa {attempt+1}/{max_retries} de análise pelo Claude")
+            logger.info(f"Tentativa {attempt+1}/{max_retries} de análise pelo GPT")
             
             # Ajustar o prompt com base na tentativa
             current_prompt = base_prompt
@@ -159,16 +164,16 @@ def get_ai_analysis(cv_text, job_requirements=[], max_retries=3):
                 """
             
             # Verificar modelo disponível
-            model = "claude-3-7-sonnet-20240229"  # Modelo padrão
+            model = "gpt-4-turbo"  # Modelo com maior limite de tokens (128K)
             
             try:
                 # Temperatura reduzida para maior consistência
-                response = anthropic.messages.create(
+                response = openai.ChatCompletion.create(
                     model=model,
                     max_tokens=4000,
                     temperature=0.1,
-                    system="Extraia EXCLUSIVAMENTE núcleos substantivos concisos (máximo 3 palavras) das vagas, verifique sua presença no currículo e forneça uma conclusão detalhada e motivadora.",
                     messages=[
+                        {"role": "system", "content": "Extraia EXCLUSIVAMENTE núcleos substantivos concisos (máximo 3 palavras) das vagas, verifique sua presença no currículo e forneça uma conclusão detalhada e motivadora."},
                         {"role": "user", "content": current_prompt}
                     ]
                 )
@@ -176,26 +181,27 @@ def get_ai_analysis(cv_text, job_requirements=[], max_retries=3):
                 logger.error(f"Erro com o modelo {model}: {str(model_error)}")
                 
                 # Tentar com modelo alternativo
-                model = "claude-3-opus-20240229"
+                model = "gpt-3.5-turbo"
                 logger.info(f"Tentando modelo alternativo: {model}")
                 
-                response = anthropic.messages.create(
+                response = openai.ChatCompletion.create(
                     model=model,
                     max_tokens=4000,
                     temperature=0.1,
-                    system="Extraia EXCLUSIVAMENTE núcleos substantivos concisos (máximo 3 palavras) das vagas, verifique sua presença no currículo e forneça uma conclusão detalhada e motivadora.",
                     messages=[
+                        {"role": "system", "content": "Extraia EXCLUSIVAMENTE núcleos substantivos concisos (máximo 3 palavras) das vagas, verifique sua presença no currículo e forneça uma conclusão detalhada e motivadora."},
                         {"role": "user", "content": current_prompt}
                     ]
                 )
 
-            logger.info(f"Resposta recebida do Claude com sucesso usando modelo {model}")
-            logger.debug(f"Tamanho da resposta: {len(response.content[0].text)} caracteres")
+            logger.info(f"Resposta recebida do GPT com sucesso usando modelo {model}")
+            response_text = response['choices'][0]['message']['content']
+            logger.debug(f"Tamanho da resposta: {len(response_text)} caracteres")
             
             # Verificar se a resposta contém JSON válido
             try:
                 # Tentar extrair JSON da resposta
-                json_match = re.search(r'```json\s*(.*?)\s*```', response.content[0].text, re.DOTALL)
+                json_match = re.search(r'```json\s*(.*?)\s*```', response_text, re.DOTALL)
                 if json_match:
                     json_str = json_match.group(1)
                     parsed_json = json.loads(json_str)  # Validar JSON
@@ -208,11 +214,11 @@ def get_ai_analysis(cv_text, job_requirements=[], max_retries=3):
                         continue
                     
                     logger.info("Resposta contém JSON válido com núcleos concisos")
-                    return response.content[0].text
+                    return response_text
                 else:
                     # Verificar se a resposta inteira é um JSON válido
-                    if response.content[0].text.strip().startswith('{') and response.content[0].text.strip().endswith('}'):
-                        parsed_json = json.loads(response.content[0].text)  # Validar JSON
+                    if response_text.strip().startswith('{') and response_text.strip().endswith('}'):
+                        parsed_json = json.loads(response_text)  # Validar JSON
                         
                         # Verificar se os núcleos são concisos
                         long_keywords = [k for k in parsed_json.get("all_job_keywords", []) if len(k.split()) > 3]
@@ -222,7 +228,7 @@ def get_ai_analysis(cv_text, job_requirements=[], max_retries=3):
                             continue
                         
                         logger.info("Resposta é um JSON válido com núcleos concisos")
-                        return response.content[0].text
+                        return response_text
                     else:
                         logger.warning("Resposta não contém JSON válido")
                         if attempt < max_retries - 1:
@@ -233,31 +239,31 @@ def get_ai_analysis(cv_text, job_requirements=[], max_retries=3):
                     continue
             
             # Se chegamos aqui na última tentativa, retornamos a resposta mesmo que não seja ideal
-            return response.content[0].text
+            return response_text
             
-        except APITimeoutError as e:
-            error_msg = f"Timeout na API da Anthropic: {str(e)}"
+        except openai.error.Timeout as e:
+            error_msg = f"Timeout na API da OpenAI: {str(e)}"
             logger.error(error_msg)
             logger.error(traceback.format_exc())
             if attempt == max_retries - 1:
                 raise Exception(f"Timeout na análise do currículo. Por favor, tente novamente mais tarde.")
             
-        except RateLimitError as e:
-            error_msg = f"Limite de requisições excedido na API da Anthropic: {str(e)}"
+        except openai.error.RateLimitError as e:
+            error_msg = f"Limite de requisições excedido na API da OpenAI: {str(e)}"
             logger.error(error_msg)
             logger.error(traceback.format_exc())
             if attempt == max_retries - 1:
                 raise Exception(f"Limite de requisições excedido. Por favor, tente novamente em alguns minutos.")
             
-        except APIConnectionError as e:
-            error_msg = f"Erro de conexão com a API da Anthropic: {str(e)}"
+        except openai.error.APIConnectionError as e:
+            error_msg = f"Erro de conexão com a API da OpenAI: {str(e)}"
             logger.error(error_msg)
             logger.error(traceback.format_exc())
             if attempt == max_retries - 1:
                 raise Exception(f"Erro de conexão com o serviço de análise. Verifique sua conexão com a internet.")
             
-        except APIError as e:
-            error_msg = f"Erro na API da Anthropic: {str(e)}"
+        except openai.error.APIError as e:
+            error_msg = f"Erro na API da OpenAI: {str(e)}"
             logger.error(error_msg)
             logger.error(traceback.format_exc())
             if attempt == max_retries - 1:

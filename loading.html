@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analisando Currículo</title>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Auth Middleware - Gerencia autenticação -->
+    <script src="frontend/assets/js/auth-middleware.js"></script>
     <style>
         * {
             margin: 0;
@@ -143,6 +145,14 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Verificar se o middleware de autenticação está funcionando
+            if (!window.isAuthenticated || !window.isAuthenticated()) {
+                console.error('Usuário não autenticado');
+                localStorage.setItem('apiError', 'Você precisa estar autenticado para analisar um currículo');
+                window.location.href = 'error.html';
+                return;
+            }
+
             // Recuperar dados do localStorage
             const fileData = localStorage.getItem('uploadedFile');
             const fileName = localStorage.getItem('fileName');
@@ -179,72 +189,105 @@
             console.log('Enviando arquivo:', fileName);
             console.log('Links de vagas:', jobLinks);
             
-            // Enviar dados para o backend
-            fetch('http://localhost:5000/api/analyze', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => {
-                // Verificar se a resposta é bem-sucedida
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Log detalhado para debug
-                console.log('Resposta completa da API:', data);
+            // Verificar créditos antes de enviar
+            checkCredits()
+                .then(hasCredits => {
+                    if (!hasCredits) {
+                        throw new Error('Você não possui créditos suficientes para realizar uma análise');
+                    }
+                    
+                    // Enviar dados para o backend (o middleware já adiciona o token)
+                    return fetch('http://localhost:5000/api/analyze', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                })
+                .then(response => {
+                    // Verificar se a resposta é bem-sucedida
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
+                        }).catch(err => {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Log detalhado para debug
+                    console.log('Resposta completa da API:', data);
 
-                // Verificar se a resposta contém os dados necessários
-                if (!data || !data.termos_tecnicos) {
-                    throw new Error('Formato de resposta inválido: dados ausentes');
-                }
+                    // Verificar se a resposta contém os dados necessários
+                    if (!data || !data.termos_tecnicos) {
+                        throw new Error('Formato de resposta inválido: dados ausentes');
+                    }
 
-                // Salvar os dados no localStorage
-                localStorage.setItem('analysisResults', JSON.stringify(data));
+                    // Salvar os dados no localStorage
+                    localStorage.setItem('analysisResults', JSON.stringify(data));
 
-                // Esperar um pouco antes de redirecionar
-                setTimeout(function () {
-                    window.location.href = 'results.html';
-                }, 2000);
-            })
-            .catch(error => {
-                // Exibir mensagem de erro e log detalhado
-                console.error('Erro ao processar currículo:', error);
-                
-                // Criar um objeto de erro mais detalhado
-                const errorDetails = {
-                    message: error.toString(),
-                    timestamp: new Date().toISOString(),
-                    fileName: fileName,
-                    jobLinks: jobLinks
-                };
-                
-                // Salvar detalhes do erro no localStorage
-                localStorage.setItem('apiError', JSON.stringify(errorDetails));
-                
-                // Adicionar um elemento de erro na página para debug
-                const errorDiv = document.createElement('div');
-                errorDiv.style.position = 'fixed';
-                errorDiv.style.bottom = '0';
-                errorDiv.style.left = '0';
-                errorDiv.style.right = '0';
-                errorDiv.style.padding = '20px';
-                errorDiv.style.background = 'rgba(255, 0, 0, 0.1)';
-                errorDiv.style.color = 'red';
-                errorDiv.style.zIndex = '9999';
-                errorDiv.innerHTML = `<h3>Erro ao processar currículo:</h3><pre>${error.toString()}</pre>`;
-                document.body.appendChild(errorDiv);
-                
-                // Esperar um pouco antes de redirecionar
-                setTimeout(function () {
-                    window.location.href = 'error.html';
-                }, 10000); // Aumentado para 10 segundos para dar tempo de ver o erro
-            });
+                    // Esperar um pouco antes de redirecionar
+                    setTimeout(function () {
+                        window.location.href = 'results.html';
+                    }, 2000);
+                })
+                .catch(error => {
+                    // Exibir mensagem de erro e log detalhado
+                    console.error('Erro ao processar currículo:', error);
+                    
+                    // Criar um objeto de erro mais detalhado
+                    const errorDetails = {
+                        message: error.toString(),
+                        timestamp: new Date().toISOString(),
+                        fileName: fileName,
+                        jobLinks: jobLinks
+                    };
+                    
+                    // Salvar detalhes do erro no localStorage
+                    localStorage.setItem('apiError', JSON.stringify(errorDetails));
+                    
+                    // Adicionar um elemento de erro na página para debug
+                    const errorDiv = document.createElement('div');
+                    errorDiv.style.position = 'fixed';
+                    errorDiv.style.bottom = '0';
+                    errorDiv.style.left = '0';
+                    errorDiv.style.right = '0';
+                    errorDiv.style.padding = '20px';
+                    errorDiv.style.background = 'rgba(255, 0, 0, 0.1)';
+                    errorDiv.style.color = 'red';
+                    errorDiv.style.zIndex = '9999';
+                    errorDiv.innerHTML = `<h3>Erro ao processar currículo:</h3><pre>${error.toString()}</pre>`;
+                    document.body.appendChild(errorDiv);
+                    
+                    // Esperar um pouco antes de redirecionar
+                    setTimeout(function () {
+                        window.location.href = 'error.html';
+                    }, 3000);
+                });
         });
+        
+        // Verificar se o usuário possui créditos suficientes
+        function checkCredits() {
+            return fetch('http://localhost:5000/api/user/credits')
+                .then(response => response.json())
+                .then(data => {
+                    const credits = data.credits || 0;
+                    if (credits <= 0) {
+                        // Armazenar a URL atual para retornar depois
+                        sessionStorage.setItem('returnUrl', window.location.href);
+                        // Redirecionar para página de compra
+                        window.location.href = '/payment.html?redirect=true';
+                        return false;
+                    }
+                    return true;
+                })
+                .catch(error => {
+                    console.error('Erro ao verificar créditos:', error);
+                    return false;
+                });
+        }
     </script>
 </body>
 

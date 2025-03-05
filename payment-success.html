@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento Confirmado - CV Sem Frescura</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="frontend/assets/css/main.css">
+    <link rel="stylesheet" href="frontend/assets/css/components.css">
+    <link rel="stylesheet" href="frontend/assets/css/responsive.css">
+    <style>
+        :root {
+            --primary: #583819;
+            --primary-dark: #512808;
+            --background: #F3EADA;
+            --card-bg: #FFFCF9;
+            --white: #FFFFFF;
+            --text-dark: #583819;
+            --text-gray: #505050;
+            --border-color: #D1D1D1;
+            --selected-file-bg: #ECD9B5;
+            --border-radius: 10px;
+            --shadow: 0px 4px 6px rgba(33, 33, 33, 0.04);
+            --transition: all 0.3s ease;
+            --success: #4CAF50;
+            --error: #F44336;
+            --warning: #FF9800;
+        }
+
+        .success-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .success-icon {
+            color: var(--success);
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .success-title {
+            color: var(--text-dark);
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .success-message {
+            color: var(--text-gray);
+            font-size: 18px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .success-details {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            text-align: left;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .detail-label {
+            color: var(--text-gray);
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .btn-primary {
+            padding: 12px 24px;
+            background-color: var(--primary);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 7px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            padding: 12px 24px;
+            background-color: var(--white);
+            color: var(--primary);
+            text-decoration: none;
+            border: 1px solid var(--primary);
+            border-radius: 7px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(88, 56, 25, 0.05);
+        }
+
+        .next-steps {
+            margin-top: 40px;
+            text-align: left;
+        }
+
+        .next-steps h3 {
+            color: var(--text-dark);
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .steps-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .steps-list li {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            color: var(--text-gray);
+        }
+
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background-color: var(--primary);
+            color: var(--white);
+            border-radius: 50%;
+            margin-right: 15px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .btn-primary, .btn-secondary {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="logo-container">
+        <img src="frontend/assets/img/logo.png" alt="Logo RH Super" class="logo">
+    </div>
+
+    <main class="main-content">
+        <div class="success-container">
+            <div class="success-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <h1 class="success-title">Pagamento Confirmado!</h1>
+            <p class="success-message">
+                Seu pagamento foi processado com sucesso. Você já tem acesso ao seu pacote de 4 análises de currículo.
+            </p>
+
+            <div class="success-details">
+                <div class="detail-item">
+                    <div class="detail-label">Pacote</div>
+                    <div class="detail-value">4 análises de currículo</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Valor</div>
+                    <div class="detail-value" id="payment-amount">R$ 39,97</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Data</div>
+                    <div class="detail-value" id="payment-date"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Método de Pagamento</div>
+                    <div class="detail-value" id="payment-method">Cartão de crédito</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Status</div>
+                    <div class="detail-value" style="color: var(--success);">Aprovado</div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a href="index.html" class="btn-primary">Ir para o Dashboard</a>
+                <a href="mailto:contato@cvsemfrescura.com.br" class="btn-secondary">Precisa de ajuda?</a>
+            </div>
+
+            <div class="next-steps">
+                <h3>Próximos Passos</h3>
+                <ul class="steps-list">
+                    <li>
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <div class="step-title">Acesse seu Dashboard</div>
+                            <p>Vá para o seu dashboard para começar a usar suas análises de currículo.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <div class="step-title">Envie seu currículo</div>
+                            <p>Faça o upload do seu currículo em formato PDF ou DOCX para análise.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <div class="step-title">Receba feedback detalhado</div>
+                            <p>Nosso sistema de IA analisará seu currículo e fornecerá feedback detalhado para melhorá-lo.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <div class="step-title">Aplique as melhorias</div>
+                            <p>Use nossas sugestões para otimizar seu currículo e aumentar suas chances de sucesso.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container footer-container">
+            <div>
+                <img src="frontend/assets/img/logo.png" alt="RH Super" class="footer-logo">
+                <p class="copyright">© 2024 RH Super. Todos os direitos reservados.</p>
+            </div>
+            <div class="footer-links">
+                <a href="privacy.html" class="footer-link">Políticas de Privacidade</a>
+                <a href="terms.html" class="footer-link">Termos de Uso</a>
+                <a href="#" class="footer-link">Contato</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date
+            const currentDate = new Date();
+            document.getElementById('payment-date').textContent = currentDate.toLocaleDateString('pt-BR');
+            
+            // Get payment details from localStorage
+            const paymentIntentId = localStorage.getItem('payment_intent_id');
+            if (paymentIntentId) {
+                // Fetch payment details from API
+                fetch(`/api/payment/status/${paymentIntentId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Update payment details
+                            document.getElementById('payment-amount').textContent = `R$ ${data.amount.toFixed(2)}`;
+                            
+                            // Update payment method
+                            if (data.payment_method_types.includes('pix')) {
+                                document.getElementById('payment-method').textContent = 'PIX';
+                            } else if (data.payment_method_types.includes('boleto')) {
+                                document.getElementById('payment-method').textContent = 'Boleto Bancário';
+                            } else if (data.payment_method_types.includes('card')) {
+                                document.getElementById('payment-method').textContent = 'Cartão de Crédito';
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching payment details:', error);
+                    });
+            }
+            
+            // Add event listener to the dashboard button
+            document.querySelector('.btn-primary').addEventListener('click', function(e) {
+                e.preventDefault();
+                // Make sure to include auth parameter to prevent redirect loops
+                window.location.href = 'index.html?auth=true';
+            });
+        });
+    </script>
+</body>
+
+</html>

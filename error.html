@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Erro na Análise - CV Sem Frescura</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Auth Middleware - Gerencia autenticação -->
+    <script src="frontend/assets/js/auth-middleware.js"></script>
     <style>
         :root {
             --primary: #0047AB;
@@ -163,6 +165,8 @@
             <ul class="troubleshooting" id="troubleshootingList">
                 <li>Certifique-se de que um arquivo de currículo foi selecionado na página inicial.</li>
                 <li>Verifique se o formato do arquivo é PDF ou DOCX.</li>
+                <li>Verifique se você está autenticado no sistema.</li>
+                <li>Verifique se você possui créditos suficientes para realizar a análise.</li>
                 <li>Tente limpar o cache do navegador e reiniciar a aplicação.</li>
                 <li>Verifique se o servidor backend está em execução (http://localhost:5000).</li>
                 <li>Verifique a conexão com a internet.</li>
@@ -200,7 +204,8 @@
                 'uploadedFile': localStorage.getItem('uploadedFile') ? 'Presente (tamanho: ' + (localStorage.getItem('uploadedFile').length / 1024).toFixed(2) + ' KB)' : 'Ausente',
                 'fileName': localStorage.getItem('fileName') || 'Ausente',
                 'jobLinks': localStorage.getItem('jobLinks') || 'Ausente',
-                'temAnaliseDaAPI': localStorage.getItem('analysisResults') ? 'Sim' : 'Não'
+                'temAnaliseDaAPI': localStorage.getItem('analysisResults') ? 'Sim' : 'Não',
+                'userLoggedIn': localStorage.getItem('userLoggedIn') ? 'Sim' : 'Não'
             };
 
             let storageHtml = '';
@@ -221,11 +226,29 @@
                 newItem.innerHTML = '<strong>Erro de conexão:</strong> Verifique se o servidor backend está em execução em http://localhost:5000.';
                 troubleshootingList.prepend(newItem);
             }
+            
+            if (errorData && errorData.includes('autenticado')) {
+                const newItem = document.createElement('li');
+                newItem.innerHTML = '<strong>Erro de autenticação:</strong> Você precisa estar logado para realizar análises. <a href="login.html" style="color:#0047AB">Clique aqui para fazer login</a>.';
+                troubleshootingList.prepend(newItem);
+            }
+            
+            if (errorData && errorData.includes('créditos')) {
+                const newItem = document.createElement('li');
+                newItem.innerHTML = '<strong>Erro de créditos:</strong> Você não possui créditos suficientes para realizar uma análise. <a href="payment.html" style="color:#0047AB">Clique aqui para adquirir créditos</a>.';
+                troubleshootingList.prepend(newItem);
+            }
 
             // Botão para limpar localStorage
             document.getElementById('clearStorageBtn').addEventListener('click', function () {
-                localStorage.clear();
-                alert('Dados limpos com sucesso! Redirecionando para a página inicial.');
+                // Limpar apenas os dados relacionados à análise, mantendo a autenticação
+                localStorage.removeItem('uploadedFile');
+                localStorage.removeItem('fileName');
+                localStorage.removeItem('jobLinks');
+                localStorage.removeItem('analysisResults');
+                localStorage.removeItem('apiError');
+                
+                alert('Dados de análise limpos com sucesso! Redirecionando para a página inicial.');
                 window.location.href = 'index.html';
             });
 

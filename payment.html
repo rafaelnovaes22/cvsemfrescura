@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento - CV Sem Frescura</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="frontend/assets/css/main.css">
+    <link rel="stylesheet" href="frontend/assets/css/components.css">
+    <link rel="stylesheet" href="frontend/assets/css/responsive.css">
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        :root {
+            --primary: #583819;
+            --primary-dark: #512808;
+            --background: #F3EADA;
+            --card-bg: #FFFCF9;
+            --white: #FFFFFF;
+            --text-dark: #583819;
+            --text-gray: #505050;
+            --border-color: #D1D1D1;
+            --selected-file-bg: #ECD9B5;
+            --border-radius: 10px;
+            --shadow: 0px 4px 6px rgba(33, 33, 33, 0.04);
+            --transition: all 0.3s ease;
+            --success: #4CAF50;
+            --error: #F44336;
+            --warning: #FF9800;
+        }
+
+        .payment-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .payment-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .payment-title {
+            color: var(--text-dark);
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .payment-subtitle {
+            color: var(--text-gray);
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .payment-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .payment-steps::after {
+            content: '';
+            position: absolute;
+            top: 25px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--border-color);
+            z-index: 1;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--white);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--text-gray);
+            margin-bottom: 10px;
+        }
+
+        .step.active .step-number {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: var(--white);
+        }
+
+        .step.completed .step-number {
+            background-color: var(--success);
+            border-color: var(--success);
+            color: var(--white);
+        }
+
+        .step-label {
+            font-size: 14px;
+            color: var(--text-gray);
+            font-weight: 500;
+        }
+
+        .step.active .step-label {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .payment-section {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title svg {
+            margin-right: 10px;
+        }
+
+        .payment-methods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .payment-method {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .payment-method:hover {
+            border-color: var(--primary);
+        }
+
+        .payment-method.selected {
+            border-color: var(--primary);
+            background-color: rgba(88, 56, 25, 0.05);
+        }
+
+        .payment-method-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 10px;
+        }
+
+        .payment-method-name {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .payment-method-description {
+            font-size: 12px;
+            color: var(--text-gray);
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .form-row {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 7px;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row-inline {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row-inline .form-group {
+            flex: 1;
+        }
+
+        .card-element {
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 7px;
+            background-color: var(--white);
+            transition: var(--transition);
+        }
+
+        .card-element.StripeElement--focus {
+            border-color: var(--primary);
+        }
+
+        .card-element.StripeElement--invalid {
+            border-color: var(--error);
+        }
+
+        .payment-summary {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .summary-item-label {
+            color: var(--text-gray);
+        }
+
+        .summary-item-value {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .summary-total-label {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .summary-total-value {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+        .discount {
+            color: var(--success);
+        }
+
+        .payment-button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 7px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 20px;
+        }
+
+        .payment-button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .payment-button:disabled {
+            background-color: var(--border-color);
+            cursor: not-allowed;
+        }
+
+        .pix-container, .boleto-container, .card-container {
+            display: none;
+        }
+
+        .pix-container.active, .boleto-container.active, .card-container.active {
+            display: block;
+        }
+
+        .qr-code-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 15px;
+        }
+
+        .pix-code {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .copy-field {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        .copy-field input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 7px 0 0 7px;
+            font-size: 14px;
+            background-color: #f5f5f5;
+            color: var(--text-gray);
+        }
+
+        .copy-button {
+            padding: 10px 15px;
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 0 7px 7px 0;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .copy-button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .expiry-info {
+            margin-top: 15px;
+            color: var(--text-gray);
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .boleto-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn-download {
+            padding: 12px 20px;
+            background-color: var(--primary);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 7px;
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-download svg {
+            margin-right: 8px;
+        }
+
+        .btn-download:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .boleto-instructions {
+            margin-top: 15px;
+            color: var(--text-gray);
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .secure-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 15px;
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+
+        .secure-info svg {
+            margin-right: 5px;
+            color: var(--text-gray);
+        }
+
+        .error-message {
+            color: var(--error);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .success-message {
+            color: var(--success);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .payment-result {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .result-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .result-icon.success {
+            color: var(--success);
+        }
+
+        .result-icon.error {
+            color: var(--error);
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+        }
+
+        .result-message {
+            font-size: 16px;
+            color: var(--text-gray);
+            margin-bottom: 30px;
+        }
+
+        .result-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn-primary {
+            padding: 12px 20px;
+            background-color: var(--primary);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 7px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            padding: 12px 20px;
+            background-color: var(--white);
+            color: var(--primary);
+            text-decoration: none;
+            border: 1px solid var(--primary);
+            border-radius: 7px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(88, 56, 25, 0.05);
+        }
+
+        @media (max-width: 768px) {
+            .payment-steps {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .payment-steps::after {
+                display: none;
+            }
+
+            .step {
+                flex-direction: row;
+                width: 100%;
+            }
+
+            .step-number {
+                margin-bottom: 0;
+                margin-right: 10px;
+            }
+
+            .payment-methods {
+                flex-direction: column;
+            }
+
+            .form-row-inline {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .payment-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="logo-container">
+        <img src="frontend/assets/img/logo.png" alt="Logo RH Super" class="logo">
+    </div>
+
+    <main class="main-content">
+        <div class="payment-container">
+            <div class="payment-header">
+                <h1 class="payment-title">Finalizar Compra</h1>
+                <p class="payment-subtitle">Pacote de 4 análises de currículo</p>
+            </div>
+
+            <div class="payment-steps">
+                <div class="step active" id="step-1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Método de Pagamento</div>
+                </div>
+                <div class="step" id="step-2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Informações</div>
+                </div>
+                <div class="step" id="step-3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Confirmação</div>
+                </div>
+            </div>
+
+            <div class="payment-section" id="payment-method-section">
+                <h2 class="section-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                        <line x1="1" y1="10" x2="23" y2="10"></line>
+                    </svg>
+                    Escolha o método de pagamento
+                </h2>
+
+                <div class="payment-methods">
+                    <div class="payment-method" data-method="pix">
+                        <svg class="payment-method-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                        </svg>
+                        <div class="payment-method-name">PIX</div>
+                        <div class="payment-method-description">5% de desconto</div>
+                    </div>
+                    <div class="payment-method" data-method="boleto">
+                        <svg class="payment-method-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="1" y="3" width="22" height="18" rx="2" ry="2"></rect>
+                            <line x1="1" y1="8" x2="23" y2="8"></line>
+                            <line x1="1" y1="13" x2="23" y2="13"></line>
+                            <line x1="1" y1="18" x2="23" y2="18"></line>
+                        </svg>
+                        <div class="payment-method-name">Boleto</div>
+                        <div class="payment-method-description">Até 3 dias úteis</div>
+                    </div>
+                    <div class="payment-method" data-method="card">
+                        <svg class="payment-method-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                            <line x1="1" y1="10" x2="23" y2="10"></line>
+                        </svg>
+                        <div class="payment-method-name">Cartão</div>
+                        <div class="payment-method-description">Até 3x sem juros</div>
+                    </div>
+                </div>
+
+                <div class="payment-summary">
+                    <div class="summary-item">
+                        <div class="summary-item-label">Pacote de 4 análises</div>
+                        <div class="summary-item-value">R$ 39,97</div>
+                    </div>
+                    <div class="summary-item" id="discount-row" style="display: none;">
+                        <div class="summary-item-label">Desconto PIX (5%)</div>
+                        <div class="summary-item-value discount">-R$ 2,00</div>
+                    </div>
+                    <div class="summary-total">
+                        <div class="summary-total-label">Total</div>
+                        <div class="summary-total-value" id="total-price">R$ 39,97</div>
+                    </div>
+                </div>
+
+                <button class="payment-button" id="btn-continue">Continuar</button>
+            </div>
+
+            <div class="payment-section" id="payment-info-section" style="display: none;">
+                <h2 class="section-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    Informações de Pagamento
+                </h2>
+
+                <div class="pix-container" id="pix-container">
+                    <p>Preencha seus dados para gerar o QR Code PIX:</p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="pix-name" class="form-label">Nome completo</label>
+                            <input type="text" id="pix-name" class="form-input" placeholder="Seu nome completo" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="pix-email" class="form-label">E-mail</label>
+                            <input type="email" id="pix-email" class="form-input" placeholder="Seu e-mail" required>
+                        </div>
+                    </div>
+                    <button class="payment-button" id="btn-generate-pix">Gerar QR Code PIX</button>
+                </div>
+
+                <div class="boleto-container" id="boleto-container">
+                    <p>Preencha seus dados para gerar o boleto:</p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="boleto-name" class="form-label">Nome completo</label>
+                            <input type="text" id="boleto-name" class="form-input" placeholder="Seu nome completo" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="boleto-email" class="form-label">E-mail</label>
+                            <input type="email" id="boleto-email" class="form-input" placeholder="Seu e-mail" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="boleto-cpf" class="form-label">CPF</label>
+                            <input type="text" id="boleto-cpf" class="form-input" placeholder="Seu CPF (apenas números)" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="boleto-address" class="form-label">Endereço</label>
+                            <input type="text" id="boleto-address" class="form-input" placeholder="Rua, número, complemento" required>
+                        </div>
+                    </div>
+                    <div class="form-row-inline">
+                        <div class="form-group">
+                            <label for="boleto-city" class="form-label">Cidade</label>
+                            <input type="text" id="boleto-city" class="form-input" placeholder="Sua cidade" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="boleto-state" class="form-label">Estado</label>
+                            <input type="text" id="boleto-state" class="form-input" placeholder="UF" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="boleto-postal-code" class="form-label">CEP</label>
+                            <input type="text" id="boleto-postal-code" class="form-input" placeholder="Seu CEP (apenas números)" required>
+                        </div>
+                    </div>
+                    <button class="payment-button" id="btn-generate-boleto">Gerar Boleto</button>
+                </div>
+
+                <div class="card-container" id="card-container">
+                    <p>Preencha seus dados para pagamento com cartão:</p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="card-name" class="form-label">Nome no cartão</label>
+                            <input type="text" id="card-name" class="form-input" placeholder="Nome como está no cartão" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="card-email" class="form-label">E-mail</label>
+                            <input type="email" id="card-email" class="form-input" placeholder="Seu e-mail" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="card-element" class="form-label">Dados do cartão</label>
+                            <div id="card-element" class="card-element"></div>
+                            <div id="card-errors" class="error-message" role="alert"></div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="card-installments" class="form-label">Parcelas</label>
+                            <select id="card-installments" class="form-input">
+                                <option value="1">1x de R$ 39,97 (sem juros)</option>
+                                <option value="2">2x de R$ 19,99 (sem juros)</option>
+                                <option value="3">3x de R$ 13,32 (sem juros)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="payment-button" id="btn-pay-card">Pagar com Cartão</button>
+                    <div class="secure-info">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        Pagamento seguro via Stripe
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-section" id="payment-confirmation-section" style="display: none;">
+                <h2 class="section-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    Confirmação de Pagamento
+                </h2>
+
+                <div class="pix-container" id="pix-confirmation">
+                    <div class="qr-code-container">
+                        <img id="pix-qr-code" class="qr-code" src="" alt="QR Code PIX">
+                        <p>Escaneie o QR Code com o app do seu banco</p>
+                    </div>
+                    <div class="pix-code">
+                        <p>Ou copie o código PIX:</p>
+                        <div class="copy-field">
+                            <input type="text" id="pix-code-text" readonly>
+                            <button class="copy-button" id="btn-copy-pix">Copiar</button>
+                        </div>
+                    </div>
+                    <p class="expiry-info">Este código expira em <span id="pix-expiry-time">60:00</span></p>
+                    <div class="secure-info">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        Pagamento seguro via Stripe
+                    </div>
+                </div>
+
+                <div class="boleto-container" id="boleto-confirmation">
+                    <div class="boleto-details">
+                        <p>Linha digitável:</p>
+                        <div class="copy-field">
+                            <input type="text" id="boleto-line" readonly>
+                            <button class="copy-button" id="btn-copy-boleto">Copiar</button>
+                        </div>
+                    </div>
+                    <div class="boleto-actions">
+                        <a href="#" id="boleto-pdf-link" class="btn-download" target="_blank">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Baixar Boleto (PDF)
+                        </a>
+                    </div>
+                    <p class="expiry-info">Vencimento: <span id="boleto-expiry-date"></span></p>
+                    <p class="boleto-instructions">O boleto pode levar até 3 dias úteis para ser compensado após o pagamento.</p>
+                    <div class="secure-info">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        Pagamento seguro via Stripe
+                    </div>
+                </div>
+
+                <div class="card-container" id="card-confirmation">
+                    <div class="payment-result">
+                        <div class="result-icon success">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                        </div>
+                        <h3 class="result-title">Pagamento Aprovado!</h3>
+                        <p class="result-message">Seu pagamento foi processado com sucesso. Você já pode acessar seu pacote de análises.</p>
+                        <div class="result-actions">
+                            <a href="index.html" class="btn-primary">Ir para o Dashboard</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container footer-container">
+            <div>
+                <img src="frontend/assets/img/logo.png" alt="RH Super" class="footer-logo">
+                <p class="copyright">© 2024 RH Super. Todos os direitos reservados.</p>
+            </div>
+            <div class="footer-links">
+                <a href="privacy.html" class="footer-link">Políticas de Privacidade</a>
+                <a href="terms.html" class="footer-link">Termos de Uso</a>
+                <a href="#" class="footer-link">Contato</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="frontend/assets/js/payment.js"></script>
+</body>
+
+</html>

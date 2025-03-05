@@ -1,0 +1,131 @@
+document.addEventListener('DOMContentLoaded', function() {
+    // Corrigindo os seletores para corresponder ao HTML
+    const loginForm = document.getElementById('loginForm');
+    
+    if (!loginForm) {
+        console.error('Formulário de login não encontrado');
+        return;
+    }
+
+    const emailInput = loginForm.querySelector('input[name="email"]');
+    const passwordInput = loginForm.querySelector('input[name="password"]');
+
+    // Processar envio do formulário
+    loginForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Validação básica
+        if (!emailInput.value || !passwordInput.value) {
+            showMessage('Por favor, preencha todos os campos', 'error');
+            return;
+        }
+        
+        // Mostrar estado de carregamento
+        const loginButton = loginForm.querySelector('button[type="submit"]');
+        const originalButtonText = loginButton.textContent;
+        loginButton.textContent = 'Processando...';
+        loginButton.disabled = true;
+        
+        try {
+            // Chamada para API
+            const response = await fetch('http://localhost:5000/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: emailInput.value,
+                    password: passwordInput.value
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.message || 'Falha na autenticação');
+            }
+            
+            // Guardar dados de autenticação
+            localStorage.setItem('userData', JSON.stringify({
+                token: data.token,
+                user: data.user,
+                name: data.user.name,
+                email: data.user.email,
+                tokenExpiry: data.expiry
+            }));
+            
+            localStorage.setItem('userLoggedIn', 'true');
+            
+            // Redirecionar
+            const redirectPage = document.getElementById('redirectPage')?.value || 'index';
+            window.location.href = `${redirectPage}.html?auth=true`;
+            
+        } catch (error) {
+            showMessage(error.message || 'Erro ao fazer login. Verifique suas credenciais.', 'error');
+        } finally {
+            // Restaurar estado do botão
+            loginButton.textContent = originalButtonText;
+            loginButton.disabled = false;
+        }
+    });
+
+    // Função para mostrar mensagens
+    function showMessage(message, type = 'info') {
+        // Remove mensagens existentes
+        const existingMsg = document.querySelector('.message-alert');
+        if (existingMsg) existingMsg.remove();
+        
+        // Criar elemento de mensagem
+        const msgElement = document.createElement('div');
+        msgElement.className = `message-alert ${type}`;
+        msgElement.textContent = message;
+        
+        // Estilos baseados no tipo
+        const styles = {
+            error: {
+                backgroundColor: '#ffebee',
+                color: '#d32f2f',
+                border: '1px solid #ffcdd2'
+            },
+            success: {
+                backgroundColor: '#e8f5e9',
+                color: '#2e7d32',
+                border: '1px solid #c8e6c9'
+            },
+            info: {
+                backgroundColor: '#e3f2fd',
+                color: '#1976d2',
+                border: '1px solid #bbdefb'
+            }
+        };
+        
+        // Aplicar estilos
+        Object.assign(msgElement.style, {
+            padding: '12px',
+            borderRadius: '4px',
+            marginBottom: '20px',
+            textAlign: 'center',
+            ...styles[type]
+        });
+        
+        // Inserir mensagem no topo do formulário
+        loginForm.insertBefore(msgElement, loginForm.firstChild);
+        
+        // Remover após 5 segundos
+        setTimeout(() => {
+            msgElement.style.opacity = '0';
+            msgElement.style.transition = 'opacity 0.5s';
+            
+            setTimeout(() => {
+                msgElement.remove();
+            }, 500);
+        }, 5000);
+    }
+
+    // Verificar mensagens de erro na URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const errorMsg = urlParams.get('error');
+    if (errorMsg) {
+        showMessage(decodeURIComponent(errorMsg), 'error');
+    }
+});

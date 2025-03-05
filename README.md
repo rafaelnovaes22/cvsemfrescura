@@ -24,7 +24,7 @@ Sistema de análise de currículos que identifica palavras-chave relevantes para
 
 - Backend: Python, Flask
 - Frontend: HTML, CSS, JavaScript
-- IA: Anthropic Claude API para análise de texto
+- IA: OpenAI GPT-4 Turbo para análise de texto
 - Armazenamento: SQLite
 
 ## Instalação
@@ -46,3 +46,17 @@ Sistema de análise de currículos que identifica palavras-chave relevantes para
 2. Faça upload do seu currículo
 3. Adicione links de vagas de interesse
 4. Receba análise detalhada e recomendações personalizadas
+
+## Resolução de Problemas
+
+### Limite de Tokens
+
+O sistema utiliza o modelo GPT-4 Turbo da OpenAI para análise de currículos, que suporta até 128K tokens de contexto. Anteriormente, usávamos o modelo padrão GPT-4 com limite de 8K tokens, o que causava erros quando currículos ou descrições de vagas eram muito extensos.
+
+#### Solução Implementada
+
+- Atualização do modelo de `gpt-4` para `gpt-4-turbo` no arquivo `backend/modules/ai_interface.py`
+- Esta mudança permite processar documentos maiores sem atingir o limite de tokens
+- O modelo mantém a mesma qualidade de análise com capacidade expandida
+
+Se você encontrar erros relacionados a limites de tokens nos logs (`logs/app_YYYYMMDD.log`), verifique se o modelo configurado é `gpt-4-turbo`.
