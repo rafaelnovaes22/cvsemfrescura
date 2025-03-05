@@ -40,5 +40,15 @@ __pycache__/
 uploads/*
 !uploads/.gitkeep
 
+# Python virtual environment
+venv/
+
+# Database files
+database/
+
+# Temporary and backup files
+*.new
+*.bak
+
 # Optional: Uncomment if you don't want to track database setup scripts
 # check_and_create_db.py

@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Análise de Currículo</title>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Auth Middleware - Gerencia autenticação -->
+    <script src="frontend/assets/js/auth-middleware.js"></script>
     <style>
         * {
             margin: 0;
@@ -405,6 +407,28 @@
                 top: 20px;
             }
         }
+
+        /* Botão para voltar para a página inicial */
+        .back-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #583819;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .back-button:hover {
+            background-color: #512808;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 
@@ -417,7 +441,7 @@
             <div class="header-title">Análise de Currículo</div>
             <div class="file-badge">
                 <div class="file-icon"></div>
-                <div class="file-name" id="cv-filename">Currículo Rafael de Novaes.pdf</div>
+                <div class="file-name" id="cv-filename">Currículo.pdf</div>
             </div>
             <div class="header-description" id="cv-introduction">
                 Potencialize suas chances de sucesso com uma visão clara das palavras-chave que importam. Descubra os termos essenciais para as vagas desejadas e como seu currículo se posiciona em relação a eles.
@@ -447,6 +471,9 @@
                 </svg>
             </div>
         </div>
+
+        <!-- Botão para voltar para a página inicial -->
+        <a href="index.html" class="back-button">Voltar para o início</a>
 
         <!-- Seção de Palavras-chave Identificadas na Vaga -->
         <div class="section">
@@ -505,19 +532,27 @@
             </div>
         </div>
 
-        <!-- Seção de Debug removida -->
-
         <div class="footer"></div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Verificar se o middleware de autenticação está funcionando
+            if (!window.isAuthenticated || !window.isAuthenticated()) {
+                console.error('Usuário não autenticado');
+                localStorage.setItem('apiError', 'Você precisa estar autenticado para visualizar esta página');
+                window.location.href = 'login.html?redirect=results';
+                return;
+            }
+            
             // Recuperar os resultados do localStorage
             const analysisResults = JSON.parse(localStorage.getItem('analysisResults'));
             
             // Se não houver resultados, volta para a página inicial
             if (!analysisResults) {
-                window.location.href = 'index.html';
+                console.error('Resultados não encontrados');
+                localStorage.setItem('apiError', 'Nenhum resultado de análise foi encontrado');
+                window.location.href = 'error.html';
                 return;
             }
             
@@ -547,8 +582,6 @@
                 document.getElementById('recommendations-container').innerHTML = 
                     analysisResults.ats_recommendations.join('<br>');
             }
-            
-            // Remover referência à resposta da API para debug
         });
         
         // Função para exibir todas as palavras-chave das vagas
