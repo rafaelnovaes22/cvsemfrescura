@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Currículo - CV Sem Frescura</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Response Normalizer - Garante compatibilidade entre backend e frontend -->
+    <script src="frontend/assets/js/response-normalizer.js"></script>
+    <!-- API Service Module para comunicação com o backend -->
+    <script src="frontend/assets/js/api-service.js"></script>
+    <!-- API Integration Module -->
+    <script src="frontend/assets/js/api-integration.js"></script>
+    <!-- Auth Middleware - Gerencia autenticação -->
+    <script src="frontend/assets/js/auth-middleware.js"></script>
+    <script>
+        // Autenticação desativada temporariamente para testes
+        /*
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pequeno atraso para garantir que auth-middleware.js está carregado
+            setTimeout(function() {
+                if (!window.isAuthenticated || !window.isAuthenticated()) {
+                    window.location.href = 'login.html';
+                }
+            }, 50);
+        });
+        */
+    </script>
+    <style>
+        :root {
+            --primary: #583819;
+            --primary-dark: #512808;
+            --background: #F3EADA;
+            --card-bg: #FFFCF9;
+            --white: #FFFFFF;
+            --text-dark: #583819;
+            --text-gray: #505050;
+            --border-color: #D1D1D1;
+            --selected-file-bg: #ECD9B5;
+            --border-radius: 10px;
+            --shadow: 0px 4px 6px rgba(33, 33, 33, 0.04);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: var(--background);
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+            position: relative;
+        }
+
+        .logo {
+            height: auto;
+            max-height: 150px;
+            width: auto;
+            max-width: 80%;
+        }
+
+        /* User menu container and menu styles */
+        .user-menu-container {
+            position: absolute;
+            right: 50px;
+            top: 20px;
+        }
+
+        .auth-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .login-link {
+            background-color: var(--primary);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            display: inline-block;
+        }
+
+        .login-link:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background-color: var(--primary);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            position: relative;
+        }
+
+        .user-name {
+            max-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dropdown-icon {
+            font-size: 10px;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            /* Posiciona exatamente abaixo do elemento pai */
+            right: 0;
+            /* Alinhado à direita do elemento pai */
+            margin-top: 2px;
+            /* Pequeno espaço apenas com margin */
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: none;
+            flex-direction: column;
+            min-width: 180px;
+            z-index: 100;
+        }
+
+        .user-menu:hover+.dropdown-menu,
+        .dropdown-menu:hover {
+            display: flex;
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 4px 10px;
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: background-color 0.3s;
+            font-size: 14px;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .dropdown-item.logout-btn {
+            color: #d32f2f;
+            border-top: 1px solid #eee;
+        }
+
+        @media (max-width: 768px) {
+            .login-link {
+                position: static;
+                display: block;
+                width: fit-content;
+                margin: 10px auto 0;
+                transform: none;
+            }
+
+            .user-menu {
+                position: relative;
+                margin: 10px auto;
+            }
+
+            .dropdown-menu {
+                position: absolute;
+                width: 220px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+
+        .main-content {
+            padding: 10px 0;
+            flex: 1 0 auto;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .main-title {
+            color: var(--text-dark);
+            font-size: clamp(24px, 5vw, 35px);
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 5px;
+        }
+
+        .main-description {
+            color: var(--text-gray);
+            font-size: clamp(14px, 3vw, 17px);
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        .upload-section {
+            max-width: 802px;
+            width: 95%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .dropzone {
+            width: 100%;
+            height: auto;
+            min-height: 150px;
+            border: 1.5px dashed var(--primary);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: var(--transition);
+            padding: 20px;
+        }
+
+        .dropzone:hover,
+        .dropzone.active {
+            background-color: rgba(88, 56, 25, 0.05);
+        }
+
+        .upload-icon {
+            width: 42px;
+            height: 28px;
+            background: url('frontend/assets/img/icon-upload.svg') no-repeat center;
+            background-size: contain;
+            margin-bottom: 12px;
+        }
+
+        .upload-button {
+            width: 205px;
+            height: 37px;
+            border-radius: 8px;
+            border: 2px var(--primary) solid;
+            background: transparent;
+            position: relative;
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 25px;
+            cursor: pointer;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-button::before {
+            content: "+";
+            width: auto;
+            height: auto;
+            left: 13px;
+            top: 6px;
+            position: absolute;
+            background: transparent;
+            color: var(--primary);
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .dropzone-text {
+            text-align: center;
+            color: var(--text-gray);
+            font-size: 14px;
+            font-weight: 400;
+            margin-top: 10px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .selected-file {
+            display: none;
+            width: 100%;
+            padding: 5px 19px;
+            background-color: var(--selected-file-bg);
+            border-radius: 5px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .file-icon {
+            width: 18px;
+            height: 16px;
+            margin-right: 8px;
+            background: url('frontend/assets/img/curriculo.svg') no-repeat center;
+            background-size: contain;
+        }
+
+        .file-name {
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 18px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: calc(100% - 50px);
+        }
+
+        .remove-file {
+            width: 16px;
+            height: 16px;
+            min-width: 16px;
+            background: url('frontend/assets/img/remover.svg') no-repeat center;
+            background-size: contain;
+            border: none;
+            cursor: pointer;
+        }
+
+        .links-section {
+            margin-top: 20px;
+        }
+
+        .links-section h2 {
+            color: var(--text-gray);
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 24px;
+            margin-bottom: 5px;
+        }
+
+        .job-links-container {
+            margin-bottom: 10px;
+        }
+
+        .job-link-item {
+            margin-bottom: 10px;
+        }
+
+        .job-link-input {
+            width: 100%;
+            padding: 14px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 7px;
+            font-size: 11px;
+            font-family: 'IBM Plex Sans', sans-serif;
+            color: var(--text-gray);
+            transition: var(--transition);
+        }
+
+        .job-link-input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .add-job-link-btn {
+            background-color: transparent;
+            color: var(--primary);
+            border: none;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 5px;
+            border-radius: 4px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+        }
+
+        .add-job-link-btn:hover {
+            background-color: rgba(88, 56, 25, 0.05);
+        }
+
+        .analyze-button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            margin-bottom: 40px;
+        }
+
+        .analyze-button {
+            width: 100%;
+            max-width: 349px;
+            height: 50px;
+            background-color: var(--primary-dark);
+            color: var(--white);
+            border: none;
+            border-radius: 7px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .analyze-button:hover {
+            opacity: 0.9;
+        }
+
+        .features-section {
+            background-color: var(--card-bg);
+            padding: 40px 0;
+            width: 100%;
+        }
+
+        .features-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .feature-item {
+            width: 269px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 10px;
+        }
+
+        .feature-icon {
+            width: 33px;
+            height: 33px;
+            background-color: var(--primary);
+            border-radius: 3px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feature-icon.icon-ai {
+            background: var(--primary) url('frontend/assets/img/icon-analysis.png') no-repeat center;
+            background-size: 21px;
+        }
+
+        .feature-icon.icon-feedback {
+            background: var(--primary) url('frontend/assets/img/icon-feedback.png') no-repeat center;
+            background-size: 19px;
+        }
+
+        .feature-icon.icon-optimization {
+            background: var(--primary) url('frontend/assets/img/icon-optimization.png') no-repeat center;
+            background-size: 19px;
+        }
+
+        .feature-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+
+        .feature-desc {
+            color: var(--text-gray);
+            font-size: 17px;
+            line-height: 1.5;
+        }
+
+        footer {
+            background-color: var(--primary-dark);
+            color: var(--white);
+            padding: 20px 0;
+            flex-shrink: 0;
+            margin-top: auto;
+        }
+
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-logo {
+            height: 40px;
+            width: auto;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-link:hover {
+            color: var(--white);
+        }
+
+        .copyright {
+            margin-top: 5px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+        }
+
+        @media (max-width: 992px) {
+            .features-container {
+                gap: 60px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .upload-section {
+                padding: 15px;
+            }
+
+            .features-container {
+                gap: 30px;
+            }
+
+            .feature-item {
+                width: 100%;
+                max-width: 320px;
+            }
+
+            .footer-container {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+
+            .footer-links {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                max-height: 100px;
+            }
+
+            .main-title {
+                font-size: 24px;
+            }
+
+            .main-description {
+                font-size: 14px;
+            }
+
+            .upload-section {
+                padding: 10px;
+            }
+
+            .dropzone {
+                min-height: 120px;
+                padding: 15px;
+            }
+
+            .upload-button {
+                width: 180px;
+                font-size: 12px;
+            }
+
+            .feature-item {
+                padding: 5px;
+            }
+        }
+
+        /* Estilos para drag e drop */
+        .dropzone.dragover {
+            background-color: var(--selected-file-bg);
+            border: 2px dashed var(--primary);
+        }
+
+        /* Estilos para barra de progresso */
+        #progressContainer {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .progress-bar-container {
+            height: 8px;
+            background-color: #E0E0E0;
+            border-radius: 4px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            animation: progress-animation 1.5s infinite ease-in-out;
+        }
+
+        @keyframes progress-animation {
+            0% {
+                width: 10%;
+            }
+
+            50% {
+                width: 70%;
+            }
+
+            100% {
+                width: 10%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="logo-container">
+        <img src="frontend/assets/img/logo.png" alt="Logo Análise de Currículo" class="logo">
+        <div id="userMenuContainer" class="user-menu-container">
+            <div class="auth-wrapper">
+                <a href="login.html" id="loginLink" class="login-link">Entrar</a>
+                <div id="authButton" class="user-menu" style="display: none;">
+                    <span class="user-name">Usuário</span>
+                    <span class="dropdown-icon">▼</span>
+                </div>
+                <div id="userDropdown" class="dropdown-menu">
+                    <a href="profile.html" class="dropdown-item">Meu Perfil</a>
+                    <a href="history.html" class="dropdown-item">Histórico de Análises</a>
+                    <a href="#" id="logoutButton" class="dropdown-item">Sair</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div class="container">
+            <section class="header-section">
+                <h1 class="main-title">CV Sem Frescura</h1>
+                <p class="main-description">Otimize seu currículo com inteligência artificial.</p>
+            </section>
+
+            <section class="upload-section">
+                <form id="resumeForm" enctype="multipart/form-data">
+                    <div id="fileUploadContainer" class="dropzone">
+                        <div class="upload-icon"></div>
+                        <button type="button" class="upload-button">Selecione Seu Currículo</button>
+                        <p class="dropzone-text">Ou arraste e solte seu currículo nesse campo</p>
+                        <input type="file" style="display: none;" id="resumeFile" name="resumeFile"
+                            accept=".pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                    </div>
+
+                    <div class="selected-file" id="selectedFile" style="display: none;">
+                        <div class="file-info">
+                            <div class="file-icon"></div>
+                            <span class="file-name" id="selectedFileName">Nome do arquivo</span>
+                        </div>
+                        <button id="removeFileBtn" class="remove-file" aria-label="Remover arquivo"></button>
+                    </div>
+
+
+                    <div class="links-section">
+                        <h2>Link das Vagas Desejadas</h2>
+                        <div class="job-links-container" id="jobLinksContainer">
+                            <!-- Os campos de links serão adicionados pelo JavaScript -->
+                        </div>
+                        <button type="button" id="addJobLinkBtn" class="add-job-link-btn">+ Adicionar Mais Uma
+                            Vaga</button>
+                    </div>
+
+                    <div class="analyze-button-container">
+                        <button type="submit" id="submitBtn" class="analyze-button">Analise Agora Seu Currículo</button>
+                        <div id="progressContainer" style="display: none;">
+                            <div class="progress-text">Processando seu currículo...</div>
+                            <div class="progress-bar-container">
+                                <div id="progressBar" class="progress-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </section>
+
+            <div class="analyze-button-container" style="display: none;">
+                <button class="analyze-button" id="analyzeBtn">Analise Agora Seu Currículo</button>
+            </div>
+        </div>
+
+        <section class="features-section">
+            <div class="container features-container">
+                <div class="feature-item">
+                    <div class="feature-icon icon-ai"></div>
+                    <div>
+                        <h3 class="feature-title">Análise de Currículo com IA</h3>
+                        <p class="feature-desc">Aproveite a inteligência artificial para identificar melhorias e alinhar
+                            seu perfil às exigências das vagas.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon icon-feedback"></div>
+                    <div>
+                        <h3 class="feature-title">Feedback Personalizado</h3>
+                        <p class="feature-desc">Descubra em segundos os pontos que podem destacar seu currículo no
+                            mercado.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon icon-optimization"></div>
+                    <div>
+                        <h3 class="feature-title">Otimização Para Cada Vaga</h3>
+                        <p class="feature-desc">Adapte seu currículo às expectativas dos recrutadores e aumente suas
+                            chances de sucesso.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-container">
+            <div>
+                <img src="frontend/assets/img/logo.png" alt="RH Super" class="footer-logo">
+                <p class="copyright"> 2024 RH Super. Todos os direitos reservados.</p>
+            </div>
+            <div class="footer-links">
+                <a href="privacy.html" class="footer-link">Políticas de Privacidade</a>
+                <a href="terms.html" class="footer-link">Termos de Uso</a>
+                <a href="#" class="footer-link">Contato</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Elementos do DOM
+            const authButton = document.getElementById('authButton');
+            const userDropdown = document.getElementById('userDropdown');
+            const logoutButton = document.getElementById('logoutButton');
+
+            // Verificar se é necessário forçar atualização (vindo da página de pagamento)
+            const urlParams = new URLSearchParams(window.location.search);
+
+            const loginLink = document.getElementById('loginLink');
+
+            // Atualizar UI baseado no estado de autenticação
+            function updateUI() {
+                if (window.isAuthenticated && window.isAuthenticated()) {
+                    // Mostrar menu do usuário e esconder link de login
+                    loginLink.style.display = 'none';
+                    authButton.style.display = 'flex';
+
+                    // Tentar obter dados do usuário se a função existir
+                    if (window.getUserData) {
+                        const userData = window.getUserData();
+                        // Atualizar menu do usuário com nome
+                        const userNameElement = authButton.querySelector('.user-name');
+                        if (userNameElement && userData) {
+                            userNameElement.textContent = userData.name || 'Usuário';
+                        }
+                    }
+                } else {
+                    // Mostrar link de login e esconder menu do usuário
+                    loginLink.style.display = 'inline-block';
+                    authButton.style.display = 'none';
+                }
+            }
+
+            // Chamar updateUI quando a página carregar
+            updateUI();
+
+            // Verificar autenticação novamente após um pequeno atraso
+            // para garantir que auth-middleware.js foi completamente carregado
+            setTimeout(updateUI, 100);
+
+            // Adicionar event listener para o botão de logout
+            if (logoutButton) {
+                logoutButton.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    if (window.logout) {
+                        window.logout();
+                    }
+                });
+            }
+
+            // Não precisamos mais do event listener para clicar fora do dropdown
+            // pois agora estamos usando hover para mostrar/esconder o dropdown
+
+            // Funcionalidade para adicionar mais campos de links de vagas
+            const addJobLinkBtn = document.getElementById('addJobLinkBtn');
+            const jobLinksContainer = document.getElementById('jobLinksContainer');
+
+            // Contador para rastrear o número total de campos de links
+            let jobLinkCount = document.querySelectorAll('.job-link-item').length;
+
+            // Função para adicionar um novo campo de vaga
+            function addJobLinkField() {
+                // Verificar se estamos chegando perto do limite de tokens
+                // Configuramos um limite de 8 campos por segurança
+                if (jobLinkCount >= 8) {
+                    alert('Você atingiu o limite máximo de vagas para análise simultânea.');
+                    return;
+                }
+
+                // Criar novo campo de input
+                const newLinkItem = document.createElement('div');
+                newLinkItem.className = 'job-link-item';
+
+                const newInput = document.createElement('input');
+                newInput.type = 'url';
+                newInput.className = 'job-link-input';
+                newInput.placeholder = `https://linkdavaga.com`;
+
+                // Adicionar campo à interface
+                newLinkItem.appendChild(newInput);
+                jobLinksContainer.appendChild(newLinkItem);
+
+                // Incrementar contador
+                jobLinkCount++;
+
+                // Dar foco ao novo campo
+                newInput.focus();
+            }
+
+            // Adicionar event listener para o botão de adicionar vaga
+            if (addJobLinkBtn) {
+                addJobLinkBtn.addEventListener('click', addJobLinkField);
+            }
+
+            // Adicionar o primeiro campo de vaga automaticamente quando a página carrega
+            addJobLinkField();
+        });
+    </script>
+    <script src="frontend/assets/js/resume-analysis.js"></script>
+</body>
+
+</html>

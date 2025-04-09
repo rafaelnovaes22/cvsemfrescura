@@ -1,0 +1,269 @@
+/* Arquivo de estilos para a interface de onboarding */
+
+:root {
+    --primary: #583819;
+    --primary-dark: #512808;
+    --background: #F3EADA;
+    --card-bg: #FFFCF9;
+    --white: #FFFFFF;
+    --text-dark: #583819;
+    --text-gray: #505050;
+    --border-color: #D1D1D1;
+    --selected-file-bg: #ECD9B5;
+    --border-radius: 10px;
+    --shadow: 0px 4px 6px rgba(33, 33, 33, 0.04);
+    --transition: all 0.3s ease;
+    --alert-success: #4CAF50;
+    --alert-error: #F44336;
+    --alert-warning: #FFC107;
+    --alert-info: #2196F3;
+}
+
+/* Estilos específicos para o formulário de upload */
+.upload-section {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 30px;
+    box-shadow: var(--shadow);
+    margin-bottom: 30px;
+}
+
+.file-upload-container {
+    border: 2px dashed var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 30px 20px;
+    text-align: center;
+    margin-bottom: 20px;
+    transition: var(--transition);
+    position: relative;
+    cursor: pointer;
+}
+
+.file-upload-container.file-selected {
+    border-color: var(--primary);
+    background-color: var(--selected-file-bg);
+}
+
+.upload-icon {
+    display: block;
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 15px;
+}
+
+.file-upload-container input[type="file"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.file-upload-text {
+    font-size: 16px;
+    color: var(--text-dark);
+    margin-bottom: 10px;
+}
+
+.file-upload-hint {
+    font-size: 14px;
+    color: var(--text-gray);
+}
+
+.selected-file-name {
+    font-weight: 500;
+    color: var(--primary);
+    word-break: break-all;
+    margin-top: 10px;
+}
+
+.remove-file {
+    display: none;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.remove-file:hover {
+    background-color: var(--primary-dark);
+}
+
+/* Estilos para links de vagas */
+.job-links-section {
+    margin-top: 20px;
+}
+
+.job-links-section h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: var(--text-dark);
+}
+
+.job-link-wrapper {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.job-link-input {
+    flex-grow: 1;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.job-link-input:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(88, 56, 25, 0.1);
+}
+
+.remove-link-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    margin-left: 10px;
+}
+
+.remove-link-btn img {
+    width: 20px;
+    height: 20px;
+}
+
+.add-job-link-btn {
+    background-color: var(--white);
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    border-radius: var(--border-radius);
+    padding: 10px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: var(--transition);
+    margin-top: 10px;
+}
+
+.add-job-link-btn:hover {
+    background-color: var(--primary);
+    color: var(--white);
+}
+
+.add-job-link-btn::before {
+    content: "+";
+    margin-right: 5px;
+    font-size: 18px;
+}
+
+/* Botão de submissão */
+.submit-btn {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 15px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-block;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.submit-btn:hover {
+    background-color: var(--primary-dark);
+}
+
+.submit-btn:disabled {
+    background-color: var(--text-gray);
+    cursor: not-allowed;
+}
+
+/* Estilos de mensagens */
+.message-box {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 5px;
+    color: white;
+    font-size: 14px;
+    max-width: 300px;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    animation: slideIn 0.3s ease-out forwards;
+}
+
+.message-box.hiding {
+    animation: slideOut 0.5s ease-in forwards;
+}
+
+.message-error {
+    background-color: var(--alert-error);
+}
+
+.message-success {
+    background-color: var(--alert-success);
+}
+
+.message-warning {
+    background-color: var(--alert-warning);
+    color: var(--text-dark);
+}
+
+.message-info {
+    background-color: var(--alert-info);
+}
+
+/* Animações */
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+/* Spinner para indicador de carregamento */
+.spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Media queries */
+@media (max-width: 768px) {
+    .upload-section {
+        padding: 20px;
+    }
+    
+    .file-upload-container {
+        padding: 20px 15px;
+    }
+    
+    .submit-btn {
+        padding: 12px 20px;
+    }
+}

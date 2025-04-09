@@ -1,0 +1,1899 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Currículo</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: #FFFCF9;
+            color: #505050;
+            min-height: 100vh;
+        }
+
+        .header-bg {
+            width: 100%;
+            height: 50vh;
+            min-height: 300px;
+            max-height: 500px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: #F3EADA;
+            z-index: -1;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1440px;
+            position: relative;
+            margin: 0 auto;
+            padding: 0 20px;
+            overflow-x: hidden;
+        }
+
+        .header-content {
+            width: 100%;
+            max-width: 652px;
+            position: relative;
+            margin: 150px auto 0 10%;
+            padding-bottom: 30px;
+        }
+
+        @media (max-width: 1440px) {
+            .header-content {
+                margin-left: 5%;
+                margin-right: 5%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                margin-left: 0;
+                margin-right: 0;
+                margin-top: 120px;
+                max-width: 100%;
+            }
+        }
+
+        .header-title {
+            width: 100%;
+            max-width: 652px;
+            color: #583819;
+            font-size: 45px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        @media (max-width: 768px) {
+            .header-title {
+                font-size: 28px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-title {
+                font-size: 24px;
+            }
+        }
+
+        .file-badge {
+            width: 100%;
+            max-width: 232px;
+            height: auto;
+            min-height: 28px;
+            padding: 5px 19px;
+            background: #ECD9B5;
+            border-radius: 5px;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .file-icon {
+            width: 13px;
+            height: 15.79px;
+            background: #583819;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .file-name {
+            color: #583819;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 18px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .header-description {
+            width: 100%;
+            max-width: 554px;
+            margin-top: 30px;
+            color: #505050;
+            font-size: 17px;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .header-description {
+                font-size: 15px;
+                margin-top: 20px;
+                max-width: 100%;
+            }
+        }
+
+        .header-description strong {
+            font-weight: 600;
+        }
+
+        .icons-grid {
+            width: 280px;
+            height: 280px;
+            position: absolute;
+            top: 120px;
+            right: 10%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .icons-grid {
+                right: 5%;
+                width: 220px;
+                height: 220px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .icons-grid {
+                position: relative;
+                top: 20px;
+                right: auto;
+                width: 200px;
+                height: 200px;
+                margin: 0 auto 40px auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .icons-grid {
+                width: 160px;
+                height: 160px;
+                gap: 10px;
+            }
+        }
+
+        .icon-box {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: #ECD9B5;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .icon-box svg {
+            width: 70%;
+            height: 70%;
+        }
+
+        .section {
+            width: 100%;
+            max-width: 1110px;
+            margin: 60px auto 0;
+            padding: 0 20px;
+        }
+
+        @media (max-width: 1440px) {
+            .section {
+                margin-left: auto;
+                margin-right: auto;
+                padding: 0 5%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section {
+                margin-top: 40px;
+            }
+        }
+
+        .section-header {
+            width: 100%;
+            height: auto;
+            min-height: 60px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .section-title {
+            width: 100%;
+            color: #583819;
+            font-size: 25px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-left: 2px;
+            padding-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .section-title {
+                font-size: 18px;
+            }
+        }
+
+        .section-divider {
+            width: 100%;
+            height: 2px;
+            background: #D2BE99;
+            position: absolute;
+            bottom: 0;
+        }
+
+        .section-divider::before {
+            content: "";
+            width: 120px;
+            height: 4px;
+            background: #583819;
+            position: absolute;
+            top: -1px;
+            left: 0;
+        }
+
+        .keywords-grid {
+            width: 100%;
+            max-width: 1000px;
+            margin: 30px auto 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .keywords-grid {
+                margin-top: 20px;
+                gap: 10px;
+            }
+        }
+
+        .keyword-tag {
+            height: auto;
+            min-height: 32px;
+            padding: 8px 15px;
+            background: #ECD9B5;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .keyword-tag span {
+            text-align: center;
+            color: #583819;
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        @media (max-width: 480px) {
+            .keyword-tag span {
+                font-size: 13px;
+            }
+        }
+
+        .keyword-row {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .keyword-row {
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+        }
+
+        .keyword-item {
+            width: 100%;
+            height: auto;
+            min-height: 60px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #BBB7B7;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .keyword-item {
+                padding: 10px;
+                margin-bottom: 15px;
+                min-height: 50px;
+            }
+        }
+
+        .keyword-box {
+            width: 145px;
+            padding: 10px;
+            background: #ECD9B5;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .keyword-box {
+                width: 110px;
+                padding: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .keyword-box {
+                width: 100px;
+            }
+        }
+
+        .keyword-box span {
+            text-align: center;
+            color: #583819;
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        @media (max-width: 768px) {
+            .keyword-box span {
+                font-size: 13px;
+            }
+        }
+
+        .keyword-separator {
+            color: #505050;
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.3;
+            margin: 0 6px;
+        }
+
+        @media (max-width: 480px) {
+            .keyword-separator {
+                font-size: 14px;
+            }
+        }
+
+        .keyword-info {
+            flex: 1;
+        }
+
+        .keyword-info strong {
+            color: #505050;
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .keyword-info span {
+            color: #505050;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 768px) {
+
+            .keyword-info strong,
+            .keyword-info span {
+                font-size: 14px;
+                line-height: 1.3;
+            }
+        }
+
+        .recommendations {
+            color: #505050;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.6;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .recommendations {
+                font-size: 15px;
+                margin-top: 20px;
+            }
+        }
+
+        .recommendations-bold {
+            color: #505050;
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.6;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .recommendations-bold {
+                font-size: 15px;
+                margin-top: 20px;
+            }
+        }
+
+        .footer {
+            width: 100%;
+            height: 70px;
+            background: #583819;
+            margin-top: 60px;
+        }
+
+        @media (max-width: 768px) {
+            .footer {
+                height: 50px;
+                margin-top: 40px;
+            }
+        }
+
+        #all-job-keywords-container,
+        #keywords-found-container,
+        #keywords-missing-container {
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+
+            #all-job-keywords-container,
+            #keywords-found-container,
+            #keywords-missing-container {
+                margin-top: 20px;
+            }
+        }
+
+        /* Responsive logo */
+        .logo {
+            width: 140px;
+            height: auto;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                width: 100px;
+                top: 20px;
+            }
+        }
+
+        /* Estilos para as seções de avaliação do currículo */
+        .evaluation-section {
+            background-color: #fff;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 480px) {
+            .evaluation-section {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+        }
+
+        .evaluation-section h3 {
+            color: #583819;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ECD9B5;
+            padding-bottom: 6px;
+        }
+
+        @media (max-width: 480px) {
+            .evaluation-section h3 {
+                font-size: 16px;
+                margin-bottom: 8px;
+                padding-bottom: 5px;
+            }
+        }
+
+        .section-score {
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #583819;
+            font-size: 15px;
+        }
+
+        @media (max-width: 480px) {
+            .section-score {
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+        }
+
+        .section-score span {
+            background-color: #ECD9B5;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-left: 5px;
+        }
+
+        .evaluation-section p {
+            margin-bottom: 12px;
+            line-height: 1.5;
+            font-size: 15px;
+        }
+
+        @media (max-width: 480px) {
+            .evaluation-section p {
+                font-size: 14px;
+                line-height: 1.4;
+                margin-bottom: 10px;
+            }
+        }
+
+        .evaluation-section ul {
+            margin-left: 20px;
+            margin-bottom: 5px;
+        }
+
+        .evaluation-section li {
+            margin-bottom: 6px;
+            list-style-type: disc;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 480px) {
+            .evaluation-section li {
+                font-size: 14px;
+                margin-bottom: 5px;
+            }
+        }
+
+        /* Classe adicional para conteúdo que pode ser muito grande */
+        .scrollable-content {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        /* Ajuste para telas muito pequenas */
+        @media (max-width: 380px) {
+            body {
+                font-size: 13px;
+            }
+
+            .section {
+                padding: 0 10px;
+            }
+
+            .keywords-grid {
+                gap: 8px;
+            }
+
+            .keyword-tag {
+                padding: 6px 10px;
+            }
+
+            .keyword-tag span {
+                font-size: 12px;
+            }
+        }
+
+        /* Estilos para corrigir possíveis problemas de overflow */
+        img,
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header-bg"></div>
+    <div class="container">
+        <img src="frontend/assets/img/logo.png" alt="Logo" class="logo">
+
+        <div class="header-content">
+            <div class="header-title">Análise de Currículo</div>
+            <div class="file-badge">
+                <div class="file-icon"></div>
+                <div class="file-name" id="cv-filename">Currículo Rafael de Novaes.pdf</div>
+            </div>
+            <div class="header-description" id="cv-introduction">
+                Potencialize suas chances de sucesso com uma visão clara das palavras-chave que importam. Descubra os
+                termos essenciais para as vagas desejadas e como seu currículo se posiciona em relação a eles.
+            </div>
+        </div>
+
+        <div class="icons-grid">
+            <div class="icon-box">
+                <svg width="54" height="59" viewBox="0 0 54 59" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2.5 56.5V2.5H51.5V56.5H2.5Z" stroke="#583819" stroke-width="5" />
+                </svg>
+            </div>
+            <div class="icon-box">
+                <svg width="62" height="62" viewBox="0 0 62 62" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="31" cy="31" r="28.5" stroke="#583819" stroke-width="4.5" />
+                </svg>
+            </div>
+            <div class="icon-box">
+                <svg width="56" height="62" viewBox="0 0 56 62" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2.5 59.5V2.5H53.5V59.5L28 45.5L2.5 59.5Z" stroke="#583819" stroke-width="4.5" />
+                </svg>
+            </div>
+            <div class="icon-box">
+                <svg width="50" height="62" viewBox="0 0 50 62" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2.5 2.5H46.5V52.5H2.5V2.5Z" stroke="#583819" stroke-width="4.5" />
+                    <path d="M17 2.5V52.5" stroke="#583819" stroke-width="4.5" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Seção de Palavras-chave Identificadas na Vaga -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">Palavras-chaves Identificadas na Vaga:</div>
+                <div class="section-divider"></div>
+            </div>
+            <div id="all-job-keywords-container" class="keywords-grid scrollable-content">
+                <!-- Será preenchido via JavaScript -->
+            </div>
+        </div>
+
+        <!-- Seção de Palavras-chave Presentes no Currículo -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">Palavras-chaves Presentes em seu Currículo:</div>
+                <div class="section-divider"></div>
+            </div>
+            <div id="keywords-found-container" class="scrollable-content">
+                <!-- Será preenchido via JavaScript -->
+            </div>
+        </div>
+
+        <!-- Seção de Palavras-chave Ausentes no Currículo -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">Palavras-chaves Ausentes em seu Currículo:</div>
+                <div class="section-divider"></div>
+            </div>
+            <div id="keywords-missing-container" class="scrollable-content">
+                <!-- Será preenchido via JavaScript -->
+            </div>
+        </div>
+
+        <!-- Seções de Avaliação de Campos do Currículo -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">Avaliação do Currículo</div>
+                <div class="section-divider"></div>
+            </div>
+
+            <!-- Subseção: Resumo -->
+            <div id="resume-section" class="evaluation-section">
+                <h3>Resumo</h3>
+                <div class="section-score">Nota: <span id="resume-score">9/10</span></div>
+                <p id="resume-evaluation">O resumo é conciso e destaca as principais competências e experiências do
+                    candidato. A menção a empresas renomadas e certificações relevantes agrega valor. No entanto,
+                    poderia incluir um objetivo mais claro sobre a posição desejada ou o próximo passo na carreira.</p>
+                <ul id="resume-recommendations">
+                    <li>Adicionar um objetivo profissional claro.</li>
+                    <li>Incluir uma frase sobre o que busca na próxima oportunidade.</li>
+                </ul>
+            </div>
+
+            <!-- Subseção: Idiomas -->
+            <div id="languages-section" class="evaluation-section">
+                <h3>Idiomas</h3>
+                <div class="section-score">Nota: <span id="languages-score">9/10</span></div>
+                <p id="languages-evaluation">A seção de idiomas é clara e direta, indicando o nível de proficiência de
+                    forma adequada. Poderia incluir outras línguas, se houver, para dar uma visão completa das
+                    competências linguísticas.</p>
+                <ul id="languages-recommendations">
+                    <li>Incluir outras línguas, se aplicável.</li>
+                    <li>Especificar se há certificações de proficiência em inglês.</li>
+                </ul>
+            </div>
+
+            <!-- Subseção: Formação -->
+            <div id="education-section" class="evaluation-section">
+                <h3>Formação</h3>
+                <div class="section-score">Nota: <span id="education-score">7/10</span></div>
+                <p id="education-evaluation">A seção de formação lista cursos relevantes para a área de atuação, mas
+                    poderia ser organizada de forma cronológica inversa para facilitar a leitura. Além disso, faltam
+                    datas de conclusão para alguns cursos.</p>
+                <ul id="education-recommendations">
+                    <li>Organizar a formação em ordem cronológica inversa.</li>
+                    <li>Incluir as datas de conclusão dos cursos.</li>
+                </ul>
+            </div>
+
+            <!-- Subseção: Habilidades -->
+            <div id="skills-section" class="evaluation-section">
+                <h3>Habilidades</h3>
+                <div class="section-score">Nota: <span id="skills-score">8/10</span></div>
+                <p id="skills-evaluation">A seção de habilidades é abrangente e cobre uma ampla gama de competências
+                    técnicas e interpessoais. No entanto, poderia ser mais organizada, talvez agrupando habilidades
+                    similares.</p>
+                <ul id="skills-recommendations">
+                    <li>Agrupar habilidades similares para melhorar a clareza.</li>
+                    <li>Considerar destacar as habilidades mais relevantes para a posição desejada.</li>
+                </ul>
+            </div>
+
+            <!-- Subseção: Informações Pessoais -->
+            <div id="personal-section" class="evaluation-section">
+                <h3>Informações Pessoais</h3>
+                <div class="section-score">Nota: <span id="personal-score">8/10</span></div>
+                <p id="personal-evaluation">As informações pessoais estão bem organizadas e incluem dados de contato
+                    essenciais. A inclusão do LinkedIn é um ponto positivo. No entanto, a localização (cidade/estado)
+                    poderia ser movida para uma seção mais apropriada.</p>
+                <ul id="personal-recommendations">
+                    <li>Mover a localização para uma seção específica de informações pessoais.</li>
+                    <li>Certificar-se de que o e-mail e o LinkedIn estão atualizados.</li>
+                </ul>
+            </div>
+
+            <!-- Subseção: Experiência Profissional -->
+            <div id="experience-section" class="evaluation-section">
+                <h3>Experiência Profissional</h3>
+                <div class="section-score">Nota: <span id="experience-score">9/10</span></div>
+                <p id="experience-evaluation">A experiência profissional é detalhada e bem estruturada, com ênfase em
+                    realizações e responsabilidades. A descrição das funções é clara e destaca habilidades relevantes.
+                    No entanto, a ordem cronológica inversa deve ser mantida consistentemente.</p>
+                <ul id="experience-recommendations">
+                    <li>Certificar-se de que todas as experiências estão em ordem cronológica inversa.</li>
+                    <li>Destacar mais realizações com resultados mensuráveis.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Seção de Recomendações -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">Recomendações</div>
+                <div class="section-divider"></div>
+            </div>
+            <div id="recommendations-container" class="recommendations">
+                Reorganize o currículo para destacar as realizações mais impactantes.<br>
+                Considere adicionar certificações adicionais em áreas como análise de dados ou produtos de IA.<br>
+                Inclua mais detalhes sobre projetos específicos e resultados alcançados.
+            </div>
+        </div>
+
+        <!-- Seção de Conclusão -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">Conclusão</div>
+                <div class="section-divider"></div>
+            </div>
+            <div id="conclusion-container" class="recommendations-bold">
+                <!-- Será preenchido via JavaScript com uma conclusão detalhada -->
+            </div>
+        </div>
+
+        <!-- Seção de Debug removida -->
+
+        <div class="footer"></div>
+    </div>
+
+    <script>
+        // Função para obter parâmetros da URL
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            const results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Ajuste dinâmico da altura do cabeçalho
+            adjustHeaderHeight();
+            window.addEventListener('resize', adjustHeaderHeight);
+
+            // Obter ID da análise da URL
+            const analysisId = getUrlParameter('id');
+
+            // Se não houver ID, tentar recuperar do localStorage (compatibilidade com versão anterior)
+            if (!analysisId) {
+                const analysisResults = JSON.parse(localStorage.getItem('analysisResults'));
+
+                if (!analysisResults) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                // Usar dados do localStorage
+                const fileName = localStorage.getItem('fileName');
+                if (fileName) {
+                    document.getElementById('cv-filename').textContent = fileName;
+                }
+
+                renderResults(analysisResults);
+                return;
+            }
+
+            // Mostrar mensagem de carregamento
+            document.getElementById('conclusion-container').innerHTML = '<p>Carregando resultados...</p>';
+
+            // Buscar dados da análise do backend
+            fetch(`/api/resume/analysis/${analysisId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Falha ao buscar resultados');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // DEBUG: Log completo da resposta para verificar o formato
+                    console.log('Resposta da API:', JSON.stringify(data, null, 2));
+
+                    if (!data.success) {
+                        throw new Error(data.message || 'Erro desconhecido');
+                    }
+
+                    // Exibir o nome do arquivo
+                    if (data.data.fileName) {
+                        document.getElementById('cv-filename').textContent = data.data.fileName;
+                    }
+
+                    // DEBUG: Log das análises
+                    console.log('analysisResults:', data.data.analysisResults);
+                    console.log('API data structure:', data.data);
+
+                    // Renderizar resultados usando a estrutura correta
+                    renderResults(data.data);
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    document.getElementById('conclusion-container').innerHTML =
+                        `<p>Erro ao carregar resultados: ${error.message}. <a href="index.html">Voltar ao início</a></p>`;
+                });
+        });
+
+        // Função para ajustar a altura do cabeçalho
+        function adjustHeaderHeight() {
+            const headerBg = document.querySelector('.header-bg');
+            const viewportHeight = window.innerHeight;
+
+            // Definir uma altura mínima e máxima para o cabeçalho
+            const minHeight = 300;
+            const maxHeight = 500;
+
+            // Calcular 50% da altura da viewport
+            const halfViewportHeight = viewportHeight * 0.5;
+
+            // Limitar entre os valores mínimo e máximo
+            const headerHeight = Math.max(minHeight, Math.min(maxHeight, halfViewportHeight));
+
+            // Aplicar a altura
+            headerBg.style.height = `${headerHeight}px`;
+        }
+
+        // Função para renderizar os resultados
+        function renderResults(analysisData) {
+            // DEBUG: Verificar se analysisData existe e o que contém
+            console.log('Tentando renderizar:', analysisData);
+
+            // Em caso de dados ausentes, adicionar mensagem de erro
+            if (!analysisData) {
+                document.getElementById('conclusion-container').innerHTML = '<p>Erro: Não foi possível carregar os resultados da análise. Os dados de análise estão vazios ou em formato incorreto.</p>';
+                return;
+            }
+
+            // Exibir conclusão
+            if (analysisData.conclusion) {
+                document.getElementById('conclusion-container').innerHTML = analysisData.conclusion;
+            } else if (analysisData.summary) { // Compatibilidade com versão antiga
+                document.getElementById('conclusion-container').innerHTML = analysisData.summary;
+            } else {
+                console.error('conclusion ou summary ausente nos dados da API');
+                document.getElementById('conclusion-container').innerHTML = '<p>Não foi possível carregar a conclusão da análise.</p>';
+            }
+
+            // Exibir avaliação ATS se disponível
+            /*
+            if (analysisData.ats_structure_evaluation) {
+                const atsEvaluation = analysisData.ats_structure_evaluation;
+
+                // Criar seção ATS se ainda não existir
+                if (!document.getElementById('ats-section')) {
+                    const atsSection = document.createElement('div');
+                    atsSection.className = 'section';
+                    atsSection.id = 'ats-section';
+
+                    const sectionHeader = document.createElement('div');
+                    sectionHeader.className = 'section-header';
+                    sectionHeader.innerHTML = `
+                        <div class="section-title">Avaliação da Estrutura ATS</div>
+                        <div class="section-divider"></div>
+                    `;
+
+                    const sectionContent = document.createElement('div');
+                    sectionContent.id = 'ats-content';
+                    sectionContent.className = 'recommendations';
+
+                    atsSection.appendChild(sectionHeader);
+                    atsSection.appendChild(sectionContent);
+
+                    // Inserir antes da seção de recomendações
+                    const recommendationsSection = document.querySelector('.section-title').closest('.section');
+                    if (recommendationsSection) {
+                        recommendationsSection.parentNode.insertBefore(atsSection, recommendationsSection);
+                    }
+                }
+
+                // Preencher conteúdo ATS
+                const atsContent = document.getElementById('ats-content');
+                atsContent.innerHTML = `
+                    <strong>Pontuação Geral:</strong> ${atsEvaluation.overall_score}/10<br><br>
+                    <strong>Clareza e Organização:</strong> ${atsEvaluation.clarity_organization}<br><br>
+                    <strong>Compatibilidade com ATS:</strong> ${atsEvaluation.ats_compatibility}<br><br>
+                    <strong>Seções Essenciais:</strong> ${atsEvaluation.essential_sections}<br><br>
+                    ${atsEvaluation.comments ? `<strong>Comentários Adicionais:</strong> ${atsEvaluation.comments}` : ''}
+                `;
+            }
+            */
+
+            // Verificar se há dados de análise de vagas
+            const hasJobData = analysisData.all_job_keywords && Object.values(analysisData.all_job_keywords).some(arr => arr.length > 0);
+
+            if (!hasJobData) {
+                // Adicionar aviso no topo da página se não houver dados de vaga
+                const warningDiv = document.createElement('div');
+                warningDiv.style.backgroundColor = '#FFF3CD';
+                warningDiv.style.color = '#856404';
+                warningDiv.style.padding = '10px';
+                warningDiv.style.margin = '20px 0';
+                warningDiv.style.borderRadius = '5px';
+                warningDiv.style.border = '1px solid #FFEEBA';
+                warningDiv.innerHTML = '<strong>Atenção:</strong> Não foi realizada análise comparativa com vagas porque nenhuma vaga foi informada durante a análise. Para obter uma análise completa, inclua links de vagas ao analisar seu currículo.';
+
+                const firstSection = document.querySelector('.section');
+                if (firstSection) {
+                    firstSection.parentNode.insertBefore(warningDiv, firstSection);
+                }
+            }
+
+            // Exibir todas as palavras-chave das vagas
+            displayAllJobKeywords(analysisData);
+
+            // Exibir palavras-chave presentes no currículo
+            displayKeywordsFound(analysisData);
+
+            // Exibir palavras-chave ausentes no currículo
+            displayMissingKeywords(analysisData);
+
+            // Preencher avaliação específica de cada seção do currículo
+            updateCurriculumEvaluation(analysisData);
+
+            // Exibir recomendações
+            if (analysisData.recommendations && analysisData.recommendations.length > 0) {
+                document.getElementById('recommendations-container').innerHTML =
+                    analysisData.recommendations.join('<br>');
+            } else {
+                document.getElementById('recommendations-container').innerHTML =
+                    '<p>Não foram geradas recomendações específicas para este currículo.</p>';
+            }
+
+            // Verificar a necessidade de rolagem nas seções com muito conteúdo
+            checkScrollableContent();
+        }
+
+        // Verificar se os containers de palavras-chave precisam de rolagem
+        function checkScrollableContent() {
+            const scrollableElements = document.querySelectorAll('.scrollable-content');
+
+            scrollableElements.forEach(element => {
+                // Se o conteúdo for maior que 400px de altura, adicionar uma borda para indicar rolagem
+                if (element.scrollHeight > 400) {
+                    element.style.borderBottom = '2px dashed #D2BE99';
+                    element.style.paddingBottom = '10px';
+                }
+            });
+        }
+
+        // Função para atualizar a avaliação das seções específicas do currículo
+        function updateCurriculumEvaluation(data) {
+            // Se temos dados de avaliação de estrutura ATS, podemos usá-los para preencher as seções
+            if (data.ats_structure_evaluation) {
+                const ats = data.ats_structure_evaluation;
+
+                // Mapear as avaliações para as seções correspondentes
+                // Os IDs das seções no HTML: resume-section, languages-section, education-section, 
+                // skills-section, personal-section, experience-section
+
+                // Fragmentos da avaliação ATS que podem se relacionar a seções específicas
+                const clarity = ats.clarity_organization || "";
+                const sections = ats.essential_sections || "";
+                const comments = ats.comments || "";
+
+                // Exemplo: se há menção a "resumo" na avaliação, podemos usar para a seção correspondente
+                if (clarity.toLowerCase().includes("resumo") || sections.toLowerCase().includes("resumo")) {
+                    let score = extractScoreFromText(clarity, "resumo") || 9;
+                    let evaluation = extractEvaluationForSection(clarity, sections, comments, "resumo");
+
+                    if (evaluation) {
+                        document.getElementById("resume-evaluation").textContent = evaluation;
+                        document.getElementById("resume-score").textContent = `${score}/10`;
+                    }
+                }
+
+                // Aplicar a mesma lógica para outras seções
+                // Idiomas
+                if (clarity.toLowerCase().includes("idioma") || sections.toLowerCase().includes("idioma")) {
+                    let score = extractScoreFromText(clarity, "idioma") || 9;
+                    let evaluation = extractEvaluationForSection(clarity, sections, comments, "idioma");
+
+                    if (evaluation) {
+                        document.getElementById("languages-evaluation").textContent = evaluation;
+                        document.getElementById("languages-score").textContent = `${score}/10`;
+                    }
+                }
+
+                // Formação
+                if (clarity.toLowerCase().includes("formação") || sections.toLowerCase().includes("formação") ||
+                    clarity.toLowerCase().includes("educação") || sections.toLowerCase().includes("educação")) {
+                    let score = extractScoreFromText(clarity, "formação") || 7;
+                    let evaluation = extractEvaluationForSection(clarity, sections, comments, "formação");
+
+                    if (evaluation) {
+                        document.getElementById("education-evaluation").textContent = evaluation;
+                        document.getElementById("education-score").textContent = `${score}/10`;
+                    }
+                }
+
+                // Habilidades
+                if (clarity.toLowerCase().includes("habilidade") || sections.toLowerCase().includes("habilidade") ||
+                    clarity.toLowerCase().includes("competência") || sections.toLowerCase().includes("competência")) {
+                    let score = extractScoreFromText(clarity, "habilidade") || 8;
+                    let evaluation = extractEvaluationForSection(clarity, sections, comments, "habilidade");
+
+                    if (evaluation) {
+                        document.getElementById("skills-evaluation").textContent = evaluation;
+                        document.getElementById("skills-score").textContent = `${score}/10`;
+                    }
+                }
+
+                // Informações Pessoais
+                if (clarity.toLowerCase().includes("pessoal") || sections.toLowerCase().includes("pessoal") ||
+                    clarity.toLowerCase().includes("contato") || sections.toLowerCase().includes("contato")) {
+                    let score = extractScoreFromText(clarity, "pessoal") || 8;
+                    let evaluation = extractEvaluationForSection(clarity, sections, comments, "pessoal");
+
+                    if (evaluation) {
+                        document.getElementById("personal-evaluation").textContent = evaluation;
+                        document.getElementById("personal-score").textContent = `${score}/10`;
+                    }
+                }
+
+                // Experiência
+                if (clarity.toLowerCase().includes("experiência") || sections.toLowerCase().includes("experiência") ||
+                    clarity.toLowerCase().includes("profissional") || sections.toLowerCase().includes("profissional")) {
+                    let score = extractScoreFromText(clarity, "experiência") || 9;
+                    let evaluation = extractEvaluationForSection(clarity, sections, comments, "experiência");
+
+                    if (evaluation) {
+                        document.getElementById("experience-evaluation").textContent = evaluation;
+                        document.getElementById("experience-score").textContent = `${score}/10`;
+                    }
+                }
+            }
+        }
+
+        // Função auxiliar para extrair uma pontuação de um texto
+        function extractScoreFromText(text, sectionName) {
+            // Exemplo simples: procura por padrões como "resumo: 8/10" ou "resumo (8/10)"
+            const regex = new RegExp(`${sectionName}[^0-9]*([0-9]{1,2})[\\/\\s]*10`, 'i');
+            const match = text.match(regex);
+            return match ? parseInt(match[1]) : null;
+        }
+
+        // Função auxiliar para extrair avaliação para uma seção específica
+        function extractEvaluationForSection(clarity, sections, comments, sectionName) {
+            // Simplificado: retorna um texto que menciona a seção
+            const relevantTexts = [];
+
+            if (clarity.toLowerCase().includes(sectionName.toLowerCase())) {
+                const sentences = clarity.split(/[.!?]+/);
+                sentences.forEach(sentence => {
+                    if (sentence.toLowerCase().includes(sectionName.toLowerCase())) {
+                        relevantTexts.push(sentence.trim());
+                    }
+                });
+            }
+
+            if (sections.toLowerCase().includes(sectionName.toLowerCase())) {
+                const sentences = sections.split(/[.!?]+/);
+                sentences.forEach(sentence => {
+                    if (sentence.toLowerCase().includes(sectionName.toLowerCase())) {
+                        relevantTexts.push(sentence.trim());
+                    }
+                });
+            }
+
+            if (comments.toLowerCase().includes(sectionName.toLowerCase())) {
+                const sentences = comments.split(/[.!?]+/);
+                sentences.forEach(sentence => {
+                    if (sentence.toLowerCase().includes(sectionName.toLowerCase())) {
+                        relevantTexts.push(sentence.trim());
+                    }
+                });
+            }
+
+            return relevantTexts.length > 0 ? relevantTexts.join('. ') + '.' : null;
+        }
+
+        // Função para limpar palavras-chave: remover prefixos verbais, experiência e conhecimento
+        function cleanKeyword(keyword) {
+            if (!keyword) return keyword;
+
+            // Converter para minúsculas para comparação
+            const lowerKeyword = keyword.toLowerCase();
+
+            // Caso específico para "de testes de aceitação"
+            if (lowerKeyword === "de testes de aceitação") {
+                return "testes de aceitação";
+            }
+
+            // Verificar se começa com "experiência" ou "conhecimento" e retornar vazio
+            if (lowerKeyword.startsWith('experiência') ||
+                lowerKeyword.startsWith('experiencia') ||
+                lowerKeyword.startsWith('conhecimento')) {
+                return '';
+            }
+
+            // Lista de verbos comuns no infinitivo para remover
+            const verbs = [
+                'analisar', 'gerenciar', 'desenvolver', 'implementar', 'criar', 'definir',
+                'estabelecer', 'elaborar', 'executar', 'realizar', 'aplicar', 'conduzir',
+                'administrar', 'coordenar', 'planejar', 'projetar', 'otimizar', 'liderar',
+                'monitorar', 'avaliar', 'resolver', 'identificar', 'produzir', 'construir',
+                'utilizar', 'usar', 'promover', 'integrar', 'garantir', 'propor', 'fornecer',
+                'mapear', 'comunicar', 'organizar', 'atuar'
+            ];
+
+            // Substantivos derivados de verbos para remover
+            const verbNouns = [
+                'definição', 'criação', 'elaboração', 'implementação', 'desenvolvimento',
+                'gerenciamento', 'aplicação', 'utilização', 'execução', 'realização',
+                'administração', 'coordenação', 'planejamento', 'otimização', 'avaliação',
+                'identificação', 'resolução', 'construção', 'organização', 'integração',
+                'monitoramento', 'promoção', 'análise', 'comunicação'
+            ];
+
+            // Lista de artigos e preposições para remover do início
+            const articles = ['dos ', 'das ', 'do ', 'da ', 'de '];
+
+            // Verificar se a palavra-chave começa com algum dos verbos + espaço
+            for (const verb of verbs) {
+                if (lowerKeyword.startsWith(verb + ' ')) {
+                    // Remover o verbo e espaço subsequente, manter a capitalização original do restante
+                    return keyword.substring(verb.length + 1);
+                }
+            }
+
+            // Verificar se a palavra-chave começa com algum dos substantivos derivados + espaço,
+            // ou substantivo + 'de/dos/da/das/do' + espaço
+            for (const noun of verbNouns) {
+                if (lowerKeyword.startsWith(noun + ' ')) {
+                    // Remover o substantivo e espaço subsequente
+                    return keyword.substring(noun.length + 1);
+                }
+
+                // Padrões como "definição de", "criação dos", etc.
+                const patterns = [
+                    noun + ' de ',
+                    noun + ' do ',
+                    noun + ' da ',
+                    noun + ' dos ',
+                    noun + ' das '
+                ];
+
+                for (const pattern of patterns) {
+                    if (lowerKeyword.startsWith(pattern)) {
+                        // Remover o padrão completo
+                        return keyword.substring(pattern.length);
+                    }
+                }
+            }
+
+            // Verificar se a palavra-chave começa com artigos/preposições
+            for (const article of articles) {
+                if (lowerKeyword.startsWith(article)) {
+                    // Remover o artigo/preposição do início, mantendo a capitalização do restante
+                    const remainder = keyword.substring(article.length);
+                    return remainder;
+                }
+            }
+
+            return keyword;
+        }
+
+        // Verifica se uma palavra-chave está relacionada à formação acadêmica
+        function isEducationKeyword(keyword) {
+            if (!keyword) return false;
+
+            const lowerKeyword = keyword.toLowerCase();
+
+            // Lista de termos que indicam palavras-chave relacionadas à formação
+            const educationTerms = [
+                'graduação', 'formação', 'bacharel', 'bacharelado', 'licenciatura',
+                'tecnólogo', 'técnico', 'mestrado', 'doutorado', 'pós-graduação',
+                'especialização', 'mba', 'curso', 'superior', 'faculdade',
+                'universitário', 'diploma', 'certificação', 'formado', 'administração',
+                'engenharia', 'tecnologia da informação', 'ti', 'sistemas', 'análise',
+                'desenvolvimento', 'computação', 'ciência da computação', 'ensino superior'
+            ];
+
+            // Verificar se a palavra-chave contém algum dos termos de educação
+            for (const term of educationTerms) {
+                if (lowerKeyword.includes(term)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // Função para obter o conteúdo da seção de formação do currículo (a partir dos dados da análise)
+        function getEducationSection(data) {
+            // Verificar se temos dados de seções do currículo
+            if (data.curriculum_sections && data.curriculum_sections.education) {
+                return data.curriculum_sections.education.toLowerCase();
+            }
+
+            // Verificar outro formato de dados possível
+            if (data.sections && data.sections.education) {
+                return data.sections.education.toLowerCase();
+            }
+
+            // Verificar texto completo do currículo como fallback
+            if (data.resume_text) {
+                // Tentar encontrar a seção de formação no texto completo
+                const resumeText = data.resume_text.toLowerCase();
+
+                // Alguns cabeçalhos comuns para seção de formação
+                const educationHeaders = [
+                    'formação acadêmica', 'educação', 'formação', 'qualificações acadêmicas',
+                    'histórico acadêmico', 'escolaridade'
+                ];
+
+                // Verificar se algum desses cabeçalhos está presente e extrair o conteúdo da seção
+                for (const header of educationHeaders) {
+                    const headerIndex = resumeText.indexOf(header);
+                    if (headerIndex !== -1) {
+                        // Encontrar o próximo cabeçalho após este (para delimitar o final da seção)
+                        let nextHeaderIndex = resumeText.length;
+                        const possibleNextHeaders = [
+                            'experiência', 'habilidades', 'competências', 'idiomas',
+                            'certificações', 'cursos', 'projetos', 'informações adicionais'
+                        ];
+
+                        for (const nextHeader of possibleNextHeaders) {
+                            const index = resumeText.indexOf(nextHeader, headerIndex + header.length);
+                            if (index !== -1 && index < nextHeaderIndex) {
+                                nextHeaderIndex = index;
+                            }
+                        }
+
+                        // Extrair o conteúdo da seção
+                        return resumeText.substring(headerIndex, nextHeaderIndex);
+                    }
+                }
+            }
+
+            // Se não encontrar a seção de formação, retornar texto vazio
+            return '';
+        }
+
+        // Função para verificar se uma palavra-chave de educação está presente na seção de formação
+        function isEducationKeywordPresent(keyword, educationSection) {
+            if (!keyword || !educationSection) return false;
+
+            const lowerKeyword = keyword.toLowerCase();
+            const lowerEducation = educationSection.toLowerCase();
+
+            // Correspondência específica para Tecnólogo em Informática como graduação em TI
+            if ((lowerKeyword.includes('graduação') || lowerKeyword.includes('formação')) &&
+                lowerKeyword.includes('tecnologia da informação')) {
+                // Verificar várias formações de TI, incluindo Tecnólogo em Informática
+                if (lowerEducation.includes('tecnólogo em informática') ||
+                    lowerEducation.includes('informática para gestão') ||
+                    lowerEducation.includes('sistemas de informação') ||
+                    lowerEducation.includes('ciência da computação') ||
+                    lowerEducation.includes('engenharia de software') ||
+                    lowerEducation.includes('análise de sistemas') ||
+                    lowerEducation.includes('tecnologia em informática') ||
+                    lowerEducation.includes('fatec')) {
+                    return true;
+                }
+            }
+
+            // Correspondência para Engenharia (várias especialidades)
+            if ((lowerKeyword.includes('graduação') || lowerKeyword.includes('formação')) &&
+                lowerKeyword.includes('engenharia')) {
+                // Verificar todas as engenharias equivalentes
+                const engTypes = ['engenharia', 'engenheiro'];
+                for (const type of engTypes) {
+                    if (lowerEducation.includes(type)) {
+                        return true;
+                    }
+                }
+            }
+
+            // Correspondência para Administração/Gestão
+            if ((lowerKeyword.includes('graduação') || lowerKeyword.includes('formação')) &&
+                (lowerKeyword.includes('administração') || lowerKeyword.includes('gestão'))) {
+                // Verificar formações em gestão/administração
+                if (lowerEducation.includes('administração') ||
+                    lowerEducation.includes('gestão') ||
+                    lowerEducation.includes('negócios') ||
+                    lowerEducation.includes('empreendedorismo') ||
+                    lowerEducation.includes('mba')) {
+                    return true;
+                }
+            }
+
+            // Correspondência para Ciências da Computação
+            if ((lowerKeyword.includes('graduação') || lowerKeyword.includes('formação')) &&
+                (lowerKeyword.includes('ciência da computação') || lowerKeyword.includes('computação'))) {
+                // Verificar formações em computação
+                if (lowerEducation.includes('computação') ||
+                    lowerEducation.includes('ciência da computação') ||
+                    lowerEducation.includes('informática') ||
+                    lowerEducation.includes('sistemas') ||
+                    lowerEducation.includes('tecnologia')) {
+                    return true;
+                }
+            }
+
+            // Correspondência para áreas de Comunicação/Marketing
+            if ((lowerKeyword.includes('graduação') || lowerKeyword.includes('formação')) &&
+                (lowerKeyword.includes('comunicação') || lowerKeyword.includes('marketing'))) {
+                // Verificar formações em comunicação/marketing
+                if (lowerEducation.includes('comunicação') ||
+                    lowerEducation.includes('marketing') ||
+                    lowerEducation.includes('publicidade') ||
+                    lowerEducation.includes('relações públicas') ||
+                    lowerEducation.includes('jornalismo')) {
+                    return true;
+                }
+            }
+
+            // Correspondência para áreas de Ciências Humanas
+            if ((lowerKeyword.includes('graduação') || lowerKeyword.includes('formação')) &&
+                (lowerKeyword.includes('psicologia') || lowerKeyword.includes('sociologia') ||
+                    lowerKeyword.includes('filosofia') || lowerKeyword.includes('história'))) {
+                // Verificar formações em humanas
+                if (lowerEducation.includes('psicologia') ||
+                    lowerEducation.includes('sociologia') ||
+                    lowerEducation.includes('filosofia') ||
+                    lowerEducation.includes('história') ||
+                    lowerEducation.includes('antropologia') ||
+                    lowerEducation.includes('ciências humanas')) {
+                    return true;
+                }
+            }
+
+            // Correspondência para áreas de Ciências Exatas
+            if ((lowerKeyword.includes('graduação') || lowerKeyword.includes('formação')) &&
+                (lowerKeyword.includes('matemática') || lowerKeyword.includes('física') ||
+                    lowerKeyword.includes('estatística'))) {
+                // Verificar formações em exatas
+                if (lowerEducation.includes('matemática') ||
+                    lowerEducation.includes('física') ||
+                    lowerEducation.includes('estatística') ||
+                    lowerEducation.includes('ciências exatas')) {
+                    return true;
+                }
+            }
+
+            // Correspondência para Formação Superior genérica
+            if ((lowerKeyword.includes('ensino superior') || lowerKeyword.includes('formação superior') ||
+                lowerKeyword.includes('graduação completa') || lowerKeyword.includes('curso superior'))) {
+                // Verificar qualquer formação superior
+                if (lowerEducation.includes('graduação') ||
+                    lowerEducation.includes('bacharel') ||
+                    lowerEducation.includes('bacharelado') ||
+                    lowerEducation.includes('licenciatura') ||
+                    lowerEducation.includes('tecnólogo') ||
+                    lowerEducation.includes('ensino superior') ||
+                    lowerEducation.includes('formação superior') ||
+                    lowerEducation.includes('curso superior') ||
+                    lowerEducation.includes('universidade') ||
+                    lowerEducation.includes('faculdade')) {
+                    return true;
+                }
+            }
+
+            // Alguns casos especiais que precisam de tratamento específico
+            if (lowerKeyword.includes('graduação completa')) {
+                // Verificar formação completa
+                return (
+                    educationSection.includes('graduação') ||
+                    educationSection.includes('bacharelado') ||
+                    educationSection.includes('bacharel') ||
+                    educationSection.includes('licenciatura') ||
+                    educationSection.includes('tecnólogo') ||
+                    educationSection.includes('curso de tecnologia') ||
+                    educationSection.includes('curso tecnológico')
+                ) && (
+                        educationSection.includes('completo') ||
+                        educationSection.includes('concluído') ||
+                        educationSection.includes('formado')
+                    );
+            }
+
+            // Verificar se é curso de tecnologia
+            if (lowerKeyword.includes('curso de tecnologia') ||
+                lowerKeyword.includes('curso tecnológico') ||
+                lowerKeyword.includes('tecnólogo')) {
+                return (
+                    educationSection.includes('tecnólogo') ||
+                    educationSection.includes('tecnologia') ||
+                    educationSection.includes('curso de tecnologia') ||
+                    educationSection.includes('curso tecnológico') ||
+                    educationSection.includes('graduação tecnológica') ||
+                    educationSection.includes('formação tecnológica')
+                );
+            }
+
+            if (lowerKeyword.includes('tecnologia da informação') || lowerKeyword === 'ti') {
+                // Verificar formação em TI ou áreas relacionadas
+                return (
+                    educationSection.includes('tecnologia da informação') ||
+                    educationSection.includes('sistemas de informação') ||
+                    educationSection.includes('ciência da computação') ||
+                    educationSection.includes('análise de sistemas') ||
+                    educationSection.includes('engenharia de software') ||
+                    educationSection.includes('sistemas para internet') ||
+                    educationSection.includes('informática') ||
+                    educationSection.includes('processamento de dados') ||
+                    educationSection.includes('curso de tecnologia') ||
+                    educationSection.includes('tecnólogo')
+                );
+            }
+
+            if (lowerKeyword.includes('cursos correlatos')) {
+                // Difícil determinar sem contexto específico - verificar por cursos complementares
+                return (
+                    educationSection.includes('curso complementar') ||
+                    educationSection.includes('curso de extensão') ||
+                    educationSection.includes('curso livre') ||
+                    educationSection.includes('curso online')
+                );
+            }
+
+            // Verificar cursos ou formações específicas
+            if (lowerKeyword.includes('administração')) {
+                return (
+                    educationSection.includes('administração') ||
+                    educationSection.includes('gestão de empresas') ||
+                    educationSection.includes('gestão de negócios') ||
+                    educationSection.includes('administrador')
+                );
+            }
+
+            // Verificar formações em engenharia
+            if (lowerKeyword.includes('engenharia')) {
+                return (
+                    educationSection.includes('engenharia') ||
+                    educationSection.includes('engenheiro')
+                );
+            }
+
+            // Verificar formações em pós-graduação
+            if (lowerKeyword.includes('pós-graduação') || lowerKeyword.includes('especialização') ||
+                lowerKeyword.includes('mba')) {
+                return (
+                    educationSection.includes('pós-graduação') ||
+                    educationSection.includes('especialização') ||
+                    educationSection.includes('mba') ||
+                    educationSection.includes('mestrado') ||
+                    educationSection.includes('doutorado')
+                );
+            }
+
+            // Verificação padrão - buscar a palavra-chave diretamente
+            return educationSection.includes(lowerKeyword);
+        }
+
+        // Função para exibir todas as palavras-chave das vagas
+        function displayAllJobKeywords(data) {
+            const container = document.getElementById('all-job-keywords-container');
+            container.innerHTML = '';
+
+            // Verificar se all_job_keywords existe e tem alguma categoria com keywords
+            if (data.all_job_keywords && Object.values(data.all_job_keywords).some(arr => arr.length > 0)) {
+                // Coletar todas as keywords de todas as categorias
+                let allKeywords = [];
+                Object.entries(data.all_job_keywords).forEach(([category, keywords]) => {
+                    if (Array.isArray(keywords) && keywords.length > 0) {
+                        // Limpar cada palavra-chave antes de adicionar
+                        keywords.forEach(keyword => {
+                            const cleanedKeyword = cleanKeyword(keyword);
+                            if (cleanedKeyword) allKeywords.push(cleanedKeyword);
+                        });
+                    }
+                });
+
+                // Filtrar palavras que começam com "experiência" ou "conhecimento"
+                allKeywords = allKeywords.filter(keyword =>
+                    !keyword.toLowerCase().startsWith('experiência') &&
+                    !keyword.toLowerCase().startsWith('experiencia') &&
+                    !keyword.toLowerCase().startsWith('conhecimento')
+                );
+
+                // Remover duplicidades (case insensitive)
+                const uniqueKeywords = [];
+                const lowerCaseMap = {};
+
+                allKeywords.forEach(keyword => {
+                    const lowerKeyword = keyword.toLowerCase();
+                    if (!lowerCaseMap[lowerKeyword]) {
+                        lowerCaseMap[lowerKeyword] = true;
+                        uniqueKeywords.push(keyword);
+                    }
+                });
+
+                allKeywords = uniqueKeywords;
+
+                if (allKeywords.length > 0) {
+                    // Dividir as palavras-chave em ~4 linhas (ajustável)
+                    const keywordsPerRow = Math.ceil(allKeywords.length / 4);
+
+                    for (let i = 0; i < 4; i++) {
+                        const rowDiv = document.createElement('div');
+                        rowDiv.className = 'keyword-row';
+
+                        const startIndex = i * keywordsPerRow;
+                        const endIndex = Math.min((i + 1) * keywordsPerRow, allKeywords.length);
+
+                        // Parar se startIndex ultrapassar o total de keywords
+                        if (startIndex >= allKeywords.length) break;
+
+                        for (let j = startIndex; j < endIndex; j++) {
+                            const keyword = allKeywords[j];
+
+                            const keywordDiv = document.createElement('div');
+                            keywordDiv.className = 'keyword-tag';
+
+                            const keywordSpan = document.createElement('span');
+                            keywordSpan.textContent = keyword;
+
+                            keywordDiv.appendChild(keywordSpan);
+                            rowDiv.appendChild(keywordDiv);
+                        }
+                        container.appendChild(rowDiv);
+                    }
+                } else {
+                    container.innerHTML = '<p>Nenhuma palavra-chave encontrada nos dados da vaga informada.</p>';
+                }
+            } else if (data.jobKeywords && data.jobKeywords.length > 0 && data.jobKeywords[0].keywords) {
+                // Compatibilidade com formato antigo (se disponível)
+                const jobKeywordsData = data.jobKeywords[0].keywords;
+                // Coletar todas as keywords de todas as categorias da primeira vaga
+                let allKeywords = [];
+
+                // Processar cada categoria e limpar as palavras-chave
+                Object.values(jobKeywordsData).forEach(categoryKeywords => {
+                    if (Array.isArray(categoryKeywords)) {
+                        categoryKeywords.forEach(keyword => {
+                            const cleanedKeyword = cleanKeyword(keyword);
+                            if (cleanedKeyword) allKeywords.push(cleanedKeyword);
+                        });
+                    }
+                });
+
+                // Filtrar palavras que começam com "experiência" ou "conhecimento"
+                allKeywords = allKeywords.filter(keyword =>
+                    !keyword.toLowerCase().startsWith('experiência') &&
+                    !keyword.toLowerCase().startsWith('experiencia') &&
+                    !keyword.toLowerCase().startsWith('conhecimento')
+                );
+
+                // Remover duplicidades (case insensitive)
+                const uniqueKeywords = [];
+                const lowerCaseMap = {};
+
+                allKeywords.forEach(keyword => {
+                    const lowerKeyword = keyword.toLowerCase();
+                    if (!lowerCaseMap[lowerKeyword]) {
+                        lowerCaseMap[lowerKeyword] = true;
+                        uniqueKeywords.push(keyword);
+                    }
+                });
+
+                allKeywords = uniqueKeywords;
+
+                if (allKeywords.length > 0) {
+                    // Dividir as palavras-chave em ~4 linhas (ajustável)
+                    const keywordsPerRow = Math.ceil(allKeywords.length / 4);
+                    for (let i = 0; i < 4; i++) {
+                        const rowDiv = document.createElement('div');
+                        rowDiv.className = 'keyword-row';
+                        const startIndex = i * keywordsPerRow;
+                        const endIndex = Math.min((i + 1) * keywordsPerRow, allKeywords.length);
+                        if (startIndex >= allKeywords.length) break;
+                        for (let j = startIndex; j < endIndex; j++) {
+                            const keyword = allKeywords[j];
+                            const keywordDiv = document.createElement('div');
+                            keywordDiv.className = 'keyword-tag';
+                            const keywordSpan = document.createElement('span');
+                            keywordSpan.textContent = keyword;
+                            keywordDiv.appendChild(keywordSpan);
+                            rowDiv.appendChild(keywordDiv);
+                        }
+                        container.appendChild(rowDiv);
+                    }
+                } else {
+                    container.innerHTML = '<p>Nenhuma palavra-chave encontrada nos dados da vaga informada.</p>';
+                }
+            } else {
+                container.innerHTML = '<p>Nenhuma palavra-chave de vaga disponível. Para obter uma análise comparativa, informe links de vagas ao analisar seu currículo.</p>';
+            }
+
+            // Adicionar aqui para processar o conteúdo da seção de formação
+            data.educationSectionContent = getEducationSection(data);
+        }
+
+        // Função para exibir palavras-chave presentes no currículo
+        function displayKeywordsFound(data) {
+            const container = document.getElementById('keywords-found-container');
+            container.innerHTML = '';
+
+            // Criar um container de grid para as keywords
+            const keywordsGrid = document.createElement('div');
+            keywordsGrid.className = 'keywords-grid';
+            container.appendChild(keywordsGrid);
+
+            // Se ainda não temos o conteúdo da seção de formação, buscá-lo
+            if (!data.educationSectionContent) {
+                data.educationSectionContent = getEducationSection(data);
+            }
+
+            if (data.matching_keywords && Object.values(data.matching_keywords).some(arr => arr.length > 0)) {
+                // Extrair todas as palavras-chave correspondentes de todas as categorias
+                let allMatchingKeywords = [];
+                Object.entries(data.matching_keywords).forEach(([category, keywords]) => {
+                    if (Array.isArray(keywords) && keywords.length > 0) {
+                        // Limpar cada palavra-chave antes de adicionar
+                        keywords.forEach(keyword => {
+                            const cleanedKeyword = cleanKeyword(keyword);
+                            if (!cleanedKeyword) return;
+
+                            // Verificar se é palavra-chave de educação
+                            if (isEducationKeyword(cleanedKeyword)) {
+                                // Verificar especificamente na seção de formação
+                                if (isEducationKeywordPresent(cleanedKeyword, data.educationSectionContent)) {
+                                    allMatchingKeywords.push(cleanedKeyword);
+                                }
+                            } else {
+                                // Palavra-chave normal - adicionar diretamente
+                                allMatchingKeywords.push(cleanedKeyword);
+                            }
+                        });
+                    }
+                });
+
+                // Filtrar palavras que começam com "experiência" ou "conhecimento"
+                allMatchingKeywords = allMatchingKeywords.filter(keyword =>
+                    !keyword.toLowerCase().startsWith('experiência') &&
+                    !keyword.toLowerCase().startsWith('experiencia') &&
+                    !keyword.toLowerCase().startsWith('conhecimento')
+                );
+
+                // Remover duplicidades (case insensitive)
+                const uniqueKeywords = [];
+                const lowerCaseMap = {};
+
+                allMatchingKeywords.forEach(keyword => {
+                    const lowerKeyword = keyword.toLowerCase();
+                    if (!lowerCaseMap[lowerKeyword]) {
+                        lowerCaseMap[lowerKeyword] = true;
+                        uniqueKeywords.push(keyword);
+                    }
+                });
+
+                allMatchingKeywords = uniqueKeywords;
+
+                if (allMatchingKeywords.length > 0) {
+                    // Exibir todas as palavras-chave correspondentes em tags
+                    allMatchingKeywords.forEach(keyword => {
+                        const keywordDiv = document.createElement('div');
+                        keywordDiv.className = 'keyword-tag';
+
+                        const keywordSpan = document.createElement('span');
+                        keywordSpan.textContent = keyword;
+
+                        keywordDiv.appendChild(keywordSpan);
+                        keywordsGrid.appendChild(keywordDiv);
+                    });
+                } else {
+                    container.innerHTML = '<p>Nenhuma palavra-chave encontrada no seu currículo.</p>';
+                }
+            } else if (data.keywords && data.keywords.length > 0) {
+                // Compatibilidade com formato antigo - exibir como tags
+                let keywords = [];
+
+                // Limpar e filtrar as palavras-chave
+                data.keywords.forEach(keyword => {
+                    const cleanedKeyword = cleanKeyword(keyword);
+                    if (!cleanedKeyword) return;
+
+                    // Verificar se é palavra-chave de educação
+                    if (isEducationKeyword(cleanedKeyword)) {
+                        // Verificar especificamente na seção de formação
+                        if (isEducationKeywordPresent(cleanedKeyword, data.educationSectionContent)) {
+                            keywords.push(cleanedKeyword);
+                        }
+                    } else {
+                        // Palavra-chave normal - adicionar diretamente
+                        keywords.push(cleanedKeyword);
+                    }
+                });
+
+                // Filtrar palavras que começam com "experiência" ou "conhecimento"
+                keywords = keywords.filter(keyword =>
+                    !keyword.toLowerCase().startsWith('experiência') &&
+                    !keyword.toLowerCase().startsWith('experiencia') &&
+                    !keyword.toLowerCase().startsWith('conhecimento')
+                );
+
+                // Remover duplicidades (case insensitive)
+                const uniqueKeywords = [];
+                const lowerCaseMap = {};
+
+                keywords.forEach(keyword => {
+                    const lowerKeyword = keyword.toLowerCase();
+                    if (!lowerCaseMap[lowerKeyword]) {
+                        lowerCaseMap[lowerKeyword] = true;
+                        uniqueKeywords.push(keyword);
+                    }
+                });
+
+                keywords = uniqueKeywords;
+
+                // Exibir como tags
+                keywords.forEach(keyword => {
+                    const keywordDiv = document.createElement('div');
+                    keywordDiv.className = 'keyword-tag';
+
+                    const keywordSpan = document.createElement('span');
+                    keywordSpan.textContent = keyword;
+
+                    keywordDiv.appendChild(keywordSpan);
+                    keywordsGrid.appendChild(keywordDiv);
+                });
+            } else {
+                container.innerHTML = '<p>Nenhuma palavra-chave relevante encontrada no seu currículo.</p>';
+            }
+        }
+
+        // Função para exibir palavras-chave ausentes no currículo
+        function displayMissingKeywords(data) {
+            const container = document.getElementById('keywords-missing-container');
+            container.innerHTML = '';
+
+            // Criar um container de grid para as keywords
+            const keywordsGrid = document.createElement('div');
+            keywordsGrid.className = 'keywords-grid';
+            container.appendChild(keywordsGrid);
+
+            // Se ainda não temos o conteúdo da seção de formação, buscá-lo
+            if (!data.educationSectionContent) {
+                data.educationSectionContent = getEducationSection(data);
+            }
+
+            if (data.missing_keywords && Object.values(data.missing_keywords).some(arr => arr.length > 0)) {
+                // Extrair todas as palavras-chave ausentes de todas as categorias
+                let allMissingKeywords = [];
+                Object.entries(data.missing_keywords).forEach(([category, keywords]) => {
+                    if (Array.isArray(keywords) && keywords.length > 0) {
+                        // Adicionar as palavras-chave
+                        keywords.forEach(keyword => {
+                            const cleanedKeyword = cleanKeyword(keyword);
+                            if (!cleanedKeyword) return; // Pular se a palavra-chave foi removida
+
+                            // Verificar se é palavra-chave de educação
+                            if (isEducationKeyword(cleanedKeyword)) {
+                                // Verificar especificamente na seção de formação
+                                // Só adicionar se NÃO estiver presente
+                                if (!isEducationKeywordPresent(cleanedKeyword, data.educationSectionContent)) {
+                                    allMissingKeywords.push(cleanedKeyword);
+                                }
+                            } else {
+                                // Palavra-chave normal
+                                allMissingKeywords.push(cleanedKeyword);
+                            }
+                        });
+                    }
+                });
+
+                // Filtrar palavras que começam com "experiência" ou "conhecimento"
+                allMissingKeywords = allMissingKeywords.filter(keyword =>
+                    !keyword.toLowerCase().startsWith('experiência') &&
+                    !keyword.toLowerCase().startsWith('experiencia') &&
+                    !keyword.toLowerCase().startsWith('conhecimento')
+                );
+
+                // Remover duplicidades (case insensitive)
+                const uniqueKeywords = [];
+                const lowerCaseMap = {};
+
+                allMissingKeywords.forEach(keyword => {
+                    const lowerKeyword = keyword.toLowerCase();
+                    if (!lowerCaseMap[lowerKeyword]) {
+                        lowerCaseMap[lowerKeyword] = true;
+                        uniqueKeywords.push(keyword);
+                    }
+                });
+
+                allMissingKeywords = uniqueKeywords;
+
+                if (allMissingKeywords.length > 0) {
+                    // Exibir todas as palavras-chave ausentes em tags
+                    allMissingKeywords.forEach(keyword => {
+                        const keywordDiv = document.createElement('div');
+                        keywordDiv.className = 'keyword-tag';
+
+                        const keywordSpan = document.createElement('span');
+                        keywordSpan.textContent = keyword;
+
+                        keywordDiv.appendChild(keywordSpan);
+                        keywordsGrid.appendChild(keywordDiv);
+                    });
+                } else {
+                    container.innerHTML = '<p>Parabéns! Seu currículo contém todas as palavras-chave importantes identificadas nas vagas.</p>';
+                }
+            } else {
+                // Exibir mensagem quando não há palavras-chave ausentes
+                container.innerHTML = '<p>Parabéns! Seu currículo contém todas as palavras-chave importantes identificadas nas vagas.</p>';
+            }
+        }
+    </script>
+</body>
+
+</html>
