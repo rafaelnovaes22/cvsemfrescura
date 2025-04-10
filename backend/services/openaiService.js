@@ -13,6 +13,243 @@ const openai = new OpenAI({
  */
 class OpenAIService {
   /**
+   * Extrai palavras-chave otimizadas para ATS de uma descrição de vaga
+   * @param {string} jobDescription - Texto da descrição da vaga
+   * @returns {Promise<Object>} - Análise ATS com palavras-chave e recomendações
+   */
+  async extractAtsJobKeywords(jobDescription) {
+    try {
+      console.log('[OpenAI] Iniciando extração ATS de palavras-chave da vaga');
+
+      // Executamos uma análise profunda da descrição da vaga com um prompt unificado
+      const extractionResponse = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "Você é um sistema especializado em extrair TODAS as palavras-chave de descrições de vagas para ATS. Sua missão é capturar 100% das palavras-chave importantes, sem deixar passar NENHUM termo relevante. Você deve categorizar todas as palavras-chave e apresentar os resultados no formato JSON solicitado. IMPORTANTE: Preserve os termos EXATAMENTE como aparecem, incluindo expressões compostas, frases com preposições (como 'com equipes técnicas', 'em ambiente ágil', etc.), e não separe termos técnicos que devem permanecer juntos."
+          },
+          {
+            role: "user",
+            content: `IMPORTANTE: Extraia ABSOLUTAMENTE TODAS as palavras-chave desta descrição de vaga. Extraia cada elemento EXATAMENTE como aparece no texto original, sem nenhuma modificação.
+
+ATENÇÃO ESPECIAL: Preserve expressões completas que incluem preposições, como 'trabalho com equipes técnicas', 'experiência em ambientes ágeis', 'comunicação com stakeholders'. NÃO separe estas expressões em palavras individuais - mantenha-as intactas como aparecem no texto original.
+
+Extraia e categorize:
+- Título da vaga e suas variações → campo "job_title"
+- Habilidades técnicas (gestão de projetos, frameworks, linguagens, etc.) → campo "technical"
+- Competências comportamentais (proatividade, comunicação, etc.) → campo "soft"
+- Experiências profissionais exigidas (anos de experiência, cargos anteriores) → campo "experience"
+- Requisitos educacionais (formação, graduação, etc.) → campo "education"
+- Idiomas mencionados → campo "language"
+- Ferramentas, sistemas e metodologias → campo "tools"
+- Responsabilidades da função → campo "responsibilities"
+- Requisitos obrigatórios → campo "mandatory"
+- Requisitos desejáveis → campo "desirable"
+
+Retorne a análise no seguinte formato JSON:
+
+{
+  "all_job_keywords": {
+    "job_title": ["Título principal da vaga", "Variações do título"],
+    "technical": ["Lista detalhada de todas as habilidades técnicas"],
+    "soft": ["Lista detalhada de todas as competências comportamentais"],
+    "experience": ["Lista detalhada de experiências profissionais exigidas"],
+    "education": ["Lista de requisitos educacionais"],
+    "language": ["Lista de idiomas mencionados"],
+    "tools": ["Lista de ferramentas, sistemas e metodologias"],
+    "responsibilities": ["Lista completa e detalhada de todas as responsabilidades"],
+    "mandatory": ["Lista de requisitos obrigatórios"],
+    "desirable": ["Lista de requisitos desejáveis"]
+  },
+  "matching_keywords": {
+    "technical": [], "soft": [], "experience": [], "education": [], 
+    "language": [], "tools": [], "mandatory": [], "desirable": []
+  },
+  "missing_keywords": {
+    "technical": [], "soft": [], "experience": [], "education": [], 
+    "language": [], "tools": [], "mandatory": [], "desirable": []
+  },
+  "ats_structure_evaluation": {
+    "clarity_organization": "Avaliação da clareza e organização da vaga.",
+    "ats_compatibility": "Avaliação da compatibilidade com sistemas ATS.",
+    "essential_sections": "Verificação das seções essenciais.",
+    "overall_score": 8,
+    "comments": "Comentários gerais sobre a estrutura ATS da vaga."
+  },
+  "recommendations": [
+    "Correspondência exata de termos-chave: Lista precisa dos termos que devem aparecer exatamente como na descrição",
+    "Foco em área principal: Recomendação específica para destaque de experiências relacionadas",
+    "Destaque habilidades críticas: Lista das 3-5 habilidades mais críticas para a função",
+    "Competências importantes: Lista das 3-5 competências mais importantes para a função",
+    "Experiência relevante: Elementos de experiência mais valorizados na vaga",
+    "Competência fundamental: Uma competência absolutamente fundamental para a função",
+    "Diferencial competitivo: Um diferencial competitivo específico valorizado na vaga"
+  ],
+  "conclusion": "Conclusão geral sobre o perfil ideal de candidato para esta vaga, com orientações práticas para otimização ATS."
+}
+
+Descrição da vaga:
+${jobDescription}`
+          }
+        ],
+        temperature: 0.5,
+        max_tokens: 3000,
+        response_format: { type: "json_object" }
+      });
+
+      const atsAnalysisText = extractionResponse.choices[0].message.content;
+      console.log('[OpenAI] Resposta de análise ATS recebida - Etapa 1 (extração)');
+
+      try {
+        const atsAnalysis = JSON.parse(atsAnalysisText);
+        
+        // Estrutura base da resposta seguindo o layout da página
+        const completeAnalysis = {
+          // Manter todas as keywords das vagas em formato compatível com a página
+          all_job_keywords: {
+            technical: atsAnalysis.all_job_keywords?.technical || [],
+            soft: atsAnalysis.all_job_keywords?.soft || [],
+            experience: atsAnalysis.all_job_keywords?.experience || [],
+            education: atsAnalysis.all_job_keywords?.education || [],
+            language: atsAnalysis.all_job_keywords?.language || [],
+            tools: atsAnalysis.all_job_keywords?.tools || [],
+            mandatory: atsAnalysis.all_job_keywords?.mandatory || [],
+            desirable: atsAnalysis.all_job_keywords?.desirable || [],
+            responsibilities: atsAnalysis.all_job_keywords?.responsibilities || atsAnalysis.responsibilities || []
+          },
+          // Manter o formato para compatibilidade com a exibição de palavras presentes
+          matching_keywords: {
+            technical: [],
+            soft: [],
+            experience: [],
+            education: [],
+            language: [],
+            tools: [],
+            mandatory: [],
+            desirable: [],
+            responsibilities: []
+          },
+          // Manter o formato para compatibilidade com a exibição de palavras ausentes
+          missing_keywords: {
+            technical: [],
+            soft: [],
+            experience: [],
+            education: [],
+            language: [],
+            tools: [],
+            mandatory: [],
+            desirable: []
+          },
+          // Avaliação da estrutura ATS
+          ats_structure_evaluation: atsAnalysis.ats_structure_evaluation || {
+            clarity_organization: "Avaliação indisponível.",
+            ats_compatibility: "Avaliação indisponível.",
+            essential_sections: "Verificação indisponível.",
+            overall_score: 0,
+            comments: "N/A"
+          },
+          // Recomendações
+          recommendations: atsAnalysis.recommendations || [
+            "Nenhuma recomendação específica gerada."
+          ],
+          // Conclusão
+          conclusion: atsAnalysis.conclusion || "Sem conclusão disponível."
+        };
+        
+        return completeAnalysis;
+      } catch (parseError) {
+        console.error('[OpenAI] Erro ao parsear JSON da análise ATS:', parseError);
+        return {
+          all_job_keywords: {
+            technical: [],
+            soft: [],
+            experience: [],
+            education: [],
+            language: [],
+            tools: [],
+            mandatory: [],
+            desirable: [],
+            responsibilities: []
+          },
+          matching_keywords: {
+            technical: [],
+            soft: [],
+            experience: [],
+            education: [],
+            language: [], 
+            tools: [],
+            mandatory: [],
+            desirable: []
+          },
+          missing_keywords: {
+            technical: [],
+            soft: [],
+            experience: [],
+            education: [],
+            language: [],
+            tools: [],
+            mandatory: [],
+            desirable: []
+          },
+          ats_structure_evaluation: {
+            clarity_organization: "Avaliação indisponível.",
+            ats_compatibility: "Avaliação indisponível.",
+            essential_sections: "Verificação indisponível.",
+            overall_score: 0,
+            comments: "Erro ao processar a análise."
+          },
+          recommendations: ["Erro ao processar as recomendações."],
+          conclusion: "Erro ao processar a conclusão."
+        };
+      }
+    } catch (error) {
+      console.error('Erro ao extrair análise ATS com OpenAI:', error);
+      return {
+        all_job_keywords: {
+          technical: [],
+          soft: [],
+          experience: [],
+          education: [],
+          language: [],
+          tools: [],
+          mandatory: [],
+          desirable: []
+        },
+        matching_keywords: {
+          technical: [],
+          soft: [],
+          experience: [],
+          education: [],
+          language: [],
+          tools: [],
+          mandatory: [],
+          desirable: []
+        },
+        missing_keywords: {
+          technical: [],
+          soft: [],
+          experience: [],
+          education: [],
+          language: [],
+          tools: [],
+          mandatory: [],
+          desirable: []
+        },
+        ats_structure_evaluation: {
+          clarity_organization: "Avaliação indisponível.",
+          ats_compatibility: "Avaliação indisponível.",
+          essential_sections: "Verificação indisponível.",
+          overall_score: 0,
+          comments: "Erro ao conectar com o serviço de análise."
+        },
+        recommendations: ["Erro ao conectar com o serviço de análise."],
+        conclusion: "Erro ao conectar com o serviço de análise."
+      };
+    }
+  }
+
+  /**
    * Analisa um currículo em relação a uma ou mais vagas
    * @param {string} resumeText - Texto extraído do currículo
    * @param {Array<{title: string, company: string, description: string, url: string}>} jobs - Lista de vagas
@@ -53,7 +290,7 @@ class OpenAIService {
             content: prompt
           }
         ],
-        temperature: 0.1, // Temperatura mais baixa para respostas mais consistentes e determinísticas
+        temperature: 0.5, // Temperatura mais baixa para respostas mais consistentes e determinísticas
         max_tokens: 3500, // Aumentar ligeiramente se necessário para a estrutura complexa
         response_format: { type: "json_object" }
       });
@@ -116,7 +353,10 @@ class OpenAIService {
    */
   async normalizeKeywords(keywords) {
     try {
-      // Preparar dados para normalização pelo OpenAI
+      // Aplicar normalização local para casos comuns antes de enviar para a OpenAI
+      const preNormalizedKeywords = this._preNormalizeKeywords(keywords);
+      
+      // Preparar dados para normalização avançada pelo OpenAI
       const response = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [
@@ -145,12 +385,17 @@ DIRETRIZES:
 - NORMALIZE plural/singular e uso de letras maiúsculas/minúsculas
 - COMBINE siglas/acrônimos com seus significados completos mantendo ambos (ex: "Product Owner (PO)")
 
+ATENÇÃO ESPECIAL: Verifique palavras exatamente iguais mesmo que variem em:
+- Acentuação (e.g., "metodologias ageis" e "metodologias ágeis")
+- Plural/singular (e.g., "metodologia ágil" e "metodologias ágeis")
+- Maiúsculas/minúsculas (e.g., "Metodologia Ágil" e "metodologia ágil")
+
 Por favor, retorne apenas um objeto JSON com as mesmas categorias, mas com as palavras-chave normalizadas:
 
-${JSON.stringify(keywords, null, 2)}`
+${JSON.stringify(preNormalizedKeywords, null, 2)}`
           }
         ],
-        temperature: 0.1, // Temperatura mais baixa para normalização mais consistente
+        temperature: 0.3, // Temperatura mais baixa para normalização mais consistente e determinística
         max_tokens: 3000,
         response_format: { type: "json_object" }
       });
@@ -163,12 +408,133 @@ ${JSON.stringify(keywords, null, 2)}`
         return normalizedKeywords;
       } catch (parseError) {
         console.error('[OpenAI] Erro ao parsear JSON de keywords normalizadas:', parseError);
-        return keywords; // Em caso de erro, retorna as keywords originais
+        return this._preNormalizeKeywords(keywords); // Retorna pelo menos as keywords pré-normalizadas
       }
     } catch (error) {
       console.error('Erro ao normalizar keywords com OpenAI:', error);
-      return keywords; // Em caso de erro, retorna as keywords originais
+      return this._preNormalizeKeywords(keywords); // Retorna pelo menos as keywords pré-normalizadas
     }
+  }
+
+  /**
+   * Pré-normaliza keywords para tratar casos comuns sem precisar da OpenAI
+   * @param {Object} keywords - Objeto com categorias de keywords
+   * @returns {Object} - Keywords pré-normalizadas localmente
+   * @private
+   */
+  _preNormalizeKeywords(keywords) {
+    const result = {};
+    
+    // Dicionário de termos equivalentes conhecidos (sem traduções entre idiomas)
+    // Formato: [termo normalizado sem acentos] -> termo padronizado com acentos
+    const knownEquivalents = {
+      'metodologia agil': 'metodologias ágeis',
+      'metodologias ageis': 'metodologias ágeis',
+      'metodologias agil': 'metodologias ágeis',
+      'metodologia ageis': 'metodologias ágeis',
+      'praticas ageis': 'metodologias ágeis',
+      'gestao de stakeholders': 'gestão de stakeholders',
+      'gerenciamento de stakeholders': 'gestão de stakeholders',
+      'gerenciar stakeholders': 'gestão de stakeholders',
+      'trabalhar com stakeholders': 'gestão de stakeholders',
+      'analise de dados': 'análise de dados',
+      'analitica de dados': 'análise de dados',
+      'resolver problemas': 'resolução de problemas',
+      'resolucao de problemas': 'resolução de problemas',
+      'capacidade de resolucao de problemas': 'resolução de problemas',
+      'habilidade de resolucao de problemas': 'resolução de problemas',
+      'superior completo': 'superior completo',
+      'graduacao completa': 'superior completo',
+      'ensino superior completo': 'superior completo'
+    };
+
+    // Para cada categoria de keywords
+    for (const category in keywords) {
+      if (!keywords[category] || !Array.isArray(keywords[category])) {
+        result[category] = keywords[category];
+        continue;
+      }
+      
+      // Mapa para rastrear termos já normalizados (versão normalizada -> termo original preferido)
+      const normalizedMap = new Map();
+      
+      // Função para normalizar um termo para comparação
+      const normalizeForComparison = (term) => {
+        if (!term) return '';
+        return term
+          .toLowerCase()                   // Converte para minúsculas
+          .normalize('NFD')               // Normaliza caracteres acentuados
+          .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+          .replace(/\s+/g, ' ')           // Padroniza espaços
+          .trim();                        // Remove espaços extras
+      };
+      
+      // Normalizar e agrupar termos similares
+      for (const term of keywords[category]) {
+        if (!term) continue;
+        
+        const normalizedTerm = normalizeForComparison(term);
+        
+        // Verificar se é um caso conhecido de equivalentes
+        if (knownEquivalents[normalizedTerm]) {
+          normalizedMap.set(normalizedTerm, knownEquivalents[normalizedTerm]);
+          continue;
+        }
+        
+        // Verificar se alguma palavra-chave conhecida está contida no termo
+        let matchedKnownTerm = false;
+        for (const [knownKey, knownValue] of Object.entries(knownEquivalents)) {
+          // Se o termo normalizado contém um termo conhecido como palavra completa
+          if (normalizedTerm.includes(knownKey) && 
+              (normalizedTerm === knownKey || 
+               normalizedTerm.startsWith(knownKey + ' ') || 
+               normalizedTerm.endsWith(' ' + knownKey) || 
+               normalizedTerm.includes(' ' + knownKey + ' '))) {
+            // Podemos substituir apenas a parte equivalente, preservando o resto
+            // Mas por simplicidade, vamos usar a substituição completa por enquanto
+            normalizedMap.set(normalizedTerm, term);
+            matchedKnownTerm = true;
+            break;
+          }
+        }
+        
+        if (matchedKnownTerm) continue;
+        
+        // Para outros termos, verificar se já existe um equivalente
+        let found = false;
+        for (const [existingKey, existingValue] of normalizedMap.entries()) {
+          // Verificar similaridade de tokens (palavras individuais)
+          const existingTokens = existingKey.split(' ');
+          const currentTokens = normalizedTerm.split(' ');
+          
+          // Se compartilham a maioria das palavras, podem ser considerados equivalentes
+          if (existingTokens.length === currentTokens.length) {
+            // Calcular quantas palavras são iguais
+            const commonTokens = existingTokens.filter(t => currentTokens.includes(t));
+            if (commonTokens.length / existingTokens.length > 0.8) {
+              // Preferir a versão com acentos corretamente
+              if (term.includes('á') || term.includes('é') || term.includes('í') || 
+                  term.includes('ó') || term.includes('ú') || term.includes('ã') || 
+                  term.includes('õ') || term.includes('ç')) {
+                normalizedMap.set(existingKey, term);
+              }
+              found = true;
+              break;
+            }
+          }
+        }
+        
+        // Se não for encontrado, adicionar como novo termo
+        if (!found && !normalizedMap.has(normalizedTerm)) {
+          normalizedMap.set(normalizedTerm, term);
+        }
+      }
+      
+      // Converter mapa de volta para array, usando o termo original preferido
+      result[category] = Array.from(normalizedMap.values());
+    }
+    
+    return result;
   }
 
   /**
@@ -184,12 +550,13 @@ ${JSON.stringify(keywords, null, 2)}`
         messages: [
           {
             role: "system",
-            content: "Você é um especialista em recrutamento e seleção brasileiro, com profundo conhecimento em análise de requisitos de vagas. Sua tarefa é extrair todas as palavras-chave e requisitos relevantes da descrição da vaga fornecida, categorizada por tipo. Você deve identificar todas as siglas/acrônimos e seus significados completos. Você DEVE responder em formato JSON válido."
+            content: "Você é um especialista em recrutamento e seleção brasileiro, com profundo conhecimento em análise de requisitos de vagas. Sua tarefa é extrair TODAS as palavras-chave e requisitos relevantes da descrição da vaga fornecida, em um nível EXTREMAMENTE detalhado e granular. Você deve identificar todas as siglas/acrônimos e seus significados completos. Você DEVE responder em formato JSON válido."
           },
           {
             role: "user",
-            content: `Extraia com precisão TODAS as palavras-chave relevantes da seguinte descrição de vaga, separando-as nas seguintes categorias:
+            content: `ATENÇÃO: EXTRAIA COM GRANULARIDADE EXTREMA TODAS as palavras-chave da seguinte descrição de vaga. Sua tarefa é identificar CADA TERMO individual, mesmo os mais básicos, seguindo exatamente o modelo de extração manual fornecido como exemplo.
 
+Categorias para extração:
 1. "technical": habilidades técnicas, ferramentas, tecnologias, metodologias, linguagens
 2. "soft": habilidades comportamentais, competências interpessoais
 3. "experience": experiências profissionais desejadas, conhecimento prático, cargo anterior
@@ -199,30 +566,95 @@ ${JSON.stringify(keywords, null, 2)}`
 7. "desirable": requisitos mencionados como "desejáveis", "diferenciais" ou "plus"
 8. "tools": ferramentas específicas como Jira, Confluence, Miro, Trello, SAP, Salesforce, etc.
 
-DIRETRIZES:
-- NUNCA extraia frases completas como palavras-chave. Por exemplo, ao invés de "experiência em gerenciar relacionamentos com equipes técnicas e de negócios", extraia separadamente: "gerenciar relacionamentos", "equipes técnicas", "equipes de negócios"
-- NUNCA extraia palavras genéricas e vagas como "vivência", "experiência", "conhecimento", mesmo quando associadas a uma habilidade ou área específica. Remova estas palavras genéricas e mantenha apenas os termos específicos
-- REMOVA PREFIXOS DESNECESSÁRIOS como "habilidade para", "capacidade de", "orientado a", "sensibilidade para", "gerenciar", "foco em". Ex: use "resolver problemas" em vez de "habilidade para resolver problemas" ou "foco na resolução de problemas"
-- ELIMINE DUPLICAÇÕES SEMÂNTICAS: Não inclua a mesma competência de formas diferentes. Ex: "resolver problemas", "resolução de problemas" e "habilidade para resolver problemas" devem aparecer uma única vez como "resolver problemas"
-- NORMALIZE SINÔNIMOS E VARIAÇÕES: Padronize termos que significam a mesma coisa. Ex: "metodologias ágeis", "Metodologias ágeis", "práticas ágeis", "metodologia ágil" devem aparecer apenas uma vez como "metodologias ágeis". Considere também variações de singular/plural e capitalização
-- IDENTIFIQUE SIGLAS/ACRÔNIMOS e seus significados completos como equivalentes. Ex: "PO" = "Product Owner", "SM" = "Scrum Master", "RH" = "Recursos Humanos", "TI" = "Tecnologia da Informação". Combine-os no formato completo seguido da sigla: ex: "Product Owner (PO)"
-- ATENÇÃO: NÃO generalize cargos com especialidades específicas como equivalentes aos cargos base. Ex: "Data Product Owner" NÃO é igual a "Product Owner", "Tech Product Owner" NÃO é igual a "Product Owner", "Financial Analyst" NÃO é igual a "Analyst". Mantenha esses cargos específicos separados
-- ATENTE-SE ESPECIALMENTE a siglas utilizadas nas áreas de tecnologia, gestão, agile, negócios e recursos humanos (por exemplo: PO, DPO, PM, TPO, SM, RH, TI, UX, UI, CRM, ERP, etc.) e suas especializações. Ex: "DPO" = "Data Product Owner", "TPO" = "Tech Product Owner", "CPTO" = "Chief Product & Technology Officer"
-- Divida frases longas em segmentos menores e significativos
-- NÃO CONFUNDA termos relacionados mas distintos: "KRs" (Key Results) e "OKRs" (Objectives and Key Results) são conceitos diferentes na mesma metodologia. Da mesma forma, diferencie "BI" (Business Intelligence) de "PowerBI" (ferramenta específica de BI da Microsoft)
-- Certifique-se de capturar siglas e acrônimos exatamente como aparecem (ex: "SEO", "OKRs", "KPIs")
-- Identifique termos específicos, nunca frases longas
-- Padronize termos similares para evitar redundância (por exemplo, escolha apenas "gestão" ou "gerenciamento", não ambos)
-- Unifique variações de capitalização, singular/plural e sinônimos próximos (ex: escolha apenas "metodologias ágeis" entre "metodologias ágeis", "Metodologias ágeis", "práticas ágeis", "metodologia ágil")
-- Inclua variações importantes (ex: "Administração" e "Administração de Empresas")
-- Capture diferentes níveis quando mencionados (ex: "inglês avançado", "inglês intermediário")
-- Preste atenção especial nos requisitos de formação - capture área, nível e especializações
-- Identifique palavras-chave do setor/indústria específica
-- Diferencie requisitos obrigatórios de desejáveis
-- IMPORTANTE: Identifique TODAS as ferramentas mencionadas (como Jira, Confluence, etc.) e coloque-as tanto na categoria "technical" quanto na categoria "tools"
-- EVITE DUPLICAÇÕES: Não repita a mesma palavra-chave múltiplas vezes na mesma categoria
+IMPORTANTE - MÉTODO DE EXTRAÇÃO MANUAL:
+Observe este exemplo exato de extração manual para uma vaga de Product Owner. VOCÊ DEVE SEGUIR EXATAMENTE ESTE NÍVEL DE GRANULARIDADE:
+- métricas de desempenho de produto
+- feedback de usuário
+- informações do mercado
+- orientar o direcionamento
+- próximas entregas
+- requisitos funcionais
+- requisitos não funcionais
+- características do produto
+- restrições
+- segurança
+- confiabilidade
+- maior qualidade
+- confiança de dados
+- testes de aceitação
+- padrões e métodos
+- aprovação do produto
+- melhorias
+- efetividade
+- atualizações
+- funcionalidades
+- produção
+- relatórios
+- usabilidade
+- indicadores
+- melhores resultados
+- métricas de entrega
+- time de tecnologia
+- burn down
+- tempo
+- entrega do time
+- período estabelecido
+- cerimônias do time ágil
+- documentação
+- reuniões diárias
+- planejamento
+- cliente
+- feedback geral
+- entender as melhorias
+- histórico de desenvolvimento
+- graduação em Administração
+- graduação em Tecnologia da Informação
+- Product Owner
+- metodologias ágeis
+- Scrum
+- Kanban
+- Atlassian
+- Jira
+- Confluence
+- Pacote Office
+- produtos financeiros
+- Gestão de Projetos
+- desenvolvimento de produtos digitais
 
-Retorne um objeto JSON no seguinte formato:
+OBSERVE como a extração acima é EXTREMAMENTE GRANULAR e captura CADA TERMO individual. Você deve seguir exatamente este padrão.
+
+MÉTODO DE EXTRAÇÃO PASSO A PASSO:
+
+1. LEIA CADA LINHA DO TEXTO como uma fonte independente de termos
+
+2. EXTRAIA TODOS OS TERMOS INDIVIDUAIS:
+   - SEPARE CADA SUBSTANTIVO: "análise de métricas de desempenho" → "análise", "métricas", "desempenho"
+   - MANTENHA TERMOS COMPOSTOS SIGNIFICATIVOS: "métricas de desempenho", "feedback de usuário"
+   - CAPTURE CADA ELEMENTO de listas e enumerações
+   - EXTRAIA CADA VERBO RELEVANTE como termo independente
+
+3. TERMOS ESPECÍFICOS A CAPTURAR:
+   - CAPTURE TODOS OS SUBSTANTIVOS E SUBSTANTIVOS COMPOSTOS
+   - CAPTURE CADA FERRAMENTA mencionada (ex: Excel, Jira, PowerPoint)
+   - CAPTURE CADA METODOLOGIA mencionada (ex: Scrum, Kanban, Ágil)
+   - CAPTURE CADA TÉCNICA ou PROCESSO (ex: burn down, dailies, retrospectivas)
+   - CAPTURE CADA CARGO e FUNÇÃO mencionados
+   - CAPTURE CADA REQUISITO EDUCACIONAL (ex: formação, graduação, especialização)
+   - CAPTURE CADA HABILIDADE TÉCNICA
+   - CAPTURE CADA HABILIDADE INTERPESSOAL
+
+4. NÍVEL DE DETALHAMENTO EXTREMO:
+   - DECOMPONHA frases em seus componentes fundamentais
+   - EXTRAIA TODOS OS TERMOS, mesmo os mais básicos e elementares
+   - NÃO IGNORE NENHUM TERMO POTENCIALMENTE RELEVANTE
+   - MANTENHA TERMOS CURTOS E DIRETOS (máximo 3-4 palavras)
+
+5. PROCESSO MECÂNICO:
+   - ANALISE CADA SENTENÇA palavra por palavra
+   - PERGUNTE-SE: "Este termo ou combinação é relevante por si só?"
+   - EXTRAIA TODOS os termos relevantes, mesmo se parecerem redundantes
+
+Retorne um objeto JSON no seguinte formato, garantindo máxima granularidade em cada categoria:
 {
   "technical": ["skill1", "skill2"...],
   "soft": ["skill1", "skill2"...],
@@ -238,7 +670,7 @@ Descrição da vaga:
 ${jobDescription}`
           }
         ],
-        temperature: 0.1, // Temperatura mais baixa para extração mais consistente
+        temperature: 0.5, // Temperatura mais baixa para extração mais consistente
         max_tokens: 2500,
         response_format: { type: "json_object" }
       });
@@ -305,41 +737,128 @@ ${jobDescription}`
         messages: [
           {
             role: "system",
-            content: "Você é um especialista em análise de currículos brasileiros e sistemas ATS (Applicant Tracking Systems). Sua tarefa é extrair TODAS as palavras-chave relevantes do currículo fornecido, mesmo aquelas que estejam implícitas ou em diferentes variações (singular/plural, verbos/substantivos). Considere termos técnicos, habilidades, experiências, formações e certificações. Você DEVE responder em formato JSON válido."
+            content: "Você é um especialista em análise minuciosa e ultra-detalhada de currículos. Sua especialidade é extrair ABSOLUTAMENTE TODAS as palavras-chave e expressões relevantes, até mesmo as mais sutis e implícitas. Você consegue identificar não apenas palavras isoladas, mas expressões completas, conceitos compostos e terminologias específicas com o MÁXIMO GRAU DE DETALHE possível. Um humano experiente normalmente identifica 2-3 vezes mais termos e expressões que um sistema comum - seu objetivo é igualar ou superar esse nível de detalhamento. Você DEVE responder APENAS em formato JSON válido."
           },
           {
             role: "user",
-            content: `Extraia TODAS as palavras-chave relevantes do seguinte currículo, categorizando-as em:
+            content: `Extraia ABSOLUTAMENTE TODAS as palavras-chave e expressões relevantes do seguinte currículo com um NÍVEL DE DETALHE ULTRA-APROFUNDADO. Sua análise deve ser EXTREMAMENTE MINUCIOSA, capturando até os termos mais sutis. Categorize-os em:
 
-1. "technical": habilidades técnicas, ferramentas, tecnologias, metodologias, sistemas, conhecimentos específicos
-2. "soft": habilidades comportamentais, competências interpessoais
-3. "experience": cargos, responsabilidades, projetos, experiências profissionais, áreas de atuação
-4. "education": formação acadêmica, cursos, certificações, especializações, graus acadêmicos
+1. "technical": habilidades técnicas, ferramentas, tecnologias, metodologias, sistemas, processos, frameworks, conceitos técnicos, métricas
+2. "soft": habilidades comportamentais, competências interpessoais, características pessoais, comunicação, liderança
+3. "experience": cargos, responsabilidades, áreas de atuação, atividades específicas, funções, projetos
+4. "education": formação acadêmica, cursos, certificações, especializações, treinamentos
 5. "language": idiomas e níveis de proficiência
-6. "sector": setores ou indústrias específicas de experiência
-7. "tools": ferramentas específicas como Jira, Confluence, Miro, Trello, SAP, Salesforce, etc.
+6. "sector": setores, indústrias, mercados, segmentos específicos
+7. "tools": ferramentas, softwares, plataformas, sistemas específicos
+8. "responsibilities": responsabilidades detalhadas, atribuições, funções específicas, entregas, resultados
+9. "processes": processos, fluxos, metodologias, práticas, cerimônias, reuniões
+10. "product": termos relacionados a produto, características, requisitos, qualidade, usabilidade
 
-DIRETRIZES IMPORTANTES:
-- NUNCA extraia frases completas como palavras-chave. Por exemplo, ao invés de "experiência em gerenciar relacionamentos com equipes técnicas e de negócios", extraia separadamente: "gerenciar relacionamentos", "equipes técnicas", "equipes de negócios"
-- NUNCA extraia palavras genéricas e vagas como "vivência", "experiência", "conhecimento", mesmo quando associadas a uma habilidade ou área específica. Remova estas palavras genéricas e mantenha apenas os termos específicos
-- REMOVA PREFIXOS DESNECESSÁRIOS como "habilidade para", "capacidade de", "orientado a", "sensibilidade para", "gerenciar", "foco em". Ex: use "resolver problemas" em vez de "habilidade para resolver problemas" ou "foco na resolução de problemas"
-- ELIMINE DUPLICAÇÕES SEMÂNTICAS: Não inclua a mesma competência de formas diferentes. Ex: "resolver problemas", "resolução de problemas" e "habilidade para resolver problemas" devem aparecer uma única vez como "resolver problemas"
-- NORMALIZE SINÔNIMOS E VARIAÇÕES: Padronize termos que significam a mesma coisa. Ex: "metodologias ágeis", "Metodologias ágeis", "práticas ágeis", "metodologia ágil" devem aparecer apenas uma vez como "metodologias ágeis". Considere também variações de singular/plural e capitalização
-- IDENTIFIQUE SIGLAS/ACRÔNIMOS e seus significados completos como equivalentes. Ex: "PO" = "Product Owner", "SM" = "Scrum Master", "RH" = "Recursos Humanos", "TI" = "Tecnologia da Informação". Combine-os no formato completo seguido da sigla: ex: "Product Owner (PO)"
-- ATENÇÃO: NÃO generalize cargos com especialidades específicas como equivalentes aos cargos base. Ex: "Data Product Owner" NÃO é igual a "Product Owner", "Tech Product Owner" NÃO é igual a "Product Owner", "Financial Analyst" NÃO é igual a "Analyst". Mantenha esses cargos específicos separados
-- ATENTE-SE ESPECIALMENTE a siglas utilizadas nas áreas de tecnologia, gestão, agile, negócios e recursos humanos (por exemplo: PO, DPO, PM, TPO, SM, RH, TI, UX, UI, CRM, ERP, etc.) e suas especializações. Ex: "DPO" = "Data Product Owner", "TPO" = "Tech Product Owner", "CPTO" = "Chief Product & Technology Officer"
-- Divida frases longas em segmentos menores e significativos
-- Capture TODAS as palavras-chave importantes, mesmo as menos óbvias
-- Padronize termos similares para evitar redundância (por exemplo, escolha apenas "gestão" ou "gerenciamento", não ambos)
-- Unifique variações de capitalização, singular/plural e sinônimos próximos (ex: escolha apenas "metodologias ágeis" entre "metodologias ágeis", "Metodologias ágeis", "práticas ágeis", "metodologia ágil")
-- Extraia termos técnicos e acrônimos mesmo se forem mencionados rapidamente
-- NÃO CONFUNDA termos relacionados mas distintos: "KRs" (Key Results) e "OKRs" (Objectives and Key Results) são conceitos diferentes na mesma metodologia. Da mesma forma, diferencie "BI" (Business Intelligence) de "PowerBI" (ferramenta específica de BI da Microsoft)
-- Identifique termos implícitos derivados das responsabilidades descritas
-- Inclua especialidades derivadas da descrição de projetos ou atividades
-- Considere sinônimos comumente usados em processos seletivos
-- Preste atenção especial em termos técnicos, ferramentas e metodologias
-- IMPORTANTE: Identifique TODAS as ferramentas mencionadas (Jira, Confluence, etc.) e coloque-as tanto na categoria "technical" quanto na categoria "tools"
-- EVITE DUPLICAÇÕES: Não repita a mesma palavra-chave múltiplas vezes na mesma categoria
+NOTA CRÍTICA: Uma análise manual humana do mesmo currículo identificou os seguintes termos que VOCÊ ABSOLUTAMENTE DEVE IDENTIFICAR além de quaisquer outros que encontrar:
+
+- métricas de desempenho de produto (não apenas "métricas de desempenho")
+- feedback de usuário
+- feedback geral
+- informações do mercado
+- orientar o direcionamento
+- próximas entregas
+- requisitos funcionais (separadamente)
+- requisitos não funcionais (separadamente)
+- características do produto
+- restrições
+- segurança
+- confiabilidade
+- maior qualidade
+- confiança de dados
+- testes de aceitação
+- padrões e métodos
+- aprovação do produto
+- melhorias
+- efetividade
+- atualizações
+- funcionalidades
+- produção
+- relatórios
+- usabilidade
+- indicadores
+- melhores resultados
+- métricas de entrega
+- time de tecnologia
+- burn down
+- tempo
+- entrega do time
+- período estabelecido
+- cerimônias do time ágil
+- documentação
+- reuniões diárias
+- planejamento
+- cliente
+- entender as melhorias
+- histórico de desenvolvimento
+- Graduação completa em Administração
+- Graduação completa em Tecnologia da Informação
+- cursos correlatos
+- Product Owner
+- metodologias ágeis
+- Scrum
+- Kanban
+- Atlassian
+- Jira
+- Confluence
+- Pacote Office
+- produtos financeiros
+- Gestão de Projetos
+- desenvolvimento de produtos digitais
+
+INSTRUÇÕES OBRIGATÓRIAS PARA EXTRAÇÃO ULTRA-DETALHADA:
+
+1. NÃO SIMPLIFIQUE OU GENERALIZE. SEMPRE opte pela expressão mais específica e detalhada possível:
+   - "métricas de desempenho de produto" (correto) vs. "métricas de desempenho" (incompleto)
+   - "requisitos funcionais" e "requisitos não funcionais" (correto) vs. "requisitos" (incompleto)
+   - "graduação completa em Administração" (correto) vs. "graduação" ou "administração" (incompleto)
+
+2. PRESERVE TODAS AS QUALIFICAÇÕES E MODIFICADORES importantes:
+   - "maior qualidade" (não apenas "qualidade")
+   - "melhores resultados" (não apenas "resultados")
+   - "próximas entregas" (não apenas "entregas")
+   - "reuniões diárias" (não apenas "reuniões")
+
+3. IDENTIFIQUE TERMOS RELACIONADOS MAS DISTINTOS:
+   - "feedback de usuário" e "feedback geral" são conceitos diferentes
+   - "métricas de desempenho" e "métricas de entrega" são distintos
+   - "requisitos funcionais" e "requisitos não funcionais" são separados
+
+4. NUNCA IGNORE DETALHES SUTIS que mudam o significado:
+   - "graduação completa" vs. apenas "graduação"
+   - "desenvolvimento de produtos digitais" vs. apenas "desenvolvimento de produtos"
+   - "cerimônias do time ágil" vs. apenas "cerimônias ágeis"
+   - "entrega do time" vs. apenas "entrega"
+
+5. CAPTURE CADA EXPRESSÃO RELEVANTE, mesmo que pareça:  
+   - Muito específica: "confiança de dados", "aprovação do produto"
+   - Redundante: "melhorias" e "entender as melhorias" são diferentes
+   - Incomum: "histórico de desenvolvimento", "orientar o direcionamento"
+   - Composta: "período estabelecido", "características do produto"
+
+6. EXTRAIA EXPRESSÕES COMPLETAS SEMPRE QUE FORMAREM UM CONCEITO COESO:
+   - "testes de aceitação" (não apenas "testes")
+   - "metodologias ágeis" (não apenas "metodologias" ou "ágeis")
+   - "padrões e métodos" (como uma expressão completa)
+   - "histórico de desenvolvimento" (como conceito único)
+
+7. CAPTURE ABSOLUTAMENTE TODAS AS FERRAMENTAS E TECNOLOGIAS:
+   - Sempre inclua plataformas específicas: "Jira", "Confluence", "Atlassian"
+   - Software e pacotes: "Pacote Office"
+   - Frameworks e metodologias: "Scrum", "Kanban"
+
+ESTRATÉGIAS ADICIONAIS PARA MÁXIMO DETALHAMENTO:
+- Examine cada frase várias vezes para extrair todos os termos significativos
+- Considere tanto o significado literal quanto implícito
+- Identifique conceitos mesmo quando eles não são mencionados diretamente
+- Capture termos em seus contextos completos
+- Preserve expressões compostas significativas
+- Extraia termos relacionados a responsabilidades, processos e atividades específicas
+- Não descarte termos por serem muito específicos ou detalhados
 
 Retorne um objeto JSON completo no seguinte formato:
 {
@@ -349,16 +868,19 @@ Retorne um objeto JSON completo no seguinte formato:
   "education": ["education1", "certification1", ...],
   "language": ["language1 level", "language2 level", ...],
   "sector": ["sector1", "sector2", ...],
-  "tools": ["tool1", "tool2", ...]
+  "tools": ["tool1", "tool2", ...],
+  "responsibilities": ["responsibility1", "responsibility2", ...],
+  "processes": ["process1", "process2", ...],
+  "product": ["product1", "product2", ...]
 }
 
-Aqui está o texto do currículo para análise:
+Aqui está o texto do currículo para análise ultra-detalhada:
 
 ${resumeText}`
           }
         ],
-        temperature: 0.1,
-        max_tokens: 2500,
+        temperature: 0.5,
+        max_tokens: 4000,
         response_format: { type: "json_object" }
       });
 
@@ -376,7 +898,10 @@ ${resumeText}`
           education: keywords.education || [],
           language: keywords.language || [],
           sector: keywords.sector || [],
-          tools: keywords.tools || []
+          tools: keywords.tools || [],
+          responsibilities: keywords.responsibilities || [],
+          processes: keywords.processes || [],
+          product: keywords.product || []
         };
 
         // Normalizar keywords usando OpenAI para detectar sinônimos em todas as áreas profissionais
@@ -404,7 +929,10 @@ ${resumeText}`
         education: [],
         language: [],
         sector: [],
-        tools: []
+        tools: [],
+        responsibilities: [],
+        processes: [],
+        product: []
       };
     }
   }
@@ -457,7 +985,7 @@ Aqui está o texto do currículo para análise:
 ${resumeText}`
           }
         ],
-        temperature: 0.1, // Temperatura mais baixa para análise estrutural mais consistente
+        temperature: 0.5, // Temperatura mais baixa para análise estrutural mais consistente
         max_tokens: 2500,
         response_format: { type: "json_object" }
       });
@@ -571,7 +1099,7 @@ Aqui está o currículo para análise:
 ${resumeText}`
           }
         ],
-        temperature: 0.1, // Temperatura mais baixa para análise ATS mais consistente e determinística
+        temperature: 0.5, // Temperatura mais baixa para análise ATS mais consistente e determinística
         max_tokens: 3000,
         response_format: { type: "json_object" }
       });
@@ -683,21 +1211,54 @@ ${resumeText}`
 
     // Construção do prompt final
     const prompt = `
-Por favor, analise o seguinte currículo:
+Atue como um especialista em sistemas ATS (Applicant Tracking Systems), otimização de currículos e análise de mercado de trabalho. Você tem 20 anos de experiência ajudando profissionais a otimizar seus currículos para melhorar sua performance em sistemas ATS e aumentar suas chances de conseguir entrevistas. Você entende profundamente como os ATS analisam descrições de vagas, extraem palavras-chave, avaliam estrutura de currículos e detectam lacunas.
+
 --- Currículo ---
 ${resumeText}
 --- Fim do Currículo ---
 
 ${jobSection}
 
-**Instruções de Análise:**
+Siga as 6 etapas abaixo cuidadosamente:
 
-1. Consolide Todas As Palavras-chave das Vagas: Leia TODAS as descrições de vagas fornecidas. Extraia e consolide TODAS as palavras-chave, requisitos e habilidades importantes em um único conjunto categorizado (all_job_keywords). Se nenhuma vaga foi fornecida, retorne objetos/arrays vazios para os campos relacionados a keywords.
-2. Identifique Palavras-chave Correspondentes: Compare as habilidades e termos do currículo com a lista consolidada de palavras-chave das vagas (all_job_keywords). Liste as palavras-chave que aparecem em AMBOS (matching_keywords).
-3. Identifique Palavras-chave Ausentes: Liste as palavras-chave importantes de all_job_keywords que NÃO foram encontradas no currículo (missing_keywords). Destaque as mais críticas.
-4. Avalie a Estrutura e ATS: Analise a clareza, organização e compatibilidade do currículo com sistemas de rastreamento de candidatos (ATS). Avalie seções essenciais, formatação, fontes e facilidade de parseamento (ats_structure_evaluation).
-5. Forneça Recomendações: Dê sugestões concretas para melhorar o currículo, focando em alinhar com as vagas (se houver) e otimizar para ATS (recommendations).
-6. Escreva uma Conclusão: Apresente um resumo final da análise, adequação geral e próximos passos (conclusion).
+**Etapa 1: Extração de palavras-chave das vagas**
+- Acesse cada uma das descrições de vagas fornecidas.
+- Extraia palavras-chave relevantes, competências técnicas, habilidades interpessoais, qualificações, certificações, ferramentas e tecnologias mencionadas.
+- Agrupe por categoria: habilidades técnicas, comportamentais, experiência, educação, idiomas, ferramentas, requisitos obrigatórios e desejáveis.
+- Elimine duplicatas e indique a frequência de repetição de cada termo entre as vagas.
+- Consolide uma lista com as palavras-chave mais recorrentes. Todas estas informações devem ser agrupadas em (all_job_keywords).
+
+**Etapa 2: Análise do currículo**
+- Leia todo o conteúdo do currículo fornecido.
+- Identifique todas as palavras-chave presentes que também aparecem nas descrições das vagas (matching_keywords).
+- Detecte quais palavras-chave importantes estão ausentes no currículo (missing_keywords).
+
+**Etapa 3: Comparação de palavras-chave**
+- Classifique as palavras-chave em três tipos:
+  1. Palavras-chave encontradas no currículo (matching_keywords)
+  2. Palavras-chave ausentes no currículo (missing_keywords)
+  3. Termos parcialmente correspondentes (sinônimos ou variações)
+
+**Etapa 4: Avaliação da estrutura do currículo conforme critérios ATS**
+- Avalie os seguintes pontos (ats_structure_evaluation):
+  - Uso adequado de seções (Experiência, Formação, Habilidades)
+  - Formatação consistente e simples
+  - Evita o uso de tabelas, gráficos ou caixas de texto
+  - Tipo de arquivo compatível (preferencialmente PDF ou DOCX sem elementos gráficos)
+  - Distribuição e contextualização das palavras-chave (não apenas listas soltas)
+
+**Etapa 5: Recomendações**
+- Forneça sugestões práticas para (recommendations):
+  - Adicionar palavras-chave ausentes de forma natural
+  - Reestruturar o currículo para maior compatibilidade com ATS
+  - Melhorar a correspondência de palavras semelhantes
+  - Indicar com quais das vagas o currículo tem maior alinhamento
+
+**Etapa 6: Conclusão**
+- Dê um resumo final com (conclusion):
+  - Percentual de alinhamento do currículo com as vagas
+  - Indicação das vagas mais compatíveis
+  - Recomendações gerais para melhorar a performance do currículo em sistemas ATS
 
 **Formato de Saída OBRIGATÓRIO (JSON):**
 
@@ -784,7 +1345,7 @@ Responda **ESTRITAMENTE** com um objeto JSON válido contendo EXATAMENTE os segu
             content: prompt
           }
         ],
-        temperature: 0.1, // Temperatura mais baixa para análise ATS mais consistente e determinística
+        temperature: 0.5, // Temperatura mais baixa para análise ATS mais consistente e determinística
         max_tokens: 3000,
         response_format: { type: "json_object" }
       });

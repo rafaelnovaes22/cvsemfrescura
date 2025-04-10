@@ -6,6 +6,8 @@ const path = require('path');
 const fs = require('fs');
 const helmet = require('helmet'); // Importa helmet
 const resumeController = require('./controllers/resumeController'); // Importa o controller
+const atsController = require('./controllers/atsController'); // Importa o controller ATS
+const multiJobController = require('./controllers/multiJobController'); // Importa o controller para múltiplas vagas
 
 // Carrega variáveis de ambiente do .env
 dotenv.config();
@@ -122,6 +124,18 @@ apiRouter.get(
 apiRouter.get(
     '/resume/analysis/:analysisId',
     (req, res, next) => resumeController.getAnalysisResults(req, res, next, analysisStore) // Passa o store
+);
+
+// Rota para extrair palavras-chave ATS de uma descrição de vaga (POST /api/ats/extract)
+apiRouter.post(
+    '/ats/extract',
+    atsController.extractAtsKeywords
+);
+
+// Rota para processar múltiplas URLs de vagas e extrair análise ATS consolidada (POST /api/ats/process-multiple)
+apiRouter.post(
+    '/ats/process-multiple',
+    multiJobController.processMultipleUrls
 );
 
 app.use('/api', apiRouter); // Prefixo /api para todas as rotas

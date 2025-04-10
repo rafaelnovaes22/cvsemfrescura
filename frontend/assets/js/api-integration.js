@@ -58,7 +58,11 @@ const apiIntegration = {
                 throw new Error('Resposta inválida do servidor. Tente novamente.');
             }
         } catch (error) {
-            console.error('Erro ao enviar currículo:', error);
+            console.error('Erro ao enviar currículo:', {
+                message: error.message || 'Erro desconhecido',
+                status: error.status || 'unknown',
+                stack: error.stack
+            });
 
             // Exibir erro para o usuário
             const errorContainer = document.getElementById('errorContainer');

@@ -5,7 +5,7 @@
 class APIService {
     constructor() {
         // Determina a base URL da API baseado no ambiente
-        this.baseUrl = '/api'; // Usando rota relativa uma vez que backend e frontend estão servidos juntos
+        this.baseUrl = 'http://localhost:3000/api'; // URL completa apontando para o servidor backend
     }
 
     /**
@@ -29,7 +29,11 @@ class APIService {
             
             return data;
         } catch (error) {
-            console.error('Erro na API de análise:', error);
+            console.error('Erro na API de análise:', {
+                message: error.message || 'Erro desconhecido',
+                status: error.status || 'unknown',
+                stack: error.stack
+            });
             throw error;
         }
     }

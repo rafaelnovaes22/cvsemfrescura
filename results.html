@@ -1171,7 +1171,68 @@
 
             // Converter para minúsculas para comparação
             const lowerKeyword = keyword.toLowerCase();
-
+            
+            // Lista de termos compostos que não devem ser fragmentados
+            const compositeTerms = [
+                'análise de dados',
+                'ciência de dados',
+                'engenharia de dados',
+                'base de dados',
+                'banco de dados',
+                'modelo de dados',
+                'arquitetura de dados',
+                'produto de dados',
+                'qualidade de dados',
+                'processamento de dados',
+                'visualização de dados',
+                'design de produto',
+                'análise de requisitos',
+                'gestão de pessoas',
+                'gestão de equipes',
+                'desenvolvimento de software',
+                'engenharia de software',
+                // Termos relacionados a feedback
+                'coleta de feedback',
+                'coleta de feedbacks',
+                'análise de feedback',
+                'análise de feedbacks',
+                'de feedback',
+                'de feedbacks',
+                'gestão de feedback',
+                'gestão de feedbacks',
+                // Terminologia de gestão e metodologias
+                'okrs',
+                'kpis',
+                'key results',
+                'objectives and key results',
+                'indicadores de desempenho',
+                'metodologia ágil',
+                'framework ágil',
+                'product owner',
+                'scrum master',
+                // Outros termos compostos comuns
+                'metodologia de trabalho',
+                'gestão de projetos',
+                'gestão de produtos',
+                'análise de mercado',
+                'definição de escopo',
+                'levantamento de requisitos',
+                'definição de roadmap',
+                'gestão de stakeholders',
+                'documentação de produto',
+                'fluxo de usuário',
+                'jornada de usuário',
+                'experiência de usuário',
+                'interface de usuário'
+            ];
+            
+            // Verificar se a palavra-chave é um termo composto que deve ser preservado
+            for (const term of compositeTerms) {
+                if (lowerKeyword === term) {
+                    return keyword; // Manter a palavra-chave original
+                }
+            }
+            
             // Caso específico para "de testes de aceitação"
             if (lowerKeyword === "de testes de aceitação") {
                 return "testes de aceitação";
