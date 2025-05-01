@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Currículo - CV Sem Frescura</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Estilos do onboarding -->
+    <link rel="stylesheet" href="/assets/css/onboarding.css">
+
+    <script>
+        // Autenticação desativada temporariamente para testes
+        /*
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pequeno atraso para garantir que  está carregado
+            setTimeout(function() {
+                if (!window.isAuthenticated || !window.isAuthenticated()) {
+                    window.location.href = '#';
+                }
+            }, 50);
+        });
+        */
+    </script>
+    <style>
+        :root {
+            --primary: #583819;
+            --primary-dark: #512808;
+            --background: #F3EADA;
+            --card-bg: #FFFCF9;
+            --white: #FFFFFF;
+            --text-dark: #583819;
+            --text-gray: #505050;
+            --border-color: #D1D1D1;
+            --selected-file-bg: #ECD9B5;
+            --border-radius: 10px;
+            --shadow: 0px 4px 6px rgba(33, 33, 33, 0.04);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: var(--background);
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+            position: relative;
+        }
+
+        .logo {
+            height: auto;
+            max-height: 150px;
+            width: auto;
+            max-width: 80%;
+        }
+
+        /* User menu container and menu styles */
+        .user-menu-container {
+            position: absolute;
+            right: 50px;
+            top: 20px;
+        }
+        
+        .auth-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .login-link {
+            background-color: var(--primary);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            display: inline-block;
+        }
+        
+        .login-link:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background-color: var(--primary);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            position: relative;
+        }
+        
+        .user-name {
+            max-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .credits-badge {
+            background-color: #4CAF50;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 0 5px;
+            cursor: help;
+            position: relative;
+        }
+        
+        .credits-badge:hover::after {
+            content: "Cada análise é feita individualmente e permite até 8 links de vagas.";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: normal;
+            white-space: nowrap;
+            z-index: 200;
+            margin-top: 5px;
+            width: max-content;
+            max-width: 200px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .dropdown-icon {
+            font-size: 10px;
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;             /* Posiciona exatamente abaixo do elemento pai */
+            right: 0;              /* Alinhado à direita do elemento pai */
+            margin-top: 2px;       /* Pequeno espaço apenas com margin */
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            min-width: 180px;
+            z-index: 100;
+        }
+        
+        .user-menu:hover + .dropdown-menu,
+        .dropdown-menu:hover {
+            display: flex;
+        }
+        
+        .dropdown-item {
+            display: block;
+            padding: 4px 10px;
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: background-color 0.3s;
+            font-size: 14px;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .dropdown-item.logout-btn {
+            color: #d32f2f;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 768px) {
+            .login-link {
+                position: static;
+                display: block;
+                width: fit-content;
+                margin: 10px auto 0;
+                transform: none;
+            }
+            
+            .user-menu {
+                position: relative;
+                margin: 10px auto;
+            }
+            
+            .dropdown-menu {
+                position: absolute;
+                width: 220px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .credits-badge:hover::after {
+                position: fixed;
+                top: auto;
+                left: 50%;
+                bottom: 20px;
+                transform: translateX(-50%);
+                width: 80%;
+                max-width: 300px;
+            }
+        }
+
+        .main-content {
+            padding: 10px 0;
+            flex: 1 0 auto;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .main-title {
+            color: var(--text-dark);
+            font-size: clamp(24px, 5vw, 35px);
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 5px;
+        }
+
+        .main-description {
+            color: var(--text-gray);
+            font-size: clamp(14px, 3vw, 17px);
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        .upload-section {
+            max-width: 802px;
+            width: 95%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .dropzone {
+            width: 100%;
+            height: auto;
+            min-height: 150px;
+            border: 1.5px dashed var(--primary);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: var(--transition);
+            padding: 20px;
+        }
+
+        .dropzone:hover,
+        .dropzone.active {
+            background-color: rgba(88, 56, 25, 0.05);
+        }
+
+        .upload-icon {
+            width: 42px;
+            height: 28px;
+            background: url('/assets/img/icon-upload.svg') no-repeat center;
+            background-size: contain;
+            margin-bottom: 12px;
+        }
+
+        .upload-button {
+            width: 205px;
+            height: 37px;
+            border-radius: 8px;
+            border: 2px var(--primary) solid;
+            background: transparent;
+            position: relative;
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 25px;
+            cursor: pointer;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-button::before {
+            content: "+";
+            width: auto;
+            height: auto;
+            left: 13px;
+            top: 6px;
+            position: absolute;
+            background: transparent;
+            color: var(--primary);
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .dropzone-text {
+            text-align: center;
+            color: var(--text-gray);
+            font-size: 14px;
+            font-weight: 400;
+            margin-top: 10px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .selected-file {
+            display: none;
+            width: 100%;
+            padding: 5px 19px;
+            background-color: var(--selected-file-bg);
+            border-radius: 5px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .file-icon {
+            width: 18px;
+            height: 16px;
+            margin-right: 8px;
+            background: url('/assets/img/curriculo.svg') no-repeat center;
+            background-size: contain;
+        }
+
+        .file-name {
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 18px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: calc(100% - 50px);
+        }
+
+        .remove-file {
+            width: 16px;
+            height: 16px;
+            min-width: 16px;
+            background: url('/assets/img/remover.svg') no-repeat center;
+            background-size: contain;
+            border: none;
+            cursor: pointer;
+        }
+
+        .links-section {
+            margin-top: 20px;
+        }
+
+        .links-section h2 {
+            color: var(--text-gray);
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 24px;
+            margin-bottom: 5px;
+        }
+
+        .job-links-container {
+            margin-bottom: 10px;
+        }
+
+        .job-link-item {
+            margin-bottom: 10px;
+        }
+
+        .job-link-input {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 11px;
+            transition: var(--transition);
+            width: 100%;
+            max-width: 750px;
+            box-sizing: border-box;
+            font-family: 'IBM Plex Sans', sans-serif;
+            color: var(--text-gray);
+        }
+        .job-link-input::placeholder {
+            color: #505050;
+            font-size: 11px;
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-weight: 400;
+            line-height: 18px;
+            word-break: break-word;
+        }
+
+        .job-link-input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        .add-job-link-btn {
+            background-color: transparent;
+            color: var(--primary);
+            border: none;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 5px;
+            border-radius: 4px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+        }
+        
+        .add-job-link-btn:hover {
+            background-color: rgba(88, 56, 25, 0.05);
+        }
+
+        .analyze-button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            margin-bottom: 40px;
+        }
+
+        .analyze-button {
+            width: 100%;
+            max-width: 349px;
+            height: 50px;
+            background-color: var(--primary-dark);
+            color: var(--white);
+            border: none;
+            border-radius: 7px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .analyze-button:hover {
+            opacity: 0.9;
+        }
+
+        .features-section {
+            background-color: var(--card-bg);
+            padding: 40px 0;
+            width: 100%;
+        }
+
+        .features-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .feature-item {
+            width: 269px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 10px;
+        }
+
+        .feature-icon {
+            width: 33px;
+            height: 33px;
+            background-color: var(--primary);
+            border-radius: 3px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feature-icon.icon-ai {
+            background: var(--primary) url('/assets/img/icon-analysis.png') no-repeat center;
+            background-size: 21px;
+        }
+
+        .feature-icon.icon-feedback {
+            background: var(--primary) url('/assets/img/icon-feedback.png') no-repeat center;
+            background-size: 19px;
+        }
+
+        .feature-icon.icon-optimization {
+            background: var(--primary) url('/assets/img/icon-optimization.png') no-repeat center;
+            background-size: 19px;
+        }
+
+        .feature-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+
+        .feature-desc {
+            color: var(--text-gray);
+            font-size: 17px;
+            line-height: 1.5;
+        }
+
+        footer {
+            background-color: var(--primary-dark);
+            color: var(--white);
+            padding: 20px 0;
+            flex-shrink: 0;
+            margin-top: auto;
+        }
+
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-logo {
+            height: 40px;
+            width: auto;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-link:hover {
+            color: var(--white);
+        }
+
+        .copyright {
+            margin-top: 5px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+        }
+
+        @media (max-width: 992px) {
+            .features-container {
+                gap: 60px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .upload-section {
+                padding: 15px;
+            }
+
+            .features-container {
+                gap: 30px;
+            }
+
+            .feature-item {
+                width: 100%;
+                max-width: 320px;
+            }
+
+            .footer-container {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+
+            .footer-links {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                max-height: 100px;
+            }
+
+            .main-title {
+                font-size: 24px;
+            }
+
+            .main-description {
+                font-size: 14px;
+            }
+
+            .upload-section {
+                padding: 10px;
+            }
+
+            .dropzone {
+                min-height: 120px;
+                padding: 15px;
+            }
+
+            .upload-button {
+                width: 180px;
+                font-size: 12px;
+            }
+
+            .feature-item {
+                padding: 5px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="logo-container">
+        <img src="/assets/img/logo.png" alt="Logo Análise de Currículo" class="logo">
+        <div id="userMenuContainer" class="user-menu-container">
+            <div class="auth-wrapper">
+                <a href="#" class="login-link" id="loginLink" style="display: none;">Entrar</a>
+                <a href="#" class="user-menu" id="authButton" style="display: none;">
+                    <span class="user-name">Usuário</span>
+                    <span class="credits-badge" id="userCredits">0 análises</span>
+                    <span class="dropdown-icon">▼</span>
+                </a>
+                <div class="dropdown-menu" id="userDropdown">
+                    <a href="#" class="dropdown-item">Meu Perfil</a>
+                    <a href="payment.html" class="dropdown-item">Comprar análises</a>
+                    <a href="#" class="dropdown-item">Meus Currículos</a>
+                    <a href="#" class="dropdown-item logout-btn" id="logoutButton">Sair</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div class="container">
+            <section class="header-section">
+                <h1 class="main-title">CV Sem Frescura</h1>
+                <p class="main-description">Otimize seu currículo com inteligência artificial.</p>
+            </section>
+
+            <section class="upload-section">
+                <div class="dropzone" id="dropzone">
+                    <div class="upload-icon"></div>
+                    <button class="upload-button" id="selectFileBtn" type="button">Selecione Seu Currículo</button>
+<p class="dropzone-text">Ou arraste e solte seu currículo nesse campo</p>
+<input type="file" class="file-input" id="fileInput" accept=".pdf,.docx" style="display:none;">
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectFileBtn = document.getElementById('selectFileBtn');
+    const fileInput = document.getElementById('fileInput');
+    const selectedFileDiv = document.getElementById('selectedFile');
+    const fileNameSpan = selectedFileDiv.querySelector('.file-name');
+    const removeFileBtn = selectedFileDiv.querySelector('.remove-file');
+
+    // Inicialmente ocultar o componente
+    selectedFileDiv.style.display = 'none';
+
+    if (selectFileBtn && fileInput) {
+        selectFileBtn.addEventListener('click', function(e) {
+            fileInput.click();
+        });
+    }
+
+    // Exibir nome do arquivo ao selecionar
+    fileInput.addEventListener('change', function(e) {
+        if (fileInput.files && fileInput.files.length > 0) {
+            fileNameSpan.textContent = fileInput.files[0].name;
+            selectedFileDiv.style.display = 'flex';
+            removeFileBtn.style.display = 'inline-block';
+        } else {
+            selectedFileDiv.style.display = 'none';
+        }
+    });
+
+    // Remover arquivo
+    removeFileBtn.addEventListener('click', function() {
+        fileInput.value = '';
+        selectedFileDiv.style.display = 'none';
+    });
+});
+</script>
+
+                <div class="selected-file" id="selectedFile">
+                    <div class="file-info">
+                        <div class="file-icon"></div>
+                        <span class="file-name">Nome do arquivo</span>
+                    </div>
+                    <button class="remove-file" aria-label="Remover arquivo"></button>
+                </div>
+
+                <div class="links-section">
+                    <h2>Link das Vagas Desejadas</h2>
+                    <div class="job-links-container" id="jobLinksContainer">
+                        <div class="job-link-item" style="display:flex;align-items:center;">
+                            <input type="url" class="job-link-input" placeholder="https://linkdavaga.com" id="mainJobLink" autocomplete="off">
+                        </div>
+                    </div>
+                    <button type="button" id="addJobLinkBtn" class="add-job-link-btn">+ Adicionar Mais Uma Vaga</button>
+                </div>
+            </section>
+
+            <div class="analyze-button-container">
+                <button class="analyze-button" id="analyzeBtn">Analise Agora Seu Currículo</button>
+            </div>
+        </div>
+
+        <section class="features-section">
+            <div class="container features-container">
+                <div class="feature-item">
+                    <div class="feature-icon icon-ai"></div>
+                    <div>
+                        <h3 class="feature-title">Análise de Currículo com IA</h3>
+                        <p class="feature-desc">Aproveite a inteligência artificial para identificar melhorias e alinhar
+                            seu perfil às exigências das vagas.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon icon-feedback"></div>
+                    <div>
+                        <h3 class="feature-title">Feedback Personalizado</h3>
+                        <p class="feature-desc">Descubra em segundos os pontos que podem destacar seu currículo no
+                            mercado.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon icon-optimization"></div>
+                    <div>
+                        <h3 class="feature-title">Otimização Para Cada Vaga</h3>
+                        <p class="feature-desc">Adapte seu currículo às expectativas dos recrutadores e aumente suas
+                            chances de sucesso.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-container">
+            <div>
+                <img src="/assets/img/logo.png" alt="RH Super" class="footer-logo">
+                <p class="copyright">© 2025 CV Sem Frescura. Todos os direitos reservados.</p>
+            </div>
+            <div class="footer-links">
+                <a href="privacy.html" class="footer-link">Políticas de Privacidade</a>
+                <a href="terms.html" class="footer-link">Termos de Uso</a>
+                <a href="#" class="footer-link">Contato</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+
+cd    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos do DOM
+            const authButton = document.getElementById('authButton');
+            const userDropdown = document.getElementById('userDropdown');
+            const logoutButton = document.getElementById('logoutButton');
+            
+            // Verificar se é necessário forçar atualização de créditos (vindo da página de pagamento)
+            const urlParams = new URLSearchParams(window.location.search);
+            const shouldRefreshCredits = urlParams.get('refresh_credits') === 'true';
+            
+            const loginLink = document.getElementById('loginLink');
+            
+            // Atualizar UI baseado no estado de autenticação
+            function updateUI() {
+                if (window.isAuthenticated && window.isAuthenticated()) {
+                    const userData = window.getUserData();
+                    
+                    // Mostrar menu do usuário e esconder link de login
+                    loginLink.style.display = 'none';
+                    authButton.style.display = 'flex';
+                    
+                    // Atualizar menu do usuário com nome
+                    const userNameElement = authButton.querySelector('.user-name');
+                    if (userNameElement) {
+                        userNameElement.textContent = userData.name || 'Usuário';
+                    }
+                    
+                    // Mostrar análises do usuário
+                    fetchUserCredits(shouldRefreshCredits);
+                } else {
+                    // Mostrar link de login e esconder menu do usuário
+                    loginLink.style.display = 'inline-block';
+                    authButton.style.display = 'none';
+                }
+            }
+            
+            // Chamar updateUI quando a página carregar
+            updateUI();
+            
+            // Verificar autenticação novamente após um pequeno atraso
+            // para garantir que  foi completamente carregado
+            setTimeout(updateUI, 100);
+            
+            // Adicionar event listener para o botão de logout
+            if (logoutButton) {
+                logoutButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (window.logout) {
+                        window.logout();
+                    }
+                });
+            }
+            
+            // Não precisamos mais do event listener para clicar fora do dropdown
+            // pois agora estamos usando hover para mostrar/esconder o dropdown
+            
+            // Função para buscar análises do usuário do servidor
+            function fetchUserCredits(forceRefresh = false) {
+                const creditsElement = document.getElementById('userCredits');
+                
+                // Fazer chamada à API para obter os créditos reais do usuário
+                if (window.apiRequest) {
+                    const apiUrl = '/api/user/credits';
+                    const requestOptions = {};
+                    
+                    // Se precisarmos forçar atualização, adicionar headers para evitar cache
+                    if (forceRefresh) {
+                        console.log('Forçando atualização de créditos (sem cache)...');
+                        requestOptions.headers = {
+                            'Cache-Control': 'no-cache, no-store, must-revalidate',
+                            'Pragma': 'no-cache',
+                            'Expires': '0'
+                        };
+                    }
+                    
+                    window.apiRequest(apiUrl, requestOptions)
+                        .then(response => {
+                            if (response && response.ok) {
+                                return response.json();
+                            } else {
+                                throw new Error('Falha ao obter créditos do usuário');
+                            }
+                        })
+                        .then(data => {
+                            if (creditsElement) {
+                                creditsElement.textContent = `${data.credits} análises`;
+                                
+                                // Mudar cor com base na quantidade de créditos
+                                if (data.credits <= 0) {
+                                    creditsElement.style.backgroundColor = '#F44336'; // Vermelho se zero
+                                } else if (data.credits <= 2) {
+                                    creditsElement.style.backgroundColor = '#FFC107'; // Amarelo se poucos
+                                } else {
+                                    creditsElement.style.backgroundColor = '#4CAF50'; // Verde se suficiente
+                                }
+                                
+                                // Configurar o botão de análise com base nos créditos disponíveis
+                                const analyzeBtn = document.getElementById('analyzeBtn');
+                                if (analyzeBtn) {
+                                    // Remover todos os event listeners existentes
+                                    const newBtn = analyzeBtn.cloneNode(true);
+                                    analyzeBtn.parentNode.replaceChild(newBtn, analyzeBtn);
+                                    
+                                    if (data.credits <= 0) {
+                                        // Se não tiver créditos, mostrar botão para comprar
+                                        newBtn.textContent = 'Comprar Análises';
+                                        newBtn.addEventListener('click', function() {
+                                            window.location.href = 'payment.html';
+                                        });
+                                    } else {
+                                        // Se tiver créditos, garantir que o botão realiza a análise
+                                        newBtn.textContent = 'Analise Agora Seu Currículo';
+                                        newBtn.addEventListener('click', function() {
+                                            if (window.analyzeCurrentCV) {
+                                                window.analyzeCurrentCV();
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erro ao obter créditos:', error);
+                            // Em caso de erro, definir para um valor padrão
+                            if (creditsElement) {
+                                creditsElement.textContent = '0 análises';
+                                creditsElement.style.backgroundColor = '#F44336'; // Vermelho
+                            }
+                        });
+                } else {
+                    // Fallback se apiRequest não estiver disponível
+                    if (creditsElement) {
+                        creditsElement.textContent = '0 análises';
+                        creditsElement.style.backgroundColor = '#F44336'; // Vermelho
+                    }
+                }
+            }
+
+            // Funcionalidade para adicionar mais campos de links de vagas
+            const addJobLinkBtn = document.getElementById('addJobLinkBtn');
+            const jobLinksContainer = document.getElementById('jobLinksContainer');
+            // Função para adicionar um novo campo de vaga
+            function addJobLinkField() {
+                const currentCount = jobLinksContainer.querySelectorAll('input.job-link-input').length;
+                if (currentCount >= 7) {
+                    alert('Você atingiu o limite máximo de 7 vagas para análise simultânea.');
+                    return;
+                }
+                 // Criar novo campo de input padronizado
+                 const newLinkItem = document.createElement('div');
+                 newLinkItem.className = 'job-link-item';
+                 newLinkItem.style.display = 'flex';
+                 newLinkItem.style.alignItems = 'center';
+                 const newInput = document.createElement('input');
+                 newInput.type = 'url';
+                 newInput.className = 'job-link-input';
+                 newInput.placeholder = `https://linkdavaga.com`;
+                 // Adiciona apenas o input, sem estilos inline extras
+                 newLinkItem.appendChild(newInput);
+                 jobLinksContainer.appendChild(newLinkItem);
+                 // Dar foco ao novo campo
+                 newInput.focus();
+            }
+
+            // Adicionar event listener para o botão de adicionar vaga
+            addJobLinkBtn.addEventListener('click', addJobLinkField);
+
+            // Funcionalidade do botão de análise
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            if (analyzeBtn) {
+                analyzeBtn.addEventListener('click', function() {
+                    const fileInput = document.getElementById('fileInput');
+                    const jobLinkInputs = document.querySelectorAll('.job-link-input');
+                    const selectedFile = fileInput && fileInput.files.length > 0 ? fileInput.files[0] : null;
+                    const jobLinks = Array.from(jobLinkInputs).map(input => input.value.trim()).filter(Boolean);
+
+                    // Validação de URL
+                    const urlRegex = /^(https?:\/\/)[\w\-]+(\.[\w\-]+)+([\w.,@?^=%&:/~+#\-]*[\w@?^=%&/~+#\-])?$/i;
+                    const invalidLink = jobLinks.find(link => !urlRegex.test(link));
+                    if (invalidLink) {
+                        let msgDiv = document.getElementById('stepFeedback');
+                        if (!msgDiv) {
+                            msgDiv = document.createElement('div');
+                            msgDiv.id = 'stepFeedback';
+                            msgDiv.style.color = '#c62828';
+                            msgDiv.style.fontWeight = 'bold';
+                            msgDiv.style.margin = '10px 0 0 0';
+                            analyzeBtn.parentNode.insertBefore(msgDiv, analyzeBtn.nextSibling);
+                        }
+                        msgDiv.textContent = 'O link informado não é válido: ' + invalidLink;
+                        return;
+                    }
+
+                    // Limpar mensagens anteriores
+                    let msgDiv = document.getElementById('stepFeedback');
+                    if (!msgDiv) {
+                        msgDiv = document.createElement('div');
+                        msgDiv.id = 'stepFeedback';
+                        msgDiv.style.color = '#c62828';
+                        msgDiv.style.fontWeight = 'bold';
+                        msgDiv.style.margin = '10px 0 0 0';
+                        analyzeBtn.parentNode.insertBefore(msgDiv, analyzeBtn.nextSibling);
+                    }
+                    msgDiv.textContent = '';
+
+                    // Validação
+                    if (!selectedFile) {
+                        msgDiv.textContent = 'Selecione um currículo para análise.';
+                        return;
+                    }
+                    if (jobLinks.length === 0) {
+                        msgDiv.textContent = 'Informe pelo menos um link de vaga para análise.';
+                        return;
+                    }
+
+                    // Ler arquivo como base64
+                    msgDiv.style.color = '#583819';
+                    msgDiv.textContent = 'Lendo arquivo...';
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const fileContentBase64 = e.target.result;
+                        try {
+                            sessionStorage.setItem('atsFile', selectedFile.name);
+                            sessionStorage.setItem('atsFileContent', fileContentBase64);
+                            sessionStorage.setItem('atsJobLinks', JSON.stringify(jobLinks));
+                            msgDiv.style.color = '#2e7d32';
+                            msgDiv.textContent = 'Dados salvos. Redirecionando para análise...';
+                            setTimeout(() => {
+                                window.location.href = 'loading.html';
+                            }, 400);
+                        } catch (err) {
+                            msgDiv.style.color = '#c62828';
+                            msgDiv.textContent = 'Erro ao salvar dados para análise. Tente novamente.';
+                        }
+                    };
+                    reader.onerror = function() {
+                        msgDiv.style.color = '#c62828';
+                        msgDiv.textContent = 'Erro ao ler o arquivo. Tente outro formato.';
+                    };
+                    reader.readAsDataURL(selectedFile);
+                });
+            }
+        });
+    </script>

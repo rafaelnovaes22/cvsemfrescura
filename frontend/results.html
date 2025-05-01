@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Currículo | CV Sem Frescura</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #583819;
+            --primary-light: #F3EADA;
+            --secondary-color: #ECD9B5;
+            --text-color: #505050;
+            --light-bg: #FFFCF9;
+            --card-bg: #FFFFFF;
+            --border-color: #BBB7B7;
+            --header-height: 770px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: #f6ecd9; /* Bege claro igual imagem */
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* Layout principal */
+        .header-bg {
+            width: 100%;
+            height: var(--header-height);
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: var(--primary-light);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1110px;
+            margin: 0 auto;
+            padding: 0 20px;
+            background: none;
+        }
+
+        .logo-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 35px 0 10px 0;
+        }
+        
+        .logo {
+            width: 180px;
+            height: 150px;
+        }
+
+        /* Header content */
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 40px 0 0 0;
+            gap: 40px;
+        }
+
+        .analysis-header {
+            width: 652px;
+        }
+
+        .header-title {
+            font-size: 45px;
+            font-weight: 700;
+            color: var(--primary-color);
+            line-height: 44px;
+            margin-bottom: 15px;
+        }
+
+        .file-badge {
+             display: inline-flex;
+             align-items: center;
+             padding: 5px 19px;
+             background: #ecd9b5;
+             border-radius: 5px;
+             margin-top: 15px;
+             font-size: 15px;
+             font-weight: 600;
+             color: #583819;
+         }
+
+        .file-icon {
+            width: 18px;
+            height: 15.79px;
+            margin-right: 3px;
+            background-color: var(--primary-color);
+        }
+
+        .file-name {
+            color: var(--primary-color);
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 18px;
+        }
+
+        .analysis-summary {
+            margin-top: 123px;
+            font-size: 17px;
+            line-height: 30px;
+            color: var(--text-color);
+        }
+
+        .analysis-summary strong {
+            font-weight: 600;
+        }
+
+        /* Icons grid */
+        .icons-grid {
+            width: 324.55px;
+            height: 333.45px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 20px;
+            background: none;
+        }
+
+        .icon-item {
+            background: #ecd9b5;
+            border-radius: 12px;
+            width: 151.45px;
+            height: 151.45px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 8px #0000000a;
+        }
+
+        /* Section styles */
+        .section {
+            margin: 60px 0 60px 0;
+        }
+
+        .section-header {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 25px;
+            font-weight: 700;
+            color: #583819;
+            line-height: 44px;
+        }
+
+        .section-divider {
+            width: 100%;
+            height: 2px;
+            background: #bbb7b7;
+            margin-top: 12px;
+            position: relative;
+        }
+
+        .section-divider::before {
+            content: "";
+            position: absolute;
+            top: -2px;
+            left: 0;
+            width: 120px;
+            height: 4px;
+            background: #583819;
+        }
+
+        /* Keywords grid */
+        .keywords-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            gap: 12px 10px;
+            margin: 0 auto 30px auto;
+            max-width: 1050px;
+        }
+
+        .keyword-tag {
+            background: #ecd9b5;
+            border-radius: 8px;
+            padding: 9px 18px;
+            color: #583819;
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 20px;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px #0000000a;
+        }
+
+        /* Keyword rows */
+        .keyword-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .keyword-row {
+            display: flex;
+            gap: 10px;
+        }
+            align-items: center;
+            padding: 14px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .keyword-label {
+            background: #ecd9b5;
+            border-radius: 8px;
+            padding: 10px 18px;
+            min-width: 120px;
+            text-align: center;
+            color: #583819;
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 20px;
+            margin-right: 6px;
+            box-shadow: 0 2px 8px #0000000a;
+        }
+
+        .keyword-divider {
+            color: var(--text-color);
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 44px;
+            margin: 0 6px;
+        }
+
+        .keyword-info {
+            font-size: 17px;
+            line-height: 44px;
+        }
+
+        .keyword-info strong {
+            font-weight: 600;
+        }
+
+        /* Recommendations */
+        .recommendations-list {
+            list-style-type: none;
+            padding-left: 0;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px #00000010;
+            border: 1px solid #eee;
+            margin-bottom: 30px;
+        }
+
+        .recommendations-list li {
+            font-size: 17px;
+            line-height: 32px;
+            padding: 18px 22px 0 22px;
+        }
+
+        .recommendation-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-color);
+            line-height: 44px;
+        }
+
+        /* Footer */
+        .footer {
+            width: 100%;
+            height: 90px;
+            background: #583819;
+        }
+
+        /* Responsiveness */
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 98%;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .header-content {
+                flex-direction: column;
+                align-items: center;
+                gap: 0;
+            }
+
+            .analysis-header {
+                width: 100%;
+                text-align: center;
+            }
+
+            .analysis-summary {
+                margin-top: 40px;
+            }
+
+            .icons-grid {
+                margin-top: 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-title {
+                font-size: 28px;
+            }
+
+            .icons-grid {
+                width: 100%;
+                grid-template-columns: repeat(2, 1fr);
+                grid-gap: 10px;
+            }
+
+            .icon-item {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 1/1;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .keyword-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .keyword-label {
+                width: 100%;
+            }
+        }
+
+        /* Blocos de avaliação (Resumo, Idiomas, Formação, etc.) */
+        .avaliacao-box {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px #00000010;
+            border: 1px solid #eee;
+            padding: 28px 28px 18px 28px;
+            margin-bottom: 28px;
+            margin-top: 0;
+        }
+        .avaliacao-nota {
+            font-size: 20px;
+            font-weight: 700;
+            color: #583819;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .avaliacao-titulo {
+            font-size: 18px;
+            font-weight: 600;
+            color: #583819;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .avaliacao-texto {
+            font-size: 16px;
+            color: #505050;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Script para fluxo direto sem login (login removido temporariamente) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Login e checagem de análise removidos temporariamente para fluxo livre
+            // Permite acesso direto à página de resultados
+        });
+    </script>
+    
+    <div class="header-bg"></div>
+    
+    <div class="container">
+        <div class="logo-container">
+            <img src="assets/img/logo.png" alt="CV Sem Frescura" class="logo">
+        </div>
+
+        <div class="header-content">
+            <div class="analysis-header">
+                <h1 class="header-title">Análise de Currículo</h1>
+                <div class="file-badge" style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+                    <div class="file-icon" style="width:22px;height:20px;background:url('assets/img/curriculo.svg') no-repeat center;background-size:contain;"></div>
+                    <div class="file-name" id="cv-filename" style="font-size:15px;color:#583819;font-weight:600;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+                </div>
+                <div class="analysis-summary" id="analysis-summary"></div>
+            </div>
+            <div class="icons-grid">
+    <div class="icon-item"><img src="assets/img/results_1.png" alt="Ícone 1" style="width:80px;height:80px;object-fit:contain;"></div>
+    <div class="icon-item"><img src="assets/img/results_2.png" alt="Ícone 2" style="width:80px;height:80px;object-fit:contain;"></div>
+    <div class="icon-item"><img src="assets/img/results_3.png" alt="Ícone 3" style="width:80px;height:80px;object-fit:contain;"></div>
+    <div class="icon-item"><img src="assets/img/results_4.png" alt="Ícone 4" style="width:80px;height:80px;object-fit:contain;"></div>
+</div>
+        </div>
+
+        <!-- Palavras-chaves Identificadas na Vaga -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Palavras-chaves Identificadas na Vaga:</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="keywords-grid" id="vaga-keywords"></div>
+        </section>
+
+        <!-- Palavras-chaves Presentes em seu Currículo -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Palavras-chaves Presentes em seu Currículo:</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="keywords-grid" id="presentes-keywords"></div>
+        </section>
+
+        <!-- Palavras-chaves Ausentes em seu Currículo -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Palavras-chaves Ausentes em seu Currículo:</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="keywords-grid" id="ausentes-keywords"></div>
+        </section>
+
+        <!-- Blocos de Avaliação -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Resumo</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="avaliacao-box">
+                <span class="avaliacao-nota">Nota: <span id="nota-resumo">9/10</span></span>
+                <span class="avaliacao-titulo">Resumo</span>
+                <div class="avaliacao-texto" id="texto-resumo">
+                    O resumo é conciso e destaca as principais competências e experiências do candidato. A menção a empresas renomadas e certificações relevantes agrega valor. No entanto, poderia incluir um objetivo mais claro sobre a posição desejada ou o próximo passo na carreira.<br>
+                    <ul>
+                        <li>Adicionar um objetivo profissional claro.</li>
+                        <li>Incluir uma frase sobre o que busca na próxima oportunidade.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2 class="section-title">Idiomas</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="avaliacao-box">
+                <span class="avaliacao-nota">Nota: <span id="nota-idiomas">9/10</span></span>
+                <span class="avaliacao-titulo">Idiomas</span>
+                <div class="avaliacao-texto" id="texto-idiomas">
+                    A seção de idiomas é clara e direta, indicando o nível de proficiência de forma adequada. Poderia incluir outras línguas, se houver, para dar uma visão completa das competências linguísticas.<br>
+                    <ul>
+                        <li>Incluir outras línguas, se aplicável.</li>
+                        <li>Especificar se há certificações de proficiência em inglês.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2 class="section-title">Formação</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="avaliacao-box">
+                <span class="avaliacao-nota">Nota: <span id="nota-formacao">7/10</span></span>
+                <span class="avaliacao-titulo">Formação</span>
+                <div class="avaliacao-texto" id="texto-formacao">
+                    A seção de formação lista cursos relevantes para a área de atuação, mas poderia ser organizada de forma cronológica inversa para facilitar a leitura. Além disso, faltam datas de conclusão para alguns cursos.<br>
+                    <ul>
+                        <li>Organizar a formação em ordem cronológica inversa.</li>
+                        <li>Incluir as datas de conclusão dos cursos.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2 class="section-title">Habilidades</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="avaliacao-box">
+                <span class="avaliacao-nota">Nota: <span id="nota-habilidades">8/10</span></span>
+                <span class="avaliacao-titulo">Habilidades</span>
+                <div class="avaliacao-texto" id="texto-habilidades">
+                    A seção de habilidades é abrangente e cobre uma ampla gama de competências técnicas e interpessoais. No entanto, poderia ser mais organizada, talvez agrupando habilidades similares.<br>
+                    <ul>
+                        <li>Agrupar habilidades similares para melhorar a clareza.</li>
+                        <li>Considerar destacar as habilidades mais relevantes à posição desejada.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2 class="section-title">Informações Pessoais</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="avaliacao-box">
+                <span class="avaliacao-nota">Nota: <span id="nota-pessoais">8/10</span></span>
+                <span class="avaliacao-titulo">Informações Pessoais</span>
+                <div class="avaliacao-texto" id="texto-pessoais">
+                    As informações pessoais estão bem organizadas e incluem dados de contato essenciais. A inclusão do LinkedIn é um ponto positivo. No entanto, a localização (cidade/estado) poderia ser movida para uma seção mais apropriada.<br>
+                    <ul>
+                        <li>Mover a localização para uma seção específica de informações pessoais.</li>
+                        <li>Certificar-se de que o e-mail e o LinkedIn estão atualizados.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2 class="section-title">Experiência Profissional</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="avaliacao-box">
+                <span class="avaliacao-nota">Nota: <span id="nota-experiencia">9/10</span></span>
+                <span class="avaliacao-titulo">Experiência Profissional</span>
+                <div class="avaliacao-texto" id="texto-experiencia">
+                    A experiência profissional é detalhada e bem estruturada, com ênfase em realizações e responsabilidades. A descrição das funções é clara e destaca habilidades relevantes. No entanto, a ordem cronológica inversa deve ser mantida consistentemente.<br>
+                    <ul>
+                        <li>Certificar-se de que todas as experiências estão em ordem cronológica inversa.</li>
+                        <li>Destacar mais realizações com resultados mensuráveis.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+
+            </style>
+        </section>
+
+        <!-- Recomendações -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Recomendações</h2>
+                <div class="section-divider"></div>
+            </div>
+            <ul class="recommendations-list" id="recommendations-list"></ul>
+        </section>
+
+        <!-- Conclusão -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Conclusão</h2>
+                <div class="section-divider"></div>
+            </div>
+            <p class="recommendation-title" id="conclusion"></p>
+        </section>
+    </div>
+
+    <div class="footer"></div>
+
+    <!-- Script para processar resultados da análise -->
+    <script src="assets/js/results.js"></script>
+</body>
+</html>

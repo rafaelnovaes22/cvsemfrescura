@@ -1,66 +1,51 @@
-const openaiService = require('../services/openaiService');
-const gupyJobService = require('../services/gupyJobService');
+const atsService = require('../services/atsService');
+const fs = require('fs');
 
-/**
- * Controller para extrair palavras-chave ATS de uma descrição de vaga
- */
-exports.extractAtsKeywords = async (req, res, next) => {
-    try {
-        // Checagem inicial se temos uma URL da Gupy ou uma descrição direta
-        if (req.body.jobUrl) {
-            console.log('[API /ats/extract] Recebida URL para análise ATS:', req.body.jobUrl);
-            
-            // Verificar se é uma URL da Gupy
-            if (gupyJobService.isGupyJob(req.body.jobUrl)) {
-                console.log('[API /ats/extract] URL identificada como Gupy, extraindo detalhes...');
-                const processedDescription = await gupyJobService.processGupyJobUrl(req.body.jobUrl);
-                
-                if (processedDescription) {
-                    // Chamando o serviço de extração ATS com a descrição processada
-                    const atsAnalysis = await openaiService.extractAtsJobKeywords(processedDescription);
-                    
-                    // Retornando o resultado
-                    return res.json({
-                        success: true,
-                        data: atsAnalysis,
-                        source: 'gupy',
-                        processedUrl: req.body.jobUrl
-                    });
-                } else {
-                    return res.status(422).json({
-                        success: false,
-                        message: 'Não foi possível processar a URL da Gupy. Tente fornecer a descrição diretamente.'
-                    });
-                }
-            } else {
-                return res.status(422).json({
-                    success: false,
-                    message: 'URL não reconhecida como Gupy ou plataforma suportada. Tente fornecer a descrição diretamente.'
-                });
-            }
-        } else if (!req.body.jobDescription) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Nenhuma descrição de vaga ou URL fornecida.' 
-            });
-        }
-
-        console.log('[API /ats/extract] Recebida descrição de vaga para análise ATS');
-        
-        const jobDescription = req.body.jobDescription;
-        
-        // Chamando o serviço de extração ATS
-        const atsAnalysis = await openaiService.extractAtsJobKeywords(jobDescription);
-        
-        // Retornando o resultado
-        res.json({ 
-            success: true, 
-            data: atsAnalysis,
-            source: 'direct_input'
-        });
-
-    } catch (error) {
-        console.error('[API /ats/extract] Erro durante processamento:', error);
-        next(error);
+exports.analyze = async (req, res) => {
+  try {
+    console.log('--- [ATS] Nova requisição recebida ---');
+    const resumePath = req.file?.path;
+    const jobLinks = JSON.parse(req.body.jobLinks || '[]');
+    if (resumePath) {
+      const path = require('path');
+      console.log('[ATS] Arquivo recebido:', resumePath);
+      console.log('[ATS] Extensão detectada:', path.extname(resumePath));
     }
+    console.log('[ATS] Links recebidos:', jobLinks);
+    if (!resumePath || !jobLinks.length) {
+      console.warn('[ATS] Dados insuficientes: arquivo ou links ausentes.');
+      return res.status(400).json({ error: 'Arquivo de currículo ou links de vagas ausentes.' });
+    }
+    if (jobLinks.length > 7) {
+      console.warn('[ATS] Limite de vagas excedido:', jobLinks.length);
+      return res.status(400).json({ error: 'O limite máximo é de 7 vagas por análise. Remova alguns links e tente novamente.' });
+    }
+    const result = await atsService.processATS(resumePath, jobLinks);
+    // Extrai o texto do currículo para o filtro
+    const textExtractor = require('../utils/textExtractor');
+    const resumeText = await textExtractor.extract(resumePath);
+    // Cruzamento real: só palavras da vaga encontradas no currículo
+    const { filterPresentKeywords, deduplicateKeywords } = require('../services/atsKeywordVerifier');
+    if (result.job_keywords && Array.isArray(result.job_keywords)) {
+      // Extrai as palavras-chave da vaga e remove duplicidades
+      let jobKeywords = result.job_keywords;
+      jobKeywords = deduplicateKeywords(jobKeywords);
+      const presentes = filterPresentKeywords(jobKeywords, resumeText);
+      const ausentes = jobKeywords.filter(k => !presentes.includes(k));
+      result.job_keywords_present = presentes;
+      result.job_keywords_missing = ausentes;
+    }
+    fs.unlink(resumePath, () => {}); // Limpa upload temporário
+    console.log('[ATS] Análise concluída. Resultado:', JSON.stringify(result, null, 2));
+    res.json(result);
+  } catch (err) {
+    if (err.response) {
+      // Erro vindo da OpenAI ou de outro serviço HTTP
+      console.error('[ATS] Erro na análise:', err.response.status, err.response.data);
+      res.status(err.response.status).json({ error: err.response.data });
+    } else {
+      console.error('[ATS] Erro na análise:', err.message, err);
+      res.status(500).json({ error: err.message || 'Erro interno no ATS.' });
+    }
+  }
 };
