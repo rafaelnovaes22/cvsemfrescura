@@ -76,7 +76,32 @@
     font-weight: 500;
     color: var(--primary);
     word-break: break-all;
-    margin-top: 10px;
+}
+
+.selected-file {
+    display: none;
+    width: 100%;
+    padding: 5px 19px;
+    background-color: var(--selected-file-bg);
+    border-radius: 5px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.file-name {
+    font-weight: 500;
+    color: var(--primary);
+    word-break: break-all;
 }
 
 .remove-file {
@@ -86,7 +111,6 @@
     border: none;
     padding: 5px 10px;
     border-radius: 4px;
-    margin-top: 10px;
     cursor: pointer;
     font-size: 14px;
 }

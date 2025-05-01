@@ -1,0 +1,23 @@
+const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const atsController = require('../controllers/atsController');
+
+const router = express.Router();
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, path.resolve(__dirname, '../uploads/'));
+    },
+    filename: function (req, file, cb) {
+        // Extrai a extensão do arquivo original
+        const ext = path.extname(file.originalname);
+        // Usa nome único + extensão original
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + ext);
+    }
+});
+const upload = multer({ storage });
+
+router.post('/analyze', upload.single('resume'), atsController.analyze);
+
+module.exports = router;
