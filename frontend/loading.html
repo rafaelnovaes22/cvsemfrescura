@@ -7,24 +7,26 @@
     <title>Analisando Currículo</title>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet">
+    <!-- Nosso tratador de erros -->
+    <script src="assets/js/error-handler.js"></script>
 
     <!-- Script para processar análise -->
     <script>
         document.addEventListener('DOMContentLoaded', async function () {
             const statusText = document.getElementById('statusText');
             function setStatus(msg, color = '#583819') {
+                // Nenhuma mensagem deve ser exibida
                 if (statusText) {
-                    statusText.textContent = msg;
-                    statusText.style.color = color;
+                    statusText.textContent = '';
                 }
             }
             
-            setStatus('Validando dados...', '#583819');
+            
             const fileName = sessionStorage.getItem('atsFile');
             const fileContentBase64 = sessionStorage.getItem('atsFileContent');
             const jobLinks = JSON.parse(sessionStorage.getItem('atsJobLinks') || '[]');
             if ((!fileName || !fileContentBase64) && !jobLinks.length) {
-                setStatus('Dados insuficientes. Retorne e tente novamente.', '#c62828');
+                
                 setTimeout(() => { window.location.href = 'index.html'; }, 2000);
                 return;
             }
@@ -32,7 +34,7 @@
             try {
                 let resp;
                 let result;
-                setStatus('Preparando dados para envio...', '#583819');
+                
                 // Caso 1: Envio de currículo (arquivo presente)
                 let file = null;
                 if (fileName && fileContentBase64) {
@@ -58,40 +60,43 @@
                 if (jobLinks.length) {
                     formData.append('jobLinks', JSON.stringify(jobLinks)); // campo deve ser 'jobLinks'
                 }
-                setStatus('Enviando dados para análise...', '#583819');
-                resp = await fetch('/api/ats/analyze', {
-                    method: 'POST',
-                    body: formData
-                });
-                if (!resp || !resp.ok) {
-                    const errJson = resp && await resp.json().catch(() => ({}));
-                    const backendMsg = (errJson && errJson.error) || (resp && resp.statusText) || 'Erro desconhecido';
-                    setStatus('Erro ao processar análise: ' + backendMsg, '#c62828');
-                    setTimeout(() => { window.location.href = 'index.html'; }, 3500);
-                    return;
-                }
-                setStatus('Análise concluída! Processando resultados...', '#2e7d32');
+                
                 try {
-                    result = await resp.json();
-                } catch (e) {
-                    setStatus('Erro ao interpretar resposta do servidor.', '#c62828');
+                    resp = await fetch('/api/ats/analyze', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    // Usar nosso ErrorHandler para processar a resposta
+                    result = await ErrorHandler.handleFetchResponse(resp);
+                    
+                    // Se o resultado for null, significa que o ErrorHandler redirecionou (alucinação)
+                    if (result === null) {
+                        return;
+                    }
+                } catch (error) {
+                    // Tratar outros erros
+                    console.error('Erro ao analisar currículo:', error);
+                    ErrorHandler.showErrorMessage(`Erro na análise: ${error.message || 'Erro desconhecido'}`); 
                     setTimeout(() => { window.location.href = 'index.html'; }, 3500);
                     return;
                 }
+                
+                // A resposta já foi processada pelo ErrorHandler
                 if (!result || typeof result !== 'object') {
-                    setStatus('Erro: resposta inválida do servidor.', '#c62828');
+                    
                     setTimeout(() => { window.location.href = 'index.html'; }, 3500);
                     return;
                 }
                 // Salva resultado no sessionStorage compatível com results.js
                 sessionStorage.setItem('atsResult', JSON.stringify(result));
                 if (fileName) sessionStorage.setItem('fileName', fileName);
-                setStatus('Redirecionando para resultados...', '#2e7d32');
+                
                 setTimeout(() => {
                     window.location.href = 'results.html';
                 }, 800);
             } catch (err) {
-                setStatus('Erro inesperado: ' + (err.message || err), '#c62828');
+                
                 setTimeout(() => { window.location.href = 'index.html'; }, 3500);
             }
             // Limpar dados temporários

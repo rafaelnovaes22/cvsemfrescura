@@ -209,7 +209,6 @@
         .keyword-row {
             display: flex;
             gap: 10px;
-        }
             align-items: center;
             padding: 14px 15px;
             border: 1px solid var(--border-color);
@@ -401,20 +400,62 @@
 </div>
         </div>
 
-        <!-- Palavras-chaves Identificadas na Vaga -->
+        <!-- Hard Skills Técnicos -->
         <section class="section">
             <div class="section-header">
-                <h2 class="section-title">Palavras-chaves Identificadas na Vaga:</h2>
+                <h2 class="section-title">Hard Skills Técnicos Identificados:</h2>
                 <div class="section-divider"></div>
             </div>
+            <div class="section-explanation">
+                <p>Estas são as habilidades técnicas específicas exigidas pelas vagas analisadas. <strong>Verifique os termos em vermelho</strong>, pois não foram encontrados em seu currículo e são essenciais para aprovação no ATS.</p>
+            </div>
             <div class="keywords-grid" id="vaga-keywords"></div>
+        </section>
+        
+        <!-- Soft Skills -->
+        <section class="section" id="soft-skills-section">
+            <div class="section-header">
+                <h2 class="section-title">Soft Skills Identificadas:</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="section-explanation">
+                <p>Competências comportamentais e interpessoais valorizadas pelos recrutadores. <strong>Inclua estas habilidades</strong> em seu resumo e nas descrições de experiências, exemplificando-as com situações concretas.</p>
+            </div>
+            <div class="keywords-grid" id="soft-skills-keywords"></div>
+        </section>
+        
+        <!-- Responsabilidades e Atribuições -->
+        <section class="section" id="responsabilidades-section">
+            <div class="section-header">
+                <h2 class="section-title">Responsabilidades e Atribuições:</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="section-explanation">
+                <p>Funções e tarefas que você executará na vaga. <strong>Use estas descrições</strong> para adaptar suas experiências anteriores, utilizando os mesmos termos e verbos de ação quando possível.</p>
+            </div>
+            <div class="keywords-grid" id="responsabilidades-keywords"></div>
+        </section>
+        
+        <!-- Diferenciais -->
+        <section class="section" id="diferenciais-section">
+            <div class="section-header">
+                <h2 class="section-title">Diferenciais Valorizados:</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="section-explanation">
+                <p>Qualificações adicionais que destacam candidatos da concorrência. <strong>Dê destaque a estes itens</strong> se os possuir, ou considere adquiri-los através de cursos, certificações ou projetos.</p>
+            </div>
+            <div class="keywords-grid" id="diferenciais-keywords"></div>
         </section>
 
         <!-- Palavras-chaves Presentes em seu Currículo -->
         <section class="section">
             <div class="section-header">
-                <h2 class="section-title">Palavras-chaves Presentes em seu Currículo:</h2>
+                <h2 class="section-title">Requisitos Identificados em seu Currículo:</h2>
                 <div class="section-divider"></div>
+            </div>
+            <div class="section-explanation">
+                <p>Requisitos das vagas que o sistema detectou em seu currículo. <strong>Fique atento a possíveis falsos positivos</strong> - termos que o sistema identificou, mas que podem não estar adequadamente claros ou destacados em seu currículo.</p>
             </div>
             <div class="keywords-grid" id="presentes-keywords"></div>
         </section>
@@ -422,10 +463,37 @@
         <!-- Palavras-chaves Ausentes em seu Currículo -->
         <section class="section">
             <div class="section-header">
-                <h2 class="section-title">Palavras-chaves Ausentes em seu Currículo:</h2>
+                <h2 class="section-title">Requisitos Ausentes em seu Currículo:</h2>
                 <div class="section-divider"></div>
             </div>
+            <div class="section-explanation">
+                <p>Requisitos das vagas que <strong>não foram encontrados</strong> em seu currículo. É essencial incluir esses termos exatamente como estão listados aqui, especialmente os marcados como eliminatórios. Inclua-os em seções relevantes, como resumo profissional, experiências ou habilidades.</p>
+            </div>
             <div class="keywords-grid" id="ausentes-keywords"></div>
+        </section>
+        
+        <!-- Placeholder para Filtros Eliminatórios -->
+        <section class="section" id="filtros-eliminatorios-section" style="display:none;">
+            <div class="section-header">
+                <h2 class="section-title">Filtros Eliminatórios:</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="section-explanation">
+                <p><strong>ATENÇÃO EXTREMA!</strong> Estes são os requisitos que causam eliminação automática da candidatura se ausentes no seu currículo. Se algum item desta lista não estiver presente, sua candidatura será automaticamente rejeitada pelo sistema ATS antes mesmo de chegar a um recrutador.</p>
+            </div>
+            <div class="keywords-grid" id="filtros-eliminatorios"></div>
+        </section>
+        
+        <!-- Placeholder para Filtros Classificatórios -->
+        <section class="section" id="filtros-classificatorios-section" style="display:none;">
+            <div class="section-header">
+                <h2 class="section-title">Filtros Classificatórios:</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="section-explanation">
+                <p>Requisitos que classificam sua candidatura e determinam sua pontuação no ranking de candidatos. <strong>Quanto mais itens desta lista estiverem presentes</strong> em seu currículo, melhor será sua classificação comparada a outros candidatos que também passaram pelos filtros eliminatórios.</p>
+            </div>
+            <div class="keywords-grid" id="filtros-classificatorios"></div>
         </section>
 
         <!-- Blocos de Avaliação -->
@@ -527,8 +595,20 @@
             </div>
         </section>
 
+        <!-- Seção para múltiplas vagas -->
+        <section id="job-matches-section" class="section" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">Vagas analisadas</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="section-explanation">
+                <p>Comparação detalhada de cada vaga analisada com seu currículo. <strong>Analise cada vaga individualmente</strong> para identificar quais têm maior compatibilidade com seu perfil atual e quais requisitariam maiores adaptações. Priorize candidaturas para vagas com maior percentual de compatibilidade.</p>
+            </div>
+            <div id="job-matches-container" class="job-matches-grid">
+                <!-- Aqui serão inseridas dinamicamente as múltiplas vagas -->
+            </div>
+        </section>
 
-            </style>
         </section>
 
         <!-- Recomendações -->
@@ -536,6 +616,9 @@
             <div class="section-header">
                 <h2 class="section-title">Recomendações</h2>
                 <div class="section-divider"></div>
+            </div>
+            <div class="section-explanation">
+                <p>Ações práticas para maximizar suas chances de aprovação no ATS. <strong>Siga estas orientações</strong> na ordem apresentada - primeiro as alterações necessárias (obrigatórias), depois os elementos de ênfase e, por fim, as recomendações de formatação.</p>
             </div>
             <ul class="recommendations-list" id="recommendations-list"></ul>
         </section>
@@ -548,11 +631,33 @@
             </div>
             <p class="recommendation-title" id="conclusion"></p>
         </section>
+        
+        <!-- Feedback Widget -->
+        <section class="section">
+            <div id="feedback-container"></div>
+        </section>
     </div>
 
     <div class="footer"></div>
 
     <!-- Script para processar resultados da análise -->
     <script src="assets/js/results.js"></script>
+    <script src="assets/js/feedback-handler.js"></script>
+    
+    <script>
+        // Inicializa o sistema de feedback quando o documento estiver carregado
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cria instância do sistema de feedback
+            const feedbackSystem = new FeedbackSystem();
+            
+            // Inicializa o widget
+            feedbackSystem.initFeedbackWidget('feedback-container');
+            
+            // Se houver um ID de resposta nos metadados, configura-o no sistema de feedback
+            if (window.responseMetadata && window.responseMetadata.responseId) {
+                feedbackSystem.setCurrentResponseId(window.responseMetadata.responseId);
+            }
+        });
+    </script>
 </body>
 </html>

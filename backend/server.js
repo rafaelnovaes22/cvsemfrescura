@@ -3,11 +3,13 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const atsRoutes = require('./routes/ats');
+const feedbackRoutes = require('./routes/feedback');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use('/api/ats', atsRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 // Servir arquivos estáticos do frontend
 const frontendPath = path.resolve(__dirname, '../frontend');

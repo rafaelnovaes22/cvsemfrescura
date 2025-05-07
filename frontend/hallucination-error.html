@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise interrompida | CV Sem Frescura</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #583819;
+            --primary-light: #F3EADA;
+            --secondary-color: #ECD9B5;
+            --text-color: #505050;
+            --light-bg: #FFFCF9;
+            --card-bg: #FFFFFF;
+            --border-color: #BBB7B7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: #f6ecd9;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin: 1.5rem 0 1rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        .error-icon {
+            font-size: 64px;
+            margin-bottom: 1rem;
+            color: #e67e22;
+        }
+
+        .explanation {
+            background-color: var(--primary-light);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #6e4720;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-light);
+        }
+        
+        .info-card {
+            background-color: #fff;
+            border-left: 4px solid #3498db;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .steps {
+            margin: 1.5rem 0;
+        }
+        
+        .steps li {
+            margin-bottom: 0.8rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .steps li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="error-icon">⚠️</div>
+            <h1>Análise interrompida</h1>
+            <p>Detectamos uma possível inconsistência nos resultados.</p>
+        </header>
+
+        <div class="explanation">
+            <h2>O que aconteceu?</h2>
+            <p>Nosso sistema de proteção contra "alucinações" da IA detectou resultados inconsistentes durante a análise do seu currículo. Para garantir a qualidade, a análise foi interrompida e <strong>não será cobrada</strong>.</p>
+            
+            <h2>O que são "alucinações" de IA?</h2>
+            <p>Alucinações são um fenômeno inerente a modelos de Inteligência Artificial avançados, onde a IA ocasionalmente gera informações que parecem plausíveis, mas são imprecisas ou inventadas. É como se o modelo "sonhasse acordado" ao tentar preencher lacunas de informação.</p>
+            
+            <div class="info-card">
+                <p><strong>Importante:</strong> Mesmo os modelos de IA mais avançados do mundo, como o GPT-4 e Claude, ocasionalmente apresentam alucinações. Não é um defeito específico do nosso sistema, mas uma característica da tecnologia atual de IA.</p>
+            </div>
+            
+            <h2>Por que isso acontece?</h2>
+            <p>Os modelos de IA são treinados em vastas quantidades de texto, aprendendo padrões e associações. Em certos contextos, especialmente quando:</p>
+            <ul class="steps">
+                <li>Há trechos ambíguos ou incompletos no currículo ou na descrição da vaga</li>
+                <li>O modelo precisa analisar documentos com formatação complexa</li>
+                <li>São solicitadas análises muito específicas com poucos dados disponíveis</li>
+            </ul>
+            <p>O modelo pode "preencher lacunas" de forma imprecisa em vez de admitir sua incerteza.</p>
+            
+            <h2>Nossa proteção</h2>
+            <p>Implementamos um sistema sofisticado que detecta possíveis alucinações e interrompe a análise antes de apresentar resultados imprecisos. Isso garante que você sempre receba análises de alta qualidade e confiabilidade.</p>
+        </div>
+
+        <h2>O que fazer agora?</h2>
+        <ul class="steps">
+            <li>Tente novamente a análise (muitas vezes, uma segunda tentativa resolve o problema)</li>
+            <li>Verifique se o seu currículo está em formato adequado (PDF sem proteção, sem tabelas complexas)</li>
+            <li>Confirme se as descrições das vagas estão completas e acessíveis</li>
+            <li>Considere reduzir o número de vagas se estiver analisando várias simultaneamente</li>
+        </ul>
+
+        <div class="action-buttons">
+            <a href="/" class="btn">Tentar novamente</a>
+            <a href="https://cvsemfrescura.com/contato" class="btn btn-outline">Falar com suporte</a>
+        </div>
+    </div>
+</body>
+</html>
