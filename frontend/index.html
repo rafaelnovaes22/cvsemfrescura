@@ -649,25 +649,421 @@
             }
         }
     </style>
+<script src="/assets/js/auth.js"></script>
 </head>
 
 <body>
+<!-- Modal de Login/Cadastro -->
+<div id="authModal" class="modal" style="display:flex; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.45); align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:18px; max-width:380px; width:92vw; padding:32px 22px 24px 22px; box-shadow:0 8px 32px #0003; position:relative; display:flex; flex-direction:column; align-items:center;">
+    <img src="/assets/img/logo.png" alt="Logo CV Sem Frescura" style="width:110px; margin-bottom:18px; display:block;">
+    <button id="closeAuthModal" style="position:absolute; right:18px; top:14px; background:none; border:none; font-size:22px; color:#583819; cursor:pointer; display:none;">×</button>
+    <h2 id="authModalTitle" style="font-family:'IBM Plex Sans',sans-serif; color:#583819; font-size:1.4em; font-weight:700; margin-bottom:18px;">Entrar</h2>
+    <form id="loginForm" style="display:block; width:100%;">
+      <input type="email" id="loginEmail" placeholder="E-mail" required style="margin-bottom:12px; width:100%; padding:10px 12px; border:1.5px solid #ECD9B5; border-radius:7px; font-size:1em;">
+      <input type="password" id="loginPassword" placeholder="Senha" required style="margin-bottom:12px; width:100%; padding:10px 12px; border:1.5px solid #ECD9B5; border-radius:7px; font-size:1em;">
+      <button type="submit" style="width:100%; background:linear-gradient(90deg,#583819,#ECD9B5); color:#fff; border:none; padding:11px; border-radius:7px; font-weight:700; font-size:1em; margin-bottom:8px; box-shadow:0 2px 8px #58381922;">Entrar</button>
+      <p style="margin:8px 0 0 0; font-size:14px; text-align:center;">Não tem conta? <a href="#" id="showRegister" style="color:#583819; font-weight:600;">Cadastre-se</a></p>
+    </form>
+    <form id="registerForm" style="display:none; width:100%;">
+      <input type="text" id="registerName" placeholder="Nome completo" required style="margin-bottom:12px; width:100%; padding:10px 12px; border:1.5px solid #ECD9B5; border-radius:7px; font-size:1em;">
+      <input type="email" id="registerEmail" placeholder="E-mail" required style="margin-bottom:12px; width:100%; padding:10px 12px; border:1.5px solid #ECD9B5; border-radius:7px; font-size:1em;">
+      <input type="password" id="registerPassword" placeholder="Senha" required style="margin-bottom:12px; width:100%; padding:10px 12px; border:1.5px solid #ECD9B5; border-radius:7px; font-size:1em;">
+      <button type="submit" style="width:100%; background:linear-gradient(90deg,#583819,#ECD9B5); color:#fff; border:none; padding:11px; border-radius:7px; font-weight:700; font-size:1em; margin-bottom:8px; box-shadow:0 2px 8px #58381922;">Cadastrar</button>
+      <p style="margin:8px 0 0 0; font-size:14px; text-align:center;">Já tem conta? <a href="#" id="showLogin" style="color:#583819; font-weight:600;">Entrar</a></p>
+    </form>
+    <p id="authError" style="color:#b22; font-size:14px; text-align:center; margin-top:10px; display:none;"></p>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const loginForm = document.getElementById('loginForm');
+  const registerForm = document.getElementById('registerForm');
+  const showRegisterLink = document.getElementById('showRegister');
+  const showLoginLink = document.getElementById('showLogin');
+  const authError = document.getElementById('authError');
+
+  // Função global para liberar a página após login
+  window.authSuccess = function() {
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) mainContent.style.display = '';
+    const footer = document.querySelector('footer');
+    if (footer) footer.style.display = '';
+    const logoContainer = document.querySelector('.logo-container');
+    if (logoContainer) logoContainer.style.opacity = 1;
+    document.getElementById('authModal').style.display = 'none';
+    document.body.style.overflow = '';
+    updateUserUI();
+  };
+
+  showRegisterLink.addEventListener('click', function(e) {
+    e.preventDefault();
+    loginForm.style.display = 'none';
+    registerForm.style.display = 'block';
+    document.getElementById('authModalTitle').textContent = 'Cadastrar';
+    authError.style.display = 'none';
+  });
+
+  showLoginLink.addEventListener('click', function(e) {
+    e.preventDefault();
+    registerForm.style.display = 'none';
+    loginForm.style.display = 'block';
+    document.getElementById('authModalTitle').textContent = 'Entrar';
+    authError.style.display = 'none';
+  });
+
+  loginForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    auth.loginUser(email, password)
+      .then(function() {
+        window.authSuccess();
+      })
+      .catch(function(error) {
+        authError.textContent = error.message || 'Erro ao fazer login';
+        authError.style.display = 'block';
+        authError.style.color = '#b22';
+      });
+  });
+
+  registerForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('registerName').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    auth.registerUser(name, email, password)
+      .then(function() {
+        registerForm.reset();
+        loginForm.style.display = 'block';
+        document.getElementById('authModalTitle').textContent = 'Entrar';
+        authError.textContent = 'Cadastro realizado! Faça login.';
+        authError.style.color = '#2a7a2a';
+        authError.style.display = 'block';
+      })
+      .catch(function(error) {
+        authError.textContent = error.message || 'Erro ao cadastrar';
+        authError.style.color = '#b22';
+        authError.style.display = 'block';
+      });
+  });
+
+  // Exibe o modal e bloqueia tudo se não autenticado
+  if (!auth.getToken()) {
+    document.getElementById('authModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) mainContent.style.display = 'none';
+    const footer = document.querySelector('footer');
+    if (footer) footer.style.display = 'none';
+    const logoContainer = document.querySelector('.logo-container');
+    if (logoContainer) logoContainer.style.opacity = 0.3;
+  } else {
+    window.authSuccess();
+  }
+});
+</script>
+
     <div class="logo-container">
         <img src="/assets/img/logo.png" alt="Logo Análise de Currículo" class="logo">
         <div id="userMenuContainer" class="user-menu-container">
             <div class="auth-wrapper">
                 <a href="#" class="login-link" id="loginLink" style="display: none;">Entrar</a>
-                <a href="#" class="user-menu" id="authButton" style="display: none;">
-                    <span class="user-name">Usuário</span>
-                    <span class="credits-badge" id="userCredits">0 análises</span>
-                    <span class="dropdown-icon">▼</span>
-                </a>
+<div class="user-menu-wrapper" style="position:relative; display:inline-block;">
+  <a href="#" class="user-menu" id="authButton" style="display: none;">
+    <span class="user-name">Usuário</span>
+    <span class="credits-badge" id="userCredits">0 análises</span>
+    <span class="dropdown-icon">▼</span>
+  </a>
+  <div class="dropdown-menu" id="userDropdown" style="display:none;">
+    <a href="payment.html" class="dropdown-item" id="buyCredits">Comprar análises</a>
+    <a href="#" class="dropdown-item logout-btn" id="logoutButton">Sair</a>
+  </div>
+</div>
+<script>
+// Atualiza UI do usuário após login/cadastro/logout
+function updateUserUI() {
+  const user = auth.getUser();
+  const loginLink = document.getElementById('loginLink');
+  const authButton = document.getElementById('authButton');
+  const userDropdown = document.getElementById('userDropdown');
+  const creditsElement = document.getElementById('userCredits');
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  
+  if (user) {
+    // Atualizar nome do usuário
+    document.querySelector('.user-name').textContent = user.name.split(' ')[0];
+    loginLink.style.display = 'none';
+    authButton.style.display = 'inline-flex';
+    
+    // Buscar créditos do servidor
+    if (typeof fetchUserCredits === 'function') {
+      fetchUserCredits(true);
+    }
+    
+    // Verificar créditos do usuário localmente
+    if (user.credits !== undefined && analyzeBtn) {
+      // Criar um novo botão para substituir o existente
+      const newBtn = analyzeBtn.cloneNode(true);
+      analyzeBtn.parentNode.replaceChild(newBtn, analyzeBtn);
+      
+      if (user.credits <= 0) {
+        // Se não tiver créditos, mostrar botão para comprar
+        newBtn.textContent = 'Comprar Análises';
+        newBtn.addEventListener('click', function() {
+          window.location.href = 'payment.html';
+        });
+      } else {
+        newBtn.textContent = 'Analise Agora Seu Currículo';
+        newBtn.addEventListener('click', function() {
+          if (window.analyzeCurrentCV) {
+            window.analyzeCurrentCV();
+          }
+        });
+      }
+    }
+  } else {
+    loginLink.style.display = 'inline-block';
+    authButton.style.display = 'none';
+    if (userDropdown) userDropdown.style.display = 'none';
+    if (creditsElement) creditsElement.textContent = '0 análises';
+  }
+}
+window.updateUserUI = updateUserUI;
+
+// Função para buscar análises do usuário do servidor
+function fetchUserCredits(forceRefresh = false) {
+  const creditsElement = document.getElementById('userCredits');
+  
+  // Fazer chamada à API para obter os créditos reais do usuário
+  const apiUrl = 'http://localhost:3000/api/user/credits';
+  const requestOptions = {};
+  
+  console.log('Buscando créditos do usuário...');
+  
+  // Se precisarmos forçar atualização, adicionar headers para evitar cache
+  if (forceRefresh) {
+    console.log('Forçando atualização de créditos (sem cache)...');
+    requestOptions.headers = {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    };
+  }
+  
+  // Preparar os headers com o token de autenticação
+  let headers = {
+    'Authorization': `Bearer ${auth.getToken()}`
+  };
+  
+  // Adicionar headers de cache se necessário
+  if (requestOptions.headers) {
+    for (const header in requestOptions.headers) {
+      headers[header] = requestOptions.headers[header];
+    }
+  }
+  
+  fetch(apiUrl, { headers: headers })
+    .then(function(response) {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error('Falha ao obter créditos do usuário');
+      }
+    })
+    .then(function(data) {
+      if (creditsElement) {
+        creditsElement.textContent = `${data.credits} análises`;
+        if (data.credits <= 0) {
+          creditsElement.style.backgroundColor = '#F44336'; // Vermelho se sem créditos
+        } else if (data.credits <= 2) {
+          creditsElement.style.backgroundColor = '#FFC107'; // Amarelo se poucos
+        } else {
+          creditsElement.style.backgroundColor = '#4CAF50'; // Verde se suficiente
+        }
+      }
+      
+      // Salvar créditos no usuário atual
+      const user = auth.getUser();
+      if (user) {
+        user.credits = data.credits;
+        localStorage.setItem('user', JSON.stringify(user));
+      }
+      
+      // Atualizar o botão de análise com base nos créditos
+      updateAnalyzeButton(data.credits);
+    })
+    .catch(error => {
+        console.error('Erro ao obter créditos:', error);
+        // Em caso de erro, definir para um valor padrão
+        if (creditsElement) {
+          creditsElement.textContent = '0 análises';
+          creditsElement.style.backgroundColor = '#F44336'; // Vermelho
+        }
+      });
+}
+window.fetchUserCredits = fetchUserCredits;
+
+// Função global para inicializar o comportamento do botão de análise
+function initAnalyzeButton(buttonElement) {
+  const fileInput = document.getElementById('fileInput');
+  const jobLinkInputs = document.querySelectorAll('.job-link-input');
+  const selectedFile = fileInput && fileInput.files.length > 0 ? fileInput.files[0] : null;
+  const jobLinks = Array.from(jobLinkInputs).map(input => input.value.trim()).filter(Boolean);
+  
+  // Limpar mensagens de erro anteriores
+  let msgDiv = document.getElementById('stepFeedback');
+  if (!msgDiv) {
+    msgDiv = document.createElement('div');
+    msgDiv.id = 'stepFeedback';
+    msgDiv.style.color = '#c62828';
+    msgDiv.style.fontWeight = 'bold';
+    msgDiv.style.margin = '10px 0 0 0';
+    buttonElement.parentNode.insertBefore(msgDiv, buttonElement.nextSibling);
+  }
+  msgDiv.textContent = '';
+  
+  // Validação de URL
+  const urlRegex = /^(https?:\/\/)[\w\-]+(\.[\w\-]+)+([\w.,@?^=%&:/~+#\-]*[\w@?^=%&/~+#\-])?$/i;
+  const invalidLink = jobLinks.find(link => !urlRegex.test(link));
+  if (invalidLink) {
+    msgDiv.textContent = 'O link informado não é válido: ' + invalidLink;
+    return;
+  }
+  
+  // Validação
+  if (!selectedFile) {
+    msgDiv.textContent = 'Selecione um currículo para análise.';
+    return;
+  }
+  if (jobLinks.length === 0) {
+    msgDiv.textContent = 'Informe pelo menos um link de vaga para análise.';
+    return;
+  }
+
+  // Inicia processamento do arquivo
+  msgDiv.style.color = '#2e7d32';
+  msgDiv.textContent = 'Processando seu currículo e vagas...';
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const fileContentBase64 = e.target.result;
+      sessionStorage.setItem('atsFile', selectedFile.name);
+      sessionStorage.setItem('atsFileContent', fileContentBase64);
+      sessionStorage.setItem('atsJobLinks', JSON.stringify(jobLinks));
+      msgDiv.textContent = 'Dados salvos. Redirecionando para análise...';
+      setTimeout(() => {
+        window.location.href = 'loading.html';
+      }, 400);
+    } catch (err) {
+      msgDiv.style.color = '#c62828';
+      msgDiv.textContent = 'Erro ao salvar dados para análise. Tente novamente.';
+    }
+  };
+  reader.onerror = function() {
+    msgDiv.style.color = '#c62828';
+    msgDiv.textContent = 'Erro ao ler o arquivo. Tente outro formato.';
+  };
+  reader.readAsDataURL(selectedFile);
+}
+
+// Função para atualizar o botão de análise
+function updateAnalyzeButton(credits) {
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  if (analyzeBtn) {
+    // Remover todos os event listeners existentes
+    const newBtn = analyzeBtn.cloneNode(true);
+    analyzeBtn.parentNode.replaceChild(newBtn, analyzeBtn);
+    
+    if (credits <= 0) {
+      // Se não tiver créditos, mostrar botão para comprar
+      console.log('Usuário sem créditos. Alterando botão para Comprar Análises');
+      newBtn.textContent = 'Comprar Análises';
+      newBtn.addEventListener('click', function() {
+        window.location.href = 'payment.html';
+      });
+    } else {
+      // Se tiver créditos, garantir que o botão realiza a análise
+      console.log('Usuário tem ' + credits + ' créditos. Botão padrão de análise');
+      newBtn.textContent = 'Analise Agora Seu Currículo';
+      newBtn.addEventListener('click', function() {
+        // Chamar a função global de inicialização do botão
+        initAnalyzeButton(this);
+      });
+    }
+    return newBtn;
+  }
+  return null;
+}
+
+// Função para mostrar o modal de autenticação
+function showAuthModal(type) {
+  const authModal = document.getElementById('authModal');
+  if (authModal) {
+    authModal.style.display = 'flex';
+    if (type === 'register') {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'block';
+      document.getElementById('authModalTitle').textContent = 'Cadastrar';
+    } else {
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('authModalTitle').textContent = 'Entrar';
+    }
+  }
+}
+
+// Tornar a função disponível globalmente
+window.initAnalyzeButton = initAnalyzeButton;
+
+window.onload = function() {
+  updateUserUI();
+  
+  // Verificar créditos do usuário e atualizar botão
+  const user = auth.getUser();
+  if (user && user.credits !== undefined) {
+    // Se já temos informação de crédito, usar ela imediatamente
+    updateAnalyzeButton(user.credits);
+  }
+  
+  // Se não autenticado, mostrar modal e bloquear interação
+  if (!auth.getToken()) {
+    showAuthModal('login');
+    // Bloquear rolagem e interação do fundo
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
+};
+// Dropdown toggle ao clicar no user-menu
+let dropdownOpen = false;
+document.addEventListener('DOMContentLoaded', function() {
+  const authButton = document.getElementById('authButton');
+  const userDropdown = document.getElementById('userDropdown');
+  const logoutButton = document.getElementById('logoutButton');
+  // Toggle dropdown
+  authButton.addEventListener('click', function(e) {
+    e.preventDefault();
+    dropdownOpen = !dropdownOpen;
+    userDropdown.style.display = dropdownOpen ? 'flex' : 'none';
+  });
+  // Redireciona para a página de pagamento ao clicar em Comprar análises
+  document.getElementById('buyCredits').onclick = function(e) {
+    e.preventDefault();
+    window.location.href = 'payment.html';
+  };
+  // Logout
+  logoutButton.onclick = function(e) {
+    e.preventDefault();
+    auth.logout();
+  };
+});
+</script>
                 <div class="dropdown-menu" id="userDropdown">
-                    <a href="#" class="dropdown-item">Meu Perfil</a>
-                    <a href="payment.html" class="dropdown-item">Comprar análises</a>
-                    <a href="#" class="dropdown-item">Meus Currículos</a>
-                    <a href="#" class="dropdown-item logout-btn" id="logoutButton">Sair</a>
-                </div>
+  <a href="payment.html" class="dropdown-item" id="buyCredits">Comprar análises</a>
+  <a href="#" class="dropdown-item logout-btn" id="logoutButton">Sair</a>
+</div>
             </div>
         </div>
     </div>
@@ -676,7 +1072,7 @@
         <div class="container">
             <section class="header-section">
                 <h1 class="main-title">CV Sem Frescura</h1>
-                <p class="main-description">Otimize seu currículo com inteligência artificial.</p>
+                <p class="main-description">Currículos inteligentes para vencer filtros automáticos. Tecnologia a serviço de PESSOAS.</p>
             </section>
 
             <section class="upload-section">
@@ -791,202 +1187,59 @@ document.addEventListener('DOMContentLoaded', function() {
     </footer>
 
     <!-- Scripts -->
-
-cd    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Elementos do DOM
-            const authButton = document.getElementById('authButton');
-            const userDropdown = document.getElementById('userDropdown');
-            const logoutButton = document.getElementById('logoutButton');
-            
-            // Verificar se é necessário forçar atualização de créditos (vindo da página de pagamento)
-            const urlParams = new URLSearchParams(window.location.search);
-            const shouldRefreshCredits = urlParams.get('refresh_credits') === 'true';
-            
-            const loginLink = document.getElementById('loginLink');
-            
-            // Atualizar UI baseado no estado de autenticação
-            function updateUI() {
-                if (window.isAuthenticated && window.isAuthenticated()) {
-                    const userData = window.getUserData();
-                    
-                    // Mostrar menu do usuário e esconder link de login
-                    loginLink.style.display = 'none';
-                    authButton.style.display = 'flex';
-                    
-                    // Atualizar menu do usuário com nome
-                    const userNameElement = authButton.querySelector('.user-name');
-                    if (userNameElement) {
-                        userNameElement.textContent = userData.name || 'Usuário';
-                    }
-                    
-                    // Mostrar análises do usuário
-                    fetchUserCredits(shouldRefreshCredits);
-                } else {
-                    // Mostrar link de login e esconder menu do usuário
-                    loginLink.style.display = 'inline-block';
-                    authButton.style.display = 'none';
-                }
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+        // Funcionalidade para adicionar mais campos de links de vagas
+        const addJobLinkBtn = document.getElementById('addJobLinkBtn');
+        const jobLinksContainer = document.getElementById('jobLinksContainer');
+        // Função para adicionar um novo campo de vaga
+        function addJobLinkField() {
+            const currentCount = jobLinksContainer.querySelectorAll('input.job-link-input').length;
+            if (currentCount >= 7) {
+                alert('Você atingiu o limite máximo de 7 vagas para análise simultânea.');
+                return;
             }
-            
-            // Chamar updateUI quando a página carregar
-            updateUI();
-            
-            // Verificar autenticação novamente após um pequeno atraso
-            // para garantir que  foi completamente carregado
-            setTimeout(updateUI, 100);
-            
-            // Adicionar event listener para o botão de logout
-            if (logoutButton) {
-                logoutButton.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    if (window.logout) {
-                        window.logout();
-                    }
-                });
-            }
-            
-            // Não precisamos mais do event listener para clicar fora do dropdown
-            // pois agora estamos usando hover para mostrar/esconder o dropdown
-            
-            // Função para buscar análises do usuário do servidor
-            function fetchUserCredits(forceRefresh = false) {
-                const creditsElement = document.getElementById('userCredits');
-                
-                // Fazer chamada à API para obter os créditos reais do usuário
-                if (window.apiRequest) {
-                    const apiUrl = '/api/user/credits';
-                    const requestOptions = {};
-                    
-                    // Se precisarmos forçar atualização, adicionar headers para evitar cache
-                    if (forceRefresh) {
-                        console.log('Forçando atualização de créditos (sem cache)...');
-                        requestOptions.headers = {
-                            'Cache-Control': 'no-cache, no-store, must-revalidate',
-                            'Pragma': 'no-cache',
-                            'Expires': '0'
-                        };
-                    }
-                    
-                    window.apiRequest(apiUrl, requestOptions)
-                        .then(response => {
-                            if (response && response.ok) {
-                                return response.json();
-                            } else {
-                                throw new Error('Falha ao obter créditos do usuário');
-                            }
-                        })
-                        .then(data => {
-                            if (creditsElement) {
-                                creditsElement.textContent = `${data.credits} análises`;
-                                
-                                // Mudar cor com base na quantidade de créditos
-                                if (data.credits <= 0) {
-                                    creditsElement.style.backgroundColor = '#F44336'; // Vermelho se zero
-                                } else if (data.credits <= 2) {
-                                    creditsElement.style.backgroundColor = '#FFC107'; // Amarelo se poucos
-                                } else {
-                                    creditsElement.style.backgroundColor = '#4CAF50'; // Verde se suficiente
-                                }
-                                
-                                // Configurar o botão de análise com base nos créditos disponíveis
-                                const analyzeBtn = document.getElementById('analyzeBtn');
-                                if (analyzeBtn) {
-                                    // Remover todos os event listeners existentes
-                                    const newBtn = analyzeBtn.cloneNode(true);
-                                    analyzeBtn.parentNode.replaceChild(newBtn, analyzeBtn);
-                                    
-                                    if (data.credits <= 0) {
-                                        // Se não tiver créditos, mostrar botão para comprar
-                                        newBtn.textContent = 'Comprar Análises';
-                                        newBtn.addEventListener('click', function() {
-                                            window.location.href = 'payment.html';
-                                        });
-                                    } else {
-                                        // Se tiver créditos, garantir que o botão realiza a análise
-                                        newBtn.textContent = 'Analise Agora Seu Currículo';
-                                        newBtn.addEventListener('click', function() {
-                                            if (window.analyzeCurrentCV) {
-                                                window.analyzeCurrentCV();
-                                            }
-                                        });
-                                    }
-                                }
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Erro ao obter créditos:', error);
-                            // Em caso de erro, definir para um valor padrão
-                            if (creditsElement) {
-                                creditsElement.textContent = '0 análises';
-                                creditsElement.style.backgroundColor = '#F44336'; // Vermelho
-                            }
-                        });
-                } else {
-                    // Fallback se apiRequest não estiver disponível
-                    if (creditsElement) {
-                        creditsElement.textContent = '0 análises';
-                        creditsElement.style.backgroundColor = '#F44336'; // Vermelho
-                    }
-                }
-            }
+            // Criar novo campo de input padronizado
+            const newLinkItem = document.createElement('div');
+            newLinkItem.className = 'job-link-item';
+            newLinkItem.style.display = 'flex';
+            newLinkItem.style.alignItems = 'center';
+            const newInput = document.createElement('input');
+            newInput.type = 'url';
+            newInput.className = 'job-link-input';
+            newInput.placeholder = `https://linkdavaga.com`;
+            // Adiciona apenas o input, sem estilos inline extras
+            newLinkItem.appendChild(newInput);
+            jobLinksContainer.appendChild(newLinkItem);
+            // Dar foco ao novo campo
+            newInput.focus();
+        }
+        
+        // Adicionar event listener para o botão de adicionar vaga
+        addJobLinkBtn.addEventListener('click', addJobLinkField);
 
-            // Funcionalidade para adicionar mais campos de links de vagas
-            const addJobLinkBtn = document.getElementById('addJobLinkBtn');
-            const jobLinksContainer = document.getElementById('jobLinksContainer');
-            // Função para adicionar um novo campo de vaga
-            function addJobLinkField() {
-                const currentCount = jobLinksContainer.querySelectorAll('input.job-link-input').length;
-                if (currentCount >= 7) {
-                    alert('Você atingiu o limite máximo de 7 vagas para análise simultânea.');
-                    return;
-                }
-                 // Criar novo campo de input padronizado
-                 const newLinkItem = document.createElement('div');
-                 newLinkItem.className = 'job-link-item';
-                 newLinkItem.style.display = 'flex';
-                 newLinkItem.style.alignItems = 'center';
-                 const newInput = document.createElement('input');
-                 newInput.type = 'url';
-                 newInput.className = 'job-link-input';
-                 newInput.placeholder = `https://linkdavaga.com`;
-                 // Adiciona apenas o input, sem estilos inline extras
-                 newLinkItem.appendChild(newInput);
-                 jobLinksContainer.appendChild(newLinkItem);
-                 // Dar foco ao novo campo
-                 newInput.focus();
-            }
-
-            // Adicionar event listener para o botão de adicionar vaga
-            addJobLinkBtn.addEventListener('click', addJobLinkField);
-
-            // Funcionalidade do botão de análise
-            const analyzeBtn = document.getElementById('analyzeBtn');
-            if (analyzeBtn) {
+        // O botão de análise já deve ter sido configurado pelos eventos acima
+        // Verificando se já foi configurado
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        if (analyzeBtn && !analyzeBtn.hasAttribute('data-initialized')) {
+            // Marcar como inicializado para não adicionar eventos duplicados
+            analyzeBtn.setAttribute('data-initialized', 'true');
+            // Verificar créditos do usuário atual
+            const user = auth.getUser();
+            if (user && user.credits !== undefined) {
+                updateAnalyzeButton(user.credits);
+            } else {
+                // Se não tiver informação de créditos, configurar o comportamento padrão
                 analyzeBtn.addEventListener('click', function() {
-                    const fileInput = document.getElementById('fileInput');
-                    const jobLinkInputs = document.querySelectorAll('.job-link-input');
-                    const selectedFile = fileInput && fileInput.files.length > 0 ? fileInput.files[0] : null;
-                    const jobLinks = Array.from(jobLinkInputs).map(input => input.value.trim()).filter(Boolean);
+                const fileInput = document.getElementById('fileInput');
+                const jobLinkInputs = document.querySelectorAll('.job-link-input');
+                const selectedFile = fileInput && fileInput.files.length > 0 ? fileInput.files[0] : null;
+                const jobLinks = Array.from(jobLinkInputs).map(input => input.value.trim()).filter(Boolean);
 
-                    // Validação de URL
-                    const urlRegex = /^(https?:\/\/)[\w\-]+(\.[\w\-]+)+([\w.,@?^=%&:/~+#\-]*[\w@?^=%&/~+#\-])?$/i;
-                    const invalidLink = jobLinks.find(link => !urlRegex.test(link));
-                    if (invalidLink) {
-                        let msgDiv = document.getElementById('stepFeedback');
-                        if (!msgDiv) {
-                            msgDiv = document.createElement('div');
-                            msgDiv.id = 'stepFeedback';
-                            msgDiv.style.color = '#c62828';
-                            msgDiv.style.fontWeight = 'bold';
-                            msgDiv.style.margin = '10px 0 0 0';
-                            analyzeBtn.parentNode.insertBefore(msgDiv, analyzeBtn.nextSibling);
-                        }
-                        msgDiv.textContent = 'O link informado não é válido: ' + invalidLink;
-                        return;
-                    }
-
-                    // Limpar mensagens anteriores
+                // Validação de URL
+                const urlRegex = /^(https?:\/\/)[\w\-]+(\.[\w\-]+)+([\w.,@?^=%&:/~+#\-]*[\w@?^=%&/~+#\-])?$/i;
+                const invalidLink = jobLinks.find(link => !urlRegex.test(link));
+                if (invalidLink) {
                     let msgDiv = document.getElementById('stepFeedback');
                     if (!msgDiv) {
                         msgDiv = document.createElement('div');
@@ -1035,5 +1288,6 @@ cd    <script>
                     reader.readAsDataURL(selectedFile);
                 });
             }
-        });
-    </script>
+        }
+    });
+</script>
