@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compra de Análises - CV Sem Frescura</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        :root {
+            --primary: #583819;
+            --primary-dark: #512808;
+            --background: #F3EADA;
+            --text-color: #443523;
+            --text-gray: #4D4D4D;
+            --border-color: #DDD;
+            --border-radius: 6px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: var(--background);
+            color: var(--text-color);
+            line-height: 1.6;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        header {
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .logo {
+            height: 45px;
+        }
+
+        .login-link {
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 500;
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--primary);
+            transition: var(--transition);
+        }
+
+        .login-link:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .user-menu {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            margin-right: 10px;
+            font-weight: 500;
+        }
+
+        .user-name {
+            margin-right: 5px;
+        }
+
+        .credits-badge {
+            background-color: #4CAF50;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin: 0 8px;
+        }
+
+        .dropdown-icon {
+            font-size: 10px;
+            margin-left: 5px;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 65px;
+            right: 20px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 10px 0;
+            width: 200px;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .dropdown-item {
+            text-decoration: none;
+            color: var(--text-color);
+            padding: 8px 15px;
+            transition: var(--transition);
+            display: block;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        main {
+            margin-top: 90px;
+            padding-bottom: 60px;
+        }
+
+        .page-title {
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-gray);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .pricing-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .pricing-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .pricing-card.popular {
+            border-color: var(--primary);
+            position: relative;
+        }
+
+        .popular-tag {
+            position: absolute;
+            top: -15px;
+            background-color: var(--primary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .price-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .price-amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+
+        .price-features {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .price-feature {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            color: var(--text-gray);
+        }
+
+        .price-feature:before {
+            content: "✓";
+            color: #4CAF50;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .payment-methods {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .payment-title {
+            font-size: 1.2rem;
+            color: var(--text-gray);
+            margin-bottom: 15px;
+        }
+
+        .payment-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .payment-icon {
+            width: 50px;
+            height: 30px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+        }
+
+        .faq-section {
+            margin-top: 60px;
+        }
+
+        .faq-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .faq-answer {
+            color: var(--text-gray);
+        }
+
+        footer {
+            background-color: var(--primary);
+            color: white;
+            padding: 40px 0;
+        }
+
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-logo {
+            height: 40px;
+            margin-bottom: 10px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-link:hover {
+            color: white;
+        }
+
+        .copyright {
+            margin-top: 5px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 20px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--text-gray);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
+
+        .message {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            display: none;
+        }
+
+        .message.error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .message.success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        @media (max-width: 768px) {
+            .login-link {
+                position: static;
+                display: block;
+                width: fit-content;
+                margin-top: 15px;
+            }
+
+            .header-container {
+                flex-direction: column;
+                height: auto;
+                padding: 15px 0;
+            }
+
+            .footer-container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-links {
+                margin-top: 20px;
+                justify-content: center;
+            }
+
+            .pricing-card {
+                width: 100%;
+            }
+        }
+    </style>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/payment.js"></script>
+</head>
+
+<body>
+    <header>
+        <div class="container header-container">
+            <a href="index.html">
+                <img src="/assets/img/logo.png" alt="CV Sem Frescura" class="logo">
+            </a>
+            <div>
+                <a href="#" class="login-link" id="loginLink" style="display: none;">Entrar</a>
+                <div class="user-menu-wrapper" style="position:relative; display:inline-block;">
+                    <a href="#" class="user-menu" id="authButton" style="display: none;">
+                        <span class="user-name">Usuário</span>
+                        <span class="credits-badge" id="userCredits">0 análises</span>
+                        <span class="dropdown-icon">▼</span>
+                    </a>
+                    <div class="dropdown-menu" id="userDropdown" style="display:none;">
+                        <a href="payment.html" class="dropdown-item" id="buyCredits">Comprar análises</a>
+                        <a href="#" class="dropdown-item logout-btn" id="logoutButton">Sair</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <h1 class="page-title">Adquira Créditos de Análise</h1>
+            <p class="page-subtitle">Escolha o plano que melhor se adapta às suas necessidades</p>
+
+            <div class="pricing-container">
+                <div class="pricing-card">
+                    <h2 class="price-title">Plano Básico</h2>
+                    <div class="price-amount">R$29,90</div>
+                    <div class="price-features">
+                        <div class="price-feature">1 análise de currículo</div>
+                        <div class="price-feature">Comparação com até 7 vagas</div>
+                        <div class="price-feature">Recomendações personalizadas</div>
+                    </div>
+                    <a href="#" class="btn btn-outline buy-now" data-plan="basic" data-price="29.90" data-credits="1">Comprar Agora</a>
+                </div>
+
+                <div class="pricing-card popular">
+                    <div class="popular-tag">Mais popular</div>
+                    <h2 class="price-title">Plano Pro</h2>
+                    <div class="price-amount">R$59,90</div>
+                    <div class="price-features">
+                        <div class="price-feature">3 análises de currículo</div>
+                        <div class="price-feature">Comparação com até 7 vagas</div>
+                        <div class="price-feature">Recomendações personalizadas</div>
+                        <div class="price-feature">30% de economia</div>
+                    </div>
+                    <a href="#" class="btn btn-primary buy-now" data-plan="pro" data-price="59.90" data-credits="3">Comprar Agora</a>
+                </div>
+
+                <div class="pricing-card">
+                    <h2 class="price-title">Plano Premium</h2>
+                    <div class="price-amount">R$99,90</div>
+                    <div class="price-features">
+                        <div class="price-feature">6 análises de currículo</div>
+                        <div class="price-feature">Comparação com até 7 vagas</div>
+                        <div class="price-feature">Recomendações personalizadas</div>
+                        <div class="price-feature">45% de economia</div>
+                    </div>
+                    <a href="#" class="btn btn-outline buy-now" data-plan="premium" data-price="99.90" data-credits="6">Comprar Agora</a>
+                </div>
+            </div>
+
+            <div class="payment-methods">
+                <h3 class="payment-title">Formas de pagamento aceitas</h3>
+                <div class="payment-icons">
+                    <div class="payment-icon">Visa</div>
+                    <div class="payment-icon">MasterCard</div>
+                    <div class="payment-icon">American Express</div>
+                    <div class="payment-icon">Pix</div>
+                    <div class="payment-icon">Boleto</div>
+                </div>
+            </div>
+
+            <section class="faq-section">
+                <h2 class="faq-title">Perguntas Frequentes</h2>
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <div class="faq-question">O que são créditos de análise?</div>
+                        <div class="faq-answer">
+                            Créditos de análise permitem que você submeta seu currículo para nossa tecnologia de inteligência artificial analisar e comparar com vagas selecionadas. Cada análise consome 1 crédito.
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">Quanto tempo duram os créditos?</div>
+                        <div class="faq-answer">
+                            Os créditos não expiram. Uma vez adquiridos, eles ficam disponíveis em sua conta por tempo indeterminado até serem utilizados.
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">Como funciona o pagamento?</div>
+                        <div class="faq-answer">
+                            Processamos pagamentos de forma segura através do Stripe. Após a confirmação do pagamento, os créditos são adicionados automaticamente à sua conta.
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">Posso solicitar reembolso?</div>
+                        <div class="faq-answer">
+                            Oferecemos reembolso integral em até 7 dias após a compra, desde que nenhum crédito tenha sido utilizado. Entre em contato com nosso suporte para solicitar.
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="paymentModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <button class="close-modal">&times;</button>
+            <h2 class="modal-title">Finalizar Compra</h2>
+            <div id="paymentMessage" class="message"></div>
+            
+            <!-- Seletor de métodos de pagamento -->
+            <div class="payment-methods-selector" style="margin-bottom: 20px;">
+                <h3 style="margin-bottom: 10px; font-size: 1.1rem;">Escolha a forma de pagamento</h3>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <label class="payment-method-option" style="display: flex; align-items: center; padding: 12px; border: 1px solid #DDD; border-radius: 6px; cursor: pointer; flex: 1; min-width: 120px;">
+                        <input type="radio" name="payment-method" value="card" checked style="margin-right: 8px;">
+                        <span>Cartão de crédito</span>
+                    </label>
+                    <label class="payment-method-option" style="display: flex; align-items: center; padding: 12px; border: 1px solid #DDD; border-radius: 6px; cursor: pointer; flex: 1; min-width: 120px;">
+                        <input type="radio" name="payment-method" value="pix" style="margin-right: 8px;">
+                        <span>PIX</span>
+                    </label>
+                    <label class="payment-method-option" style="display: flex; align-items: center; padding: 12px; border: 1px solid #DDD; border-radius: 6px; cursor: pointer; flex: 1; min-width: 120px;">
+                        <input type="radio" name="payment-method" value="boleto" style="margin-right: 8px;">
+                        <span>Boleto</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Formulário padrão (será escondido quando o Stripe estiver ativo) -->
+            <form id="payment-form-regular" style="display: none;">
+                <div class="form-group">
+                    <label for="cardNumber">Número do Cartão</label>
+                    <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" required>
+                </div>
+                <div class="form-group">
+                    <label for="cardName">Nome no Cartão</label>
+                    <input type="text" id="cardName" placeholder="Ex: JOÃO DA SILVA" required>
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="cardExpiry">Data de Validade</label>
+                        <input type="text" id="cardExpiry" placeholder="MM/AA" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="cardCvc">CVV</label>
+                        <input type="text" id="cardCvc" placeholder="123" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Confirmar Pagamento</button>
+            </form>
+            
+            <!-- Formulário Cartão (Stripe) -->
+            <form id="stripe-payment-form">
+                <div id="payment-element">
+                    <!-- Stripe Elements será montado aqui -->
+                </div>
+                <div id="payment-errors" style="color: #F44336; margin-top: 8px;"></div>
+                <button id="submit-payment" type="submit" class="btn btn-primary" style="width: 100%; margin-top: 15px;">
+                    Confirmar Pagamento
+                </button>
+            </form>
+            
+            <!-- Formulário PIX -->
+            <form id="pix-form" style="display: none;">
+                <div class="form-group">
+                    <label for="pix-name">Nome completo</label>
+                    <input type="text" id="pix-name" placeholder="Digite seu nome completo" required>
+                </div>
+                <div class="form-group">
+                    <label for="pix-email">E-mail</label>
+                    <input type="email" id="pix-email" placeholder="Digite seu e-mail" required>
+                </div>
+                <div class="form-group">
+                    <label for="pix-cpf">CPF (apenas números)</label>
+                    <input type="text" id="pix-cpf" placeholder="00000000000" required maxlength="11" pattern="[0-9]{11}">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 15px;">
+                    Gerar QR Code PIX
+                </button>
+            </form>
+            
+            <!-- Formulário Boleto -->
+            <form id="boleto-form" style="display: none;">
+                <div class="form-group">
+                    <label for="boleto-name">Nome completo</label>
+                    <input type="text" id="boleto-name" placeholder="Digite seu nome completo" required>
+                </div>
+                <div class="form-group">
+                    <label for="boleto-email">E-mail</label>
+                    <input type="email" id="boleto-email" placeholder="Digite seu e-mail" required>
+                </div>
+                <div class="form-group">
+                    <label for="boleto-cpf">CPF (apenas números)</label>
+                    <input type="text" id="boleto-cpf" placeholder="00000000000" required maxlength="11" pattern="[0-9]{11}">
+                </div>
+                <div class="form-group">
+                    <label for="boleto-address">Endereço</label>
+                    <input type="text" id="boleto-address" placeholder="Rua, número, complemento" required>
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <div class="form-group" style="flex: 2;">
+                        <label for="boleto-city">Cidade</label>
+                        <input type="text" id="boleto-city" placeholder="Sua cidade" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="boleto-state">Estado</label>
+                        <input type="text" id="boleto-state" placeholder="UF" required maxlength="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="boleto-postal-code">CEP (apenas números)</label>
+                    <input type="text" id="boleto-postal-code" placeholder="00000000" required maxlength="8" pattern="[0-9]{8}">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 15px;">
+                    Gerar Boleto
+                </button>
+            </form>
+            
+            <!-- Exibição do PIX -->
+            <div id="pix-container" style="display: none; text-align: center;">
+                <h3 style="margin-bottom: 15px;">Pagamento via PIX</h3>
+                <div id="pix-qrcode" style="margin: 0 auto; max-width: 250px;"><!-- QR Code será inserido aqui --></div>
+                <div style="margin: 15px 0;">
+                    <p>Código PIX:</p>
+                    <div style="background: #f5f5f5; padding: 10px; border-radius: 4px; margin: 5px 0; word-break: break-all; font-size: 0.9rem;">
+                        <code id="pix-code"><!-- Código PIX será inserido aqui --></code>
+                    </div>
+                    <button id="copy-pix-code" class="btn btn-outline" style="margin-top: 10px; background: transparent; border: 1px solid var(--primary); color: var(--primary);">
+                        Copiar código PIX
+                    </button>
+                    <p id="copy-message" style="margin-top: 5px; color: #4CAF50;"></p>
+                </div>
+                <p style="margin-top: 15px; color: var(--text-gray); font-size: 0.9rem;">
+                    O pagamento via PIX é processado imediatamente. Após o pagamento, seus créditos serão adicionados automaticamente à sua conta.
+                </p>
+            </div>
+            
+            <!-- Exibição do Boleto -->
+            <div id="boleto-container" style="display: none; text-align: center;">
+                <h3 style="margin-bottom: 15px;">Pagamento via Boleto</h3>
+                <p>Código de barras:</p>
+                <div style="background: #f5f5f5; padding: 10px; border-radius: 4px; margin: 5px 0; word-break: break-all; font-size: 0.9rem;">
+                    <code id="boleto-code"><!-- Código de barras será inserido aqui --></code>
+                </div>
+                <button id="copy-boleto-code" class="btn btn-outline" style="margin-top: 10px; background: transparent; border: 1px solid var(--primary); color: var(--primary);">
+                    Copiar código de barras
+                </button>
+                <p id="copy-boleto-message" style="margin-top: 5px; color: #4CAF50;"></p>
+                
+                <a id="boleto-link" href="#" target="_blank" class="btn btn-primary" style="display: block; margin: 20px auto; max-width: 300px;">
+                    Abrir Boleto para Impressão
+                </a>
+                
+                <p style="margin-top: 15px; color: var(--text-gray); font-size: 0.9rem;">
+                    O pagamento via boleto pode levar até 3 dias úteis para ser confirmado. Após a confirmação, seus créditos serão adicionados automaticamente à sua conta.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container footer-container">
+            <div>
+                <img src="/assets/img/logo.png" alt="CV Sem Frescura" class="footer-logo">
+                <p class="copyright">© 2025 CV Sem Frescura. Todos os direitos reservados.</p>
+            </div>
+            <div class="footer-links">
+                <a href="privacy.html" class="footer-link">Políticas de Privacidade</a>
+                <a href="terms.html" class="footer-link">Termos de Uso</a>
+                <a href="#" class="footer-link">Contato</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Atualizar UI do usuário baseado no login
+        function updateUserUI() {
+            const user = auth.getUser();
+            const loginLink = document.getElementById('loginLink');
+            const authButton = document.getElementById('authButton');
+            const userDropdown = document.getElementById('userDropdown');
+            const creditsElement = document.getElementById('userCredits');
+            
+            if (user) {
+                document.querySelector('.user-name').textContent = user.name.split(' ')[0];
+                loginLink.style.display = 'none';
+                authButton.style.display = 'inline-flex';
+                fetchUserCredits(true);
+            } else {
+                loginLink.style.display = 'inline-block';
+                authButton.style.display = 'none';
+                if (userDropdown) userDropdown.style.display = 'none';
+                if (creditsElement) creditsElement.textContent = '0 análises';
+                
+                // Redirecionar para index se não estiver logado
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // Função para buscar análises do usuário do servidor
+        function fetchUserCredits(forceRefresh = false) {
+            const creditsElement = document.getElementById('userCredits');
+            
+            // Fazer chamada à API para obter os créditos reais do usuário
+            const apiUrl = 'http://localhost:3000/api/user/credits';
+            const requestOptions = {};
+            
+            console.log('Buscando créditos do usuário...');
+            
+            // Se precisarmos forçar atualização, adicionar headers para evitar cache
+            if (forceRefresh) {
+                console.log('Forçando atualização de créditos (sem cache)...');
+                requestOptions.headers = {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
+                };
+            }
+            
+            // Preparar os headers com o token de autenticação
+            let headers = {
+                'Authorization': `Bearer ${auth.getToken()}`
+            };
+            
+            // Adicionar headers de cache se necessário
+            if (requestOptions.headers) {
+                for (const header in requestOptions.headers) {
+                    headers[header] = requestOptions.headers[header];
+                }
+            }
+            
+            fetch(apiUrl, { headers: headers })
+                .then(function(response) {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Falha ao obter créditos do usuário');
+                    }
+                })
+                .then(function(data) {
+                    if (creditsElement) {
+                        creditsElement.textContent = `${data.credits} análises`;
+                        
+                        // Atualizar cores com base no número de créditos
+                        if (data.credits <= 0) {
+                            creditsElement.style.backgroundColor = '#F44336'; // Vermelho se sem créditos
+                        } else if (data.credits <= 2) {
+                            creditsElement.style.backgroundColor = '#FFC107'; // Amarelo se poucos
+                        } else {
+                            creditsElement.style.backgroundColor = '#4CAF50'; // Verde se suficiente
+                        }
+                    }
+                    
+                    // Salvar créditos no usuário atual
+                    const user = auth.getUser();
+                    if (user) {
+                        user.credits = data.credits;
+                        localStorage.setItem('user', JSON.stringify(user));
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao obter créditos:', error);
+                    // Em caso de erro, definir para um valor padrão
+                    if (creditsElement) {
+                        creditsElement.textContent = '0 análises';
+                        creditsElement.style.backgroundColor = '#F44336'; // Vermelho
+                    }
+                });
+        }
+        
+        // Inicializar UI
+        updateUserUI();
+        
+        // Dropdown toggle ao clicar no user-menu
+        let dropdownOpen = false;
+        const authButton = document.getElementById('authButton');
+        const userDropdown = document.getElementById('userDropdown');
+        const logoutButton = document.getElementById('logoutButton');
+        
+        // Toggle dropdown
+        authButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            dropdownOpen = !dropdownOpen;
+            userDropdown.style.display = dropdownOpen ? 'flex' : 'none';
+        });
+        
+        // Redireciona para a página de pagamento ao clicar em Comprar análises
+        document.getElementById('buyCredits').onclick = function(e) {
+            e.preventDefault();
+            window.location.href = 'payment.html';
+        };
+        
+        // Logout
+        logoutButton.onclick = function(e) {
+            e.preventDefault();
+            auth.logout();
+        };
+        
+        // Inicializar módulo de pagamento
+        payment.initListeners();
+    });
+    </script>
+</body>
+
+</html>

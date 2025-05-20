@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de Transações - CV Sem Frescura</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/history.js"></script>
+    <style>
+        :root {
+            --primary: #583819;
+            --primary-dark: #512808;
+            --background: #F3EADA;
+            --text-color: #443523;
+            --text-gray: #4D4D4D;
+            --border-color: #DDD;
+            --border-radius: 6px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: var(--background);
+            color: var(--text-color);
+            line-height: 1.6;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        header {
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .logo {
+            height: 45px;
+        }
+
+        .login-link {
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 500;
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--primary);
+            transition: var(--transition);
+        }
+
+        .login-link:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .user-menu {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            margin-right: 10px;
+            font-weight: 500;
+        }
+
+        .user-name {
+            margin-right: 5px;
+        }
+
+        .credits-badge {
+            background-color: #4CAF50;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin: 0 8px;
+        }
+
+        .dropdown-icon {
+            font-size: 10px;
+            margin-left: 5px;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 65px;
+            right: 20px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 10px 0;
+            width: 200px;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .dropdown-item {
+            text-decoration: none;
+            color: var(--text-color);
+            padding: 8px 15px;
+            transition: var(--transition);
+            display: block;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        main {
+            margin-top: 90px;
+            padding-bottom: 60px;
+            min-height: 70vh;
+        }
+
+        .page-title {
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-gray);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .transaction-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .transaction-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .transaction-table th,
+        .transaction-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .transaction-table th {
+            font-weight: 600;
+            color: var(--primary);
+            background-color: rgba(88, 56, 25, 0.05);
+        }
+
+        .transaction-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .transaction-table tr:hover {
+            background-color: rgba(88, 56, 25, 0.03);
+        }
+
+        .status-pending {
+            color: #FFC107;
+            font-weight: 500;
+        }
+
+        .status-completed {
+            color: #4CAF50;
+            font-weight: 500;
+        }
+
+        .status-failed {
+            color: #F44336;
+            font-weight: 500;
+        }
+
+        .status-refunded {
+            color: #2196F3;
+            font-weight: 500;
+        }
+
+        .loading {
+            text-align: center;
+            color: var(--text-gray);
+            padding: 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-gray);
+            padding: 40px 20px;
+            font-style: italic;
+        }
+
+        .error-state {
+            text-align: center;
+            color: #F44336;
+            padding: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        footer {
+            background-color: var(--primary);
+            color: white;
+            padding: 40px 0;
+        }
+
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-logo {
+            height: 40px;
+            margin-bottom: 10px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-link:hover {
+            color: white;
+        }
+
+        .copyright {
+            margin-top: 5px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                height: auto;
+                padding: 15px 0;
+            }
+
+            .footer-container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-links {
+                margin-top: 20px;
+                justify-content: center;
+            }
+
+            .transaction-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container header-container">
+            <a href="index.html">
+                <img src="/assets/img/logo.png" alt="CV Sem Frescura" class="logo">
+            </a>
+            <div>
+                <a href="#" class="login-link" id="loginLink" style="display: none;">Entrar</a>
+                <div class="user-menu-wrapper" style="position:relative; display:inline-block;">
+                    <a href="#" class="user-menu" id="authButton" style="display: none;">
+                        <span class="user-name">Usuário</span>
+                        <span class="credits-badge" id="userCredits">0 análises</span>
+                        <span class="dropdown-icon">▼</span>
+                    </a>
+                    <div class="dropdown-menu" id="userDropdown" style="display:none;">
+                        <a href="payment.html" class="dropdown-item" id="buyCredits">Comprar análises</a>
+                        <a href="history.html" class="dropdown-item" id="transactionHistory">Histórico</a>
+                        <a href="#" class="dropdown-item logout-btn" id="logoutButton">Sair</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <h1 class="page-title">Histórico de Transações</h1>
+            <p class="page-subtitle">Confira o histórico de suas compras e créditos</p>
+
+            <div class="transaction-container">
+                <div id="transaction-history">
+                    <!-- O conteúdo será carregado dinamicamente pelo JavaScript -->
+                </div>
+            </div>
+
+            <div class="actions">
+                <a href="payment.html" class="btn btn-primary">Comprar Mais Créditos</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container footer-container">
+            <div>
+                <img src="/assets/img/logo.png" alt="CV Sem Frescura" class="footer-logo">
+                <p class="copyright">© 2025 CV Sem Frescura. Todos os direitos reservados.</p>
+            </div>
+            <div class="footer-links">
+                <a href="privacy.html" class="footer-link">Políticas de Privacidade</a>
+                <a href="terms.html" class="footer-link">Termos de Uso</a>
+                <a href="#" class="footer-link">Contato</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Atualizar UI do usuário baseado no login
+            function updateUserUI() {
+                const user = auth.getUser();
+                const loginLink = document.getElementById('loginLink');
+                const authButton = document.getElementById('authButton');
+                const userDropdown = document.getElementById('userDropdown');
+                const creditsElement = document.getElementById('userCredits');
+                
+                if (user) {
+                    document.querySelector('.user-name').textContent = user.name.split(' ')[0];
+                    loginLink.style.display = 'none';
+                    authButton.style.display = 'inline-flex';
+                    fetchUserCredits(true);
+                } else {
+                    loginLink.style.display = 'inline-block';
+                    authButton.style.display = 'none';
+                    if (userDropdown) userDropdown.style.display = 'none';
+                    if (creditsElement) creditsElement.textContent = '0 análises';
+                    
+                    // Redirecionar para index se não estiver logado
+                    window.location.href = 'index.html';
+                }
+            }
+            
+            // Função para buscar análises do usuário do servidor
+            function fetchUserCredits(forceRefresh = false) {
+                const creditsElement = document.getElementById('userCredits');
+                
+                // Fazer chamada à API para obter os créditos reais do usuário
+                const apiUrl = 'http://localhost:3000/api/user/credits';
+                const requestOptions = {};
+                
+                console.log('Buscando créditos do usuário...');
+                
+                // Se precisarmos forçar atualização, adicionar headers para evitar cache
+                if (forceRefresh) {
+                    console.log('Forçando atualização de créditos (sem cache)...');
+                    requestOptions.headers = {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    };
+                }
+                
+                // Preparar os headers com o token de autenticação
+                let headers = {
+                    'Authorization': `Bearer ${auth.getToken()}`
+                };
+                
+                // Adicionar headers de cache se necessário
+                if (requestOptions.headers) {
+                    for (const header in requestOptions.headers) {
+                        headers[header] = requestOptions.headers[header];
+                    }
+                }
+                
+                fetch(apiUrl, { headers: headers })
+                    .then(function(response) {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            throw new Error('Falha ao obter créditos do usuário');
+                        }
+                    })
+                    .then(function(data) {
+                        if (creditsElement) {
+                            creditsElement.textContent = `${data.credits} análises`;
+                            
+                            // Atualizar cores com base no número de créditos
+                            if (data.credits <= 0) {
+                                creditsElement.style.backgroundColor = '#F44336'; // Vermelho se sem créditos
+                            } else if (data.credits <= 2) {
+                                creditsElement.style.backgroundColor = '#FFC107'; // Amarelo se poucos
+                            } else {
+                                creditsElement.style.backgroundColor = '#4CAF50'; // Verde se suficiente
+                            }
+                        }
+                        
+                        // Salvar créditos no usuário atual
+                        const user = auth.getUser();
+                        if (user) {
+                            user.credits = data.credits;
+                            localStorage.setItem('user', JSON.stringify(user));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao obter créditos:', error);
+                        // Em caso de erro, definir para um valor padrão
+                        if (creditsElement) {
+                            creditsElement.textContent = '0 análises';
+                            creditsElement.style.backgroundColor = '#F44336'; // Vermelho
+                        }
+                    });
+            }
+            
+            // Inicializar UI
+            updateUserUI();
+            
+            // Dropdown toggle ao clicar no user-menu
+            let dropdownOpen = false;
+            const authButton = document.getElementById('authButton');
+            const userDropdown = document.getElementById('userDropdown');
+            const logoutButton = document.getElementById('logoutButton');
+            
+            // Toggle dropdown
+            authButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                dropdownOpen = !dropdownOpen;
+                userDropdown.style.display = dropdownOpen ? 'flex' : 'none';
+            });
+            
+            // Redireciona para a página de pagamento ao clicar em Comprar análises
+            document.getElementById('buyCredits').onclick = function(e) {
+                e.preventDefault();
+                window.location.href = 'payment.html';
+            };
+            
+            // Redireciona para o histórico
+            document.getElementById('transactionHistory').onclick = function(e) {
+                e.preventDefault();
+                window.location.href = 'history.html';
+            };
+            
+            // Logout
+            logoutButton.onclick = function(e) {
+                e.preventDefault();
+                auth.logout();
+            };
+        });
+    </script>
+</body>
+
+</html>
