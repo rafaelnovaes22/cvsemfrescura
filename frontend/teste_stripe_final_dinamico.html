@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✅ Teste Final - Sistema Stripe 100% Dinâmico</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="assets/js/config.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #583819 0%, #8B4513 100%);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .status-card {
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 5px solid;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border-color: #28a745;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #dc3545;
+        }
+
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border-color: #ffc107;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-color: #17a2b8;
+        }
+
+        .test-section {
+            margin: 25px 0;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            background: #f8f9fa;
+        }
+
+        .test-section h3 {
+            margin-top: 0;
+            color: #583819;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #583819 0%, #8B4513 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(88, 56, 25, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(88, 56, 25, 0.4);
+        }
+
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .logs {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #4a5568;
+        }
+
+        .config-display {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .badge.success {
+            background: #28a745;
+            color: white;
+        }
+
+        .badge.error {
+            background: #dc3545;
+            color: white;
+        }
+
+        .badge.warning {
+            background: #ffc107;
+            color: #212529;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ Sistema Stripe 100% Dinâmico</h1>
+            <p>Teste completo sem chaves hardcoded - Tudo via API</p>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 Configuração do Sistema</h3>
+            <div id="config-status" class="status-card info">🔄 Carregando configurações...</div>
+            <div class="config-display" id="config-display">
+                <strong>Configurações carregadas:</strong><br>
+                <span id="config-details">Aguardando...</span>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔑 Teste de Chaves Dinâmicas</h3>
+            <button onclick="testDynamicKeys()">🔄 Testar Carregamento de Chaves</button>
+            <div id="keys-status" class="status-card info">Clique para testar</div>
+        </div>
+
+        <div class="test-section">
+            <h3>🌐 Conectividade Backend</h3>
+            <button onclick="testBackendConnection()">📡 Testar Conexão</button>
+            <div id="backend-status" class="status-card info">Clique para testar</div>
+        </div>
+
+        <div class="test-section">
+            <h3>💳 Payment Intent Dinâmico</h3>
+            <button onclick="testPaymentIntent()">💰 Criar Payment Intent</button>
+            <div id="payment-status" class="status-card info">Aguardando teste</div>
+        </div>
+
+        <div class="test-section">
+            <h3>🎨 Stripe Elements Dinâmico</h3>
+            <button onclick="testStripeElements()" id="elements-btn">🎨 Inicializar Elements</button>
+            <div id="elements-status" class="status-card info">Aguardando inicialização</div>
+            <div id="payment-element"
+                style="margin: 20px 0; padding: 20px; border: 2px dashed #dee2e6; border-radius: 8px; min-height: 200px; display: none;">
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Logs do Sistema</h3>
+            <button onclick="clearLogs()">🗑️ Limpar Logs</button>
+            <button onclick="runFullTest()">🚀 Executar Teste Completo</button>
+            <div id="system-logs" class="logs">Sistema iniciado...\n</div>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais
+        let stripe = null;
+        let elements = null;
+        let paymentElement = null;
+        let currentClientSecret = null;
+        let systemConfig = null;
+
+        // Sistema de logs melhorado
+        function addLog(message, type = 'info') {
+            const logs = document.getElementById('system-logs');
+            const timestamp = new Date().toLocaleTimeString();
+            const icons = {
+                'info': 'ℹ️',
+                'success': '✅',
+                'error': '❌',
+                'warning': '⚠️',
+                'debug': '🔍'
+            };
+
+            const icon = icons[type] || 'ℹ️';
+            logs.innerHTML += `[${timestamp}] ${icon} ${message}\n`;
+            logs.scrollTop = logs.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function clearLogs() {
+            document.getElementById('system-logs').innerHTML = 'Logs limpos...\n';
+            addLog('Sistema reiniciado', 'info');
+        }
+
+        // Carregar configurações do sistema
+        async function loadSystemConfig() {
+            try {
+                addLog('Carregando configurações do sistema...', 'debug');
+
+                // Verificar se CONFIG está disponível
+                if (typeof CONFIG === 'undefined') {
+                    throw new Error('Arquivo config.js não foi carregado');
+                }
+
+                systemConfig = CONFIG;
+
+                const configDiv = document.getElementById('config-display');
+                const statusDiv = document.getElementById('config-status');
+
+                configDiv.innerHTML = `
+                    <strong>✅ Configurações Carregadas:</strong><br>
+                    • API Base URL: ${CONFIG.api.baseUrl}<br>
+                    • Ambiente: ${CONFIG.environment}<br>
+                    • Endpoints: ${Object.keys(CONFIG.api.endpoints).length} configurados<br>
+                    • Modo: 100% Dinâmico (sem chaves hardcoded)
+                `;
+
+                statusDiv.className = 'status-card success';
+                statusDiv.innerHTML = '✅ Configurações carregadas com sucesso <span class="badge success">DINÂMICO</span>';
+
+                addLog('Configurações do sistema carregadas com sucesso', 'success');
+                return true;
+            } catch (error) {
+                const statusDiv = document.getElementById('config-status');
+                statusDiv.className = 'status-card error';
+                statusDiv.innerHTML = `❌ Erro ao carregar configurações: ${error.message}`;
+                addLog(`Erro nas configurações: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // Testar carregamento dinâmico de chaves
+        async function testDynamicKeys() {
+            try {
+                addLog('Iniciando teste de chaves dinâmicas...', 'debug');
+                const statusDiv = document.getElementById('keys-status');
+                statusDiv.className = 'status-card info';
+                statusDiv.innerHTML = '🔄 Carregando chave do backend...';
+
+                // Usar função do config.js
+                const stripeKey = await getStripeKey();
+
+                if (stripeKey) {
+                    statusDiv.className = 'status-card success';
+                    statusDiv.innerHTML = `✅ Chave carregada dinamicamente: ${stripeKey.substring(0, 20)}... <span class="badge success">DINÂMICO</span>`;
+                    addLog(`Chave Stripe obtida via API: ${stripeKey.substring(0, 20)}...`, 'success');
+
+                    // Inicializar Stripe
+                    stripe = Stripe(stripeKey);
+                    addLog('Stripe inicializado com chave dinâmica', 'success');
+                    return true;
+                } else {
+                    throw new Error('Não foi possível obter chave do backend');
+                }
+            } catch (error) {
+                const statusDiv = document.getElementById('keys-status');
+                statusDiv.className = 'status-card error';
+                statusDiv.innerHTML = `❌ Erro: ${error.message} <span class="badge error">FALHOU</span>`;
+                addLog(`Erro ao carregar chaves: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // Testar conexão com backend
+        async function testBackendConnection() {
+            try {
+                addLog('Testando conectividade com backend...', 'debug');
+                const statusDiv = document.getElementById('backend-status');
+                statusDiv.className = 'status-card info';
+                statusDiv.innerHTML = '🔄 Verificando conexão...';
+
+                const isConnected = await checkBackendConnection();
+
+                if (isConnected) {
+                    statusDiv.className = 'status-card success';
+                    statusDiv.innerHTML = '✅ Backend conectado e respondendo <span class="badge success">ONLINE</span>';
+                    addLog('Conexão com backend estabelecida', 'success');
+                    return true;
+                } else {
+                    throw new Error('Backend não está respondendo');
+                }
+            } catch (error) {
+                const statusDiv = document.getElementById('backend-status');
+                statusDiv.className = 'status-card error';
+                statusDiv.innerHTML = `❌ Erro de conexão: ${error.message} <span class="badge error">OFFLINE</span>`;
+                addLog(`Erro de conexão: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // Testar criação de Payment Intent
+        async function testPaymentIntent() {
+            try {
+                addLog('Criando Payment Intent via API...', 'debug');
+                const statusDiv = document.getElementById('payment-status');
+                statusDiv.className = 'status-card info';
+                statusDiv.innerHTML = '🔄 Criando Payment Intent...';
+
+                const response = await fetch(`${CONFIG.api.baseUrl}/create-intent`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        amount: 3997, // R$ 39,97
+                        credits: 1,
+                        plan: 'teste-dinamico',
+                        user_id: 'teste_usuario_dinamico'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentClientSecret = data.client_secret;
+
+                    statusDiv.className = 'status-card success';
+                    statusDiv.innerHTML = `✅ Payment Intent criado: ${data.payment_intent_id} <span class="badge success">DINÂMICO</span>`;
+                    addLog(`Payment Intent criado com sucesso: ${data.payment_intent_id}`, 'success');
+                    addLog(`Client Secret obtido: ${currentClientSecret.substring(0, 20)}...`, 'debug');
+                    return true;
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                }
+            } catch (error) {
+                const statusDiv = document.getElementById('payment-status');
+                statusDiv.className = 'status-card error';
+                statusDiv.innerHTML = `❌ Erro: ${error.message} <span class="badge error">FALHOU</span>`;
+                addLog(`Erro ao criar Payment Intent: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // Testar Stripe Elements
+        async function testStripeElements() {
+            try {
+                addLog('Inicializando Stripe Elements dinamicamente...', 'debug');
+                const statusDiv = document.getElementById('elements-status');
+                statusDiv.className = 'status-card info';
+                statusDiv.innerHTML = '🔄 Inicializando Elements...';
+
+                // Garantir que temos Stripe inicializado
+                if (!stripe) {
+                    addLog('Stripe não inicializado, carregando chaves...', 'warning');
+                    const success = await testDynamicKeys();
+                    if (!success) {
+                        throw new Error('Não foi possível inicializar Stripe');
+                    }
+                }
+
+                // Garantir que temos client secret
+                if (!currentClientSecret) {
+                    addLog('Client Secret não encontrado, criando Payment Intent...', 'warning');
+                    const success = await testPaymentIntent();
+                    if (!success) {
+                        throw new Error('Não foi possível criar Payment Intent');
+                    }
+                }
+
+                // Configurar Elements
+                const elementsOptions = {
+                    clientSecret: currentClientSecret,
+                    appearance: {
+                        theme: 'stripe',
+                        variables: {
+                            colorPrimary: '#583819',
+                            colorBackground: '#F3EADA',
+                            colorText: '#443523',
+                            fontFamily: 'Inter, sans-serif',
+                            borderRadius: '8px',
+                        }
+                    },
+                    locale: 'pt-BR'
+                };
+
+                elements = stripe.elements(elementsOptions);
+
+                // Mostrar container
+                const container = document.getElementById('payment-element');
+                container.style.display = 'block';
+                container.innerHTML = '';
+
+                // Criar e montar Payment Element
+                paymentElement = elements.create('payment', {
+                    paymentMethodTypes: ['card'],
+                    layout: { type: 'tabs', defaultCollapsed: false }
+                });
+
+                await paymentElement.mount('#payment-element');
+
+                statusDiv.className = 'status-card success';
+                statusDiv.innerHTML = '✅ Stripe Elements carregado dinamicamente <span class="badge success">FUNCIONANDO</span>';
+                addLog('Stripe Elements inicializado com sucesso via API', 'success');
+
+                return true;
+
+            } catch (error) {
+                const statusDiv = document.getElementById('elements-status');
+                statusDiv.className = 'status-card error';
+                statusDiv.innerHTML = `❌ Erro: ${error.message} <span class="badge error">FALHOU</span>`;
+                addLog(`Erro ao inicializar Elements: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // Executar teste completo
+        async function runFullTest() {
+            addLog('🚀 Iniciando teste completo do sistema...', 'info');
+
+            const tests = [
+                { name: 'Configurações', func: loadSystemConfig },
+                { name: 'Conexão Backend', func: testBackendConnection },
+                { name: 'Chaves Dinâmicas', func: testDynamicKeys },
+                { name: 'Payment Intent', func: testPaymentIntent },
+                { name: 'Stripe Elements', func: testStripeElements }
+            ];
+
+            let passed = 0;
+            let failed = 0;
+
+            for (const test of tests) {
+                addLog(`Executando teste: ${test.name}...`, 'debug');
+                try {
+                    const result = await test.func();
+                    if (result) {
+                        passed++;
+                        addLog(`✅ ${test.name}: PASSOU`, 'success');
+                    } else {
+                        failed++;
+                        addLog(`❌ ${test.name}: FALHOU`, 'error');
+                    }
+                } catch (error) {
+                    failed++;
+                    addLog(`❌ ${test.name}: ERRO - ${error.message}`, 'error');
+                }
+
+                // Pequena pausa entre testes
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            addLog(`🏁 Teste completo finalizado: ${passed} passou(m), ${failed} falhou(ram)`,
+                failed === 0 ? 'success' : 'warning');
+
+            if (failed === 0) {
+                addLog('🎉 SISTEMA 100% FUNCIONAL VIA API!', 'success');
+            }
+        }
+
+        // Inicializar sistema ao carregar
+        window.addEventListener('load', async () => {
+            addLog('Página carregada, inicializando sistema...', 'info');
+            await loadSystemConfig();
+            addLog('Sistema pronto para testes', 'success');
+        });
+    </script>
+</body>
+
+</html>

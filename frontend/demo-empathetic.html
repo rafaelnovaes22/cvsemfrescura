@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo - Feedback Empático | CV Sem Frescura</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f6ecd9 0%, #e8ddc7 100%);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .demo-note {
+            background: linear-gradient(135deg, #d4f8d4 0%, #a7f5a7 100%);
+            border: 2px solid #22c55e;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            color: #15803d;
+        }
+
+        .empathetic-card {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-left: 6px solid;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .empathetic-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .growth-opportunity {
+            border-left-color: #22c55e;
+        }
+
+        .good-potential {
+            border-left-color: #3b82f6;
+        }
+
+        .excellent {
+            border-left-color: #8b5cf6;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .score-display {
+            text-align: center;
+        }
+
+        .score-number {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .score-status {
+            font-size: 14px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .status-growth {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-potential {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .status-excellent {
+            background: #e0e7ff;
+            color: #6d28d9;
+        }
+
+        .feedback-text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #374151;
+            margin-bottom: 20px;
+            font-style: italic;
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid #e2e8f0;
+        }
+
+        .suggestions-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .suggestions-title {
+            color: #92400e;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .suggestions-list {
+            margin: 0;
+            padding-left: 20px;
+            color: #92400e;
+        }
+
+        .suggestions-list li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .final-message {
+            background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+            border: 3px solid #ec4899;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="color: #583819; margin-bottom: 10px;">🤗 Feedback Empático</h1>
+            <h2 style="color: #666; font-weight: normal;">Análise Amigável e Encorajadora</h2>
+            <p style="margin-top: 16px; color: #888; font-size: 18px;">
+                ❤️ Feedback Gentil • 🌱 Foco no Crescimento • 💪 Sempre Encorajador
+            </p>
+        </div>
+
+        <div class="demo-note">
+            <strong>🌟 Nossa Abordagem Empática:</strong>
+            Acreditamos que todo profissional tem potencial! Por isso, nosso feedback sempre começa
+            reconhecendo pontos positivos e oferece orientação gentil para crescimento, não críticas destrutivas.
+        </div>
+
+        <div id="empathetic-feedback-demo"></div>
+
+        <div class="final-message">
+            <h3 style="color: #be185d; margin-bottom: 16px;">💝 Nossa Filosofia</h3>
+            <p style="color: #be185d; font-size: 18px; line-height: 1.6; margin: 0;">
+                <strong>Todo grande profissional começou de algum lugar!</strong><br>
+                O que importa não é onde você está hoje, mas sua vontade de crescer e se desenvolver.
+                Estamos aqui para apoiar sua jornada com orientação amigável e construtiva.
+            </p>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="demo-scores.html"
+                style="background: #583819; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-right: 16px;">
+                ← Ver Demo Completa
+            </a>
+            <a href="results.html"
+                style="background: #22c55e; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                Testar Análise
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Dados do feedback empático
+        const feedbackEmpatico = {
+            "resumo": {
+                "nota": 2.5,
+                "avaliacao": "Percebi que você tem experiência valiosa em desenvolvimento, o que é um excelente ponto de partida! Para destacar ainda mais seu perfil, seria muito interessante incluir uma seção de resumo profissional no início do currículo. Isso ajudará os recrutadores a entenderem rapidamente suas principais competências e objetivos de carreira.",
+                "sugestoes": [
+                    "Considere criar uma breve introdução (2-3 linhas) destacando sua experiência",
+                    "Inclua seu objetivo profissional de forma clara e objetiva",
+                    "Mencione suas principais competências técnicas logo no início",
+                    "Destaque quantos anos de experiência você possui na área"
+                ]
+            },
+            "experiencia_profissional": {
+                "nota": 5.0,
+                "avaliacao": "É ótimo ver que você tem experiência profissional relevante na área! Notei algumas informações sobre seus projetos com JavaScript, o que é um ponto muito positivo. Para valorizar ainda mais sua trajetória, seria interessante organizar essas experiências de forma mais estruturada, incluindo detalhes sobre as empresas e períodos trabalhados.",
+                "sugestoes": [
+                    "Organize suas experiências da mais recente para a mais antiga",
+                    "Inclua nome da empresa, seu cargo e período (ex: Jan 2020 - Dez 2022)",
+                    "Destaque projetos específicos e tecnologias que você domina",
+                    "Adicione resultados alcançados quando possível (ex: 'melhorou performance em 30%')"
+                ]
+            },
+            "habilidades": {
+                "nota": 4.0,
+                "avaliacao": "Vi que você menciona conhecimento em JavaScript, o que é fundamental e muito valorizado no mercado! Para potencializar seu perfil ainda mais, seria excelente criar uma seção específica de habilidades técnicas. Isso facilitará para os recrutadores identificarem rapidamente suas competências.",
+                "sugestoes": [
+                    "Crie uma seção dedicada às suas habilidades técnicas",
+                    "Organize por categorias: Frontend, Backend, Ferramentas, etc.",
+                    "Considere incluir React e Node.js se você tem interesse em aprender",
+                    "Adicione soft skills que são importantes para equipes de desenvolvimento"
+                ]
+            },
+            "formacao": {
+                "nota": 2.0,
+                "avaliacao": "Acredito que você deve ter uma formação interessante! Seria muito valioso incluir essas informações no seu currículo, pois a educação é um diferencial importante. Mesmo que não tenha curso superior, cursos técnicos, bootcamps ou especializações são muito valorizados na área de tecnologia.",
+                "sugestoes": [
+                    "Inclua sua formação acadêmica principal (ensino superior, técnico, etc.)",
+                    "Adicione cursos online relevantes que você tenha concluído",
+                    "Mencione bootcamps, workshops ou eventos de tecnologia que participou",
+                    "Considere fazer cursos nas tecnologias que aparecem nas vagas de seu interesse"
+                ]
+            },
+            "idiomas": {
+                "nota": 1.0,
+                "avaliacao": "Que oportunidade incrível para se destacar! Incluir informações sobre idiomas pode ser um grande diferencial no seu currículo. Mesmo um inglês básico para leitura técnica já é um ponto positivo, e muitas vagas na área de tecnologia valorizam esse conhecimento.",
+                "sugestoes": [
+                    "Adicione uma seção de idiomas, mesmo que seja só português nativo + inglês básico",
+                    "Se tem algum conhecimento de inglês, inclua o nível real (básico, intermediário, etc.)",
+                    "Considere estudar inglês técnico, que é muito valorizado na área",
+                    "Mencione se consegue ler documentação técnica em inglês"
+                ]
+            },
+            "informacoes_pessoais": {
+                "nota": 6.5,
+                "avaliacao": "Suas informações de contato estão organizadas, o que é fundamental! Para profissionais de tecnologia, seria muito interessante incluir links para mostrar seu trabalho, como LinkedIn atualizado e especialmente GitHub com seus projetos. Isso permite que os recrutadores vejam seu código e projetos práticos.",
+                "sugestoes": [
+                    "Mantenha LinkedIn sempre atualizado com suas experiências mais recentes",
+                    "Crie um perfil no GitHub e inclua alguns projetos pessoais",
+                    "Considere adicionar seu portfólio online se tiver",
+                    "Mencione se tem disponibilidade para trabalho remoto/híbrido"
+                ]
+            }
+        };
+
+        // Função para determinar estilo baseado na nota
+        function getScoreStyle(nota) {
+            if (nota <= 3) return {
+                class: 'growth-opportunity',
+                status: 'status-growth',
+                statusText: '🌱 Oportunidade de Crescimento',
+                color: '#22c55e',
+                emoji: '🌱'
+            };
+            if (nota <= 6) return {
+                class: 'good-potential',
+                status: 'status-potential',
+                statusText: '🌿 Bom Potencial',
+                color: '#3b82f6',
+                emoji: '🌿'
+            };
+            return {
+                class: 'excellent',
+                status: 'status-excellent',
+                statusText: '🌳 Muito Bem!',
+                color: '#8b5cf6',
+                emoji: '🌳'
+            };
+        }
+
+        // Mapear nomes das seções
+        const sectionNames = {
+            'resumo': { title: 'Resumo Profissional', icon: '📝' },
+            'experiencia_profissional': { title: 'Experiência Profissional', icon: '💼' },
+            'habilidades': { title: 'Habilidades Técnicas', icon: '🛠️' },
+            'formacao': { title: 'Formação Acadêmica', icon: '🎓' },
+            'idiomas': { title: 'Idiomas', icon: '🌍' },
+            'informacoes_pessoais': { title: 'Informações Pessoais', icon: '👤' }
+        };
+
+        // Carregar demonstração empática
+        document.addEventListener('DOMContentLoaded', function () {
+            displayEmpatheticFeedback();
+        });
+
+        function displayEmpatheticFeedback() {
+            const container = document.getElementById('empathetic-feedback-demo');
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            Object.keys(feedbackEmpatico).forEach(key => {
+                const data = feedbackEmpatico[key];
+                const sectionInfo = sectionNames[key];
+                if (data && sectionInfo) {
+                    const score = parseFloat(data.nota) || 0;
+                    const style = getScoreStyle(score);
+
+                    const card = document.createElement('div');
+                    card.className = `empathetic-card ${style.class}`;
+                    card.innerHTML = `
+                        <div class="section-header">
+                            <div class="section-title">
+                                <span style="font-size: 28px;">${sectionInfo.icon}</span>
+                                <span>${sectionInfo.title}</span>
+                            </div>
+                            <div class="score-display">
+                                <div class="score-number" style="color: ${style.color};">${score.toFixed(1)}/10</div>
+                                <div class="score-status ${style.status}">${style.statusText}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="feedback-text">
+                            ${style.emoji} "${data.avaliacao}"
+                        </div>
+                        
+                        <div class="suggestions-box">
+                            <div class="suggestions-title">
+                                💡 Orientações Gentis para Crescimento:
+                            </div>
+                            <ul class="suggestions-list">
+                                ${data.sugestoes.map(s => `<li>${s}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+
+                    container.appendChild(card);
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

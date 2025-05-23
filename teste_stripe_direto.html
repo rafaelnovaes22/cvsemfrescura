@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Teste Stripe Direto</title>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+
+<body>
+    <h1>Teste Direto Stripe</h1>
+    <button id="test-stripe">Testar Stripe</button>
+    <div id="result"></div>
+
+    <script>
+        // Sua chave pública atual
+        // Carregar chave dinamicamente do backend        let stripe = null;                async function initializeStripe() {            try {                const response = await fetch('http://localhost:3000/api/config/stripe-key');                const data = await response.json();                                if (!data.publishableKey) {                    throw new Error('Chave não encontrada');                }                                stripe = Stripe(data.publishableKey);                console.log('✅ Stripe inicializado com chave dinâmica');                return true;            } catch (error) {                console.error('❌ Erro ao carregar chave:', error);                return false;            }        }
+
+        document.getElementById('test-stripe').addEventListener('click', async function () {              // Inicializar Stripe primeiro              if (!stripe) {                  const initialized = await initializeStripe();                  if (!initialized) {                      alert('❌ Erro ao inicializar Stripe');                      return;                  }              }
+            try {
+                // Teste direto com PaymentIntent simulado
+                const response = await fetch('http://localhost:3000/api/payment/create-intent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        amount: 10.00,
+                        planName: 'teste',
+                        credits: 1,
+                        paymentMethod: 'card'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                }
+
+                const data = await response.json();
+
+                document.getElementById('result').innerHTML = `
+                    <h3>✅ SUCESSO!</h3>
+                    <p><strong>Client Secret:</strong> ${data.clientSecret}</p>
+                    <p><strong>Transaction ID:</strong> ${data.transactionId}</p>
+                    <p><strong>Status:</strong> PaymentIntent criado com sucesso</p>
+                `;
+
+                // Teste de Elements
+                const elements = stripe.elements({
+                    clientSecret: data.clientSecret
+                });
+
+                document.getElementById('result').innerHTML += `
+                    <p><strong>Elements:</strong> ✅ Inicializado com sucesso</p>
+                `;
+
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <h3>❌ ERRO</h3>
+                    <p><strong>Erro:</strong> ${error.message}</p>
+                    <p><strong>Solução:</strong> Verificar chaves do Stripe no dashboard</p>
+                `;
+                console.error('Erro no teste:', error);
+            }
+        });
+    </script>
+</body>
+
+</html>

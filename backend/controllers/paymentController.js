@@ -184,19 +184,62 @@ exports.confirmPayment = async (req, res) => {
   try {
     const { paymentIntentId, transactionId } = req.body;
 
-    if (!paymentIntentId || !transactionId) {
-      return res.status(400).json({ error: 'Informações de confirmação incompletas' });
+    if (!paymentIntentId) {
+      return res.status(400).json({ error: 'PaymentIntent ID é obrigatório' });
     }
+
+    console.log(`[PAYMENT] 🔍 Confirmando pagamento: ${paymentIntentId}`);
 
     // Verifica o status do pagamento no Stripe
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    console.log(`[PAYMENT] 📊 Status do pagamento: ${paymentIntent.status}`);
 
     if (paymentIntent.status !== 'succeeded') {
-      return res.status(400).json({ error: 'Pagamento não foi concluído com sucesso' });
+      console.log(`[PAYMENT] ❌ Pagamento não concluído. Status: ${paymentIntent.status}`);
+      return res.status(400).json({
+        error: 'Pagamento não foi concluído com sucesso',
+        status: paymentIntent.status
+      });
     }
 
-    // Atualiza a transação
-    const transaction = await Transaction.findByPk(transactionId);
+    // Buscar transação pelo paymentIntentId se transactionId não foi fornecido
+    let transaction = null;
+
+    if (transactionId) {
+      transaction = await Transaction.findByPk(transactionId);
+    } else {
+      transaction = await Transaction.findOne({
+        where: { paymentIntentId: paymentIntentId }
+      });
+    }
+
+    if (!transaction) {
+      console.warn(`[PAYMENT] ⚠️ Transação não encontrada para PaymentIntent: ${paymentIntentId}`);
+
+      // Criar transação se não existir (fallback para garantir que os créditos sejam adicionados)
+      const userId = paymentIntent.metadata.userId;
+      const credits = parseInt(paymentIntent.metadata.credits);
+      const planName = paymentIntent.metadata.planName;
+
+      if (userId && credits) {
+        transaction = await Transaction.create({
+          userId: userId,
+          amount: paymentIntent.amount / 100, // Converter de centavos para reais
+          credits: credits,
+          status: 'completed',
+          paymentMethod: 'card', // Assumir cartão se não especificado
+          paymentIntentId: paymentIntentId,
+          metadata: {
+            planName: planName,
+            paymentMethod: 'card',
+            createdFromConfirmation: true
+          }
+        });
+        console.log(`[PAYMENT] 💾 Transação criada durante confirmação: ${transaction.id}`);
+      } else {
+        return res.status(404).json({ error: 'Transação não encontrada e dados insuficientes para criar' });
+      }
+    }
 
     if (!transaction) {
       return res.status(404).json({ error: 'Transação não encontrada' });
@@ -274,20 +317,58 @@ exports.handleWebhook = async (req, res) => {
 // Função auxiliar para lidar com pagamentos bem-sucedidos
 async function handleSuccessfulPayment(paymentIntent) {
   try {
+    console.log(`[WEBHOOK] 🎯 Processando pagamento bem-sucedido: ${paymentIntent.id}`);
+
     // Encontra a transação relacionada
     const transaction = await Transaction.findOne({
       where: { paymentIntentId: paymentIntent.id }
     });
 
     if (!transaction) {
-      console.error(`Transação não encontrada para paymentIntent: ${paymentIntent.id}`);
+      console.warn(`[WEBHOOK] ⚠️ Transação não encontrada para paymentIntent: ${paymentIntent.id}`);
+
+      // Criar transação baseada nos metadados do PaymentIntent (fallback)
+      const userId = paymentIntent.metadata.userId;
+      const credits = parseInt(paymentIntent.metadata.credits);
+      const planName = paymentIntent.metadata.planName;
+
+      if (userId && credits) {
+        const newTransaction = await Transaction.create({
+          userId: userId,
+          amount: paymentIntent.amount / 100,
+          credits: credits,
+          status: 'completed',
+          paymentMethod: 'webhook_recovery',
+          paymentIntentId: paymentIntent.id,
+          metadata: {
+            planName: planName,
+            createdFromWebhook: true,
+            webhookDate: new Date()
+          }
+        });
+
+        console.log(`[WEBHOOK] 💾 Transação criada via webhook: ${newTransaction.id}`);
+
+        // Atualizar créditos do usuário
+        const user = await User.findByPk(userId);
+        if (user) {
+          const currentCredits = user.credits || 0;
+          await user.update({
+            credits: currentCredits + credits
+          });
+          console.log(`[WEBHOOK] ✅ Créditos adicionados via webhook: ${credits} para usuário ${userId}`);
+        }
+      }
       return;
     }
 
-    // Se a transação já estiver completa, não faz nada
+    // Se a transação já estiver completa, não faz nada (evita duplicação)
     if (transaction.status === 'completed') {
+      console.log(`[WEBHOOK] ℹ️ Transação ${transaction.id} já processada, ignorando webhook`);
       return;
     }
+
+    console.log(`[WEBHOOK] 🔄 Atualizando transação: ${transaction.id}`);
 
     // Atualiza o status da transação
     await transaction.update({
@@ -295,26 +376,36 @@ async function handleSuccessfulPayment(paymentIntent) {
       metadata: {
         ...transaction.metadata,
         paymentStatus: 'succeeded',
-        paymentDate: new Date()
+        paymentDate: new Date(),
+        processedByWebhook: true
       }
     });
 
     // Atualiza os créditos do usuário
     const user = await User.findByPk(transaction.userId);
     if (!user) {
-      console.error(`Usuário não encontrado para transação: ${transaction.id}`);
+      console.error(`[WEBHOOK] ❌ Usuário não encontrado para transação: ${transaction.id}`);
       return;
     }
 
-    // Adiciona os créditos ao usuário
+    // Adiciona os créditos ao usuário com proteção contra duplicação
     const currentCredits = user.credits || 0;
     await user.update({
       credits: currentCredits + transaction.credits
     });
 
-    console.log(`Créditos atualizados para o usuário ${user.id}: ${currentCredits} + ${transaction.credits}`);
+    console.log(`[WEBHOOK] ✅ Pagamento processado com sucesso`);
+    console.log(`[WEBHOOK]    Usuário: ${user.id} (${user.email})`);
+    console.log(`[WEBHOOK]    Créditos: ${currentCredits} + ${transaction.credits} = ${currentCredits + transaction.credits}`);
+    console.log(`[WEBHOOK]    Transação: ${transaction.id}`);
+
   } catch (error) {
-    console.error('Erro ao processar pagamento bem-sucedido:', error);
+    console.error('[WEBHOOK] ❌ Erro ao processar pagamento bem-sucedido:', error);
+
+    // Log detalhado do erro para debugging
+    console.error('[WEBHOOK] PaymentIntent ID:', paymentIntent.id);
+    console.error('[WEBHOOK] PaymentIntent Metadata:', paymentIntent.metadata);
+    console.error('[WEBHOOK] Erro completo:', error.stack);
   }
 }
 
@@ -360,5 +451,162 @@ exports.getTransactionHistory = async (req, res) => {
   } catch (error) {
     console.error('Erro ao obter histórico de transações:', error);
     res.status(500).json({ error: 'Erro ao obter histórico de transações' });
+  }
+};
+
+// Função para verificar e corrigir pagamentos pendentes
+exports.verifyPendingPayments = async (req, res) => {
+  try {
+    console.log('[VERIFY] 🔍 Verificando pagamentos pendentes...');
+
+    // Buscar transações pendentes dos últimos 7 dias
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const pendingTransactions = await Transaction.findAll({
+      where: {
+        status: 'pending',
+        createdAt: {
+          [require('sequelize').Op.gte]: sevenDaysAgo
+        }
+      },
+      include: [{
+        model: User,
+        attributes: ['id', 'email', 'credits']
+      }]
+    });
+
+    console.log(`[VERIFY] 📋 Encontradas ${pendingTransactions.length} transações pendentes`);
+
+    const results = {
+      checked: 0,
+      updated: 0,
+      errors: 0,
+      details: []
+    };
+
+    for (const transaction of pendingTransactions) {
+      results.checked++;
+
+      try {
+        // Verificar status no Stripe
+        const paymentIntent = await stripe.paymentIntents.retrieve(transaction.paymentIntentId);
+
+        const detail = {
+          transactionId: transaction.id,
+          paymentIntentId: transaction.paymentIntentId,
+          stripeStatus: paymentIntent.status,
+          action: 'none'
+        };
+
+        if (paymentIntent.status === 'succeeded' && transaction.status === 'pending') {
+          // Pagamento foi bem-sucedido, mas transação ainda está pendente
+          detail.action = 'updated';
+
+          await transaction.update({
+            status: 'completed',
+            metadata: {
+              ...transaction.metadata,
+              verifiedAt: new Date(),
+              verificationSource: 'manual_check'
+            }
+          });
+
+          // Adicionar créditos se ainda não foram adicionados
+          const user = await User.findByPk(transaction.userId);
+          if (user) {
+            const currentCredits = user.credits || 0;
+            await user.update({
+              credits: currentCredits + transaction.credits
+            });
+
+            detail.creditsAdded = transaction.credits;
+            detail.userEmail = user.email;
+          }
+
+          results.updated++;
+          console.log(`[VERIFY] ✅ Transação ${transaction.id} atualizada para completed`);
+        }
+
+        results.details.push(detail);
+
+      } catch (error) {
+        results.errors++;
+        console.error(`[VERIFY] ❌ Erro ao verificar transação ${transaction.id}:`, error.message);
+
+        results.details.push({
+          transactionId: transaction.id,
+          error: error.message,
+          action: 'error'
+        });
+      }
+    }
+
+    console.log(`[VERIFY] 📊 Verificação concluída: ${results.updated} atualizadas, ${results.errors} erros`);
+
+    res.json({
+      success: true,
+      message: 'Verificação de pagamentos concluída',
+      results: results
+    });
+
+  } catch (error) {
+    console.error('[VERIFY] ❌ Erro na verificação de pagamentos:', error);
+    res.status(500).json({
+      error: 'Erro ao verificar pagamentos pendentes',
+      details: error.message
+    });
+  }
+};
+
+// Função para obter informações do usuário (créditos, transações recentes)
+exports.getUserPaymentInfo = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id, {
+      attributes: ['id', 'email', 'credits', 'createdAt']
+    });
+
+    const recentTransactions = await Transaction.findAll({
+      where: { userId: req.user.id },
+      order: [['createdAt', 'DESC']],
+      limit: 5,
+      attributes: ['id', 'amount', 'credits', 'status', 'paymentMethod', 'createdAt', 'metadata']
+    });
+
+    const totalSpent = await Transaction.sum('amount', {
+      where: {
+        userId: req.user.id,
+        status: 'completed'
+      }
+    }) || 0;
+
+    const totalCreditsEarned = await Transaction.sum('credits', {
+      where: {
+        userId: req.user.id,
+        status: 'completed'
+      }
+    }) || 0;
+
+    res.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        credits: user.credits || 0,
+        memberSince: user.createdAt
+      },
+      stats: {
+        totalSpent: parseFloat(totalSpent.toFixed(2)),
+        totalCreditsEarned: totalCreditsEarned,
+        totalTransactions: recentTransactions.length
+      },
+      recentTransactions: recentTransactions
+    });
+
+  } catch (error) {
+    console.error('[USER_INFO] ❌ Erro ao obter informações do usuário:', error);
+    res.status(500).json({
+      error: 'Erro ao obter informações do usuário',
+      details: error.message
+    });
   }
 };

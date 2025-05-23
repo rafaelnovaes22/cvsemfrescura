@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo - Scores de Compatibilidade | CV Sem Frescura</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f6ecd9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .demo-note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .curriculum-score-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px #00000010;
+            border: 1px solid #eee;
+            padding: 24px;
+            margin-bottom: 20px;
+            transition: transform 0.2s ease;
+        }
+
+        .curriculum-score-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px #00000015;
+        }
+    </style>
+    <link rel="stylesheet" href="results.html">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="color: #583819; margin-bottom: 10px;">📊 Demonstração</h1>
+            <h2 style="color: #666; font-weight: normal;">Scores Completos do CV Sem Frescura</h2>
+            <p style="margin-top: 16px; color: #888; font-size: 16px;">
+                ✅ Scores de Compatibilidade por Vaga<br>
+                ✅ Scores Detalhados das Seções do Currículo
+            </p>
+        </div>
+
+        <div class="demo-note">
+            <strong>🎯 Demonstração Funcional:</strong> Esta página mostra como TODOS os scores serão exibidos após uma
+            análise real - tanto a compatibilidade com vagas específicas quanto a avaliação detalhada de cada seção do
+            seu currículo.
+        </div>
+
+        <!-- Scores de Compatibilidade por Vaga -->
+        <div id="compatibility-scores"></div>
+
+        <!-- NOVA SEÇÃO: Scores das Seções do Currículo -->
+        <div style="margin-top: 40px;">
+            <h2 style="color: #583819; text-align: center; margin-bottom: 30px;">📝 Scores das Seções do Currículo</h2>
+
+            <div class="demo-note" style="background: #e8f5e8; border-color: #22c55e; color: #166534;">
+                <strong>✅ Feedbacks Personalizados:</strong> Cada seção do seu currículo recebe uma análise específica
+                baseada no conteúdo real, comparando com as vagas desejadas. As sugestões são práticas e direcionadas às
+                lacunas identificadas - NUNCA genéricas!
+            </div>
+
+            <div id="curriculum-scores-demo"></div>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="results.html"
+                style="background: #583819; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                ← Voltar para Resultados
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Dados simulados para demonstração
+        const demoResult = {
+            // Scores de compatibilidade por vaga
+            gupy_optimization: [
+                {
+                    job_title: "Desenvolvedor Frontend Sênior",
+                    job_link: "https://vagas.gupy.io/empresa/vaga-123",
+                    compatibility_score: 87,
+                    keyword_analysis: {
+                        present: ["React", "JavaScript", "HTML", "CSS", "TypeScript", "Redux"],
+                        missing: ["Vue.js", "Angular"],
+                        density: 0.75,
+                        total: 8
+                    }
+                },
+                {
+                    job_title: "Analista de Marketing Digital",
+                    job_link: "https://vagas.gupy.io/empresa/vaga-456",
+                    compatibility_score: 62,
+                    keyword_analysis: {
+                        present: ["Google Ads", "Facebook Ads", "Marketing"],
+                        missing: ["SEO", "Analytics", "Conversion Rate", "A/B Testing"],
+                        density: 0.43,
+                        total: 7
+                    }
+                }
+            ],
+            jobs: [
+                {
+                    title: "Product Manager",
+                    link: "https://linkedin.com/jobs/produto-123",
+                    compatibility_score: 74
+                }
+            ],
+            // NOVO: Scores das seções do currículo com feedbacks PERSONALIZADOS
+            resumo: {
+                nota: 7.5,
+                avaliacao: "O resumo atual destaca bem a experiência em desenvolvimento frontend com React e JavaScript, mostrando progressão na carreira. No entanto, não menciona experiências com backend (Node.js, MongoDB) que são requisitos importantes nas vagas analisadas. A linguagem é profissional mas poderia ser mais específica sobre resultados alcançados.",
+                sugestoes: [
+                    "Incluir experiência específica com Node.js e MongoDB se houver",
+                    "Adicionar métricas de impacto (ex: 'melhorou performance em 40%')",
+                    "Mencionar conhecimento em APIs REST e metodologias ágeis",
+                    "Incluir objetivo profissional mais claro relacionado às vagas de interesse"
+                ]
+            },
+            experiencia_profissional: {
+                nota: 8.2,
+                avaliacao: "A experiência profissional está bem estruturada com progressão clara de júnior para pleno. As descrições das funções são detalhadas e mostram evolução técnica. Porém, falta destaque para projetos específicos com backend e APIs, que são cruciais para as vagas analisadas. As responsabilidades estão bem descritas mas poderiam incluir mais resultados quantificáveis.",
+                sugestoes: [
+                    "Detalhar projetos específicos com Node.js e integração de APIs",
+                    "Incluir métricas de performance e resultados alcançados",
+                    "Destacar experiência com bancos de dados NoSQL como MongoDB",
+                    "Mencionar participação em equipes Scrum se aplicável"
+                ]
+            },
+            habilidades: {
+                nota: 6.8,
+                avaliacao: "A seção de habilidades cobre bem as tecnologias frontend necessárias (React, JavaScript), mas apresenta lacunas significativas em backend. Faltam tecnologias como Node.js, MongoDB e conhecimentos em API REST que são fundamentais para as vagas. A organização poderia ser melhor, agrupando por categoria (Frontend, Backend, Ferramentas).",
+                sugestoes: [
+                    "Adicionar Node.js, Express.js e MongoDB às habilidades técnicas",
+                    "Incluir experiência com desenvolvimento de APIs REST",
+                    "Organizar habilidades por categorias (Frontend, Backend, DevOps, Soft Skills)",
+                    "Adicionar metodologias ágeis (Scrum, Kanban) se houver experiência"
+                ]
+            },
+            formacao: {
+                nota: 6.0,
+                avaliacao: "A formação acadêmica é adequada para a área de tecnologia, mas nota-se ausência de cursos específicos em tecnologias backend que são requisitos das vagas. A educação continuada está presente mas poderia ser mais direcionada às lacunas identificadas. Faltam certificações em tecnologias como Node.js e MongoDB.",
+                sugestoes: [
+                    "Incluir cursos específicos de Node.js e desenvolvimento backend",
+                    "Buscar certificações em MongoDB e bancos NoSQL",
+                    "Adicionar cursos sobre arquitetura de APIs REST",
+                    "Incluir treinamentos em metodologias ágeis (Scrum Master, etc.)"
+                ]
+            },
+            idiomas: {
+                nota: 8.5,
+                avaliacao: "A proficiência em inglês é um diferencial importante e está bem documentada, atendendo aos requisitos das vagas que exigem comunicação com equipes internacionais. O nível declarado é adequado para a área de tecnologia. Esta é uma das seções mais fortes do currículo atual.",
+                sugestoes: [
+                    "Considerar adicionar certificação oficial (TOEFL, IELTS) para validar o nível",
+                    "Incluir outros idiomas se houver conhecimento (espanhol, etc.)",
+                    "Mencionar experiência prática com comunicação internacional se aplicável"
+                ]
+            },
+            informacoes_pessoais: {
+                nota: 7.0,
+                avaliacao: "As informações de contato estão completas e bem organizadas. A presença do LinkedIn é positiva. No entanto, para um profissional de tecnologia, seria valorizado incluir GitHub para mostrar código e projetos. A localização está adequada mas poderia mencionar disponibilidade para trabalho remoto.",
+                sugestoes: [
+                    "Incluir link do GitHub com projetos relevantes",
+                    "Considerar adicionar portfólio online se houver",
+                    "Mencionar disponibilidade para trabalho remoto/híbrido",
+                    "Incluir link para projetos em produção se aplicável"
+                ]
+            },
+            // Dados adicionais
+            recommendations: [
+                "Priorizar aprendizado de Node.js e MongoDB para fechar lacunas técnicas críticas",
+                "Reorganizar seções do currículo por relevância e incluir GitHub com projetos demonstráveis",
+                "Quantificar resultados com métricas específicas (performance, ROI, tempo de entrega)",
+                "Destacar experiência com APIs REST e metodologias ágeis (Scrum) se houver"
+            ],
+            conclusion: "Currículo com forte base em frontend (React, JavaScript) mas com lacunas significativas em backend que limitam compatibilidade com vagas analisadas. Com foco estratégico em Node.js, MongoDB e APIs REST, tem potencial para alcançar 90%+ de compatibilidade. O inglês fluente e a progressão de carreira são pontos fortes a manter."
+        };
+
+        // Simular as funções necessárias
+        function getScoreClass(score) {
+            if (score >= 80) return 'score-excellent';
+            if (score >= 60) return 'score-good';
+            if (score >= 40) return 'score-average';
+            return 'score-poor';
+        }
+
+        function getScoreColor(score) {
+            if (score >= 80) return '#22c55e';
+            if (score >= 60) return '#84cc16';
+            if (score >= 40) return '#f59e0b';
+            return '#ef4444';
+        }
+
+        function getScoreText(score) {
+            if (score >= 80) return 'Excelente compatibilidade';
+            if (score >= 60) return 'Boa compatibilidade';
+            if (score >= 40) return 'Compatibilidade média';
+            return 'Baixa compatibilidade';
+        }
+
+        function extractCompanyFromUrl(url) {
+            try {
+                const domain = new URL(url).hostname;
+                if (domain.includes('gupy.io')) return 'Empresa via Gupy';
+                if (domain.includes('linkedin.com')) return 'Empresa via LinkedIn';
+                return 'Empresa';
+            } catch {
+                return 'Empresa não identificada';
+            }
+        }
+
+        function getPlatform(url) {
+            if (url.includes('gupy.io')) return 'Gupy';
+            if (url.includes('linkedin.com')) return 'LinkedIn';
+            return 'Outros';
+        }
+
+        // Carregar demonstração
+        document.addEventListener('DOMContentLoaded', function () {
+            displayCompatibilityScores(demoResult);
+            displayCurriculumScores(demoResult);
+        });
+
+        // Função para exibir scores do currículo
+        function displayCurriculumScores(atsResult) {
+            const container = document.getElementById('curriculum-scores-demo');
+            if (!container) return;
+
+            const sections = [
+                { key: 'resumo', title: 'Resumo', icon: '📄' },
+                { key: 'experiencia_profissional', title: 'Experiência Profissional', icon: '💼' },
+                { key: 'habilidades', title: 'Habilidades', icon: '🛠️' },
+                { key: 'formacao', title: 'Formação', icon: '🎓' },
+                { key: 'idiomas', title: 'Idiomas', icon: '🌍' },
+                { key: 'informacoes_pessoais', title: 'Informações Pessoais', icon: '👤' }
+            ];
+
+            container.innerHTML = '';
+
+            sections.forEach(section => {
+                const data = atsResult[section.key];
+                if (data) {
+                    const score = parseFloat(data.nota) || 0;
+                    const scoreClass = getScoreClass(score * 10); // Converter para escala 0-100
+                    const scoreColor = getScoreColor(score * 10);
+                    const scoreText = getScoreText(score * 10);
+
+                    const card = document.createElement('div');
+                    card.className = 'curriculum-score-card';
+                    card.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="font-size: 24px;">${section.icon}</span>
+                                <h3 style="margin: 0; color: #583819; font-size: 18px;">${section.title}</h3>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 24px; font-weight: 700; color: ${scoreColor};">${score.toFixed(1)}/10</div>
+                                <div style="font-size: 12px; color: ${scoreColor}; font-weight: 600;">${scoreText}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="width: 100%; height: 6px; background: #f1f5f9; border-radius: 3px; margin-bottom: 16px;">
+                            <div style="width: ${score * 10}%; height: 100%; background: ${scoreColor}; border-radius: 3px; transition: width 0.8s ease;"></div>
+                        </div>
+                        
+                        <div style="margin-bottom: 16px; color: #374151; line-height: 1.5;">
+                            ${data.avaliacao}
+                        </div>
+                        
+                        ${data.sugestoes && data.sugestoes.length > 0 ? `
+                            <div style="background: #f8fafc; border-left: 4px solid #583819; padding: 12px; border-radius: 4px;">
+                                <strong style="color: #583819; display: block; margin-bottom: 8px;">💡 Sugestões:</strong>
+                                <ul style="margin: 0; padding-left: 20px; color: #374151;">
+                                    ${data.sugestoes.map(s => `<li style="margin-bottom: 4px;">${s}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    `;
+
+                    container.appendChild(card);
+                }
+            });
+        }
+
+        // Incluir as funções da página de resultados aqui
+        ${
+            `
+        // CSS interno para esta demonstração
+        const style = document.createElement('style');
+        style.textContent = \`
+            .compatibility-card {
+                background: #fff;
+                border-radius: 12px;
+                box-shadow: 0 2px 12px #00000010;
+                border: 1px solid #eee;
+                padding: 24px;
+                margin-bottom: 20px;
+                transition: transform 0.2s ease;
+            }
+            
+            .compatibility-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 20px #00000015;
+            }
+            
+            .job-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 16px;
+            }
+            
+            .job-title {
+                font-size: 18px;
+                font-weight: 600;
+                color: #583819;
+                margin-bottom: 4px;
+            }
+            
+            .job-company {
+                font-size: 14px;
+                color: #666;
+            }
+            
+            .score-display {
+                text-align: center;
+                min-width: 80px;
+            }
+            
+            .score-number {
+                font-size: 28px;
+                font-weight: 700;
+                margin-bottom: 4px;
+            }
+            
+            .score-excellent { color: #22c55e; }
+            .score-good { color: #84cc16; }
+            .score-average { color: #f59e0b; }
+            .score-poor { color: #ef4444; }
+            
+            .score-label {
+                font-size: 12px;
+                color: #666;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            
+            .score-bar {
+                width: 100%;
+                height: 8px;
+                background: #f1f5f9;
+                border-radius: 4px;
+                overflow: hidden;
+                margin: 16px 0;
+            }
+            
+            .score-fill {
+                height: 100%;
+                border-radius: 4px;
+                transition: width 0.8s ease;
+            }
+            
+            .compatibility-details {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+                margin-top: 16px;
+            }
+            
+            .detail-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 12px;
+                background: #f8fafc;
+                border-radius: 6px;
+            }
+            
+            .detail-label {
+                font-size: 14px;
+                color: #583819;
+            }
+            
+            .detail-value {
+                font-weight: 600;
+                color: #666;
+            }
+        \`;
+        document.head.appendChild(style);
+        `}
+    </script>
+
+    <script src="assets/js/results.js"></script>
+</body>
+
+</html>

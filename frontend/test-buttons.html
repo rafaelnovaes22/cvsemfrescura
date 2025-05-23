@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Botões - CV Sem Frescura</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 10px;
+            background-color: #583819;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn:hover {
+            background-color: #512808;
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: #583819;
+            border: 2px solid #583819;
+        }
+
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #gift-code {
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        #giftCodeForm {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        #giftCode {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🧪 Teste de Funcionalidade dos Botões</h1>
+
+    <div class="test-section">
+        <h2>1. Botões do Header</h2>
+        <a href="#gift-code" class="btn" id="giftCodeBtn">🎓 Código do Curso</a>
+        <a href="payment.html" class="btn btn-secondary" id="buyBtn">💳 Comprar Análise</a>
+        <div id="header-status" class="status info">Aguardando teste...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Botões do Hero</h2>
+        <a href="#gift-code" class="btn" id="heroRegisterBtn">🎓 Tenho código do RH Super Sincero</a>
+        <a href="payment.html" class="btn btn-secondary">💳 Comprar análise (7 vagas)</a>
+        <div id="hero-status" class="status info">Aguardando teste...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Formulário de Código</h2>
+        <div id="gift-code">
+            <h3>Digite seu código:</h3>
+            <form id="giftCodeForm">
+                <input type="text" id="giftCode" placeholder="Digite o código recebido no curso">
+                <button type="submit" class="btn">Aplicar</button>
+            </form>
+            <div id="form-status" class="status info">Aguardando teste...</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Status da Autenticação</h2>
+        <div id="auth-status" class="status info">Verificando...</div>
+        <button onclick="testAuth()" class="btn">Testar Auth</button>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Log de Eventos</h2>
+        <div id="event-log"
+            style="background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; max-height: 200px; overflow-y: auto;">
+            <div>Página carregada...</div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/assets/js/auth.js"></script>
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('event-log');
+            const time = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `<div>[${time}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function updateStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${type}`;
+        }
+
+        function testAuth() {
+            log('Testando autenticação...');
+            if (window.auth) {
+                const isAuth = window.auth.isAuthenticated();
+                const user = window.auth.getUser();
+                updateStatus('auth-status', `Auth disponível: ${isAuth ? 'Logado' : 'Não logado'} | Usuário: ${user ? user.name : 'Nenhum'}`, isAuth ? 'success' : 'error');
+                log(`Auth: ${isAuth}, User: ${JSON.stringify(user)}`);
+            } else {
+                updateStatus('auth-status', 'Auth não disponível', 'error');
+                log('window.auth não está disponível');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            log('DOM carregado, iniciando testes...');
+
+            // Testar auth
+            setTimeout(testAuth, 1000);
+
+            // Adicionar funcionalidade ao formulário de código de presente
+            const giftCodeForm = document.getElementById('giftCodeForm');
+            if (giftCodeForm) {
+                log('Formulário de código encontrado');
+                giftCodeForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    log('Formulário submetido');
+                    const giftCode = document.getElementById('giftCode').value.trim();
+                    if (giftCode) {
+                        log(`Código inserido: ${giftCode}`);
+                        localStorage.setItem('giftCode', giftCode);
+                        updateStatus('form-status', `Código "${giftCode}" salvo! Redirecionando...`, 'success');
+                        log('Redirecionando para analisar.html...');
+                        setTimeout(() => {
+                            window.location.href = 'analisar.html?giftCode=' + encodeURIComponent(giftCode);
+                        }, 1000);
+                    } else {
+                        updateStatus('form-status', 'Por favor, insira um código válido', 'error');
+                        log('Código vazio');
+                    }
+                });
+            } else {
+                log('ERRO: Formulário de código não encontrado');
+            }
+
+            // Adicionar funcionalidade aos botões de código de presente
+            document.querySelectorAll('a[href="#gift-code"]').forEach((link, index) => {
+                log(`Botão de código #${index + 1} encontrado`);
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    log(`Botão de código #${index + 1} clicado`);
+                    const giftCodeSection = document.getElementById('gift-code');
+                    if (giftCodeSection) {
+                        giftCodeSection.scrollIntoView({ behavior: 'smooth' });
+                        updateStatus('header-status', 'Scroll para formulário executado', 'success');
+                        setTimeout(() => {
+                            document.getElementById('giftCode').focus();
+                            log('Foco no campo de código');
+                        }, 500);
+                    }
+                });
+            });
+
+            // Adicionar funcionalidade aos botões de compra
+            document.querySelectorAll('a[href="payment.html"]').forEach((link, index) => {
+                log(`Botão de compra #${index + 1} encontrado`);
+                link.addEventListener('click', function (e) {
+                    log(`Botão de compra #${index + 1} clicado`);
+                    if (window.auth && window.auth.isAuthenticated()) {
+                        log('Usuário autenticado, permitindo navegação');
+                        updateStatus('hero-status', 'Redirecionando para pagamento (usuário logado)', 'success');
+                        return true;
+                    } else {
+                        e.preventDefault();
+                        log('Usuário não autenticado, redirecionando para analisar.html');
+                        updateStatus('hero-status', 'Redirecionando para login (usuário não logado)', 'info');
+                        setTimeout(() => {
+                            window.location.href = 'analisar.html';
+                        }, 1500);
+                    }
+                });
+            });
+
+            // Funcionalidade específica para botões com IDs
+            const giftCodeBtn = document.getElementById('giftCodeBtn');
+            if (giftCodeBtn) {
+                log('Botão giftCodeBtn encontrado');
+                giftCodeBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    log('giftCodeBtn clicado');
+                    const giftCodeSection = document.getElementById('gift-code');
+                    if (giftCodeSection) {
+                        giftCodeSection.scrollIntoView({ behavior: 'smooth' });
+                        updateStatus('header-status', 'giftCodeBtn funcionando!', 'success');
+                        setTimeout(() => {
+                            document.getElementById('giftCode').focus();
+                        }, 500);
+                    }
+                });
+            }
+
+            const buyBtn = document.getElementById('buyBtn');
+            if (buyBtn) {
+                log('Botão buyBtn encontrado');
+                buyBtn.addEventListener('click', function (e) {
+                    log('buyBtn clicado');
+                    if (window.auth && window.auth.isAuthenticated()) {
+                        updateStatus('header-status', 'buyBtn: usuário logado, permitindo navegação', 'success');
+                        return true;
+                    } else {
+                        e.preventDefault();
+                        updateStatus('header-status', 'buyBtn: redirecionando para login', 'info');
+                        setTimeout(() => {
+                            window.location.href = 'analisar.html';
+                        }, 1500);
+                    }
+                });
+            }
+
+            const heroRegisterBtn = document.getElementById('heroRegisterBtn');
+            if (heroRegisterBtn) {
+                log('Botão heroRegisterBtn encontrado');
+                heroRegisterBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    log('heroRegisterBtn clicado');
+                    const giftCodeSection = document.getElementById('gift-code');
+                    if (giftCodeSection) {
+                        giftCodeSection.scrollIntoView({ behavior: 'smooth' });
+                        updateStatus('hero-status', 'heroRegisterBtn funcionando!', 'success');
+                        setTimeout(() => {
+                            document.getElementById('giftCode').focus();
+                        }, 500);
+                    }
+                });
+            }
+
+            log('Todos os event listeners adicionados');
+        });
+
+        // Initialize test when page loads
+        window.onload = function () {
+            log('🧪 Página de Teste de Código de Presente Carregada');
+            log('📋 Instruções:');
+            log('1. Faça login primeiro');
+            log('2. Use um código válido de presente');
+            log('3. Observe as mensagens de log');
+            log('');
+
+            setTimeout(() => {
+                log('⏰ Aguardando código...');
+            }, 1000);
+
+            // Auto redirect if no interaction after 10 seconds
+            setTimeout(() => {
+                log('⚠️ Tempo limite atingido. Redirecionando...');
+                window.location.href = 'analisar.html';
+            }, 10000);
+        }
+    </script>
+</body>
+
+</html>

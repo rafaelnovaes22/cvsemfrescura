@@ -22,6 +22,8 @@ const rawBodyMiddleware = (req, res, next) => {
 router.post('/create-intent', authMiddleware, paymentController.createPaymentIntent);
 router.post('/confirm', authMiddleware, paymentController.confirmPayment);
 router.get('/history', authMiddleware, paymentController.getTransactionHistory);
+router.post('/verify-pending', authMiddleware, paymentController.verifyPendingPayments);
+router.get('/user-info', authMiddleware, paymentController.getUserPaymentInfo);
 
 // Rota de webhook (não requer autenticação, mas usa middleware para rawBody)
 router.post('/webhook', rawBodyMiddleware, paymentController.handleWebhook);

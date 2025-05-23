@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo - Currículos com Seções Ausentes | CV Sem Frescura</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f6ecd9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .demo-note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+
+        .scenario-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .scenario-title {
+            color: #583819;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ecd9b5;
+        }
+
+        .curriculum-score-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px #00000010;
+            border: 1px solid #eee;
+            padding: 24px;
+            margin-bottom: 20px;
+            transition: transform 0.2s ease;
+        }
+
+        .curriculum-score-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px #00000015;
+        }
+
+        .status-critical {
+            border-left: 4px solid #ef4444;
+        }
+
+        .status-problematic {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .status-acceptable {
+            border-left: 4px solid #22c55e;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="color: #583819; margin-bottom: 10px;">🛡️ Sistema Adaptativo</h1>
+            <h2 style="color: #666; font-weight: normal;">Como Lidamos com Currículos Mal Estruturados</h2>
+            <p style="margin-top: 16px; color: #888; font-size: 16px;">
+                ✅ Análise Inteligente de Qualquer Tipo de Currículo<br>
+                ✅ Feedback Sempre Útil, Mesmo para Seções Ausentes
+            </p>
+        </div>
+
+        <div class="demo-note">
+            <strong>🤖 Inteligência Adaptativa:</strong> Nosso sistema analisa QUALQUER currículo, independente da
+            estrutura. Se uma seção está ausente ou mal organizada, fornecemos feedback específico para criá-la ou
+            melhorá-la.
+        </div>
+
+        <!-- Cenário: Currículo Mal Estruturado -->
+        <div class="scenario-card">
+            <div class="scenario-title">📋 Cenário: Currículo Completamente Desorganizado</div>
+            <p><strong>Situação:</strong> Currículo sem seções claras, informações misturadas, estrutura confusa.</p>
+            <p><strong>Como o sistema responde:</strong> Analisa o conteúdo disponível e orienta a reestruturação.</p>
+
+            <div id="missing-sections-demo"></div>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="demo-scores.html"
+                style="background: #583819; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-right: 16px;">
+                ← Ver Demo Completa
+            </a>
+            <a href="results.html"
+                style="background: #ecd9b5; color: #583819; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                Página de Resultados
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Dados do currículo mal estruturado
+        const curriculoMalEstruturado = {
+            "resumo": {
+                "nota": 2.0,
+                "avaliacao": "Não foi identificada uma seção de resumo específica no currículo. As informações profissionais estão espalhadas pelo documento sem uma introdução clara que destaque o perfil do candidato. Isso dificulta a compreensão rápida das competências e objetivos profissionais.",
+                "sugestoes": [
+                    "Criar uma seção de resumo profissional no início do currículo",
+                    "Incluir objetivo profissional claro (ex: 'Desenvolvedor Frontend especializado em...')",
+                    "Destacar principais competências em 2-3 linhas objetivas",
+                    "Mencionar anos de experiência e área de especialização"
+                ]
+            },
+            "experiencia_profissional": {
+                "nota": 4.5,
+                "avaliacao": "Foi possível identificar algumas experiências profissionais mencionadas no texto, mas estão mal organizadas e misturadas com outras informações. Faltam datas, nomes de empresas claros e descrição estruturada das responsabilidades.",
+                "sugestoes": [
+                    "Organizar experiências em ordem cronológica inversa",
+                    "Incluir: Nome da empresa, cargo, período (mês/ano início - fim)",
+                    "Estruturar responsabilidades em bullet points",
+                    "Destacar projetos específicos com tecnologias mencionadas"
+                ]
+            },
+            "habilidades": {
+                "nota": 3.2,
+                "avaliacao": "Algumas habilidades técnicas foram mencionadas ao longo do texto, mas não há uma seção dedicada e organizada. A apresentação dispersa dificulta a identificação rápida das competências.",
+                "sugestoes": [
+                    "Criar seção específica 'Habilidades Técnicas'",
+                    "Separar por categorias: Frontend, Backend, Ferramentas",
+                    "Adicionar tecnologias importantes que estão faltando",
+                    "Incluir nível de proficiência quando relevante"
+                ]
+            },
+            "formacao": {
+                "nota": 1.5,
+                "avaliacao": "Não foi possível identificar informações claras sobre formação acadêmica no currículo analisado. Esta é uma seção crítica que está completamente ausente, prejudicando significativamente a avaliação do perfil educacional.",
+                "sugestoes": [
+                    "Adicionar seção 'Formação Acadêmica' com curso superior se houver",
+                    "Incluir cursos técnicos, bootcamps ou especializações relevantes",
+                    "Mencionar instituições de ensino e períodos de formação",
+                    "Adicionar certificações importantes para a área"
+                ]
+            },
+            "idiomas": {
+                "nota": 0.5,
+                "avaliacao": "Não foi identificada nenhuma menção sobre proficiência em idiomas no currículo. Para vagas que frequentemente exigem inglês técnico, esta é uma lacuna crítica que precisa ser endereçada urgentemente.",
+                "sugestoes": [
+                    "Criar seção 'Idiomas' especificando o nível de proficiência",
+                    "Incluir pelo menos inglês com nível real",
+                    "Considerar adicionar certificações de idiomas se houver",
+                    "Mencionar experiência prática com idiomas"
+                ]
+            },
+            "informacoes_pessoais": {
+                "nota": 6.0,
+                "avaliacao": "As informações básicas de contato estão presentes, mas a organização poderia ser melhor. Para um profissional de tecnologia, faltam informações importantes como LinkedIn e GitHub.",
+                "sugestoes": [
+                    "Organizar informações de contato de forma clara no topo",
+                    "Incluir LinkedIn atualizado e profissional",
+                    "Adicionar link do GitHub com repositórios relevantes",
+                    "Considerar disponibilidade para trabalho remoto"
+                ]
+            }
+        };
+
+        // Função para determinar status visual
+        function getStatusClass(nota) {
+            if (nota <= 2) return 'status-critical';
+            if (nota <= 5) return 'status-problematic';
+            return 'status-acceptable';
+        }
+
+        function getStatusText(nota) {
+            if (nota <= 2) return { text: 'CRÍTICO - Seção Ausente', icon: '🔴', color: '#ef4444' };
+            if (nota <= 5) return { text: 'PROBLEMÁTICO - Mal Estruturada', icon: '🟡', color: '#f59e0b' };
+            return { text: 'ACEITÁVEL - Presente', icon: '🟢', color: '#22c55e' };
+        }
+
+        function getScoreColor(nota) {
+            if (nota <= 2) return '#ef4444';
+            if (nota <= 5) return '#f59e0b';
+            return '#22c55e';
+        }
+
+        // Carregar demonstração
+        document.addEventListener('DOMContentLoaded', function () {
+            displayMissingSections();
+        });
+
+        function displayMissingSections() {
+            const container = document.getElementById('missing-sections-demo');
+            if (!container) return;
+
+            const sections = [
+                { key: 'resumo', title: 'Resumo Profissional', icon: '📄' },
+                { key: 'experiencia_profissional', title: 'Experiência Profissional', icon: '💼' },
+                { key: 'habilidades', title: 'Habilidades Técnicas', icon: '🛠️' },
+                { key: 'formacao', title: 'Formação Acadêmica', icon: '🎓' },
+                { key: 'idiomas', title: 'Idiomas', icon: '🌍' },
+                { key: 'informacoes_pessoais', title: 'Informações Pessoais', icon: '👤' }
+            ];
+
+            container.innerHTML = '';
+
+            sections.forEach(section => {
+                const data = curriculoMalEstruturado[section.key];
+                if (data) {
+                    const score = parseFloat(data.nota) || 0;
+                    const statusClass = getStatusClass(score);
+                    const statusInfo = getStatusText(score);
+                    const scoreColor = getScoreColor(score);
+
+                    const card = document.createElement('div');
+                    card.className = `curriculum-score-card ${statusClass}`;
+                    card.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="font-size: 24px;">${section.icon}</span>
+                                <h3 style="margin: 0; color: #583819; font-size: 18px;">${section.title}</h3>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 24px; font-weight: 700; color: ${scoreColor};">${score.toFixed(1)}/10</div>
+                                <div style="font-size: 12px; color: ${statusInfo.color}; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                    ${statusInfo.icon} ${statusInfo.text}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="width: 100%; height: 6px; background: #f1f5f9; border-radius: 3px; margin-bottom: 16px;">
+                            <div style="width: ${score * 10}%; height: 100%; background: ${scoreColor}; border-radius: 3px; transition: width 0.8s ease;"></div>
+                        </div>
+                        
+                        <div style="margin-bottom: 16px; color: #374151; line-height: 1.5; font-style: italic;">
+                            "${data.avaliacao}"
+                        </div>
+                        
+                        <div style="background: #f8fafc; border-left: 4px solid #583819; padding: 12px; border-radius: 4px;">
+                            <strong style="color: #583819; display: block; margin-bottom: 8px;">
+                                💡 Como Resolver ${score <= 2 ? '(Criar Seção)' : '(Melhorar Estrutura)'}:
+                            </strong>
+                            <ul style="margin: 0; padding-left: 20px; color: #374151;">
+                                ${data.sugestoes.map(s => `<li style="margin-bottom: 4px;">${s}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+
+                    container.appendChild(card);
+                }
+            });
+
+            // Adicionar resumo final
+            const summary = document.createElement('div');
+            summary.style.cssText = 'background: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 12px; padding: 20px; margin-top: 20px; text-align: center;';
+            summary.innerHTML = `
+                <h3 style="color: #0ea5e9; margin-bottom: 12px;">🎯 Resultado da Análise Adaptativa</h3>
+                <p style="margin: 0; color: #374151; line-height: 1.6;">
+                    <strong>O sistema SEMPRE fornece feedback útil!</strong><br>
+                    Mesmo currículos completamente desorganizados recebem orientação específica para reestruturação e melhoria.
+                    Nenhuma seção fica sem análise ou sugestão de melhoria.
+                </p>
+            `;
+            container.appendChild(summary);
+        }
+    </script>
+</body>
+
+</html>

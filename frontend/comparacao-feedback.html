@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparação: Feedback Crítico vs Empático | CV Sem Frescura</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f6ecd9 0%, #e8ddc7 100%);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .feedback-column {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .critical-column {
+            border-left: 6px solid #ef4444;
+        }
+
+        .empathetic-column {
+            border-left: 6px solid #22c55e;
+        }
+
+        .column-header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .critical-header {
+            color: #ef4444;
+        }
+
+        .empathetic-header {
+            color: #22c55e;
+        }
+
+        .feedback-example {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+
+        .critical-example {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .empathetic-example {
+            border-left-color: #22c55e;
+            background: #f0fdf4;
+        }
+
+        .section-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .score-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .critical-score {
+            color: #ef4444;
+            font-weight: 700;
+        }
+
+        .empathetic-score {
+            color: #22c55e;
+            font-weight: 700;
+        }
+
+        .feedback-text {
+            line-height: 1.6;
+            margin-bottom: 16px;
+            font-style: italic;
+        }
+
+        .suggestions {
+            background: #fff;
+            border-radius: 8px;
+            padding: 12px;
+            border-left: 3px solid #6b7280;
+        }
+
+        .impact-box {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border: 2px solid #3b82f6;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            color: #1d4ed8;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="color: #583819; margin-bottom: 10px;">⚖️ Antes & Depois</h1>
+            <h2 style="color: #666; font-weight: normal;">A Diferença do Feedback Empático</h2>
+            <p style="margin-top: 16px; color: #888; font-size: 16px;">
+                Veja como o mesmo currículo recebe análises completamente diferentes
+            </p>
+        </div>
+
+        <div class="comparison-grid">
+            <!-- Coluna Crítica (Antes) -->
+            <div class="feedback-column critical-column">
+                <div class="column-header critical-header">
+                    <h3>❌ Feedback Crítico (Antes)</h3>
+                    <p>Abordagem técnica e fria</p>
+                </div>
+
+                <div class="feedback-example critical-example">
+                    <div class="section-title">
+                        📄 Resumo Profissional
+                    </div>
+                    <div class="score-display">
+                        <span class="critical-score">2.0/10</span>
+                        <span
+                            style="background: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 12px; font-size: 12px;">CRÍTICO</span>
+                    </div>
+                    <div class="feedback-text">
+                        "Esta é uma seção crítica que está completamente ausente no currículo. A falta de resumo
+                        profissional prejudica significativamente a avaliação do perfil do candidato e dificulta a
+                        compreensão das competências."
+                    </div>
+                    <div class="suggestions">
+                        <strong>Problemas Identificados:</strong>
+                        <ul>
+                            <li>Seção ausente</li>
+                            <li>Prejudica avaliação</li>
+                            <li>Não atende requisitos básicos</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feedback-example critical-example">
+                    <div class="section-title">
+                        🌍 Idiomas
+                    </div>
+                    <div class="score-display">
+                        <span class="critical-score">1.0/10</span>
+                        <span
+                            style="background: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 12px; font-size: 12px;">FALHA</span>
+                    </div>
+                    <div class="feedback-text">
+                        "Não foi identificada nenhuma menção sobre proficiência em idiomas. Esta é uma lacuna crítica
+                        que prejudica a candidatura, especialmente para vagas que exigem inglês técnico."
+                    </div>
+                    <div class="suggestions">
+                        <strong>Deficiências:</strong>
+                        <ul>
+                            <li>Informação ausente</li>
+                            <li>Lacuna crítica</li>
+                            <li>Não competitivo no mercado</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna Empática (Depois) -->
+            <div class="feedback-column empathetic-column">
+                <div class="column-header empathetic-header">
+                    <h3>✅ Feedback Empático (Depois)</h3>
+                    <p>Abordagem humana e encorajadora</p>
+                </div>
+
+                <div class="feedback-example empathetic-example">
+                    <div class="section-title">
+                        📄 Resumo Profissional
+                    </div>
+                    <div class="score-display">
+                        <span class="empathetic-score">1.5/10</span>
+                        <span
+                            style="background: #dcfce7; color: #15803d; padding: 4px 8px; border-radius: 12px; font-size: 12px;">🌱
+                            ÁREA PARA DESENVOLVER</span>
+                    </div>
+                    <div class="feedback-text">
+                        "Vejo que você tem experiência valiosa na área de desenvolvimento! Criar uma seção de resumo
+                        profissional seria uma excelente forma de destacar ainda mais seu talento e facilitar para os
+                        recrutadores conhecerem rapidamente suas competências."
+                    </div>
+                    <div class="suggestions">
+                        <strong>🌟 Sugestões Inspiradoras:</strong>
+                        <ul>
+                            <li>Considere incluir uma breve apresentação pessoal (2-3 linhas)</li>
+                            <li>Destaque seus anos de experiência e área de especialização</li>
+                            <li>Mencione suas principais conquistas profissionais</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feedback-example empathetic-example">
+                    <div class="section-title">
+                        🌍 Idiomas
+                    </div>
+                    <div class="score-display">
+                        <span class="empathetic-score">0.8/10</span>
+                        <span
+                            style="background: #dcfce7; color: #15803d; padding: 4px 8px; border-radius: 12px; font-size: 12px;">🌱
+                            OPORTUNIDADE MARAVILHOSA</span>
+                    </div>
+                    <div class="feedback-text">
+                        "Que oportunidade maravilhosa para se destacar ainda mais! Incluir uma seção de idiomas pode ser
+                        um diferencial incrível no seu perfil. Mesmo conhecimentos básicos são valiosos - muitos
+                        profissionais começaram assim."
+                    </div>
+                    <div class="suggestions">
+                        <strong>💝 Como Crescer:</strong>
+                        <ul>
+                            <li>Inclua português nativo como primeiro idioma</li>
+                            <li>Adicione qualquer nível de inglês, mesmo básico</li>
+                            <li>Mencione se consegue acompanhar conteúdo técnico em inglês</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="impact-box">
+            <h3 style="margin-bottom: 16px;">🎯 O Impacto da Transformação</h3>
+            <div
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; text-align: left;">
+                <div>
+                    <h4 style="color: #ef4444; margin-bottom: 8px;">❌ Feedback Crítico (Antigo):</h4>
+                    <ul style="margin: 0; padding-left: 20px;">
+                        <li>Usa termos impactantes como "crítico", "falha"</li>
+                        <li>Foca nos problemas e deficiências</li>
+                        <li>Linguagem técnica e desencorajadora</li>
+                        <li>Pode causar desistência e baixa autoestima</li>
+                        <li>Abordagem judicial e severa</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: #22c55e; margin-bottom: 8px;">✅ Feedback Ultra Gentil (Novo):</h4>
+                    <ul style="margin: 0; padding-left: 20px;">
+                        <li>Zero termos negativos ou impactantes</li>
+                        <li>Sempre reconhece valor e potencial</li>
+                        <li>Linguagem inspiradora e motivacional</li>
+                        <li>Transforma problemas em oportunidades</li>
+                        <li>Foca na jornada de crescimento contínuo</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="margin-top: 20px; padding: 16px; background: rgba(255,255,255,0.7); border-radius: 8px;">
+                <strong style="color: #1d4ed8;">🌟 Resultado:</strong>
+                O mesmo currículo que seria "criticado" agora é visto como uma "jornada em desenvolvimento" -
+                motivando o candidato a continuar crescendo ao invés de desanimá-lo.
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="demo-empathetic.html"
+                style="background: #22c55e; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-right: 16px;">
+                ← Ver Demo Empático
+            </a>
+            <a href="results.html"
+                style="background: #583819; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                Testar Análise
+            </a>
+        </div>
+    </div>
+</body>
+
+</html>

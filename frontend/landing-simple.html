@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Sem Frescura - Teste Header</title>
+    <link rel="stylesheet" href="assets/css/header.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #faf9f7;
+            margin: 0;
+            padding: 0;
+        }
+
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #faf9f7 0%, #fefcf9 100%);
+            padding: 100px 20px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            color: #27272a;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #71717a;
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #583819;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #4a2f15;
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- O header será carregado dinamicamente -->
+
+    <section class="hero" id="hero">
+        <div class="container">
+            <h1>CV Sem Frescura</h1>
+            <p>Teste simplificado para verificar se o header está funcionando corretamente</p>
+            <a href="payment.html" class="btn">Começar Agora</a>
+        </div>
+    </section>
+
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/header.js"></script>
+
+    <script>
+        // Log simples para verificar se os scripts carregaram
+        console.log('✅ Scripts carregados - verificando header...');
+
+        setTimeout(() => {
+            const header = document.querySelector('.header');
+            const headerManager = window.headerManager;
+
+            console.log('Header encontrado:', !!header);
+            console.log('HeaderManager:', !!headerManager);
+            console.log('Header carregado:', headerManager?.isLoaded);
+
+            if (!header) {
+                console.error('❌ Header não foi encontrado!');
+            } else {
+                console.log('✅ Header carregado com sucesso!');
+            }
+        }, 2000);
+    </script>
+</body>
+
+</html>

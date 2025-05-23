@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Landing Header</title>
+    <link rel="stylesheet" href="assets/css/header.css">
+    <style>
+        body {
+            font-family: Inter, sans-serif;
+            background: #faf9f7;
+            margin: 0;
+            padding: 0;
+        }
+
+        .debug-info {
+            background: #fff;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero {
+            min-height: 500px;
+            background: linear-gradient(135deg, #faf9f7 0%, #fefcf9 100%);
+            padding: 100px 20px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            color: #27272a;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #71717a;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        #console-log {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            font-family: monospace;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="debug-info">
+        <h2>🔍 Debug do Header - Landing Page</h2>
+        <p>Esta página testa especificamente o carregamento do header na landing.</p>
+
+        <div id="header-status">
+            <h3>Status do Header:</h3>
+            <ul id="status-list">
+                <li>Aguardando inicialização...</li>
+            </ul>
+        </div>
+
+        <div>
+            <h3>Console Logs:</h3>
+            <div id="console-log"></div>
+        </div>
+    </div>
+
+    <!-- Hero Section similar à landing -->
+    <section class="hero" id="hero">
+        <div class="container">
+            <h1>Seção Hero para Teste</h1>
+            <p>Se o header aparecer acima desta seção, está funcionando corretamente.</p>
+        </div>
+    </section>
+
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/header.js"></script>
+
+    <script>
+        // Interceptar console.log para exibir na página
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+        const logElement = document.getElementById('console-log');
+
+        function addToLog(type, message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${type}: ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        console.log = function (...args) {
+            addToLog('LOG', args.join(' '));
+            originalLog.apply(console, args);
+        };
+
+        console.warn = function (...args) {
+            addToLog('WARN', args.join(' '));
+            originalWarn.apply(console, args);
+        };
+
+        console.error = function (...args) {
+            addToLog('ERROR', args.join(' '));
+            originalError.apply(console, args);
+        };
+
+        // Atualizar status do header
+        function updateStatus() {
+            const statusList = document.getElementById('status-list');
+            const header = document.querySelector('.header');
+            const headerManager = window.headerManager;
+
+            statusList.innerHTML = `
+                <li>Header HTML encontrado: ${!!header}</li>
+                <li>HeaderManager inicializado: ${!!headerManager}</li>
+                <li>Header carregado: ${headerManager?.isLoaded || false}</li>
+                <li>CSS header.css encontrado: ${!!document.querySelector('link[href*="header.css"]')}</li>
+                <li>Arquivo header.html existe: <span id="header-file-status">Verificando...</span></li>
+            `;
+
+            // Testar se header.html existe
+            fetch('assets/components/header.html')
+                .then(response => {
+                    document.getElementById('header-file-status').textContent =
+                        response.ok ? 'Sim' : `Não (${response.status})`;
+                })
+                .catch(error => {
+                    document.getElementById('header-file-status').textContent = `Erro: ${error.message}`;
+                });
+        }
+
+        // Atualizar status a cada 2 segundos
+        setInterval(updateStatus, 2000);
+        updateStatus();
+
+        console.log('🚀 Página de debug inicializada');
+    </script>
+</body>
+
+</html>

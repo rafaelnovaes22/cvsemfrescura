@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Modal de Pagamento</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🧪 Teste - Sistema de Pagamentos</h1>
+
+    <div class="status info" id="status">
+        Carregando sistema de autenticação...
+    </div>
+
+    <div id="auth-section">
+        <h2>Autenticação</h2>
+        <button class="btn" onclick="testLogin()">Fazer Login de Teste</button>
+        <button class="btn" onclick="checkAuth()">Verificar Autenticação</button>
+        <button class="btn" onclick="logout()">Logout</button>
+    </div>
+
+    <div id="payment-section">
+        <h2>Testes de Pagamento</h2>
+        <button class="btn buy-now" data-plan="basic" data-price="39.97" data-credits="1">
+            Testar Plano Básico (R$ 39,97)
+        </button>
+        <button class="btn buy-now" data-plan="pro" data-price="79.97" data-credits="3">
+            Testar Plano Pro (R$ 79,97)
+        </button>
+    </div>
+
+    <div id="debug-section">
+        <h2>Debug</h2>
+        <button class="btn" onclick="checkScripts()">Verificar Scripts Carregados</button>
+        <button class="btn" onclick="checkModal()">Verificar Modal</button>
+        <button class="btn" onclick="clearStorage()">Limpar Storage</button>
+    </div>
+
+    <div id="logs">
+        <h3>Logs:</h3>
+        <div id="console-logs"
+            style="background: #f8f9fa; padding: 10px; height: 200px; overflow-y: auto; font-family: monospace; font-size: 12px;">
+        </div>
+    </div>
+
+    <!-- Modal de Pagamento (simplificado) -->
+    <div id="paymentModal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div
+            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; min-width: 400px;">
+            <button class="close-modal"
+                style="float: right; background: none; border: none; font-size: 20px; cursor: pointer;">&times;</button>
+            <h2 class="modal-title">Teste - Pagamento</h2>
+            <div id="paymentMessage" class="status" style="display: none;"></div>
+
+            <div>
+                <h3>Método de Pagamento:</h3>
+                <label>
+                    <input type="radio" name="payment-method" value="card" checked> Cartão
+                </label>
+                <label>
+                    <input type="radio" name="payment-method" value="pix"> PIX
+                </label>
+            </div>
+
+            <form id="stripe-payment-form">
+                <div id="payment-element">
+                    <p style="background: #f8f9fa; padding: 10px; border-radius: 5px;">
+                        📝 Elemento Stripe seria carregado aqui
+                    </p>
+                </div>
+                <button id="submit-payment" type="submit" class="btn" style="width: 100%; margin-top: 10px;">
+                    Confirmar Pagamento
+                </button>
+            </form>
+
+            <form id="pix-form" style="display: none;">
+                <input type="text" id="pix-name" placeholder="Nome completo"
+                    style="width: 100%; margin: 5px 0; padding: 8px;">
+                <input type="email" id="pix-email" placeholder="E-mail"
+                    style="width: 100%; margin: 5px 0; padding: 8px;">
+                <input type="text" id="pix-cpf" placeholder="CPF" style="width: 100%; margin: 5px 0; padding: 8px;">
+                <button type="submit" class="btn" style="width: 100%;">Gerar PIX</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/auth.js"></script>
+    <script>
+        // Capturar logs do console
+        const originalLog = console.log;
+        const originalError = console.error;
+        const logDiv = document.getElementById('console-logs');
+
+        function addLog(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'red' : type === 'warn' ? 'orange' : 'black';
+            logDiv.innerHTML += `<div style="color: ${color};">[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        console.log = function (...args) {
+            originalLog.apply(console, args);
+            addLog(args.join(' '), 'log');
+        };
+
+        console.error = function (...args) {
+            originalError.apply(console, args);
+            addLog(args.join(' '), 'error');
+        };
+
+        // Funções de teste
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        function testLogin() {
+            // Simular login
+            const testUser = {
+                id: 'test_123',
+                email: 'teste@exemplo.com',
+                name: 'Usuário Teste',
+                credits: 0
+            };
+
+            localStorage.setItem('authToken', 'test_token_123');
+            localStorage.setItem('user', JSON.stringify(testUser));
+
+            updateStatus('Login de teste realizado com sucesso!', 'success');
+            console.log('👤 Login de teste:', testUser);
+        }
+
+        function checkAuth() {
+            const user = window.auth ? window.auth.getUser() : null;
+            const token = window.auth ? window.auth.getToken() : null;
+
+            if (user && token) {
+                updateStatus(`Autenticado: ${user.email} (${user.credits} créditos)`, 'success');
+            } else {
+                updateStatus('Não autenticado', 'error');
+            }
+
+            console.log('🔍 Status auth:', { user, token });
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('user');
+            updateStatus('Logout realizado', 'info');
+            console.log('🚪 Logout realizado');
+        }
+
+        function checkScripts() {
+            const scripts = {
+                auth: typeof window.auth !== 'undefined',
+                payment: typeof window.payment !== 'undefined',
+                Stripe: typeof window.Stripe !== 'undefined'
+            };
+
+            console.log('📋 Scripts carregados:', scripts);
+
+            const loaded = Object.values(scripts).filter(Boolean).length;
+            updateStatus(`Scripts carregados: ${loaded}/3`, loaded === 3 ? 'success' : 'error');
+        }
+
+        function checkModal() {
+            const modal = document.getElementById('paymentModal');
+            const elements = {
+                modal: !!modal,
+                title: !!document.querySelector('.modal-title'),
+                form: !!document.getElementById('stripe-payment-form'),
+                button: !!document.getElementById('submit-payment')
+            };
+
+            console.log('🎭 Elementos do modal:', elements);
+
+            const count = Object.values(elements).filter(Boolean).length;
+            updateStatus(`Elementos do modal: ${count}/4`, count === 4 ? 'success' : 'error');
+        }
+
+        function clearStorage() {
+            localStorage.clear();
+            sessionStorage.clear();
+            updateStatus('Storage limpo', 'info');
+            console.log('🧹 Storage limpo');
+        }
+
+        // Event listeners para botões de compra
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('buy-now')) {
+                e.preventDefault();
+
+                const planData = {
+                    plan: e.target.dataset.plan,
+                    price: parseFloat(e.target.dataset.price),
+                    credits: parseInt(e.target.dataset.credits)
+                };
+
+                console.log('💳 Botão de compra clicado:', planData);
+
+                // Verificar autenticação
+                const user = window.auth ? window.auth.getUser() : null;
+                if (!user) {
+                    updateStatus('Faça login antes de comprar', 'error');
+                    return;
+                }
+
+                // Abrir modal
+                const modal = document.getElementById('paymentModal');
+                const title = document.querySelector('.modal-title');
+
+                if (title) title.textContent = `Teste - ${planData.plan}`;
+                if (modal) modal.style.display = 'block';
+
+                updateStatus(`Modal aberto para ${planData.plan}`, 'success');
+            }
+        });
+
+        // Fechar modal
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('close-modal') || e.target.id === 'paymentModal') {
+                const modal = document.getElementById('paymentModal');
+                if (modal) modal.style.display = 'none';
+                console.log('❌ Modal fechado');
+            }
+        });
+
+        // Formulário de teste
+        document.getElementById('stripe-payment-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            console.log('💳 Formulário de pagamento submetido');
+            updateStatus('Formulário submetido (modo teste)', 'success');
+
+            // Simular processamento
+            setTimeout(() => {
+                updateStatus('Pagamento simulado com sucesso!', 'success');
+                document.getElementById('paymentModal').style.display = 'none';
+            }, 2000);
+        });
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('🚀 Página de teste carregada');
+            updateStatus('Página carregada - execute os testes', 'info');
+
+            // Verificar se auth.js carregou
+            setTimeout(() => {
+                if (typeof window.auth !== 'undefined') {
+                    updateStatus('Script auth.js carregado com sucesso', 'success');
+                } else {
+                    updateStatus('Script auth.js não carregado', 'error');
+                }
+            }, 500);
+        });
+    </script>
+</body>
+
+</html>

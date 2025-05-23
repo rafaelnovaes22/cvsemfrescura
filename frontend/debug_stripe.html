@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>🔧 Debug Stripe Functions</title>
+    <script src="assets/js/config.js"></script>
+</head>
+
+<body>
+    <h1>🔧 Debug das Funções Stripe</h1>
+    <div id="results"></div>
+
+    <script>
+        async function debugStripe() {
+            const results = document.getElementById('results');
+            let output = '<h3>📊 Diagnóstico das Funções:</h3><ul>';
+
+            // 1. Verificar se CONFIG existe
+            output += `<li><strong>CONFIG:</strong> ${typeof CONFIG !== 'undefined' ? '✅ Disponível' : '❌ Não encontrado'}</li>`;
+
+            // 2. Verificar se getStripeKey existe
+            output += `<li><strong>getStripeKey:</strong> ${typeof getStripeKey !== 'undefined' ? '✅ Disponível' : '❌ Não encontrada'}</li>`;
+
+            // 3. Verificar se getStripeKeySync existe
+            output += `<li><strong>getStripeKeySync:</strong> ${typeof getStripeKeySync !== 'undefined' ? '✅ Disponível' : '❌ Não encontrada'}</li>`;
+
+            // 4. Testar getStripeKey (async)
+            if (typeof getStripeKey !== 'undefined') {
+                try {
+                    const key = await getStripeKey();
+                    output += `<li><strong>getStripeKey() resultado:</strong> ${key ? '✅ ' + key.substring(0, 20) + '...' : '❌ Null/undefined'}</li>`;
+                } catch (error) {
+                    output += `<li><strong>getStripeKey() erro:</strong> ❌ ${error.message}</li>`;
+                }
+            }
+
+            // 5. Testar getStripeKeySync (sync)
+            if (typeof getStripeKeySync !== 'undefined') {
+                try {
+                    const key = getStripeKeySync();
+                    output += `<li><strong>getStripeKeySync() resultado:</strong> ${key ? '✅ ' + key.substring(0, 20) + '...' : '❌ Null/undefined'}</li>`;
+                } catch (error) {
+                    output += `<li><strong>getStripeKeySync() erro:</strong> ❌ ${error.message}</li>`;
+                }
+            }
+
+            // 6. Testar rota direta
+            try {
+                const response = await fetch('http://localhost:3000/api/config/stripe-key');
+                if (response.ok) {
+                    const data = await response.json();
+                    output += `<li><strong>API /config/stripe-key:</strong> ✅ ${data.publishableKey.substring(0, 20)}...</li>`;
+                } else {
+                    output += `<li><strong>API /config/stripe-key:</strong> ❌ HTTP ${response.status}</li>`;
+                }
+            } catch (error) {
+                output += `<li><strong>API /config/stripe-key:</strong> ❌ ${error.message}</li>`;
+            }
+
+            output += '</ul>';
+            results.innerHTML = output;
+        }
+
+        // Executar debug automaticamente
+        window.addEventListener('load', () => {
+            setTimeout(debugStripe, 1000);
+        });
+    </script>
+</body>
+
+</html>

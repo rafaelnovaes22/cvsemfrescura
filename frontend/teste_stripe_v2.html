@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>🔧 Teste Stripe V2 - Diagnóstico Avançado</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        body {
+            font-family: Inter, sans-serif;
+            margin: 40px;
+        }
+
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .success {
+            background-color: #f0f8f0;
+            border-color: #4CAF50;
+        }
+
+        .error {
+            background-color: #fff0f0;
+            border-color: #f44336;
+        }
+
+        .warning {
+            background-color: #fff8e1;
+            border-color: #ff9800;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .primary {
+            background-color: #583819;
+            color: white;
+        }
+
+        .secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔧 Teste Stripe V2 - Diagnóstico do Erro 401</h1>
+
+    <div class="test-section">
+        <h2>0. Verificação do Stripe.js</h2>
+        <button class="secondary" onclick="verificarStripeJS()">Verificar Stripe.js</button>
+        <div id="stripejs-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>1. Teste de Conectividade</h2>
+        <button class="primary" onclick="testarConectividade()">Testar Backend</button>
+        <div id="conectividade-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Teste de Criação de PaymentIntent</h2>
+        <button class="primary" onclick="testarPaymentIntent()">Criar PaymentIntent</button>
+        <div id="payment-intent-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Teste de Stripe Elements (CRÍTICO)</h2>
+        <button class="primary" onclick="testarStripeElements()">Testar Elements</button>
+        <div id="elements-result"></div>
+        <div id="stripe-elements-container" style="margin-top: 20px; padding: 20px; border: 1px dashed #ccc;"></div>
+    </div>
+
+        <!-- Carregar configurações -->    <script src="assets/js/config.js"></script>        <script>        // Configuração global        const API_BASE = 'http://localhost:3000';        const STRIPE_PUBLIC_KEY = getStripeKey(); // Usar a função do config.js
+
+        let stripe = null;
+        let currentClientSecret = null;
+
+        // Função auxiliar para mostrar resultados
+        function mostrarResultado(elementId, conteudo, tipo = 'success') {
+            const element = document.getElementById(elementId);
+            element.className = `test-section ${tipo}`;
+            element.innerHTML = conteudo;
+        }
+
+        // 0. Verificação do Stripe.js
+        function verificarStripeJS() {
+            try {
+                mostrarResultado('stripejs-result', '⏳ Verificando Stripe.js...', 'warning');
+
+                const diagnostico = {
+                    stripeGlobal: typeof Stripe !== 'undefined',
+                    stripeVersion: typeof Stripe !== 'undefined' ? Stripe.version || 'Desconhecida' : 'N/A',
+                    publicKey: STRIPE_PUBLIC_KEY,
+                    publicKeyValid: STRIPE_PUBLIC_KEY.startsWith('pk_test_'),
+                    currentStripeObject: stripe
+                };
+
+                // Tentar inicializar Stripe
+                if (typeof Stripe !== 'undefined') {
+                    try {
+                        stripe = Stripe(STRIPE_PUBLIC_KEY);
+                        diagnostico.initialization = 'Sucesso';
+                        diagnostico.stripeObject = 'Criado';
+                    } catch (error) {
+                        diagnostico.initialization = 'Falhou: ' + error.message;
+                        diagnostico.stripeObject = 'Null';
+                    }
+                } else {
+                    diagnostico.initialization = 'Stripe.js não disponível';
+                    diagnostico.stripeObject = 'Impossível';
+                }
+
+                const resultado = `
+                    <h3>${diagnostico.stripeGlobal && stripe ? '✅' : '❌'} Diagnóstico do Stripe.js</h3>
+                    <ul>
+                        <li><strong>Stripe Global:</strong> ${diagnostico.stripeGlobal ? '✅ Disponível' : '❌ Não encontrado'}</li>
+                        <li><strong>Versão:</strong> ${diagnostico.stripeVersion}</li>
+                        <li><strong>Chave Pública:</strong> ${diagnostico.publicKeyValid ? '✅ Formato válido' : '❌ Formato inválido'}</li>
+                        <li><strong>Inicialização:</strong> ${diagnostico.initialization}</li>
+                        <li><strong>Objeto Stripe:</strong> ${stripe ? '✅ Pronto' : '❌ Null'}</li>
+                    </ul>
+                    
+                    <div style="margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 4px;">
+                        <strong>Chave:</strong> <code>${STRIPE_PUBLIC_KEY.substring(0, 30)}...</code>
+                    </div>
+                `;
+
+                mostrarResultado('stripejs-result', resultado, diagnostico.stripeGlobal && stripe ? 'success' : 'error');
+
+            } catch (error) {
+                mostrarResultado('stripejs-result', `
+                    <h3>❌ Erro na Verificação</h3>
+                    <p><strong>Erro:</strong> ${error.message}</p>
+                `, 'error');
+            }
+        }
+
+        // 1. Teste de Conectividade
+        async function testarConectividade() {
+            try {
+                mostrarResultado('conectividade-result', '⏳ Testando conectividade...', 'warning');
+
+                const response = await fetch(`${API_BASE}/health`);
+
+                if (response.ok) {
+                    const data = await response.text();
+                    mostrarResultado('conectividade-result', `
+                        <h3>✅ Backend Conectado!</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Response:</strong> ${data}</p>
+                    `);
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                mostrarResultado('conectividade-result', `
+                    <h3>❌ Erro de Conectividade</h3>
+                    <p><strong>Erro:</strong> ${error.message}</p>
+                    <p><strong>Solução:</strong> Verifique se o backend está rodando na porta 3000</p>
+                `, 'error');
+            }
+        }
+
+        // 2. Teste de PaymentIntent
+        async function testarPaymentIntent() {
+            try {
+                mostrarResultado('payment-intent-result', '⏳ Criando PaymentIntent...', 'warning');
+
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    throw new Error('Token de autenticação não encontrado. Faça login primeiro.');
+                }
+
+                const response = await fetch(`${API_BASE}/api/payment/create-intent`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        amount: 19.99,
+                        planName: 'teste-v2',
+                        credits: 1,
+                        paymentMethod: 'card'
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+
+                const data = await response.json();
+                currentClientSecret = data.clientSecret;
+
+                mostrarResultado('payment-intent-result', `
+                    <h3>✅ PaymentIntent Criado!</h3>
+                    <p><strong>Client Secret:</strong> ${data.clientSecret.substring(0, 30)}...</p>
+                    <p><strong>Transaction ID:</strong> ${data.transactionId}</p>
+                    <p><strong>Status:</strong> Pronto para Elements</p>
+                    <p><strong>Próximo passo:</strong> Execute o teste 3 (Elements)</p>
+                `);
+
+            } catch (error) {
+                mostrarResultado('payment-intent-result', `
+                    <h3>❌ Erro na Criação do PaymentIntent</h3>
+                    <p><strong>Erro:</strong> ${error.message}</p>
+                    <p><strong>Dica:</strong> Verifique se você está logado e o backend está funcionando</p>
+                `, 'error');
+            }
+        }
+
+        // 3. Teste de Stripe Elements (CRÍTICO)
+        async function testarStripeElements() {
+            if (!currentClientSecret) {
+                mostrarResultado('elements-result', `
+                    <h3>⚠️ Client Secret Necessário</h3>
+                    <p>Execute primeiro o teste de PaymentIntent para obter um client_secret</p>
+                `, 'warning');
+                return;
+            }
+
+            try {
+                mostrarResultado('elements-result', '⏳ Inicializando Stripe Elements...', 'warning');
+
+                // Verificações robustas
+                console.log('🔍 Verificando Stripe object:', stripe);
+                console.log('🔍 Tipo do Stripe:', typeof stripe);
+                console.log('🔍 Stripe.elements disponível:', stripe && typeof stripe.elements);
+
+                if (!stripe) {
+                    // Tentar reinicializar
+                    console.log('🔧 Tentando reinicializar Stripe...');
+                    verificarStripeJS();
+
+                    if (!stripe) {
+                        throw new Error(`
+                            Objeto Stripe não inicializado. 
+                            Possíveis causas: 
+                            1) Chave pública inválida
+                            2) Stripe.js não carregou
+                            3) Bloqueador de scripts ativo
+                            4) Problema de rede
+                        `);
+                    }
+                }
+
+                if (typeof stripe.elements !== 'function') {
+                    throw new Error('Método stripe.elements não está disponível');
+                }
+
+                const container = document.getElementById('stripe-elements-container');
+                container.innerHTML = '<div id="payment-element-test"></div>';
+
+                console.log('🔧 Criando elements com client_secret:', currentClientSecret.substring(0, 30) + '...');
+
+                const elements = stripe.elements({
+                    clientSecret: currentClientSecret,
+                    appearance: {
+                        theme: 'stripe',
+                        variables: {
+                            colorPrimary: '#583819'
+                        }
+                    },
+                    locale: 'pt-BR'
+                });
+
+                console.log('✅ Elements criado:', elements);
+
+                const paymentElement = elements.create('payment', {
+                    layout: { type: 'tabs' }
+                });
+
+                console.log('✅ PaymentElement criado:', paymentElement);
+
+                // Event handlers
+                paymentElement.on('ready', () => {
+                    console.log('✅ PaymentElement ready - SUCESSO!');
+                    mostrarResultado('elements-result', `
+                        <h3>🎉 SUCESSO TOTAL!</h3>
+                        <p><strong>Resultado:</strong> ✅ Stripe Elements funcionando perfeitamente!</p>
+                        <p><strong>Conclusão:</strong> ✅ Não há erro 401 - as chaves estão corretas!</p>
+                        <p><strong>Status:</strong> Sistema de pagamento operacional</p>
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: #f0f8f0; border-radius: 4px;">
+                            <h4>✅ PROBLEMA RESOLVIDO!</h4>
+                            <p>O erro 401 foi corrigido. O sistema está funcionando corretamente.</p>
+                        </div>
+                    `, 'success');
+                });
+
+                paymentElement.on('loaderror', (event) => {
+                    console.error('❌ ERRO 401 DETECTADO:', event);
+                    mostrarResultado('elements-result', `
+                        <h3>🎯 ERRO 401 CONFIRMADO!</h3>
+                        <p><strong>Erro:</strong> ${event.error?.message || 'Erro de autenticação'}</p>
+                        <p><strong>Tipo:</strong> ${event.error?.type || 'authentication_error'}</p>
+                        <p><strong>Código:</strong> ${event.error?.code || '401'}</p>
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: #fff0f0; border-radius: 4px;">
+                            <h4>🔧 SOLUÇÃO DEFINITIVA:</h4>
+                            <ol>
+                                <li><strong>Problema:</strong> Chaves frontend/backend incompatíveis</li>
+                                <li><strong>Acesse:</strong> <a href="https://dashboard.stripe.com/test/apikeys" target="_blank">Dashboard Stripe</a></li>
+                                <li><strong>Gere novas chaves</strong> (pk_ e sk_) do mesmo projeto</li>
+                                <li><strong>Atualize:</strong> Backend (.env) e Frontend (config.js)</li>
+                                <li><strong>Reinicie:</strong> Backend e teste novamente</li>
+                            </ol>
+                        </div>
+
+                        <div style="margin-top: 15px; padding: 10px; background: #fffacd; border-radius: 4px;">
+                            <strong>Chave atual:</strong> <code>${STRIPE_PUBLIC_KEY.substring(0, 40)}...</code>
+                        </div>
+                    `, 'error');
+                });
+
+                console.log('🔧 Montando PaymentElement...');
+                paymentElement.mount('#payment-element-test');
+                console.log('✅ PaymentElement montado');
+
+            } catch (error) {
+                console.error('❌ Erro crítico:', error);
+                mostrarResultado('elements-result', `
+                    <h3>❌ Erro na Inicialização</h3>
+                    <p><strong>Erro:</strong> ${error.message}</p>
+                    
+                    <div style="margin-top: 15px;">
+                        <h4>🔍 Diagnóstico Completo:</h4>
+                        <ul>
+                            <li><strong>Stripe Object:</strong> ${stripe ? '✅ Inicializado' : '❌ Null'}</li>
+                            <li><strong>Stripe.js:</strong> ${typeof Stripe !== 'undefined' ? '✅ Carregado' : '❌ Não carregado'}</li>
+                            <li><strong>Elements Method:</strong> ${stripe && typeof stripe.elements === 'function' ? '✅ Disponível' : '❌ Indisponível'}</li>
+                            <li><strong>Client Secret:</strong> ${currentClientSecret ? '✅ Presente' : '❌ Ausente'}</li>
+                        </ul>
+                    </div>
+
+                    <div style="margin-top: 15px; padding: 10px; background: #f0f8ff; border-radius: 4px;">
+                        <h4>🔧 Ações Recomendadas:</h4>
+                        <ol>
+                            <li>Execute primeiro o teste 0 (Verificação do Stripe.js)</li>
+                            <li>Recarregue a página</li>
+                            <li>Teste em aba anônima</li>
+                            <li>Desative bloqueadores de anúncios</li>
+                        </ol>
+                    </div>
+                `, 'error');
+            }
+        }
+
+        // Auto-executar verificação básica
+        window.addEventListener('load', () => {
+            console.log('🚀 Página carregada. Execute os testes na ordem.');
+            setTimeout(() => {
+                verificarStripeJS();
+            }, 1000);
+        });
+    </script>
+</body>
+
+</html>
