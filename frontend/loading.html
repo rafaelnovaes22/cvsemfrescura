@@ -8,6 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet">
 
+    <!-- Scripts de autenticação -->
+    <script src="/assets/js/auth.js"></script>
+
     <!-- Script para processar análise -->
     <script>
         document.addEventListener('DOMContentLoaded', async function () {
@@ -18,7 +21,7 @@
                     statusText.style.color = color;
                 }
             }
-            
+
             setStatus('Validando dados...', '#583819');
             const fileName = sessionStorage.getItem('atsFile');
             const fileContentBase64 = sessionStorage.getItem('atsFileContent');
@@ -59,15 +62,48 @@
                     formData.append('jobLinks', JSON.stringify(jobLinks)); // campo deve ser 'jobLinks'
                 }
                 setStatus('Enviando dados para análise...', '#583819');
+
+                // Obter token de autenticação
+                let authToken = null;
+                if (window.auth && typeof window.auth.getToken === 'function') {
+                    authToken = window.auth.getToken();
+                } else {
+                    // Fallback: tentar obter token diretamente do localStorage
+                    authToken = localStorage.getItem('token');
+                }
+
+                if (!authToken) {
+                    setStatus('Você precisa estar autenticado para realizar análises.', '#c62828');
+                    // Limpar dados de código de presente quando não autenticado (faz sentido)
+                    if (window.auth && window.auth.cleanupAllGiftCodeData) {
+                        window.auth.cleanupAllGiftCodeData();
+                    }
+                    setTimeout(() => { window.location.href = 'index.html'; }, 3500);
+                    return;
+                }
+
+                // Incluir token na requisição
                 resp = await fetch('/api/ats/analyze', {
                     method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    },
                     body: formData
                 });
                 if (!resp || !resp.ok) {
                     const errJson = resp && await resp.json().catch(() => ({}));
                     const backendMsg = (errJson && errJson.error) || (resp && resp.statusText) || 'Erro desconhecido';
+
+                    // Tratar especificamente erro de créditos insuficientes
+                    if (resp && resp.status === 403 && errJson && errJson.error && errJson.error.includes('créditos')) {
+                        setStatus('❌ Você não possui análises disponíveis.', '#c62828');
+                        setStatus('💳 Redirecionando para compra...', '#ef4444');
+                        setTimeout(() => { window.location.href = 'payment.html'; }, 2500);
+                        return;
+                    }
+
                     setStatus('Erro ao processar análise: ' + backendMsg, '#c62828');
-                    setTimeout(() => { window.location.href = 'index.html'; }, 3500);
+                    setTimeout(() => { window.location.href = 'analisar.html'; }, 3500);
                     return;
                 }
                 setStatus('Análise concluída! Processando resultados...', '#2e7d32');

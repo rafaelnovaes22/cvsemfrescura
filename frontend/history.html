@@ -4,10 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Histórico de Transações - CV Sem Frescura</title>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
+    <title>Histórico de Análises - CV Sem Frescura</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Header CSS -->
+    <link rel="stylesheet" href="assets/css/header.css">
+
     <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/header.js"></script>
     <script src="/assets/js/history.js"></script>
     <style>
         :root {
@@ -321,28 +325,7 @@
 </head>
 
 <body>
-    <header>
-        <div class="container header-container">
-            <a href="index.html">
-                <img src="/assets/img/logo.png" alt="CV Sem Frescura" class="logo">
-            </a>
-            <div>
-                <a href="#" class="login-link" id="loginLink" style="display: none;">Entrar</a>
-                <div class="user-menu-wrapper" style="position:relative; display:inline-block;">
-                    <a href="#" class="user-menu" id="authButton" style="display: none;">
-                        <span class="user-name">Usuário</span>
-                        <span class="credits-badge" id="userCredits">0 análises</span>
-                        <span class="dropdown-icon">▼</span>
-                    </a>
-                    <div class="dropdown-menu" id="userDropdown" style="display:none;">
-                        <a href="payment.html" class="dropdown-item" id="buyCredits">Comprar análises</a>
-                        <a href="history.html" class="dropdown-item" id="transactionHistory">Histórico</a>
-                        <a href="#" class="dropdown-item logout-btn" id="logoutButton">Sair</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
+    <!-- Header será carregado dinamicamente pelo header.js -->
 
     <main>
         <div class="container">
@@ -364,19 +347,19 @@
     <footer>
         <div class="container footer-container">
             <div>
-                <img src="/assets/img/logo.png" alt="CV Sem Frescura" class="footer-logo">
+                <img src="assets/img/logo.png" alt="CV Sem Frescura" class="footer-logo">
                 <p class="copyright">© 2025 CV Sem Frescura. Todos os direitos reservados.</p>
             </div>
             <div class="footer-links">
                 <a href="privacy.html" class="footer-link">Políticas de Privacidade</a>
                 <a href="terms.html" class="footer-link">Termos de Uso</a>
-                <a href="#" class="footer-link">Contato</a>
+                <a href="contact.html" class="footer-link">Contato</a>
             </div>
         </div>
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Atualizar UI do usuário baseado no login
             function updateUserUI() {
                 const user = auth.getUser();
@@ -384,7 +367,7 @@
                 const authButton = document.getElementById('authButton');
                 const userDropdown = document.getElementById('userDropdown');
                 const creditsElement = document.getElementById('userCredits');
-                
+
                 if (user) {
                     document.querySelector('.user-name').textContent = user.name.split(' ')[0];
                     loginLink.style.display = 'none';
@@ -395,22 +378,22 @@
                     authButton.style.display = 'none';
                     if (userDropdown) userDropdown.style.display = 'none';
                     if (creditsElement) creditsElement.textContent = '0 análises';
-                    
+
                     // Redirecionar para index se não estiver logado
                     window.location.href = 'index.html';
                 }
             }
-            
+
             // Função para buscar análises do usuário do servidor
             function fetchUserCredits(forceRefresh = false) {
                 const creditsElement = document.getElementById('userCredits');
-                
+
                 // Fazer chamada à API para obter os créditos reais do usuário
                 const apiUrl = 'http://localhost:3000/api/user/credits';
                 const requestOptions = {};
-                
+
                 console.log('Buscando créditos do usuário...');
-                
+
                 // Se precisarmos forçar atualização, adicionar headers para evitar cache
                 if (forceRefresh) {
                     console.log('Forçando atualização de créditos (sem cache)...');
@@ -420,31 +403,31 @@
                         'Expires': '0'
                     };
                 }
-                
+
                 // Preparar os headers com o token de autenticação
                 let headers = {
                     'Authorization': `Bearer ${auth.getToken()}`
                 };
-                
+
                 // Adicionar headers de cache se necessário
                 if (requestOptions.headers) {
                     for (const header in requestOptions.headers) {
                         headers[header] = requestOptions.headers[header];
                     }
                 }
-                
+
                 fetch(apiUrl, { headers: headers })
-                    .then(function(response) {
+                    .then(function (response) {
                         if (response.ok) {
                             return response.json();
                         } else {
                             throw new Error('Falha ao obter créditos do usuário');
                         }
                     })
-                    .then(function(data) {
+                    .then(function (data) {
                         if (creditsElement) {
                             creditsElement.textContent = `${data.credits} análises`;
-                            
+
                             // Atualizar cores com base no número de créditos
                             if (data.credits <= 0) {
                                 creditsElement.style.backgroundColor = '#F44336'; // Vermelho se sem créditos
@@ -454,7 +437,7 @@
                                 creditsElement.style.backgroundColor = '#4CAF50'; // Verde se suficiente
                             }
                         }
-                        
+
                         // Salvar créditos no usuário atual
                         const user = auth.getUser();
                         if (user) {
@@ -471,37 +454,37 @@
                         }
                     });
             }
-            
+
             // Inicializar UI
             updateUserUI();
-            
+
             // Dropdown toggle ao clicar no user-menu
             let dropdownOpen = false;
             const authButton = document.getElementById('authButton');
             const userDropdown = document.getElementById('userDropdown');
             const logoutButton = document.getElementById('logoutButton');
-            
+
             // Toggle dropdown
-            authButton.addEventListener('click', function(e) {
+            authButton.addEventListener('click', function (e) {
                 e.preventDefault();
                 dropdownOpen = !dropdownOpen;
                 userDropdown.style.display = dropdownOpen ? 'flex' : 'none';
             });
-            
+
             // Redireciona para a página de pagamento ao clicar em Comprar análises
-            document.getElementById('buyCredits').onclick = function(e) {
+            document.getElementById('buyCredits').onclick = function (e) {
                 e.preventDefault();
                 window.location.href = 'payment.html';
             };
-            
+
             // Redireciona para o histórico
-            document.getElementById('transactionHistory').onclick = function(e) {
+            document.getElementById('transactionHistory').onclick = function (e) {
                 e.preventDefault();
                 window.location.href = 'history.html';
             };
-            
+
             // Logout
-            logoutButton.onclick = function(e) {
+            logoutButton.onclick = function (e) {
                 e.preventDefault();
                 auth.logout();
             };
