@@ -8,4 +8,13 @@ router.post('/login', userController.login);
 router.get('/profile', authMiddleware, userController.profile);
 router.get('/credits', authMiddleware, userController.getCredits);
 
+// Rotas para o onboarding
+router.post('/onboarding', authMiddleware, userController.completeOnboarding);
+router.get('/onboarding-status', authMiddleware, userController.getOnboardingStatus);
+
+// Rota apenas para ambiente de desenvolvimento - permite reset do status de onboarding
+if (process.env.NODE_ENV !== 'production') {
+  router.post('/reset-onboarding', authMiddleware, userController.resetOnboardingStatus);
+}
+
 module.exports = router;

@@ -8,8 +8,12 @@ const Transaction = sequelize.define('Transaction', {
     primaryKey: true,
   },
   userId: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'users',
+      key: 'id'
+    }
   },
   amount: {
     type: DataTypes.FLOAT,

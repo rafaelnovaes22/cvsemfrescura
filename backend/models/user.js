@@ -27,6 +27,30 @@ const User = sequelize.define('User', {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
+  onboarding_completed: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  preferences: {
+    type: DataTypes.JSON,
+    defaultValue: {},
+  },
+  job_area: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  experience_level: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  last_login: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+  credits: {
+    type: DataTypes.INTEGER,
+    defaultValue: 1, // Novo usuário recebe uma análise grátis
+  },
 }, {
   tableName: 'users',
   timestamps: true,

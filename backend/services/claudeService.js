@@ -6,24 +6,37 @@ const CLAUDE_MODEL = 'claude-3-5-sonnet-20241022'; // 160k tokens, disponível e
 
 /**
  * Envia prompt para o Claude 3 Sonnet e retorna a resposta do modelo.
+ * Configurado para ter consistência com OpenAI: temperature 0.1, system message.
  * @param {string} prompt
  * @returns {Promise<string>} resposta do modelo
  */
-exports.extractATSDataClaude = async function(prompt) {
+exports.extractATSDataClaude = async function (prompt) {
   const headers = {
     'x-api-key': CLAUDE_API_KEY,
     'anthropic-version': '2023-06-01',
     'content-type': 'application/json'
   };
+
   const body = {
     model: CLAUDE_MODEL,
-    max_tokens: 4096, // ajuste conforme necessidade
+    max_tokens: 4096, // Alinhado com OpenAI para consistência
+    temperature: 0.1, // Mesma temperatura do OpenAI para consistência
+    system: 'Você é um ATS especialista.', // Mesmo system message do OpenAI
     messages: [
       { role: 'user', content: prompt }
     ]
   };
+
+  console.log('[Claude] Configuração:', {
+    model: CLAUDE_MODEL,
+    temperature: 0.1,
+    max_tokens: 4096,
+    system: 'Você é um ATS especialista.'
+  });
+
   try {
     const response = await axios.post(CLAUDE_URL, body, { headers });
+    console.log('[Claude] Resposta recebida com sucesso');
     // Claude retorna a resposta em response.data.content[0].text
     return response.data.content[0].text;
   } catch (e) {

@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const atsController = require('../controllers/atsController');
+const authMiddleware = require('../utils/authMiddleware');
 
 const router = express.Router();
 const storage = multer.diskStorage({
@@ -18,6 +19,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-router.post('/analyze', upload.single('resume'), atsController.analyze);
+router.post('/analyze', authMiddleware, upload.single('resume'), atsController.analyze);
 
 module.exports = router;
