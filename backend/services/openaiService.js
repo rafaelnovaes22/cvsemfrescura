@@ -9,14 +9,14 @@ function buildPrompt(jobsText, resumeText) {
 Você é um sistema ATS especialista em análise de currículos e vagas.
 
 1. Extraia e liste de forma COMPLETA, DETALHADA e SEM OMITIR NENHUMA todos os termos relevantes das vagas em "job_keywords". Siga OBRIGATORIAMENTE as regras abaixo:
-   - Remova duplicidades contextuais (ex: “roadmap” e “visão e roadmap” → mantenha apenas o termo mais completo; “metodologias ágeis” e “metodologias” → mantenha o termo mais específico).
-   - Agrupe termos semelhantes (ex: “requisitos técnicos”, “requisitos funcionais”, “requisitos de negócios”, “requisitos não funcionais” → “requisitos (técnicos, funcionais, de negócios, não funcionais)”).
-   - Elimine verbos soltos ou termos que não fazem sentido isoladamente (ex: “ouvir”, “planejamento”, “definir escopo” → mantenha apenas “escopo” se relevante).
+   - Remova duplicidades contextuais (ex: "roadmap" e "visão e roadmap" → mantenha apenas o termo mais completo; "metodologias ágeis" e "metodologias" → mantenha o termo mais específico).
+   - Agrupe termos semelhantes (ex: "requisitos técnicos", "requisitos funcionais", "requisitos de negócios", "requisitos não funcionais" → "requisitos (técnicos, funcionais, de negócios, não funcionais)").
+   - Elimine verbos soltos ou termos que não fazem sentido isoladamente (ex: "ouvir", "planejamento", "definir escopo" → mantenha apenas "escopo" se relevante).
    - Mantenha apenas substantivos compostos, nomes de áreas, ferramentas, conceitos completos e termos realmente relevantes.
    - Não repita termos com variação de maiúsculas/minúsculas ou plural/singular.
    - O resultado deve ser uma lista enxuta, sem repetições, agrupada por contexto quando necessário.
    - NÃO inclua frases descritivas, apenas termos, tecnologias, competências, ferramentas, cargos, requisitos, etc.
-   - NÃO inclua verbos soltos (ex: “Implementar”, “Executar”, “Comunicar”) como palavras-chave. Verbos só devem aparecer se fizerem parte de uma expressão técnica ou termo composto relevante (ex: “Gestão de Projetos”, “Aplicar Metodologias Ágeis”).
+   - NÃO inclua verbos soltos (ex: "Implementar", "Executar", "Comunicar") como palavras-chave. Verbos só devem aparecer se fizerem parte de uma expressão técnica ou termo composto relevante (ex: "Gestão de Projetos", "Aplicar Metodologias Ágeis").
    - NÃO utilize objetos ou listas separadas. Apenas um array único contendo todos os termos relevantes extraídos das vagas.
    - Ao extrair termos de múltiplas vagas, consolide todos em um ÚNICO array job_keywords, SEM duplicidades. Cada termo deve aparecer apenas uma vez, mesmo que esteja presente em mais de uma vaga ou trecho. Faça a deduplicação após juntar todos os termos das vagas analisadas.
 
@@ -47,7 +47,45 @@ Você é um sistema ATS especialista em análise de currículos e vagas.
    - Habilidades
    - Informações Pessoais
    - Experiência Profissional
-   Para cada campo, dê uma NOTA de 0 a 10, escreva uma avaliação crítica e sugestões de melhoria, considerando as exigências das vagas.
+   
+   IMPORTANTE - ADAPTAÇÃO A DIFERENTES ESTRUTURAS DE CURRÍCULO:
+   - Se uma seção não existir claramente definida no currículo, analise o CONTEÚDO DISPONÍVEL e informe que a seção está ausente ou misturada
+   - Se as informações estiverem espalhadas ou misturadas, extraia o que for possível do texto disponível
+   - Para currículos mal estruturados, foque na ESSÊNCIA das informações, não na formatação
+   - Se não há dados suficientes para uma seção, seja honesto: nota baixa + sugestão de criar/organizar essa seção
+   
+   Para cada campo, você DEVE:
+   - Dar uma NOTA de 0 a 10 baseada na qualidade, completude e relevância para as vagas
+     * NOTA 0-2: Área para desenvolver ou informações em construção
+     * NOTA 3-5: Seção presente mas com espaço para crescimento  
+     * NOTA 6-8: Seção bem estruturada com potencial de aprimoramento
+     * NOTA 9-10: Seção excelente e bem desenvolvida
+   - Escrever uma avaliação EMPÁTICA e CONSTRUTIVA (mínimo 2 frases) analisando:
+     * SEMPRE começar com algo POSITIVO quando possível
+     * O que está BEM na seção atual (ou o que encontrou no currículo mesmo que desorganizado)
+     * O que pode ser DESENVOLVIDO de forma encorajadora (incluindo estruturação se necessário)
+     * Como a seção se relaciona com as vagas analisadas
+     * Se a seção está em construção, mencione de forma SUPORTIVA
+   - Fornecer 2-4 sugestões PRÁTICAS e ENCORAJADORAS de desenvolvimento
+   
+   INSTRUÇÕES ESPECIAIS POR SEÇÃO:
+   - RESUMO: Se não há resumo/objetivo, analise se há informações introdutórias no início
+   - EXPERIÊNCIA: Sempre presente de alguma forma - extraia do que estiver disponível  
+   - HABILIDADES: Se não há seção específica, extraia do texto geral o que for mencionado
+   - FORMAÇÃO: Se não clara, procure por educação, cursos, universidade, etc.
+   - IDIOMAS: Se não mencionado, nota baixa + sugestão de incluir
+   - INFO PESSOAIS: Sempre há algo (nome, contato) - avalie completude
+   
+   TONE E LINGUAGEM:
+   - Use linguagem EXTREMAMENTE AMIGÁVEL e ENCORAJADORA
+   - NUNCA use palavras como: "crítico", "ausente", "problemático", "falha", "deficiência", "prejudica", "lacuna"
+   - SEMPRE use: "área para desenvolver", "em construção", "oportunidade", "pode crescer", "seria valioso incluir"
+   - Reconheça SEMPRE o esforço e potencial do candidato
+   - Foque no CRESCIMENTO e DESENVOLVIMENTO, nunca nos problemas
+   - Seja ESPECÍFICO mas GENTIL e INSPIRADOR nas sugestões
+   - Trate cada seção como uma "jornada em andamento"
+   
+   NUNCA deixe uma seção sem análise - sempre forneça feedback CONSTRUTIVO e ENCORAJADOR.
 
 5. Dê recomendações gerais para melhorar o currículo em relação às vagas analisadas.
 
@@ -80,17 +118,28 @@ Responda em JSON, SEMPRE incluindo TODAS as chaves abaixo, mesmo que alguma este
 exports.extractATSData = async (jobsText, resumeText) => {
   const prompt = buildPrompt(jobsText, resumeText);
   console.log('[OpenAI] Tamanho do prompt:', prompt.length, 'caracteres');
+
+  const requestConfig = {
+    model: 'gpt-4-turbo-2024-04-09',
+    messages: [
+      { role: 'system', content: 'Você é um ATS especialista.' },
+      { role: 'user', content: prompt }
+    ],
+    temperature: 0.1,
+    max_tokens: 4096 // Limite máximo do GPT-4 Turbo
+  };
+
+  console.log('[OpenAI] Configuração:', {
+    model: requestConfig.model,
+    temperature: requestConfig.temperature,
+    max_tokens: requestConfig.max_tokens,
+    system: 'Você é um ATS especialista.'
+  });
+
   try {
     const response = await axios.post(
       OPENAI_URL,
-      {
-        model: 'gpt-4-turbo-2024-04-09',
-        messages: [
-          { role: 'system', content: 'Você é um ATS especialista.' },
-          { role: 'user', content: prompt }
-        ],
-        temperature: 0.1
-      },
+      requestConfig,
       {
         headers: {
           'Authorization': `Bearer ${OPENAI_API_KEY}`,
@@ -98,9 +147,11 @@ exports.extractATSData = async (jobsText, resumeText) => {
         }
       }
     );
+
     // Tenta parsear JSON da resposta
     let text = response.data.choices[0].message.content;
-    console.log('[OpenAI] Resposta recebida:', text);
+    console.log('[OpenAI] Resposta recebida com sucesso');
+
     // Remove blocos markdown e crases
     text = text.trim();
     if (text.startsWith('```json')) text = text.slice(7);
@@ -108,6 +159,7 @@ exports.extractATSData = async (jobsText, resumeText) => {
     text = text.trim();
     if (text.endsWith('```')) text = text.slice(0, -3);
     text = text.trim();
+
     // Faz o parse do JSON limpo
     return JSON.parse(text);
   } catch (e) {
@@ -115,7 +167,7 @@ exports.extractATSData = async (jobsText, resumeText) => {
     // Fallback para Claude
     try {
       const claudeRaw = await claudeService.extractATSDataClaude(prompt);
-      console.log('[Claude] Resposta recebida:', claudeRaw);
+      console.log('[Claude] Resposta recebida com sucesso (fallback)');
       let text = claudeRaw.trim();
       if (text.startsWith('```json')) text = text.slice(7);
       else if (text.startsWith('```')) text = text.slice(3);
