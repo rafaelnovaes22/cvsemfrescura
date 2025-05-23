@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Gestão de Códigos | CV Sem Frescura</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Header CSS -->
+    <link rel="stylesheet" href="assets/css/header.css">
+
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/header.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .table th,
+        .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-exhausted {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
+                flex-direction: column;
+            }
+
+            .table {
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header será carregado dinamicamente pelo header.js -->
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎁 Painel Administrativo - Códigos de Presente</h1>
+            <p>Gerencie códigos de presente, monitore uso e gere relatórios</p>
+        </div>
+
+        <!-- Dashboard Stats -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalCodes">-</div>
+                <div class="stat-label">Total de Códigos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="activeCodes">-</div>
+                <div class="stat-label">Códigos Ativos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="exhaustedCodes">-</div>
+                <div class="stat-label">Códigos Esgotados</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="usagesToday">-</div>
+                <div class="stat-label">Usos Hoje</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="expiringCodes">-</div>
+                <div class="stat-label">Expiram em 7 dias</div>
+            </div>
+        </div>
+
+        <!-- Criar Códigos em Lote -->
+        <div class="section">
+            <h2>🔨 Criar Códigos em Lote</h2>
+            <form id="bulkCreateForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="prefix">Prefixo:</label>
+                        <input type="text" id="prefix" name="prefix" value="PROMO"
+                            placeholder="Ex: PROMO, BLACK, NATAL">
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity">Quantidade:</label>
+                        <input type="number" id="quantity" name="quantity" value="10" min="1" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label for="maxUses">Máximo de Usos:</label>
+                        <input type="number" id="maxUses" name="maxUses" value="1" min="1">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="expiresAt">Data de Expiração (Opcional):</label>
+                        <input type="datetime-local" id="expiresAt" name="expiresAt">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Descrição:</label>
+                        <input type="text" id="description" name="description"
+                            placeholder="Ex: Promoção Black Friday 2024">
+                    </div>
+                </div>
+                <button type="submit" class="btn">🚀 Criar Códigos</button>
+            </form>
+        </div>
+
+        <!-- Filtros e Listagem -->
+        <div class="section">
+            <h2>📋 Gestão de Códigos</h2>
+
+            <div class="filters">
+                <select id="statusFilter">
+                    <option value="">Todos os Status</option>
+                    <option value="active">Ativos</option>
+                    <option value="inactive">Inativos</option>
+                    <option value="exhausted">Esgotados</option>
+                    <option value="expired">Expirados</option>
+                </select>
+
+                <input type="text" id="searchFilter" placeholder="Buscar código...">
+
+                <button onclick="loadCodes()" class="btn">🔍 Filtrar</button>
+                <button onclick="exportCodes()" class="btn btn-secondary">📥 Exportar CSV</button>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <div id="codesTable">
+                <div class="loading">Carregando códigos...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function () {
+            loadDashboard();
+            loadCodes();
+
+            // Event listeners
+            document.getElementById('bulkCreateForm').addEventListener('submit', handleBulkCreate);
+            document.getElementById('statusFilter').addEventListener('change', loadCodes);
+            document.getElementById('searchFilter').addEventListener('input', debounce(loadCodes, 500));
+        });
+
+        // Função de debounce para search
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Carregar dashboard
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/api/admin/dashboard', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar dashboard');
+                }
+
+                const data = await response.json();
+
+                document.getElementById('totalCodes').textContent = data.totalCodes;
+                document.getElementById('activeCodes').textContent = data.activeCodes;
+                document.getElementById('exhaustedCodes').textContent = data.exhaustedCodes;
+                document.getElementById('usagesToday').textContent = data.usagesToday;
+                document.getElementById('expiringCodes').textContent = data.expiringCodes;
+
+            } catch (error) {
+                console.error('Erro no dashboard:', error);
+                showAlert('Erro ao carregar dashboard', 'error');
+            }
+        }
+
+        // Carregar códigos
+        async function loadCodes() {
+            try {
+                const status = document.getElementById('statusFilter').value;
+                const search = document.getElementById('searchFilter').value;
+
+                const params = new URLSearchParams({
+                    page: currentPage,
+                    limit: itemsPerPage
+                });
+
+                if (status) params.append('status', status);
+                if (search) params.append('search', search);
+
+                const response = await fetch(`/api/admin/codes?${params}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar códigos');
+                }
+
+                const data = await response.json();
+                renderCodesTable(data.codes, data.pagination);
+
+            } catch (error) {
+                console.error('Erro ao carregar códigos:', error);
+                showAlert('Erro ao carregar códigos', 'error');
+            }
+        }
+
+        // Renderizar tabela de códigos
+        function renderCodesTable(codes, pagination) {
+            const container = document.getElementById('codesTable');
+
+            if (codes.length === 0) {
+                container.innerHTML = '<div class="loading">Nenhum código encontrado</div>';
+                return;
+            }
+
+            let html = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Status</th>
+                            <th>Usos</th>
+                            <th>Descrição</th>
+                            <th>Expira</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            codes.forEach(code => {
+                const status = getCodeStatus(code);
+                const statusClass = getStatusClass(status);
+                const expiresAt = code.expiresAt ? new Date(code.expiresAt).toLocaleDateString() : 'Nunca';
+
+                html += `
+                    <tr>
+                        <td><strong>${code.code}</strong></td>
+                        <td><span class="status-badge ${statusClass}">${status}</span></td>
+                        <td>${code.usedCount}/${code.maxUses}</td>
+                        <td>${code.description || '-'}</td>
+                        <td>${expiresAt}</td>
+                        <td>
+                            <button onclick="toggleCodeStatus(${code.id}, ${!code.isActive})" class="btn btn-secondary">
+                                ${code.isActive ? 'Desativar' : 'Ativar'}
+                            </button>
+                            <button onclick="deleteCode(${code.id})" class="btn btn-danger">Excluir</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+
+            // Adicionar paginação
+            if (pagination.totalPages > 1) {
+                html += renderPagination(pagination);
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Determinar status do código
+        function getCodeStatus(code) {
+            if (!code.isActive) return 'Inativo';
+            if (code.usedCount >= code.maxUses) return 'Esgotado';
+            if (code.expiresAt && new Date(code.expiresAt) < new Date()) return 'Expirado';
+            return 'Ativo';
+        }
+
+        // Obter classe CSS do status
+        function getStatusClass(status) {
+            switch (status) {
+                case 'Ativo': return 'status-active';
+                case 'Inativo': return 'status-inactive';
+                case 'Esgotado': return 'status-exhausted';
+                case 'Expirado': return 'status-exhausted';
+                default: return '';
+            }
+        }
+
+        // Renderizar paginação
+        function renderPagination(pagination) {
+            let html = '<div style="text-align: center; margin-top: 20px;">';
+
+            for (let i = 1; i <= pagination.totalPages; i++) {
+                const active = i === pagination.currentPage ? 'style="background: #333;"' : '';
+                html += `<button onclick="changePage(${i})" class="btn" ${active}>${i}</button>`;
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        // Mudar página
+        function changePage(page) {
+            currentPage = page;
+            loadCodes();
+        }
+
+        // Criar códigos em lote
+        async function handleBulkCreate(e) {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+
+            try {
+                const response = await fetch('/api/admin/codes/bulk', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert(result.message, 'success');
+                    loadDashboard();
+                    loadCodes();
+                    e.target.reset();
+                } else {
+                    throw new Error(result.error);
+                }
+
+            } catch (error) {
+                console.error('Erro ao criar códigos:', error);
+                showAlert('Erro ao criar códigos: ' + error.message, 'error');
+            }
+        }
+
+        // Alterar status do código
+        async function toggleCodeStatus(id, isActive) {
+            try {
+                const response = await fetch(`/api/admin/codes/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify({ isActive })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert(result.message, 'success');
+                    loadDashboard();
+                    loadCodes();
+                } else {
+                    throw new Error(result.error);
+                }
+
+            } catch (error) {
+                console.error('Erro ao alterar código:', error);
+                showAlert('Erro ao alterar código: ' + error.message, 'error');
+            }
+        }
+
+        // Deletar código
+        async function deleteCode(id) {
+            if (!confirm('Tem certeza que deseja excluir este código?')) return;
+
+            try {
+                const response = await fetch(`/api/admin/codes/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert(result.message, 'success');
+                    loadDashboard();
+                    loadCodes();
+                } else {
+                    throw new Error(result.error);
+                }
+
+            } catch (error) {
+                console.error('Erro ao excluir código:', error);
+                showAlert('Erro ao excluir código: ' + error.message, 'error');
+            }
+        }
+
+        // Exportar códigos para CSV
+        async function exportCodes() {
+            try {
+                const status = document.getElementById('statusFilter').value;
+                const params = status ? `?status=${status}` : '';
+
+                const response = await fetch(`/api/admin/export/codes${params}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    }
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'gift-codes.csv';
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    throw new Error('Erro ao exportar');
+                }
+
+            } catch (error) {
+                console.error('Erro ao exportar:', error);
+                showAlert('Erro ao exportar códigos', 'error');
+            }
+        }
+
+        // Mostrar alert
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+
+            container.innerHTML = `
+                <div class="alert ${alertClass}">
+                    ${message}
+                </div>
+            `;
+
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+    </script>
+</body>
+
+</html>
