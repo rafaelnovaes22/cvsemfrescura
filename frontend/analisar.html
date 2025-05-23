@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisar Currículo - CV Sem Frescura</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Header CSS -->
+    <link rel="stylesheet" href="assets/css/header.css">
+
+    <!-- Estilos do onboarding -->
+    <link rel="stylesheet" href="/assets/css/onboarding.css">
+
+    <script>
+        // Autenticação desativada temporariamente para testes
+        /*
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pequeno atraso para garantir que  está carregado
+            setTimeout(function() {
+                if (!window.isAuthenticated || !window.isAuthenticated()) {
+                    window.location.href = '#';
+                }
+            }, 50);
+        });
+        */
+    </script>
+    <style>
+        :root {
+            --primary: #583819;
+            --primary-dark: #512808;
+            --background: #F3EADA;
+            --card-bg: #FFFCF9;
+            --white: #FFFFFF;
+            --text-dark: #583819;
+            --text-gray: #505050;
+            --border-color: #D1D1D1;
+            --selected-file-bg: #ECD9B5;
+            --border-radius: 10px;
+            --shadow: 0px 4px 6px rgba(33, 33, 33, 0.04);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--background);
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header styles removidos - agora gerenciados pelo header.js */
+
+        /* Responsividade para o conteúdo principal */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 5px 0;
+            }
+        }
+
+        .main-content {
+            padding: 10px 0;
+            flex: 1 0 auto;
+            margin-top: 80px;
+            /* Espaço para o header fixo */
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .main-title {
+            color: var(--text-dark);
+            font-size: clamp(24px, 5vw, 35px);
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 5px;
+        }
+
+        .main-description {
+            color: var(--text-gray);
+            font-size: clamp(14px, 3vw, 17px);
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        .upload-section {
+            max-width: 802px;
+            width: 95%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .dropzone {
+            width: 100%;
+            height: auto;
+            min-height: 150px;
+            border: 1.5px dashed var(--primary);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: var(--transition);
+            padding: 20px;
+        }
+
+        .dropzone:hover,
+        .dropzone.active {
+            background-color: rgba(88, 56, 25, 0.05);
+        }
+
+        .upload-icon {
+            width: 42px;
+            height: 28px;
+            background: url('assets/img/icon-upload.svg') no-repeat center;
+            background-size: contain;
+            margin-bottom: 12px;
+        }
+
+        .upload-button {
+            width: 205px;
+            height: 37px;
+            border-radius: 8px;
+            border: 2px var(--primary) solid;
+            background: transparent;
+            position: relative;
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 25px;
+            cursor: pointer;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-button::before {
+            content: "+";
+            width: auto;
+            height: auto;
+            left: 13px;
+            top: 6px;
+            position: absolute;
+            background: transparent;
+            color: var(--primary);
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .dropzone-text {
+            text-align: center;
+            color: var(--text-gray);
+            font-size: 14px;
+            font-weight: 400;
+            margin-top: 10px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .selected-file {
+            display: none;
+            width: 100%;
+            padding: 5px 19px;
+            background-color: var(--selected-file-bg);
+            border-radius: 5px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .file-icon {
+            width: 18px;
+            height: 16px;
+            margin-right: 8px;
+            background: url('assets/img/curriculo.svg') no-repeat center;
+            background-size: contain;
+        }
+
+        .file-name {
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 18px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: calc(100% - 50px);
+        }
+
+        .remove-file {
+            width: 16px;
+            height: 16px;
+            min-width: 16px;
+            background: url('assets/img/remover.svg') no-repeat center;
+            background-size: contain;
+            border: none;
+            cursor: pointer;
+        }
+
+        .links-section {
+            margin-top: 20px;
+        }
+
+        .links-section h2 {
+            color: var(--text-gray);
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 24px;
+            margin-bottom: 5px;
+        }
+
+        .job-links-container {
+            margin-bottom: 10px;
+        }
+
+        .job-link-item {
+            margin-bottom: 10px;
+        }
+
+        .job-link-input {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 11px;
+            transition: var(--transition);
+            width: 100%;
+            max-width: 750px;
+            box-sizing: border-box;
+            font-family: 'IBM Plex Sans', sans-serif;
+            color: var(--text-gray);
+        }
+
+        .job-link-input::placeholder {
+            color: #505050;
+            font-size: 11px;
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-weight: 400;
+            line-height: 18px;
+            word-break: break-word;
+        }
+
+        .job-link-input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .add-job-link-btn {
+            background-color: transparent;
+            color: var(--primary);
+            border: none;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 5px;
+            border-radius: 4px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+        }
+
+        .add-job-link-btn:hover {
+            background-color: rgba(88, 56, 25, 0.05);
+        }
+
+        .analyze-button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            margin-bottom: 40px;
+        }
+
+        .analyze-button {
+            width: 100%;
+            max-width: 349px;
+            height: 50px;
+            background-color: var(--primary-dark);
+            color: var(--white);
+            border: none;
+            border-radius: 7px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .analyze-button:hover {
+            opacity: 0.9;
+        }
+
+        .features-section {
+            background-color: var(--card-bg);
+            padding: 40px 0;
+            width: 100%;
+        }
+
+        .features-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .feature-item {
+            width: 269px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 10px;
+        }
+
+        .feature-icon {
+            width: 33px;
+            height: 33px;
+            background-color: var(--primary);
+            border-radius: 3px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feature-icon.icon-ai {
+            background: var(--primary) url('assets/img/icon-analysis.png') no-repeat center;
+            background-size: 21px;
+        }
+
+        .feature-icon.icon-feedback {
+            background: var(--primary) url('assets/img/icon-feedback.png') no-repeat center;
+            background-size: 19px;
+        }
+
+        .feature-icon.icon-optimization {
+            background: var(--primary) url('assets/img/icon-optimization.png') no-repeat center;
+            background-size: 19px;
+        }
+
+        .feature-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+
+        .feature-desc {
+            color: var(--text-gray);
+            font-size: 17px;
+            line-height: 1.5;
+        }
+
+        footer {
+            background-color: var(--primary-dark);
+            color: var(--white);
+            padding: 20px 0;
+            flex-shrink: 0;
+            margin-top: auto;
+        }
+
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-logo {
+            height: 40px;
+            width: auto;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-link:hover {
+            color: var(--white);
+        }
+
+        .copyright {
+            margin-top: 5px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+        }
+
+        @media (max-width: 992px) {
+            .features-container {
+                gap: 60px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .upload-section {
+                padding: 15px;
+            }
+
+            .features-container {
+                gap: 30px;
+            }
+
+            .feature-item {
+                width: 100%;
+                max-width: 320px;
+            }
+
+            .footer-container {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+
+            .footer-links {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-title {
+                font-size: 24px;
+            }
+
+            .main-description {
+                font-size: 14px;
+            }
+
+            .upload-section {
+                padding: 10px;
+            }
+
+            .dropzone {
+                min-height: 120px;
+                padding: 15px;
+            }
+
+            .upload-button {
+                width: 180px;
+                font-size: 12px;
+            }
+
+            .feature-item {
+                padding: 5px;
+            }
+        }
+    </style>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/header.js"></script>
+    <script>
+        // Função global para mostrar notificações
+        window.showNotification = function (message, type = 'info') {
+            // Criar elemento de notificação se não existir
+            let notification = document.getElementById('notification');
+            if (!notification) {
+                notification = document.createElement('div');
+                notification.id = 'notification';
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    color: white;
+                    font-weight: 600;
+                    z-index: 10000;
+                    max-width: 300px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                    transition: all 0.3s ease;
+                `;
+                document.body.appendChild(notification);
+            }
+
+            // Definir cor baseada no tipo
+            const colors = {
+                success: '#4CAF50',
+                error: '#F44336',
+                info: '#2196F3',
+                warning: '#FF9800'
+            };
+
+            notification.style.backgroundColor = colors[type] || colors.info;
+            notification.textContent = message;
+            notification.style.display = 'block';
+
+            // Remover após 5 segundos
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+        };
+
+        // Função para aplicar código de presente após autenticação
+        function applyGiftCodeAfterAuth(code) {
+            fetch('/api/gift-code/apply', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${auth.getToken()}`
+                },
+                body: JSON.stringify({ code: code })
+            })
+                .then(response => {
+                    // Verificar se é erro 401 (não autenticado)
+                    if (response.status === 401) {
+                        showNotification('Sessão expirada. Faça login novamente.', 'warning');
+                        // Limpar autenticação e recarregar página
+                        auth.logout();
+                        return null;
+                    }
+
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data) return; // Se foi erro 401, data será null
+
+                    if (data.success) {
+                        // Mostrar notificação de sucesso
+                        showNotification(data.message || 'Código aplicado com sucesso!', 'success');
+                        // Atualizar créditos na interface
+                        const user = auth.getUser();
+                        if (user) {
+                            user.credits = data.credits;
+                            localStorage.setItem('user', JSON.stringify(user));
+                            // Header será atualizado automaticamente pelo header.js
+                        }
+                        // Limpar código após uso bem-sucedido
+                        localStorage.removeItem('giftCode');
+                        localStorage.removeItem('pendingGiftCode');
+                    } else {
+                        // Verificar se é erro de código já utilizado
+                        if (data.error && (data.error.includes('já foi utilizado') || data.error.includes('já utilizou') || data.error.includes('inválido ou não pode ser utilizado'))) {
+                            showGiftCodeErrorModal(data.error);
+
+                            // Limpar todos os dados relacionados ao código
+                            localStorage.removeItem('giftCode');
+                            localStorage.removeItem('pendingGiftCode');
+                            localStorage.removeItem('isGiftCodeUser');
+
+                            // Se for acesso direto sem login prévio, mostrar modal de login após um tempo
+                            if (!auth.isAuthenticated() && (data.error.includes('já utilizou') || data.error.includes('já foi utilizado'))) {
+                                setTimeout(() => {
+                                    // Fechar modal de erro primeiro
+                                    closeGiftCodeModal();
+                                    // Mostrar modal de autenticação
+                                    setTimeout(() => {
+                                        const authModal = document.getElementById('authModal');
+                                        if (authModal) {
+                                            authModal.style.display = 'flex';
+                                            document.body.style.overflow = 'hidden';
+                                            // Mostrar formulário de login
+                                            document.getElementById('loginForm').style.display = 'block';
+                                            document.getElementById('registerForm').style.display = 'none';
+                                            document.getElementById('authModalTitle').textContent = 'Entrar';
+                                        }
+                                    }, 500);
+                                }, 3000);
+                            }
+                        } else {
+                            showGiftCodeErrorModal(data.error || 'Erro inesperado ao aplicar código de presente.');
+                            // Limpar código em caso de erro genérico
+                            localStorage.removeItem('giftCode');
+                            localStorage.removeItem('pendingGiftCode');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao aplicar código:', error);
+                    showGiftCodeErrorModal('Erro de conexão. Verifique sua internet e tente novamente.');
+                });
+        }
+
+        // Função para limpar códigos inválidos do localStorage
+        function cleanupInvalidGiftCodes() {
+            const giftCode = localStorage.getItem('giftCode');
+            const pendingGiftCode = localStorage.getItem('pendingGiftCode');
+
+            // Remover códigos vazios ou inválidos
+            if (giftCode && giftCode.trim() === '') {
+                localStorage.removeItem('giftCode');
+            }
+            if (pendingGiftCode && pendingGiftCode.trim() === '') {
+                localStorage.removeItem('pendingGiftCode');
+            }
+        }
+
+        // Função adicional para limpar dados de código quando acesso direto sem código na URL
+        function cleanupGiftCodeDataIfNoUrlCode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const giftCodeFromUrl = urlParams.get('giftCode');
+
+            // Se não há código na URL, limpar dados antigos para evitar processamento indevido
+            if (!giftCodeFromUrl) {
+                const hasOldCode = localStorage.getItem('giftCode') || localStorage.getItem('pendingGiftCode');
+                if (hasOldCode) {
+                    console.log('Limpando dados antigos de código de presente - acesso direto sem código na URL');
+                    localStorage.removeItem('giftCode');
+                    localStorage.removeItem('pendingGiftCode');
+                    // Não remover isGiftCodeUser aqui pois pode ser um usuário legítimo que já usou o código
+                }
+            }
+        }
+
+        // Limpar códigos inválidos ao carregar a página
+        cleanupInvalidGiftCodes();
+        // Limpar dados antigos se não há código na URL
+        cleanupGiftCodeDataIfNoUrlCode();
+
+        // Função para mostrar modal específico baseado no tipo de erro
+        function showGiftCodeErrorModal(errorMessage) {
+            // Analisar o tipo de erro para personalizar a resposta
+            let title, message, actions;
+
+            if (errorMessage.includes('já utilizou') || errorMessage.includes('já foi utilizado')) {
+                title = '🎁 Código Já Utilizado';
+                message = `
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">🎁</div>
+                        <h3 style="color: #583819; margin-bottom: 16px;">Este código já foi utilizado</h3>
+                        <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
+                            Você já resgatou este código de presente anteriormente. <br>
+                            Cada código pode ser usado apenas uma vez por pessoa.
+                        </p>
+                        <div style="background: #f8f9ff; border: 1px solid #e1e8ff; border-radius: 8px; padding: 16px; margin: 16px 0;">
+                            <strong style="color: #583819;">💡 O que você pode fazer:</strong>
+                            <ul style="text-align: left; margin: 8px 0; padding-left: 20px; color: #666;">
+                                <li>Verifique se você tem análises disponíveis em seu perfil</li>
+                                <li>Considere adquirir um plano para mais análises</li>
+                                <li>Compartilhe nosso serviço para ganhar novos códigos</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                actions = `
+                    <div style="display: flex; gap: 12px; justify-content: center; margin-top: 20px;">
+                        <button onclick="closeGiftCodeModal()" style="
+                            padding: 12px 24px; border: 2px solid #583819; background: transparent; 
+                            color: #583819; border-radius: 8px; cursor: pointer; font-weight: 600;
+                        ">Entendi</button>
+                        <button onclick="window.location.href='payment.html'" style="
+                            padding: 12px 24px; background: #583819; color: white; border: none; 
+                            border-radius: 8px; cursor: pointer; font-weight: 600;
+                        ">Ver Planos 🚀</button>
+                    </div>
+                `;
+            } else if (errorMessage.includes('esgotado')) {
+                title = '📋 Código Esgotado';
+                message = `
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">📋</div>
+                        <h3 style="color: #583819; margin-bottom: 16px;">Código esgotado</h3>
+                        <p style="color: #666; line-height: 1.6;">
+                            Este código de presente atingiu o limite máximo de usos. <br>
+                            Infelizmente não é mais possível utilizá-lo.
+                        </p>
+                    </div>
+                `;
+                actions = `
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button onclick="closeGiftCodeModal()" style="
+                            padding: 12px 24px; background: #583819; color: white; border: none; 
+                            border-radius: 8px; cursor: pointer; font-weight: 600;
+                        ">Entendi</button>
+                    </div>
+                `;
+            } else if (errorMessage.includes('expirado')) {
+                title = '⏰ Código Expirado';
+                message = `
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">⏰</div>
+                        <h3 style="color: #583819; margin-bottom: 16px;">Código expirado</h3>
+                        <p style="color: #666; line-height: 1.6;">
+                            Este código de presente passou do prazo de validade. <br>
+                            Não é mais possível utilizá-lo.
+                        </p>
+                    </div>
+                `;
+                actions = `
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button onclick="closeGiftCodeModal()" style="
+                            padding: 12px 24px; background: #583819; color: white; border: none; 
+                            border-radius: 8px; cursor: pointer; font-weight: 600;
+                        ">Entendi</button>
+                    </div>
+                `;
+            } else {
+                title = '❌ Código Inválido';
+                message = `
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">❌</div>
+                        <h3 style="color: #583819; margin-bottom: 16px;">Código não encontrado</h3>
+                        <p style="color: #666; line-height: 1.6;">
+                            Este código de presente não foi encontrado em nosso sistema. <br>
+                            Verifique se foi digitado corretamente.
+                        </p>
+                    </div>
+                `;
+                actions = `
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button onclick="closeGiftCodeModal()" style="
+                            padding: 12px 24px; background: #583819; color: white; border: none; 
+                            border-radius: 8px; cursor: pointer; font-weight: 600;
+                        ">Tentar Novamente</button>
+                    </div>
+                `;
+            }
+
+            // Criar e mostrar modal
+            const modalHTML = `
+                <div id="giftCodeErrorModal" style="
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background: rgba(0,0,0,0.6); display: flex; align-items: center; 
+                    justify-content: center; z-index: 10000;
+                ">
+                    <div style="
+                        background: white; border-radius: 16px; max-width: 500px; width: 90%;
+                        box-shadow: 0 20px 40px rgba(0,0,0,0.3); animation: modalSlideIn 0.3s ease;
+                    ">
+                        ${message}
+                        ${actions}
+                    </div>
+                </div>
+                <style>
+                    @keyframes modalSlideIn {
+                        from { transform: translateY(-50px); opacity: 0; }
+                        to { transform: translateY(0); opacity: 1; }
+                    }
+                </style>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        // Função para fechar modal
+        window.closeGiftCodeModal = function () {
+            const modal = document.getElementById('giftCodeErrorModal');
+            if (modal) modal.remove();
+        };
+    </script>
+</head>
+
+<body>
+    <!-- Modal de Login/Cadastro -->
+    <div id="authModal" class="modal"
+        style="display:flex; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.45); align-items:center; justify-content:center;">
+        <div
+            style="background:#fff; border-radius:18px; max-width:380px; width:92vw; padding:32px 22px 24px 22px; box-shadow:0 8px 32px #0003; position:relative; display:flex; flex-direction:column; align-items:center;">
+            <img src="assets/img/logo.png" alt="Logo CV Sem Frescura"
+                style="width:110px; margin-bottom:18px; display:block;">
+            <button id="closeAuthModal"
+                style="position:absolute; right:18px; top:14px; background:none; border:none; font-size:22px; color:#583819; cursor:pointer; display:none;">×</button>
+            <h2 id="authModalTitle"
+                style="font-family:'IBM Plex Sans',sans-serif; color:#583819; font-size:1.4em; font-weight:700; margin-bottom:18px;">
+                Entrar</h2>
+            <form id="loginForm" style="display:block; width:100%;">
+                <input type="email" id="loginEmail" placeholder="E-mail" required
+                    style="margin-bottom:12px; width:100%; padding:10px 12px; border:1.5px solid #ECD9B5; border-radius:7px; font-size:1em;">
+                <input type="password" id="loginPassword" placeholder="Senha" required
+                    style="margin-bottom:12px; width:100%; padding:10px 12px; border:1.5px solid #ECD9B5; border-radius:7px; font-size:1em;">
+                <button type="submit"
+                    style="width:100%; background:linear-gradient(90deg,#583819,#ECD9B5); color:#fff; border:none; padding:11px; border-radius:7px; font-weight:700; font-size:1em; margin-bottom:8px; box-shadow:0 2px 8px #58381922;">Entrar</button>
+                <p style="margin:8px 0 0 0; font-size:14px; text-align:center;">Não tem conta? <a href="#"
+                        id="showRegister" style="color:#583819; font-weight:600;">Cadastre-se</a></p>
+            </form>
+            <form id="registerForm" style="display:none; width:100%;">
+                <input type="text" id="registerName" placeholder="Nome completo" required
+                    style="margin-bottom:12px; width:100%; padding:10px 12px; border:1.5px solid #ECD9B5; border-radius:7px; font-size:1em;">
+                <input type="email" id="registerEmail" placeholder="E-mail" required
+                    style="margin-bottom:12px; width:100%; padding:10px 12px; border:1.5px solid #ECD9B5; border-radius:7px; font-size:1em;">
+                <input type="password" id="registerPassword" placeholder="Senha" required
+                    style="margin-bottom:12px; width:100%; padding:10px 12px; border:1.5px solid #ECD9B5; border-radius:7px; font-size:1em;">
+                <button type="submit"
+                    style="width:100%; background:linear-gradient(90deg,#583819,#ECD9B5); color:#fff; border:none; padding:11px; border-radius:7px; font-weight:700; font-size:1em; margin-bottom:8px; box-shadow:0 2px 8px #58381922;">Cadastrar</button>
+                <p style="margin:8px 0 0 0; font-size:14px; text-align:center;">Já tem conta? <a href="#" id="showLogin"
+                        style="color:#583819; font-weight:600;">Entrar</a></p>
+            </form>
+            <p id="authError" style="color:#b22; font-size:14px; text-align:center; margin-top:10px; display:none;"></p>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const showRegisterLink = document.getElementById('showRegister');
+            const showLoginLink = document.getElementById('showLogin');
+            const authError = document.getElementById('authError');
+
+            // Função global para liberar a página após login
+            window.authSuccess = function () {
+                const mainContent = document.querySelector('.main-content');
+                if (mainContent) mainContent.style.display = '';
+                const footer = document.querySelector('footer');
+                if (footer) footer.style.display = '';
+                document.getElementById('authModal').style.display = 'none';
+                document.body.style.overflow = '';
+
+                // Forçar atualização do header após login bem-sucedido
+                setTimeout(() => {
+                    if (window.headerManager) {
+                        window.headerManager.forceRefresh();
+                    }
+                }, 100);
+            };
+
+            showRegisterLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                document.getElementById('authModalTitle').textContent = 'Cadastrar';
+                authError.style.display = 'none';
+            });
+
+            showLoginLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                registerForm.style.display = 'none';
+                loginForm.style.display = 'block';
+                document.getElementById('authModalTitle').textContent = 'Entrar';
+                authError.style.display = 'none';
+            });
+
+            loginForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                auth.loginUser(email, password)
+                    .then(function () {
+                        // Verificar se realmente há um código pendente válido da URL atual
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const giftCodeFromUrl = urlParams.get('giftCode');
+                        const pendingCode = localStorage.getItem('giftCode') || localStorage.getItem('pendingGiftCode');
+
+                        // Só aplicar código se:
+                        // 1. Há um código na URL atual OU
+                        // 2. Há um código pendente e o usuário veio de uma página com código
+                        if (giftCodeFromUrl && giftCodeFromUrl.trim() !== '') {
+                            // Aplicar código que veio da URL
+                            applyGiftCodeAfterAuth(giftCodeFromUrl);
+                        } else if (pendingCode && pendingCode.trim() !== '' && document.referrer.includes('giftCode=')) {
+                            // Só aplicar código pendente se o usuário veio de uma página com código
+                            applyGiftCodeAfterAuth(pendingCode);
+                        } else {
+                            // Limpar códigos antigos se não há código válido
+                            localStorage.removeItem('giftCode');
+                            localStorage.removeItem('pendingGiftCode');
+                        }
+                        window.authSuccess();
+                    })
+                    .catch(function (error) {
+                        authError.textContent = error.message || 'Erro ao fazer login';
+                        authError.style.display = 'block';
+                        authError.style.color = '#b22';
+                    });
+            });
+
+            registerForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const name = document.getElementById('registerName').value;
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                auth.registerUser(name, email, password)
+                    .then(function () {
+                        // Após cadastro bem-sucedido, fazer login automaticamente
+                        return auth.loginUser(email, password);
+                    })
+                    .then(function () {
+                        // Verificar se realmente há um código pendente válido da URL atual
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const giftCodeFromUrl = urlParams.get('giftCode');
+                        const pendingCode = localStorage.getItem('giftCode') || localStorage.getItem('pendingGiftCode');
+
+                        // Só aplicar código se:
+                        // 1. Há um código na URL atual OU
+                        // 2. Há um código pendente e o usuário veio de uma página com código
+                        if (giftCodeFromUrl && giftCodeFromUrl.trim() !== '') {
+                            // Aplicar código que veio da URL
+                            applyGiftCodeAfterAuth(giftCodeFromUrl);
+                        } else if (pendingCode && pendingCode.trim() !== '' && document.referrer.includes('giftCode=')) {
+                            // Só aplicar código pendente se o usuário veio de uma página com código
+                            applyGiftCodeAfterAuth(pendingCode);
+                        } else {
+                            // Limpar códigos antigos se não há código válido
+                            localStorage.removeItem('giftCode');
+                            localStorage.removeItem('pendingGiftCode');
+                        }
+                        window.authSuccess();
+                    })
+                    .catch(function (error) {
+                        // Se falhou no cadastro, mostrar erro de cadastro
+                        // Se falhou no login automático, mostrar formulário de login
+                        if (error.message && error.message.includes('já existe')) {
+                            authError.textContent = error.message;
+                            authError.style.color = '#b22';
+                            authError.style.display = 'block';
+                        } else {
+                            registerForm.reset();
+                            loginForm.style.display = 'block';
+                            registerForm.style.display = 'none';
+                            document.getElementById('authModalTitle').textContent = 'Entrar';
+                            authError.textContent = 'Cadastro realizado! Faça login para continuar.';
+                            authError.style.color = '#2a7a2a';
+                            authError.style.display = 'block';
+                        }
+                    });
+            });
+
+            // Exibe o modal e bloqueia tudo se não autenticado
+            if (!auth.getToken()) {
+                document.getElementById('authModal').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                const mainContent = document.querySelector('.main-content');
+                if (mainContent) mainContent.style.display = 'none';
+                const footer = document.querySelector('footer');
+                if (footer) footer.style.display = 'none';
+                const logoContainer = document.querySelector('.logo-container');
+                if (logoContainer) logoContainer.style.opacity = 0.3;
+            } else {
+                window.authSuccess();
+            }
+        });
+    </script>
+
+    <!-- Header será carregado dinamicamente pelo header.js -->
+
+    <!-- Onboarding Overlay -->
+    <main class="main-content">
+        <div class="container">
+            <section class="header-section">
+                <h1 class="main-title">CV Sem Frescura</h1>
+                <p class="main-description">Currículos inteligentes para vencer filtros automáticos. Tecnologia a
+                    serviço de PESSOAS.</p>
+            </section>
+
+            <section class="upload-section">
+                <div class="dropzone" id="dropzone">
+                    <div class="upload-icon"></div>
+                    <button class="upload-button" id="selectFileBtn" type="button">Selecione Seu Currículo</button>
+                    <p class="dropzone-text">Ou arraste e solte seu currículo nesse campo</p>
+                    <input type="file" class="file-input" id="fileInput" accept=".pdf,.docx" style="display:none;">
+                </div>
+
+                <div class="selected-file" id="selectedFile">
+                    <div class="file-info">
+                        <div class="file-icon"></div>
+                        <span class="file-name">Nome do arquivo</span>
+                    </div>
+                    <button class="remove-file" aria-label="Remover arquivo"></button>
+                </div>
+
+                <div class="links-section">
+                    <h2>Link das Vagas Desejadas</h2>
+                    <div class="job-links-container" id="jobLinksContainer">
+                        <div class="job-link-item" style="display:flex;align-items:center;">
+                            <input type="url" class="job-link-input" placeholder="https://linkdavaga.com"
+                                id="mainJobLink" autocomplete="off">
+                        </div>
+                    </div>
+                    <button type="button" id="addJobLinkBtn" class="add-job-link-btn">+ Adicionar Mais Uma Vaga</button>
+                </div>
+            </section>
+
+            <div class="analyze-button-container">
+                <button class="analyze-button" id="analyzeBtn">Analise Agora Seu Currículo</button>
+            </div>
+        </div>
+
+        <section class="features-section">
+            <div class="container features-container">
+                <div class="feature-item">
+                    <div class="feature-icon icon-ai"></div>
+                    <div>
+                        <h3 class="feature-title">Análise de Currículo com IA</h3>
+                        <p class="feature-desc">Aproveite a inteligência artificial para identificar melhorias e alinhar
+                            seu perfil às exigências das vagas.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon icon-feedback"></div>
+                    <div>
+                        <h3 class="feature-title">Feedback Personalizado</h3>
+                        <p class="feature-desc">Descubra em segundos os pontos que podem destacar seu currículo no
+                            mercado.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon icon-optimization"></div>
+                    <div>
+                        <h3 class="feature-title">Otimização Para Cada Vaga</h3>
+                        <p class="feature-desc">Adapte seu currículo às expectativas dos recrutadores e aumente suas
+                            chances de sucesso.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-container">
+            <div>
+                <img src="assets/img/logo.png" alt="RH Super" class="footer-logo">
+                <p class="copyright">© 2025 CV Sem Frescura. Todos os direitos reservados.</p>
+            </div>
+            <div class="footer-links">
+                <a href="privacy.html" class="footer-link">Políticas de Privacidade</a>
+                <a href="terms.html" class="footer-link">Termos de Uso</a>
+                <a href="contact.html" class="footer-link">Contato</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Funcionalidade para upload de arquivo
+            const selectFileBtn = document.getElementById('selectFileBtn');
+            const fileInput = document.getElementById('fileInput');
+            const dropzone = document.getElementById('dropzone');
+            const selectedFileDiv = document.getElementById('selectedFile');
+            const fileNameSpan = selectedFileDiv.querySelector('.file-name');
+            const removeFileBtn = selectedFileDiv.querySelector('.remove-file');
+
+            // Inicialmente ocultar o componente
+            selectedFileDiv.style.display = 'none';
+
+            if (selectFileBtn && fileInput) {
+                selectFileBtn.addEventListener('click', function (e) {
+                    fileInput.click();
+                });
+            }
+
+            // Drag and drop
+            dropzone.addEventListener('dragover', function (e) {
+                e.preventDefault();
+                dropzone.classList.add('active');
+            });
+
+            dropzone.addEventListener('dragleave', function (e) {
+                e.preventDefault();
+                dropzone.classList.remove('active');
+            });
+
+            dropzone.addEventListener('drop', function (e) {
+                e.preventDefault();
+                dropzone.classList.remove('active');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    displaySelectedFile(files[0]);
+                }
+            });
+
+            // Exibir nome do arquivo ao selecionar
+            fileInput.addEventListener('change', function (e) {
+                if (fileInput.files && fileInput.files.length > 0) {
+                    displaySelectedFile(fileInput.files[0]);
+                } else {
+                    selectedFileDiv.style.display = 'none';
+                }
+            });
+
+            function displaySelectedFile(file) {
+                fileNameSpan.textContent = file.name;
+                selectedFileDiv.style.display = 'flex';
+                removeFileBtn.style.display = 'inline-block';
+            }
+
+            // Remover arquivo
+            removeFileBtn.addEventListener('click', function () {
+                fileInput.value = '';
+                selectedFileDiv.style.display = 'none';
+            });
+
+            // Funcionalidade para adicionar mais campos de links de vagas
+            const addJobLinkBtn = document.getElementById('addJobLinkBtn');
+            const jobLinksContainer = document.getElementById('jobLinksContainer');
+
+            // Função para adicionar um novo campo de vaga
+            function addJobLinkField() {
+                // Verificar se é usuário de código de presente
+                const isGiftCodeUser = localStorage.getItem('isGiftCodeUser') === 'true';
+                if (isGiftCodeUser) {
+                    showJobLimitModal(1);
+                    return;
+                }
+
+                const currentCount = jobLinksContainer.querySelectorAll('input.job-link-input').length;
+
+                // Verificar tipo de usuário e aplicar limites
+                const maxVagas = getMaxVagasPermitidas();
+
+                if (currentCount >= maxVagas) {
+                    showJobLimitModal(maxVagas);
+                    return;
+                }
+
+                // Criar novo campo de input padronizado
+                const newLinkItem = document.createElement('div');
+                newLinkItem.className = 'job-link-item';
+                newLinkItem.style.display = 'flex';
+                newLinkItem.style.alignItems = 'center';
+                const newInput = document.createElement('input');
+                newInput.type = 'url';
+                newInput.className = 'job-link-input';
+                newInput.placeholder = `https://linkdavaga.com`;
+                // Adiciona apenas o input, sem estilos inline extras
+                newLinkItem.appendChild(newInput);
+                jobLinksContainer.appendChild(newLinkItem);
+                // Dar foco ao novo campo
+                newInput.focus();
+
+                // Atualizar contador de vagas
+                updateJobCounter();
+            }
+
+            // Função para determinar máximo de vagas permitidas
+            function getMaxVagasPermitidas() {
+                const user = auth.getUser();
+                const isGiftCodeUser = localStorage.getItem('isGiftCodeUser') === 'true';
+
+                // Se é usuário de código de presente (gratuito)
+                if (isGiftCodeUser || (!user || user.credits === 0)) {
+                    return 1; // Apenas 1 vaga para códigos gratuitos
+                }
+
+                // Se tem créditos pagos
+                return 7; // Até 7 vagas para planos pagos
+            }
+
+            // Função para mostrar modal quando atinge limite
+            function showJobLimitModal(maxVagas) {
+                const isGiftCode = maxVagas === 1;
+
+                const modalHTML = `
+                    <div id="jobLimitModal" style="
+                        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                        background: rgba(0,0,0,0.6); display: flex; align-items: center; 
+                        justify-content: center; z-index: 9999;
+                    ">
+                        <div style="
+                            background: white; padding: 2rem; border-radius: 12px;
+                            max-width: 500px; margin: 1rem; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+                        ">
+                            ${isGiftCode ? `
+                                <h3 style="color: #583819; margin-bottom: 1rem;">
+                                    🎓 Código Gratuito - Limite Atingido
+                                </h3>
+                                <p style="margin-bottom: 1.5rem; line-height: 1.6;">
+                                    <strong>Código de presente:</strong> Permite análise de apenas 1 vaga para experimentação.<br><br>
+                                    <strong>Planos pagos:</strong> Permitem até 7 vagas por análise (eficiência máxima do Gupy).
+                                </p>
+                                <div style="display: flex; gap: 1rem; justify-content: center;">
+                                    <button onclick="closeJobLimitModal()" style="
+                                        padding: 0.75rem 1.5rem; border: 2px solid #583819; 
+                                        background: transparent; color: #583819; border-radius: 6px;
+                                        cursor: pointer; font-weight: 600;
+                                    ">Continuar com 1 vaga</button>
+                                    <button onclick="window.location.href='payment.html'" style="
+                                        padding: 0.75rem 1.5rem; background: #583819; color: white;
+                                        border: none; border-radius: 6px; cursor: pointer; font-weight: 600;
+                                    ">Ver Planos 🚀</button>
+                                </div>
+                            ` : `
+                                <h3 style="color: #583819; margin-bottom: 1rem;">
+                                    ✅ Limite Máximo Atingido (7 vagas)
+                                </h3>
+                                <p style="margin-bottom: 1.5rem; line-height: 1.6;">
+                                    Você está usando <strong>100% da eficiência máxima do Gupy</strong>!<br><br>
+                                    Sistemas como Gupy permitem no máximo 7 candidaturas por ciclo de 7-10 dias.
+                                </p>
+                                <div style="text-align: center;">
+                                    <button onclick="closeJobLimitModal()" style="
+                                        padding: 0.75rem 2rem; background: #583819; color: white;
+                                        border: none; border-radius: 6px; cursor: pointer; font-weight: 600;
+                                    ">Entendi, vamos analisar!</button>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                `;
+
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
+            }
+
+            // Função para fechar modal
+            window.closeJobLimitModal = function () {
+                const modal = document.getElementById('jobLimitModal');
+                if (modal) modal.remove();
+            };
+
+            // Função para mostrar modal de sem créditos
+            function showNoCreditModal() {
+                const modalHTML = `
+                    <div id="noCreditModal" style="
+                        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                        background: rgba(0,0,0,0.6); display: flex; align-items: center; 
+                        justify-content: center; z-index: 9999;
+                    ">
+                        <div style="
+                            background: white; padding: 2rem; border-radius: 12px;
+                            max-width: 500px; margin: 1rem; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+                            text-align: center;
+                        ">
+                            <div style="
+                                width: 60px; height: 60px; background: linear-gradient(135deg, #ef4444, #dc2626);
+                                border-radius: 50%; display: flex; align-items: center; justify-content: center;
+                                margin: 0 auto 1.5rem; font-size: 24px;
+                            ">⚠️</div>
+                            
+                            <h3 style="color: #583819; margin-bottom: 1rem; font-size: 1.4rem;">
+                                Sem Análises Disponíveis
+                            </h3>
+                            
+                            <p style="margin-bottom: 1.5rem; line-height: 1.6; color: #666;">
+                                Você não possui análises disponíveis em sua conta.<br><br>
+                                <strong>Para continuar:</strong><br>
+                                • Adquira um plano de análises<br>
+                                • Use um código promocional válido
+                            </p>
+                            
+                            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                                <button onclick="closeNoCreditModal()" style="
+                                    padding: 0.75rem 1.5rem; border: 2px solid #583819; 
+                                    background: transparent; color: #583819; border-radius: 6px;
+                                    cursor: pointer; font-weight: 600; min-width: 120px;
+                                ">Fechar</button>
+                                <button onclick="window.location.href='payment.html'" style="
+                                    padding: 0.75rem 1.5rem; background: #583819; color: white;
+                                    border: none; border-radius: 6px; cursor: pointer; font-weight: 600;
+                                    min-width: 120px;
+                                ">Comprar Análises 🚀</button>
+                            </div>
+                            
+                            <p style="margin-top: 1rem; font-size: 0.85rem; color: #888;">
+                                💡 <strong>Dica:</strong> Com código do curso RH Super Sincero, você ganha 1 análise gratuita!
+                            </p>
+                        </div>
+                    </div>
+                `;
+
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
+            }
+
+            // Função para fechar modal de sem créditos
+            window.closeNoCreditModal = function () {
+                const modal = document.getElementById('noCreditModal');
+                if (modal) modal.remove();
+            };
+
+            // Função para atualizar contador de vagas
+            function updateJobCounter() {
+                const currentCount = jobLinksContainer.querySelectorAll('input.job-link-input').length;
+                const maxVagas = getMaxVagasPermitidas();
+
+                // Atualizar texto do botão
+                const addBtn = document.getElementById('addJobLinkBtn');
+                if (addBtn) {
+                    if (currentCount >= maxVagas) {
+                        addBtn.style.display = 'none';
+                    } else {
+                        addBtn.style.display = 'block';
+                        const remaining = maxVagas - currentCount;
+                        if (maxVagas === 1) {
+                            addBtn.style.display = 'none'; // Código gratuito: só 1 vaga
+                        } else {
+                            addBtn.textContent = `+ Adicionar Mais Uma Vaga (${remaining} restantes)`;
+                        }
+                    }
+                }
+            }
+
+            // Adicionar event listener para o botão de adicionar vaga
+            addJobLinkBtn.addEventListener('click', addJobLinkField);
+
+            // Configurar botão de análise
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            if (analyzeBtn) {
+                analyzeBtn.addEventListener('click', function () {
+                    const fileInput = document.getElementById('fileInput');
+                    const jobLinkInputs = document.querySelectorAll('.job-link-input');
+                    const selectedFile = fileInput && fileInput.files.length > 0 ? fileInput.files[0] : null;
+                    const jobLinks = Array.from(jobLinkInputs).map(input => input.value.trim()).filter(Boolean);
+
+                    // Limpar mensagens de erro anteriores
+                    let msgDiv = document.getElementById('stepFeedback');
+                    if (!msgDiv) {
+                        msgDiv = document.createElement('div');
+                        msgDiv.id = 'stepFeedback';
+                        msgDiv.style.color = '#c62828';
+                        msgDiv.style.fontWeight = 'bold';
+                        msgDiv.style.margin = '10px 0 0 0';
+                        analyzeBtn.parentNode.insertBefore(msgDiv, analyzeBtn.nextSibling);
+                    }
+                    msgDiv.textContent = '';
+
+                    // VALIDAÇÃO CRÍTICA: Verificar créditos antes de qualquer coisa
+                    const user = auth.getUser();
+                    const isGiftCodeUser = localStorage.getItem('isGiftCodeUser') === 'true';
+
+                    if (!user && !isGiftCodeUser) {
+                        msgDiv.textContent = 'Você precisa fazer login para analisar currículos.';
+                        setTimeout(() => {
+                            window.location.href = 'analisar.html?login=true';
+                        }, 2000);
+                        return;
+                    }
+
+                    // Verificar se usuário tem créditos (exceto códigos de presente)
+                    if (user && !isGiftCodeUser && user.credits <= 0) {
+                        // Redirecionar para compra de créditos
+                        window.location.href = 'payment.html';
+                        return;
+                    }
+
+                    // Validação de URL
+                    const urlRegex = /^(https?:\/\/)[\w\-]+(\.[\w\-]+)+([\w.,@?^=%&:/~+#\-]*[\w@?^=%&/~+#\-])?$/i;
+                    const invalidLink = jobLinks.find(link => !urlRegex.test(link));
+                    if (invalidLink) {
+                        msgDiv.textContent = 'O link informado não é válido: ' + invalidLink;
+                        return;
+                    }
+
+                    // Validação
+                    if (!selectedFile) {
+                        msgDiv.textContent = 'Selecione um currículo para análise.';
+                        return;
+                    }
+                    if (jobLinks.length === 0) {
+                        msgDiv.textContent = 'Informe pelo menos um link de vaga para análise.';
+                        return;
+                    }
+
+                    // Inicia processamento do arquivo
+                    msgDiv.style.color = '#2e7d32';
+                    msgDiv.textContent = 'Processando seu currículo e vagas...';
+
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        try {
+                            const fileContentBase64 = e.target.result;
+                            sessionStorage.setItem('atsFile', selectedFile.name);
+                            sessionStorage.setItem('atsFileContent', fileContentBase64);
+                            sessionStorage.setItem('atsJobLinks', JSON.stringify(jobLinks));
+                            msgDiv.textContent = 'Dados salvos. Redirecionando para análise...';
+                            setTimeout(() => {
+                                window.location.href = 'loading.html';
+                            }, 400);
+                        } catch (err) {
+                            msgDiv.style.color = '#c62828';
+                            msgDiv.textContent = 'Erro ao salvar dados para análise. Tente novamente.';
+                        }
+                    };
+                    reader.onerror = function () {
+                        msgDiv.style.color = '#c62828';
+                        msgDiv.textContent = 'Erro ao ler o arquivo. Tente outro formato.';
+                    };
+                    reader.readAsDataURL(selectedFile);
+                });
+            }
+
+            // Inicializar contador ao carregar
+            setTimeout(() => {
+                updateJobCounter();
+                updateAnalyzeButton();
+            }, 100);
+
+            // Função para atualizar estado do botão de análise baseado nos créditos
+            function updateAnalyzeButton() {
+                const analyzeBtn = document.getElementById('analyzeBtn');
+                if (!analyzeBtn) return;
+
+                const user = auth.getUser();
+                const isGiftCodeUser = localStorage.getItem('isGiftCodeUser') === 'true';
+
+                // Se não está logado e não é usuário de código de presente
+                if (!user && !isGiftCodeUser) {
+                    analyzeBtn.disabled = true;
+                    analyzeBtn.textContent = 'Faça login para analisar';
+                    analyzeBtn.style.opacity = '0.6';
+                    analyzeBtn.style.cursor = 'not-allowed';
+                    return;
+                }
+
+                // Se está logado mas não tem créditos e não é usuário de código de presente
+                if (user && !isGiftCodeUser && user.credits <= 0) {
+                    analyzeBtn.disabled = false;
+                    analyzeBtn.textContent = 'Comprar Créditos';
+                    analyzeBtn.style.opacity = '1';
+                    analyzeBtn.style.cursor = 'pointer';
+
+                    // Redirecionar para página de pagamentos
+                    analyzeBtn.onclick = function (e) {
+                        e.preventDefault();
+                        window.location.href = 'payment.html';
+                    };
+                    return;
+                }
+
+                // Se tem créditos ou é usuário de código de presente
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = 'Analisar Currículo';
+                analyzeBtn.style.opacity = '1';
+                analyzeBtn.style.cursor = 'pointer';
+
+                // Remover onclick anterior se existir (para voltar ao comportamento padrão)
+                analyzeBtn.onclick = null;
+            }
+
+            // Atualizar botão quando créditos mudarem
+            window.updateAnalyzeButton = updateAnalyzeButton;
+
+            // Verificar se é usuário de código de presente e aplicar restrições
+            const isGiftCodeUser = localStorage.getItem('isGiftCodeUser') === 'true';
+            if (isGiftCodeUser && auth.isAuthenticated()) {
+                setTimeout(() => {
+                    restrictInterfaceForGiftCodeUser();
+                }, 50);
+            }
+
+            function restrictInterfaceForGiftCodeUser() {
+                // Limitar a apenas um campo de link de vaga
+                const jobLinksContainer = document.getElementById('jobLinksContainer');
+                const jobLinkItems = jobLinksContainer.querySelectorAll('.job-link-item');
+
+                // Remover campos extras se existirem
+                if (jobLinkItems.length > 1) {
+                    for (let i = 1; i < jobLinkItems.length; i++) {
+                        jobLinkItems[i].remove();
+                    }
+                }
+
+                // Ocultar botão de adicionar mais links
+                const addJobLinkBtn = document.getElementById('addJobLinkBtn');
+                if (addJobLinkBtn) {
+                    addJobLinkBtn.style.display = 'none';
+                }
+
+                // Adicionar texto explicativo
+                const messageElement = document.createElement('p');
+                messageElement.className = 'gift-code-message';
+                messageElement.textContent = 'Com o código promocional, você pode analisar seu currículo com apenas uma vaga.';
+                messageElement.style.color = '#583819';
+                messageElement.style.fontSize = '14px';
+                messageElement.style.marginTop = '5px';
+
+                // Remover mensagem anterior se existir
+                const existingMessage = jobLinksContainer.querySelector('.gift-code-message');
+                if (existingMessage) {
+                    existingMessage.remove();
+                }
+
+                // Adicionar a mensagem após o container de links
+                jobLinksContainer.appendChild(messageElement);
+
+                // Marcar usuário como usuário de código de presente
+                localStorage.setItem('isGiftCodeUser', 'true');
+            }
+        });
+    </script>
+</body>
+
+</html>

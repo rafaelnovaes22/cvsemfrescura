@@ -1,0 +1,370 @@
+/* Estilos específicos para o modal e fluxo de onboarding */
+
+.onboarding-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.onboarding-modal {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    width: 90%;
+    max-width: 600px;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    animation: fadeIn 0.3s ease;
+    padding: 0;
+}
+
+.onboarding-header {
+    background-color: var(--primary);
+    color: white;
+    padding: 20px 30px;
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+    position: relative;
+}
+
+.onboarding-header h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.onboarding-header p {
+    margin: 10px 0 0;
+    opacity: 0.9;
+    font-size: 16px;
+}
+
+.onboarding-progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 15px 0;
+}
+
+.progress-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.3);
+    margin: 0 5px;
+    transition: all 0.3s ease;
+}
+
+.progress-dot.active {
+    background-color: white;
+    transform: scale(1.2);
+}
+
+.onboarding-content {
+    padding: 30px;
+}
+
+.onboarding-step {
+    display: none;
+}
+
+.onboarding-step.active {
+    display: block;
+}
+
+.option-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.option-card {
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.option-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.option-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.option-card input[type="radio"]:checked + .option-content {
+    color: var(--primary);
+}
+
+.option-card input[type="radio"]:checked + .option-content .option-icon {
+    background-color: var(--primary);
+    color: white;
+}
+
+.option-card input[type="radio"]:checked ~ .option-check {
+    opacity: 1;
+}
+
+.option-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.option-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+}
+
+.option-icon i {
+    font-size: 28px;
+}
+
+.option-title {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--text-dark);
+}
+
+.option-description {
+    font-size: 14px;
+    color: var(--text-gray);
+}
+
+.option-check {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.option-check::before {
+    content: "✓";
+}
+
+.preference-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.preference-toggle:last-child {
+    border-bottom: none;
+}
+
+.preference-label {
+    display: flex;
+    flex-direction: column;
+}
+
+.preference-title {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.preference-description {
+    color: var(--text-gray);
+    font-size: 14px;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--border-color);
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background-color: var(--primary);
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(24px);
+}
+
+.onboarding-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+
+.onboarding-button {
+    padding: 12px 25px;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.onboarding-back {
+    background-color: var(--white);
+    color: var(--text-gray);
+    border: 1px solid var(--border-color);
+}
+
+.onboarding-back:hover {
+    background-color: var(--background);
+}
+
+.onboarding-next {
+    background-color: var(--primary);
+    color: white;
+}
+
+.onboarding-next:hover {
+    background-color: var(--primary-dark);
+}
+
+.onboarding-skip {
+    color: var(--text-gray);
+    background: none;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: underline;
+}
+
+.welcome-toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: var(--primary);
+    color: white;
+    padding: 0;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    max-width: 350px;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.welcome-toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.welcome-toast-content {
+    padding: 20px;
+}
+
+.welcome-toast h3 {
+    margin: 0 0 10px;
+    font-size: 18px;
+}
+
+.welcome-toast p {
+    margin: 0 0 15px;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.welcome-toast-close {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.welcome-toast-close:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .option-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .onboarding-modal {
+        width: 95%;
+    }
+}

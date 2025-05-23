@@ -4,11 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pagamento Confirmado - CV Sem Frescura</title>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
-    <!-- Stripe.js -->
+    <title>Pagamento Realizado - CV Sem Frescura</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
     <script src="https://js.stripe.com/v3/"></script>
+    <script src="/assets/js/config.js"></script>
     <script src="/assets/js/auth.js"></script>
     <script src="/assets/js/payment.js"></script>
     <style>
@@ -249,7 +248,7 @@
     <header>
         <div class="container header-container">
             <a href="index.html">
-                <img src="/assets/img/logo.png" alt="CV Sem Frescura" class="logo">
+                <img src="assets/img/logo.png" alt="CV Sem Frescura" class="logo">
             </a>
             <div>
                 <a href="#" class="login-link" id="loginLink" style="display: none;">Entrar</a>
@@ -272,7 +271,8 @@
         <div class="success-container">
             <div class="success-icon">✓</div>
             <h1 class="success-title">Pagamento Confirmado</h1>
-            <p class="success-message" id="success-message">Seu pagamento foi processado com sucesso! Os créditos foram adicionados à sua conta.</p>
+            <p class="success-message" id="success-message">Seu pagamento foi processado com sucesso! Os créditos foram
+                adicionados à sua conta.</p>
             <a href="index.html" class="btn btn-primary">Voltar para a Página Inicial</a>
         </div>
     </main>
@@ -280,26 +280,26 @@
     <footer>
         <div class="container footer-container">
             <div>
-                <img src="/assets/img/logo.png" alt="CV Sem Frescura" class="footer-logo">
+                <img src="assets/img/logo.png" alt="CV Sem Frescura" class="footer-logo">
                 <p class="copyright">© 2025 CV Sem Frescura. Todos os direitos reservados.</p>
             </div>
             <div class="footer-links">
                 <a href="privacy.html" class="footer-link">Políticas de Privacidade</a>
                 <a href="terms.html" class="footer-link">Termos de Uso</a>
-                <a href="#" class="footer-link">Contato</a>
+                <a href="contact.html" class="footer-link">Contato</a>
             </div>
         </div>
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', async function () {
             // Verifica o status do pagamento
             const paymentStatus = await payment.checkPaymentStatus();
-            
+
             // Atualiza a mensagem de sucesso se necessário
             if (paymentStatus) {
                 document.getElementById('success-message').textContent = paymentStatus.message;
-                
+
                 // Se não houver sucesso, modifica o estilo
                 if (!paymentStatus.success) {
                     document.querySelector('.success-icon').textContent = '!';
@@ -307,7 +307,7 @@
                     document.querySelector('.success-title').textContent = 'Pagamento em Processamento';
                 }
             }
-            
+
             // Atualizar UI do usuário baseado no login
             function updateUserUI() {
                 const user = auth.getUser();
@@ -315,16 +315,16 @@
                 const authButton = document.getElementById('authButton');
                 const userDropdown = document.getElementById('userDropdown');
                 const creditsElement = document.getElementById('userCredits');
-                
+
                 if (user) {
                     document.querySelector('.user-name').textContent = user.name.split(' ')[0];
                     loginLink.style.display = 'none';
                     authButton.style.display = 'inline-flex';
-                    
+
                     // Atualizar créditos
                     if (creditsElement) {
                         creditsElement.textContent = `${user.credits || 0} análises`;
-                        
+
                         // Atualizar cores com base no número de créditos
                         if ((user.credits || 0) <= 0) {
                             creditsElement.style.backgroundColor = '#F44336';
@@ -340,25 +340,25 @@
                     if (userDropdown) userDropdown.style.display = 'none';
                 }
             }
-            
+
             // Inicializar UI
             updateUserUI();
-            
+
             // Dropdown toggle ao clicar no user-menu
             let dropdownOpen = false;
             const authButton = document.getElementById('authButton');
             const userDropdown = document.getElementById('userDropdown');
             const logoutButton = document.getElementById('logoutButton');
-            
+
             // Toggle dropdown
-            authButton.addEventListener('click', function(e) {
+            authButton.addEventListener('click', function (e) {
                 e.preventDefault();
                 dropdownOpen = !dropdownOpen;
                 userDropdown.style.display = dropdownOpen ? 'flex' : 'none';
             });
-            
+
             // Logout
-            logoutButton.onclick = function(e) {
+            logoutButton.onclick = function (e) {
                 e.preventDefault();
                 auth.logout();
             };

@@ -1,0 +1,49 @@
+<header class="header" id="header">
+    <div class="container">
+        <div class="header-content">
+            <div class="logo-container">
+                <a href="landing.html">
+                    <img src="assets/img/logo.png" alt="CV Sem Frescura" class="logo">
+                </a>
+            </div>
+
+            <nav class="nav" aria-label="Navegação principal" id="headerNav">
+                <!-- Navigation will be inserted dynamically based on page context -->
+            </nav>
+
+            <div class="header-actions">
+                <!-- User not logged in -->
+                <div class="guest-actions" id="guestActions" style="display: none;">
+                    <a href="#gift-code" class="btn btn-secondary btn-sm" id="headerGiftBtn"
+                        aria-label="Inserir código do curso">
+                        <span class="btn-icon">🎓</span>
+                        <span>Código do Curso</span>
+                    </a>
+                    <a href="analisar.html?login=true" class="btn btn-ghost btn-sm" aria-label="Fazer login">
+                        <span class="btn-icon">🔐</span>
+                        <span>Entrar</span>
+                    </a>
+                    <a href="payment.html" class="btn btn-primary btn-sm" aria-label="Comprar análise">
+                        <span class="btn-icon">💳</span>
+                        <span>Comprar</span>
+                    </a>
+                </div>
+
+                <!-- User logged in -->
+                <div class="user-menu-wrapper" id="userMenuWrapper" style="display: none; position: relative;">
+                    <a href="#" class="user-menu" id="authButton">
+                        <span class="user-name" id="userName">Usuário</span>
+                        <span class="credits-badge" id="userCredits">0 análises</span>
+                        <span class="dropdown-icon">▼</span>
+                    </a>
+                    <div class="dropdown-menu" id="userDropdown" style="display: none;">
+                        <a href="analisar.html" class="dropdown-item">📊 Analisar Currículo</a>
+                        <a href="history.html" class="dropdown-item">📋 Histórico</a>
+                        <a href="payment.html" class="dropdown-item">💳 Comprar análises</a>
+                        <a href="#" class="dropdown-item logout-btn" id="logoutButton">🚪 Sair</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
