@@ -1,0 +1,14 @@
+tests/
+test-*.html
+teste_*.html
+debug*.html
+demo-*.html
+*.bak
+*.new
+.git
+.gitignore
+README.md
+Dockerfile
+.dockerignore
+node_modules
+npm-debug.log 

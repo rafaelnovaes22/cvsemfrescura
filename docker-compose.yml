@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # Database
+  mysql:
+    image: mysql:8.0
+    container_name: cv_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root123}
+      MYSQL_DATABASE: ${DB_NAME:-cv_sem_frescura}
+      MYSQL_USER: ${DB_USER:-cvuser}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-cvpass123}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - cv_network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cv_backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-cv_sem_frescura}
+      DB_USER: ${DB_USER:-cvuser}
+      DB_PASSWORD: ${DB_PASSWORD:-cvpass123}
+      JWT_SECRET: ${JWT_SECRET:-your_jwt_secret_here}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+    ports:
+      - "${BACKEND_PORT:-3001}:3000"
+    depends_on:
+      - mysql
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - cv_network
+    command: npm run dev
+
+  # Frontend (Nginx serving static files)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cv_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    depends_on:
+      - backend
+    networks:
+      - cv_network
+
+  # Redis for caching (opcional)
+  redis:
+    image: redis:7-alpine
+    container_name: cv_redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - cv_network
+
+volumes:
+  mysql_data:
+  redis_data:
+
+
+networks:
+  cv_network:
+    driver: bridge
