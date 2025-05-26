@@ -1,21 +1,19 @@
--- Inicialização do banco de dados CV Sem Frescura
--- Este arquivo é executado automaticamente quando o container MySQL é criado
+-- Inicialização do banco de dados CV Sem Frescura (PostgreSQL)
+-- Este arquivo é executado automaticamente quando o container PostgreSQL é criado
 
-SET NAMES utf8mb4;
-SET FOREIGN_KEY_CHECKS = 0;
+-- Criar extensões úteis se necessário
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Criar database se não existir
-CREATE DATABASE IF NOT EXISTS cv_sem_frescura CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE cv_sem_frescura;
+-- O database já é criado pelo POSTGRES_DB
+-- Conectar ao database criado
 
--- Verificar se as tabelas já existem antes de criar
--- O Sequelize criará as tabelas automaticamente via migrations
--- Este arquivo apenas garante que o database existe
+-- Log de inicialização (comentado pois o Sequelize cria as tabelas automaticamente)
+-- CREATE TABLE IF NOT EXISTS init_check (
+--     id SERIAL PRIMARY KEY,
+--     initialized_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
 
--- Log de inicialização
-INSERT INTO information_schema.tables (table_schema, table_name) VALUES ('cv_sem_frescura', 'init_check') 
-ON DUPLICATE KEY UPDATE table_name = table_name;
-
-SET FOREIGN_KEY_CHECKS = 1;
+-- INSERT INTO init_check (initialized_at) VALUES (CURRENT_TIMESTAMP);
 
 -- Dados iniciais podem ser adicionados aqui se necessário 
+-- O Sequelize criará as tabelas automaticamente via migrations 

@@ -67,40 +67,9 @@ async function testPaymentIntentCreation() {
     }
 }
 
-// 4. Testar PIX
-async function testPixPayment() {
-    try {
-        console.log('\n🔲 TESTE: Pagamento PIX');
-        console.log('-'.repeat(30));
 
-        const paymentIntent = await stripe.paymentIntents.create({
-            amount: 2990,
-            currency: 'brl',
-            payment_method_types: ['pix'],
-            payment_method_options: {
-                pix: {
-                    expires_after_seconds: 24 * 60 * 60 // 24 horas
-                }
-            },
-            metadata: {
-                userId: 'test_user_123',
-                planName: 'Plano Essencial - PIX',
-                credits: '7'
-            }
-        });
 
-        console.log('✅ PaymentIntent PIX criado');
-        console.log(`   ID: ${paymentIntent.id}`);
-        console.log(`   Status: ${paymentIntent.status}`);
-
-        return paymentIntent;
-    } catch (error) {
-        console.error('❌ Erro ao criar PaymentIntent PIX:', error.message);
-        return null;
-    }
-}
-
-// 5. Testar Boleto
+// 4. Testar Boleto
 async function testBoletoPayment() {
     try {
         console.log('\n🧾 TESTE: Pagamento Boleto');
@@ -145,7 +114,7 @@ async function testBoletoPayment() {
     }
 }
 
-// 6. Testar banco de dados
+// 5. Testar banco de dados
 async function testDatabaseConnection() {
     try {
         console.log('\n💾 TESTE: Conexão com banco de dados');
@@ -172,7 +141,7 @@ async function testDatabaseConnection() {
     }
 }
 
-// 7. Simular fluxo completo
+// 6. Simular fluxo completo
 async function simulateCompleteFlow() {
     try {
         console.log('\n🔄 SIMULAÇÃO: Fluxo completo de pagamento');
@@ -272,7 +241,7 @@ async function runAllTests() {
     }
 
     await testPaymentIntentCreation();
-    await testPixPayment();
+
     await testBoletoPayment();
 
     const simulation = await simulateCompleteFlow();
@@ -282,7 +251,7 @@ async function runAllTests() {
     console.log(`✅ Stripe: Conectado`);
     console.log(`✅ Banco: Conectado`);
     console.log(`✅ PaymentIntent: OK`);
-    console.log(`✅ PIX: OK`);
+
     console.log(`✅ Boleto: OK`);
     console.log(`${simulation.success ? '✅' : '❌'} Simulação completa: ${simulation.success ? 'OK' : 'ERRO'}`);
 

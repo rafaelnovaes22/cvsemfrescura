@@ -7,6 +7,7 @@ class HeaderManager {
         this.lastCreditsRequest = null;
         this.isLoggedIn = false;
         this.userInfo = null;
+        this.configRetryCount = 0;
         this.init();
     }
 
@@ -529,6 +530,28 @@ class HeaderManager {
     async fetchUserCredits() {
         if (!window.auth || !window.auth.getToken()) return;
 
+        // Verificação mais robusta de CONFIG
+        if (typeof window.CONFIG === 'undefined' ||
+            !window.CONFIG ||
+            !window.CONFIG.api ||
+            !window.CONFIG.api.baseUrl) {
+            console.warn('⚠️ CONFIG não está disponível ainda, aguardando...');
+            // Tentar novamente após um pequeno delay, mas limitar tentativas
+            if (!this.configRetryCount) this.configRetryCount = 0;
+            if (this.configRetryCount < 10) { // máximo 10 tentativas (5 segundos)
+                this.configRetryCount++;
+                setTimeout(() => {
+                    this.fetchUserCredits();
+                }, 500);
+            } else {
+                console.error('❌ CONFIG não pôde ser carregado após múltiplas tentativas');
+            }
+            return;
+        }
+
+        // Reset do contador de tentativas quando CONFIG está disponível
+        this.configRetryCount = 0;
+
         // Throttling: não fazer requisição se já foi feita nos últimos 30 segundos
         const now = Date.now();
         if (this.lastCreditsRequest && (now - this.lastCreditsRequest) < 30000) {
@@ -537,7 +560,10 @@ class HeaderManager {
         this.lastCreditsRequest = now;
 
         try {
-            const response = await fetch('/api/user/credits', {
+            const apiUrl = window.CONFIG.api.baseUrl + '/api/user/credits';
+            console.log('📡 Fazendo requisição para:', apiUrl);
+
+            const response = await fetch(apiUrl, {
                 headers: {
                     'Authorization': `Bearer ${window.auth.getToken()}`
                 }
@@ -550,14 +576,8 @@ class HeaderManager {
                 if (creditsElement) {
                     creditsElement.textContent = `${data.credits} análises`;
 
-                    // Atualizar cores baseado no número de créditos
-                    if (data.credits <= 0) {
-                        creditsElement.style.background = 'linear-gradient(135deg, var(--error-500) 0%, #dc2626 100%)';
-                    } else if (data.credits <= 2) {
-                        creditsElement.style.background = 'linear-gradient(135deg, var(--warning-500) 0%, #d97706 100%)';
-                    } else {
-                        creditsElement.style.background = 'linear-gradient(135deg, var(--success-500) 0%, #16a34a 100%)';
-                    }
+                    // Manter cor consistente com identidade visual
+                    creditsElement.style.background = 'var(--primary-600)';
                 }
 
                 // Atualizar localStorage
@@ -650,6 +670,15 @@ class HeaderManager {
 // Inicializar header quando DOM estiver pronto
 function initializeHeader() {
     console.log('🔄 Inicializando header manager...');
+
+    // Verificar se CONFIG está disponível usando window.CONFIG
+    if (typeof window.CONFIG === 'undefined' || !window.CONFIG) {
+        console.log('⏳ Aguardando CONFIG estar disponível...');
+        setTimeout(initializeHeader, 100);
+        return;
+    }
+
+    console.log('✅ CONFIG carregado, criando HeaderManager...');
     window.headerManager = new HeaderManager();
 }
 
@@ -660,7 +689,18 @@ if (document.readyState === 'loading') {
     initializeHeader();
 }
 
-// Atualizar interface quando autenticação mudarwindow.addEventListener('storage', (e) => {    if (e.key === 'user' || e.key === 'token') {        if (window.headerManager) {            window.headerManager.refreshUserInterface();        }        // Atualizar botão de análise quando créditos mudarem        if (e.key === 'user' && window.updateAnalyzeButton) {            setTimeout(window.updateAnalyzeButton, 100);        }    }});
+// Atualizar interface quando autenticação mudar
+window.addEventListener('storage', (e) => {
+    if (e.key === 'user' || e.key === 'token') {
+        if (window.headerManager) {
+            window.headerManager.refreshUserInterface();
+        }
+        // Atualizar botão de análise quando créditos mudarem
+        if (e.key === 'user' && window.updateAnalyzeButton) {
+            setTimeout(window.updateAnalyzeButton, 100);
+        }
+    }
+});
 
 // Verificar mudanças de autenticação apenas quando necessário (não em loop)
 let lastAuthState = null;

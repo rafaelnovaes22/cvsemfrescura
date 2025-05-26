@@ -88,7 +88,7 @@ class OnboardingTester {
                 console.log('🧪 Interceptando chamada de status de onboarding');
                 // Adicione logs ou modificações para teste
             }
-            
+
             // Prosseguir com a chamada original
             return originalFetch(url, options);
         };
@@ -102,7 +102,7 @@ class OnboardingTester {
         if (modal) {
             console.log('🧪 Forçando exibição do modal de onboarding');
             modal.style.display = 'flex';
-            
+
             // Configurar navegação de onboarding
             if (typeof setupOnboardingNavigation === 'function') {
                 setupOnboardingNavigation();
@@ -125,16 +125,17 @@ class OnboardingTester {
 
         try {
             console.log('🧪 Resetando status de onboarding...');
-            
+
             // Simular chamada para facilitar testes - em produção, crie um endpoint específico
-            await fetch('http://localhost:3000/api/user/reset-onboarding', {
+            const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3001';
+            await fetch(`${apiBaseUrl}/api/user/reset-onboarding`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${window.auth.getToken()}`,
                     'Content-Type': 'application/json'
                 }
             });
-            
+
             console.log('🧪 Status de onboarding resetado com sucesso');
             alert('Status de onboarding resetado. Recarregue a página para testar.');
         } catch (error) {
@@ -145,7 +146,7 @@ class OnboardingTester {
 }
 
 // Inicializar o tester automaticamente em ambiente de desenvolvimento
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         window.onboardingTester = new OnboardingTester();
         // Atraso para garantir que outros scripts sejam carregados

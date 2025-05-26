@@ -19,8 +19,9 @@ const transactionHistory = (() => {
 
       // Exibir mensagem de carregamento
       historyContainer.innerHTML = '<p class="loading">Carregando histórico de transações...</p>';
-      
-      const response = await fetch('http://localhost:3000/api/payment/history', {
+
+      const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3001';
+      const response = await fetch(`${apiBaseUrl}/api/payment/history`, {
         headers: {
           'Authorization': `Bearer ${auth.getToken()}`
         }
@@ -31,7 +32,7 @@ const transactionHistory = (() => {
       }
 
       const transactions = await response.json();
-      
+
       if (transactions.length === 0) {
         historyContainer.innerHTML = '<p class="empty-state">Você ainda não possui transações.</p>';
         return;
@@ -89,7 +90,7 @@ const transactionHistory = (() => {
       historyContainer.innerHTML = tableHtml;
     } catch (error) {
       console.error('Erro ao carregar histórico:', error);
-      document.getElementById('transaction-history').innerHTML = 
+      document.getElementById('transaction-history').innerHTML =
         `<p class="error-state">Erro ao carregar histórico: ${error.message}</p>`;
     }
   };

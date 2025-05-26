@@ -1,20 +1,19 @@
 version: '3.8'
 
 services:
-  # Database
-  mysql:
-    image: mysql:8.0
-    container_name: cv_mysql
+  # Database PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: cv_postgres
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root123}
-      MYSQL_DATABASE: ${DB_NAME:-cv_sem_frescura}
-      MYSQL_USER: ${DB_USER:-cvuser}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-cvpass123}
+      POSTGRES_DB: ${DB_NAME:-cv_sem_frescura}
+      POSTGRES_USER: ${DB_USER:-cvuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-cvpass123}
     ports:
-      - "${DB_PORT:-3306}:3306"
+      - "${DB_PORT:-5432}:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
       - ./backend/database/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - cv_network
@@ -27,23 +26,32 @@ services:
     container_name: cv_backend
     restart: unless-stopped
     environment:
-      NODE_ENV: ${NODE_ENV:-development}
-      DB_HOST: mysql
-      DB_PORT: 3306
+      NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
       DB_NAME: ${DB_NAME:-cv_sem_frescura}
       DB_USER: ${DB_USER:-cvuser}
       DB_PASSWORD: ${DB_PASSWORD:-cvpass123}
-      JWT_SECRET: ${JWT_SECRET:-your_jwt_secret_here}
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
-      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      JWT_SECRET: ${JWT_SECRET:-2f24d5f16d2d677e9b3fa7e86299fce814e4cf3fc9d75cdcd09a881a484f2e357f983996e3559f53ab646fae167388ee58883cc5e9b0539f5ffeea906bef6448}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-sk-your_openai_api_key_here}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_your_stripe_secret_key_here}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-pk_test_your_stripe_publishable_key_here}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_your_webhook_secret_here}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
+      # Email Configuration - HÍBRIDA (SendGrid + Zoho)
+      # SendGrid para ENVIO (emails automáticos)
+      SMTP_HOST: smtp.sendgrid.net
+      SMTP_PORT: 587
+      SMTP_USER: apikey
+      SMTP_PASS: ${SENDGRID_API_KEY:-SG.sua_api_key_sendgrid_aqui}
+      FROM_EMAIL: noreply@cvsemfrescura.com.br
+      # Zoho para RECEBIMENTO (emails de contato)
+      CONTACT_EMAIL: contato@cvsemfrescura.com.br
+      SUPPORT_EMAIL: suporte@cvsemfrescura.com.br
     ports:
-      - "${BACKEND_PORT:-3001}:3000"
+      - "3001:3000"
     depends_on:
-      - mysql
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
+      - postgres
     networks:
       - cv_network
     command: npm run dev
@@ -75,7 +83,7 @@ services:
       - cv_network
 
 volumes:
-  mysql_data:
+  postgres_data:
   redis_data:
 
 

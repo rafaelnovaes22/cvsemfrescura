@@ -9,19 +9,17 @@ WORKDIR /app
 # Copiar package.json e package-lock.json
 COPY package*.json ./
 
-# Instalar dependências (incluindo devDependencies para development)
+# Instalar dependências
 RUN npm ci
 
 # Copiar código fonte
 COPY . .
 
-# Criar usuário não-root
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
+# Garantir que node_modules tenha as permissões corretas
+RUN chown -R node:node /app
 
-# Alterar ownership dos arquivos
-RUN chown -R nodejs:nodejs /app
-USER nodejs
+# Criar usuário não-root e trocar para ele
+USER node
 
 # Expor porta
 EXPOSE 3000

@@ -9,10 +9,13 @@
     <link rel="preload" href="assets/img/logo.png" as="image">
 
     <!-- Header CSS -->
-    <link rel="stylesheet" href="assets/css/header.css">
+    <link rel="stylesheet" href="assets/css/header.css?v=1748114547">
 
     <!-- Stripe.js - Versão mais recente e estável -->
     <script src="https://js.stripe.com/v3/"></script>
+
+    <!-- Configuração da API -->
+    <script src="/assets/js/config.js"></script>
     <style>
         :root {
             /* Primary Colors */
@@ -47,7 +50,7 @@
             --surface-card: #FFFCF9;
 
             /* Status Colors */
-            --success: #22c55e;
+            --success: #583819;
             --warning: #f59e0b;
             --error: #ef4444;
             --info: #3b82f6;
@@ -153,9 +156,9 @@
 
         /* Pricing Cards */
         .pricing-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: var(--space-8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
             margin-bottom: var(--space-16);
             max-width: 1000px;
             margin-left: auto;
@@ -171,9 +174,12 @@
             flex-direction: column;
             align-items: center;
             transition: var(--transition);
-            border: 2px solid transparent;
+            border: 2px solid var(--primary);
             position: relative;
             overflow: hidden;
+            max-width: 400px;
+            width: 100%;
+            background: linear-gradient(135deg, var(--surface-card) 0%, #fffdf9 100%);
         }
 
         .pricing-card::before {
@@ -262,7 +268,7 @@
             margin-right: var(--space-3);
             font-weight: bold;
             font-size: 1.1rem;
-            background: rgba(34, 197, 94, 0.1);
+            background: rgba(88, 56, 25, 0.1);
             border-radius: 50%;
             width: 20px;
             height: 20px;
@@ -632,7 +638,7 @@
             border: 1px solid #bbf7d0;
         }
 
-        /* PIX/Boleto Display */
+        /* Boleto Display */
         .payment-display {
             text-align: center;
             padding: var(--space-6);
@@ -682,12 +688,11 @@
             }
 
             .pricing-container {
-                grid-template-columns: 1fr;
-                gap: var(--space-6);
+                padding: 0 var(--space-4);
             }
 
-            .pricing-card.popular {
-                transform: none;
+            .pricing-card {
+                max-width: 100%;
             }
 
             .payment-method-options {
@@ -730,10 +735,89 @@
                 transition-duration: 0.01ms !important;
             }
         }
+
+        /* Force correct badge color - PAYMENT PAGE SPECIFIC */
+        .credits-badge,
+        #userCredits,
+        .user-credits,
+        [id*="credits"],
+        [class*="credits"] {
+            background: #583819 !important;
+            background-color: #583819 !important;
+            color: white !important;
+        }
     </style>
-    <script src="/assets/js/config.js"></script>
     <script src="/assets/js/auth.js"></script>
-    <script src="/assets/js/header.js"></script>
+    <script src="/assets/js/header-new.js?v=1748114560"></script>
+
+    <!-- Script para mostrar menu logado INSTANTANEAMENTE -->
+    <script>
+        (function () {
+            // Verificar IMEDIATAMENTE se usuário está logado
+            function showLoggedUserInstantly() {
+                const token = localStorage.getItem('token');
+                const userDataStr = localStorage.getItem('user');
+
+                if (token && userDataStr) {
+                    try {
+                        const userData = JSON.parse(userDataStr);
+                        const guestActions = document.getElementById('guestActions');
+                        const userMenuWrapper = document.getElementById('userMenuWrapper');
+                        const userName = document.getElementById('userName');
+                        const userCredits = document.getElementById('userCredits');
+
+                        if (guestActions && userMenuWrapper) {
+                            // Esconder menu de convidado
+                            guestActions.style.display = 'none';
+
+                            // Mostrar menu do usuário
+                            userMenuWrapper.style.display = 'block';
+
+                            // Atualizar nome
+                            if (userName && userData.name) {
+                                const firstName = userData.name.split(' ')[0];
+                                userName.textContent = firstName;
+                            }
+
+                            // Atualizar créditos
+                            if (userCredits) {
+                                const credits = userData.credits || 0;
+                                userCredits.textContent = `${credits} análise${credits !== 1 ? 's' : ''}`;
+                                userCredits.style.cssText = `
+                                    background: #583819 !important;
+                                    color: white !important;
+                                    padding: 0.25rem 0.5rem !important;
+                                    border-radius: 0.375rem !important;
+                                    font-size: 0.75rem !important;
+                                    font-weight: 600 !important;
+                                `;
+                            }
+
+                            console.log('⚡ Menu logado exibido INSTANTANEAMENTE na página payment');
+                        }
+                    } catch (error) {
+                        console.log('Erro ao processar dados do usuário:', error);
+                    }
+                } else {
+                    // Não logado - mostrar menu de convidado
+                    const guestActions = document.getElementById('guestActions');
+                    const userMenuWrapper = document.getElementById('userMenuWrapper');
+
+                    if (guestActions && userMenuWrapper) {
+                        guestActions.style.display = 'flex';
+                        userMenuWrapper.style.display = 'none';
+                    }
+                }
+            }
+
+            // Executar IMEDIATAMENTE
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', showLoggedUserInstantly);
+            } else {
+                showLoggedUserInstantly();
+            }
+        })();
+    </script>
 
     <!-- Verificação e carregamento do Stripe -->
     <script>
@@ -766,7 +850,7 @@
             const stripeLoaded = await waitForStripe();
 
             if (!stripeLoaded) {
-                console.warn('⚠️ Stripe.js não carregou - apenas PIX e Boleto estarão disponíveis');
+                console.warn('⚠️ Stripe.js não carregou - apenas Boleto estará disponível');
 
                 // Esconder opção de cartão se Stripe não carregou
                 const cardOption = document.querySelector('input[name="payment-method"][value="card"]');
@@ -777,14 +861,23 @@
                     }
                 }
 
-                // Selecionar PIX como padrão
-                const pixOption = document.querySelector('input[name="payment-method"][value="pix"]');
-                if (pixOption) {
-                    pixOption.checked = true;
-                    // Disparar evento change para ativar o formulário PIX
-                    setTimeout(() => {
-                        pixOption.dispatchEvent(new Event('change'));
-                    }, 100);
+                // Mostrar mensagem de erro se Stripe não carregar
+                const messageEl = document.getElementById('paymentMessage');
+                if (messageEl) {
+                    messageEl.innerHTML = `
+                        <div class="payment-error-message">
+                            <h4>❌ Sistema de pagamento indisponível</h4>
+                            <p>Não foi possível carregar o processador de pagamentos.</p>
+                            <p><strong>Tente:</strong></p>
+                            <ul>
+                                <li>🔄 Recarregar a página</li>
+                                <li>🌐 Verificar sua conexão com internet</li>
+                                <li>📧 Entrar em contato com o suporte</li>
+                            </ul>
+                        </div>
+                    `;
+                    messageEl.className = 'message error';
+                    messageEl.style.display = 'block';
                 }
             }
         });
@@ -794,57 +887,130 @@
 </head>
 
 <body>
-    <!-- Header será carregado dinamicamente pelo header.js -->
+    <!-- Header Inline (aparece instantaneamente) -->
+    <header class="header" id="header" style="
+        position: sticky; top: 0; z-index: 50; 
+        background: rgba(250, 249, 247, 0.95); 
+        backdrop-filter: blur(12px); 
+        border-bottom: 1px solid #e8ddd0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    ">
+        <div style="
+            display: flex; align-items: center; justify-content: space-between; 
+            height: 80px; max-width: 1280px; margin: 0 auto; 
+            padding: 0 1.5rem; gap: 2rem;
+        ">
+            <div>
+                <a href="landing.html">
+                    <img src="assets/img/logo.png" alt="CV Sem Frescura" style="height: 48px; width: auto;">
+                </a>
+            </div>
+            <nav style="display: flex; gap: 2rem;" id="headerNav">
+                <a href="landing.html" style="
+                    color: #3f3f46; text-decoration: none; font-weight: 500; 
+                    font-size: 0.95rem; padding: 0.5rem 0; transition: color 0.15s;
+                " onmouseover="this.style.color='#583819'" onmouseout="this.style.color='#3f3f46'">Início</a>
+                <a href="analisar.html" style="
+                    color: #3f3f46; text-decoration: none; font-weight: 500; 
+                    font-size: 0.95rem; padding: 0.5rem 0; transition: color 0.15s;
+                " onmouseover="this.style.color='#583819'" onmouseout="this.style.color='#3f3f46'">Analisar</a>
+                <a href="payment.html" style="
+                    color: #3f3f46; text-decoration: none; font-weight: 500; 
+                    font-size: 0.95rem; padding: 0.5rem 0; transition: color 0.15s;
+                " onmouseover="this.style.color='#583819'" onmouseout="this.style.color='#3f3f46'">Planos</a>
+            </nav>
+            <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <div id="guestActions" style="display: none; gap: 0.75rem; align-items: center;">
+                    <a href="#gift-code" style="
+                        display: inline-flex; align-items: center; gap: 0.5rem;
+                        padding: 0.5rem 1rem; background: #f4f0ea; color: #583819;
+                        border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.8rem;
+                    ">
+                        <span>🎓</span>
+                        <span>Código do Curso</span>
+                    </a>
+                    <a href="analisar.html?login=true" style="
+                        display: inline-flex; align-items: center; gap: 0.5rem;
+                        padding: 0.5rem 1rem; background: transparent; color: #3f3f46;
+                        border: 1px solid #d4d4d8; border-radius: 0.5rem; text-decoration: none; 
+                        font-weight: 600; font-size: 0.8rem;
+                    ">
+                        <span>🔐</span>
+                        <span>Entrar</span>
+                    </a>
+                    <a href="payment.html" style="
+                        display: inline-flex; align-items: center; gap: 0.5rem;
+                        padding: 0.5rem 1rem; background: #583819; color: white;
+                        border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.8rem;
+                    ">
+                        <span>💳</span>
+                        <span>Comprar</span>
+                    </a>
+                </div>
+                <div id="userMenuWrapper" style="display: none; position: relative;">
+                    <a href="#" id="authButton" style="
+                        display: flex; align-items: center; gap: 0.75rem;
+                        background: #f4f0ea; padding: 0.5rem 1rem; border-radius: 0.75rem;
+                        text-decoration: none; color: inherit;
+                    ">
+                        <span id="userName" style="font-weight: 500; color: #583819;">Usuário</span>
+                        <span id="userCredits" style="
+                            background: #583819; color: white; padding: 0.25rem 0.5rem;
+                            border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600;
+                        ">0 análises</span>
+                        <span style="font-size: 0.7rem; color: #583819;">▼</span>
+                    </a>
+                    <div id="userDropdown" style="
+                        position: absolute; top: 100%; right: 0; margin-top: 0.5rem;
+                        background: white; border-radius: 0.5rem; min-width: 200px; z-index: 999;
+                        display: none; border: 1px solid #e5e7eb; overflow: hidden;
+                        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+                    ">
+                        <a href="analisar.html" style="
+                            display: block; padding: 0.75rem 1rem; color: #3f3f46; text-decoration: none;
+                            font-size: 0.875rem; border: none; width: 100%; text-align: left;
+                        ">📊 Analisar Currículo</a>
+                        <a href="history.html" style="
+                            display: block; padding: 0.75rem 1rem; color: #3f3f46; text-decoration: none;
+                            font-size: 0.875rem; border: none; width: 100%; text-align: left;
+                        ">📋 Histórico</a>
+                        <a href="payment.html" style="
+                            display: block; padding: 0.75rem 1rem; color: #3f3f46; text-decoration: none;
+                            font-size: 0.875rem; border: none; width: 100%; text-align: left;
+                        ">💳 Comprar análises</a>
+                        <a href="#" id="logoutButton" style="
+                            display: block; padding: 0.75rem 1rem; color: #dc3545; text-decoration: none;
+                            font-size: 0.875rem; border: none; width: 100%; text-align: left;
+                            border-top: 1px solid #e5e7eb;
+                        ">🚪 Sair</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
 
     <main>
         <div class="container">
             <section class="hero-section">
-                <h1 class="page-title">Adquira Créditos de Análise</h1>
-                <p class="page-subtitle">Escolha o plano que melhor se adapta às suas necessidades profissionais</p>
+                <h1 class="page-title">Análise Completa do seu CV</h1>
+                <p class="page-subtitle">Maximize suas chances de aprovação com análise profissional de IA para até 7
+                    vagas</p>
             </section>
 
             <div class="pricing-container">
                 <div class="pricing-card">
-                    <h2 class="price-title">Plano Básico</h2>
+                    <h2 class="price-title">Análise Completa</h2>
                     <div class="price-amount">R$ 39,97</div>
                     <div class="price-features">
                         <div class="price-feature">1 análise completa (até 7 vagas)</div>
                         <div class="price-feature">100% da eficiência máxima do Gupy</div>
                         <div class="price-feature">Recomendações personalizadas de IA</div>
                         <div class="price-feature">Análise de compatibilidade ATS</div>
+                        <div class="price-feature">Identificação de palavras-chave</div>
+                        <div class="price-feature">Sugestões de melhorias específicas</div>
                     </div>
-                    <a href="#" class="btn btn-outline buy-now" data-plan="basic" data-price="39.97"
+                    <a href="#" class="btn btn-primary buy-now" data-plan="basic" data-price="39.97"
                         data-credits="1">Comprar Agora</a>
-                </div>
-
-                <div class="pricing-card popular">
-                    <div class="popular-tag">Mais popular</div>
-                    <h2 class="price-title">Plano Pro</h2>
-                    <div class="price-amount">R$ 79,97</div>
-                    <div class="price-features">
-                        <div class="price-feature">3 análises completas (até 7 vagas cada)</div>
-                        <div class="price-feature">3 ciclos completos de candidaturas</div>
-                        <div class="price-feature">Estratégia de médio prazo</div>
-                        <div class="price-feature">Recomendações personalizadas de IA</div>
-                        <div class="price-feature">33% de economia vs plano básico</div>
-                    </div>
-                    <a href="#" class="btn btn-primary buy-now" data-plan="pro" data-price="79.97"
-                        data-credits="3">Comprar Agora</a>
-                </div>
-
-                <div class="pricing-card">
-                    <h2 class="price-title">Plano Premium</h2>
-                    <div class="price-amount">R$ 149,97</div>
-                    <div class="price-features">
-                        <div class="price-feature">6 análises completas (até 7 vagas cada)</div>
-                        <div class="price-feature">6 ciclos completos de candidaturas</div>
-                        <div class="price-feature">Estratégia de longo prazo (2+ meses)</div>
-                        <div class="price-feature">Recomendações personalizadas de IA</div>
-                        <div class="price-feature">38% de economia vs plano básico</div>
-                        <div class="price-feature">Melhor custo-benefício por análise</div>
-                    </div>
-                    <a href="#" class="btn btn-outline buy-now" data-plan="premium" data-price="149.97"
-                        data-credits="6">Comprar Agora</a>
                 </div>
             </div>
 
@@ -854,7 +1020,7 @@
                     <div class="payment-icon">Visa</div>
                     <div class="payment-icon">Mastercard</div>
                     <div class="payment-icon">Elo</div>
-                    <div class="payment-icon">PIX</div>
+
                     <div class="payment-icon">Boleto</div>
                 </div>
             </section>
@@ -871,12 +1037,12 @@
                         </div>
                     </div>
                     <div class="faq-item">
-                        <div class="faq-question">Qual a diferença entre código gratuito e planos pagos?</div>
+                        <div class="faq-question">Qual a diferença entre código gratuito e análise paga?</div>
                         <div class="faq-answer">
                             <strong>Código gratuito:</strong> 1 análise para 1 vaga apenas (experimentação)<br>
-                            <strong>Planos pagos:</strong> Cada análise permite até 7 vagas (máximo eficiência do
-                            Gupy)<br>
-                            A diferença entre planos é quantos ciclos completos você pode fazer.
+                            <strong>Análise paga:</strong> Análise completa para até 7 vagas simultaneamente (máximo
+                            eficiência do Gupy)<br>
+                            A análise paga maximiza suas chances aproveitando o limite máximo de candidaturas por ciclo.
                         </div>
                     </div>
                     <div class="faq-item">
@@ -897,8 +1063,8 @@
                     <div class="faq-item">
                         <div class="faq-question">Como funciona o pagamento?</div>
                         <div class="faq-answer">
-                            Processamos pagamentos de forma segura através do Stripe (cartões) e gateways brasileiros
-                            (PIX/Boleto). Após a confirmação do pagamento, os créditos são adicionados automaticamente à
+                            Processamos pagamentos de forma segura através do Stripe (cartões e boleto). Após a
+                            confirmação do pagamento, os créditos são adicionados automaticamente à
                             sua conta em tempo real.
                         </div>
                     </div>
@@ -912,9 +1078,10 @@
                     <div class="faq-item">
                         <div class="faq-question">A análise é realmente feita por IA?</div>
                         <div class="faq-answer">
-                            Sim! Utilizamos modelos avançados de inteligência artificial treinados especificamente para
-                            análise de currículos e matching com vagas. Nossa IA identifica pontos de melhoria,
-                            adequação às vagas e sugere otimizações personalizadas.
+                            Sim! Utilizamos prompts especializados e algoritmos desenvolvidos especificamente para
+                            análise de currículos e matching com vagas, aplicados sobre modelos de IA de terceiros.
+                            Nossa tecnologia identifica pontos de melhoria, adequação às vagas e sugere otimizações
+                            personalizadas.
                         </div>
                     </div>
                 </div>
@@ -929,141 +1096,8 @@
             <h2 class="modal-title">Finalizar Compra</h2>
             <div id="paymentMessage" class="message"></div>
 
-            <!-- Payment Method Selector -->
-            <div class="payment-methods-selector">
-                <h3>Escolha a forma de pagamento</h3>
-                <div class="payment-method-options">
-                    <label class="payment-method-option">
-                        <input type="radio" name="payment-method" value="card" checked>
-                        <span>Cartão de crédito</span>
-                    </label>
-                    <label class="payment-method-option">
-                        <input type="radio" name="payment-method" value="pix">
-                        <span>PIX</span>
-                    </label>
-                    <label class="payment-method-option">
-                        <input type="radio" name="payment-method" value="boleto">
-                        <span>Boleto</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Credit Card Form (Stripe) -->
-            <form id="stripe-payment-form">
-                <div id="payment-element">
-                    <!-- Stripe Elements will be mounted here -->
-                </div>
-                <div id="payment-errors" style="color: var(--error); margin-top: var(--space-2);"></div>
-                <button id="submit-payment" type="submit" class="btn btn-primary"
-                    style="width: 100%; margin-top: var(--space-4);">
-                    Confirmar Pagamento
-                </button>
-            </form>
-
-            <!-- PIX Form -->
-            <form id="pix-form" style="display: none;">
-                <div class="form-group">
-                    <label for="pix-name">Nome completo</label>
-                    <input type="text" id="pix-name" placeholder="Digite seu nome completo" required>
-                </div>
-                <div class="form-group">
-                    <label for="pix-email">E-mail</label>
-                    <input type="email" id="pix-email" placeholder="Digite seu e-mail" required>
-                </div>
-                <div class="form-group">
-                    <label for="pix-cpf">CPF (apenas números)</label>
-                    <input type="text" id="pix-cpf" placeholder="00000000000" required maxlength="11"
-                        pattern="[0-9]{11}">
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    Gerar QR Code PIX
-                </button>
-            </form>
-
-            <!-- Boleto Form -->
-            <form id="boleto-form" style="display: none;">
-                <div class="form-group">
-                    <label for="boleto-name">Nome completo</label>
-                    <input type="text" id="boleto-name" placeholder="Digite seu nome completo" required>
-                </div>
-                <div class="form-group">
-                    <label for="boleto-email">E-mail</label>
-                    <input type="email" id="boleto-email" placeholder="Digite seu e-mail" required>
-                </div>
-                <div class="form-group">
-                    <label for="boleto-cpf">CPF (apenas números)</label>
-                    <input type="text" id="boleto-cpf" placeholder="00000000000" required maxlength="11"
-                        pattern="[0-9]{11}">
-                </div>
-                <div class="form-group">
-                    <label for="boleto-address">Endereço</label>
-                    <input type="text" id="boleto-address" placeholder="Rua, número, complemento" required>
-                </div>
-                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-4);">
-                    <div class="form-group">
-                        <label for="boleto-city">Cidade</label>
-                        <input type="text" id="boleto-city" placeholder="Sua cidade" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="boleto-state">Estado</label>
-                        <input type="text" id="boleto-state" placeholder="UF" required maxlength="2">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="boleto-postal-code">CEP (apenas números)</label>
-                    <input type="text" id="boleto-postal-code" placeholder="00000000" required maxlength="8"
-                        pattern="[0-9]{8}">
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    Gerar Boleto
-                </button>
-            </form>
-
-            <!-- PIX Display -->
-            <div id="pix-container" class="payment-display" style="display: none;">
-                <h3>Pagamento via PIX</h3>
-                <div id="pix-qrcode" style="margin: 0 auto; max-width: 250px;"></div>
-                <div style="margin: var(--space-4) 0;">
-                    <p style="margin-bottom: var(--space-2);">Código PIX:</p>
-                    <div class="code-display">
-                        <code id="pix-code"></code>
-                    </div>
-                    <button id="copy-pix-code" class="btn btn-outline" style="margin-top: var(--space-3);">
-                        Copiar código PIX
-                    </button>
-                    <p id="copy-message" style="margin-top: var(--space-2); color: var(--success);"></p>
-                </div>
-                <p style="margin-top: var(--space-4); color: var(--text-secondary); font-size: 0.875rem;">
-                    O pagamento via PIX é processado imediatamente. Após o pagamento, seus créditos serão adicionados
-                    automaticamente à sua conta.
-                </p>
-            </div>
-
-            <!-- Boleto Display -->
-            <div id="boleto-container" class="payment-display" style="display: none;">
-                <h3>Pagamento via Boleto</h3>
-                <p style="margin-bottom: var(--space-2);">Código de barras:</p>
-                <div class="code-display">
-                    <code id="boleto-code"></code>
-                </div>
-                <button id="copy-boleto-code" class="btn btn-outline" style="margin-top: var(--space-3);">
-                    Copiar código de barras
-                </button>
-                <p id="copy-boleto-message" style="margin-top: var(--space-2); color: var(--success);"></p>
-
-                <a id="boleto-link" href="#" target="_blank" class="btn btn-primary"
-                    style="display: block; margin: var(--space-5) auto; max-width: 300px;">
-                    Abrir Boleto para Impressão
-                </a>
-
-                <p style="margin-top: var(--space-4); color: var(--text-secondary); font-size: 0.875rem;">
-                    O pagamento via boleto pode levar até 3 dias úteis para ser confirmado. Após a confirmação, seus
-                    créditos serão adicionados automaticamente à sua conta.
-                </p>
-            </div>
-
-            <!-- Guest Checkout Section -->
-            <div
+            <!-- Guest Checkout Section (MOVIDO PARA CIMA) -->
+            <div id="guest-checkout-section"
                 style="background: var(--gray-50); padding: var(--space-4); border-radius: var(--radius-md); margin-bottom: var(--space-6); border: 1px solid var(--gray-200);">
                 <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3);">
                     <div
@@ -1072,10 +1106,28 @@
                     <h3 style="margin: 0; color: var(--text-primary); font-size: 1rem; font-weight: 600;">Checkout
                         Rápido</h3>
                 </div>
-                <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
-                    <strong>Sem cadastro necessário!</strong> Após o pagamento, criaremos sua conta automaticamente e
-                    você poderá usar os créditos imediatamente.
+                <p
+                    style="margin: 0 0 var(--space-4) 0; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+                    <strong>Sem cadastro necessário!</strong> Preencha os dados abaixo e criaremos sua conta
+                    automaticamente após o pagamento.
                 </p>
+
+                <!-- Campos para Checkout Rápido -->
+                <div class="guest-checkout-fields">
+                    <div class="form-group">
+                        <label for="guest-name">Nome Completo *</label>
+                        <input type="text" id="guest-name" name="guest-name" placeholder="Seu nome completo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="guest-email">E-mail *</label>
+                        <input type="email" id="guest-email" name="guest-email" placeholder="seu@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="guest-phone">Telefone (opcional)</label>
+                        <input type="tel" id="guest-phone" name="guest-phone" placeholder="(11) 99999-9999">
+                    </div>
+                </div>
+
                 <div
                     style="margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--gray-200);">
                     <a href="analisar.html?login=true"
@@ -1084,6 +1136,25 @@
                     </a>
                 </div>
             </div>
+
+            <!-- O Stripe Elements gerencia automaticamente os métodos de pagamento disponíveis -->
+
+            <!-- Formulário de Pagamento (Stripe Elements) -->
+            <form id="stripe-payment-form" style="display: none;">
+                <div id="payment-element">
+                    <!-- Stripe Elements renderiza automaticamente: Cartão, Boleto e outras opções -->
+                </div>
+                <div id="payment-errors" style="color: var(--error); margin-top: var(--space-2);"></div>
+                <button id="submit-payment" type="submit" class="btn btn-primary"
+                    style="width: 100%; margin-top: var(--space-4);">
+                    Confirmar Pagamento
+                </button>
+            </form>
+
+            <!-- Boleto Form: Removido - Stripe Elements gerencia automaticamente -->
+
+            <!-- Boleto Display: Removido - Stripe Elements gerencia automaticamente as interfaces -->
+
         </div>
     </div>
 
@@ -1112,9 +1183,7 @@
             // Payment method selector
             const paymentMethodInputs = document.querySelectorAll('input[name="payment-method"]');
             const stripeForm = document.getElementById('stripe-payment-form');
-            const pixForm = document.getElementById('pix-form');
             const boletoForm = document.getElementById('boleto-form');
-            const pixContainer = document.getElementById('pix-container');
             const boletoContainer = document.getElementById('boleto-container');
 
             function switchPaymentMethod() {
@@ -1126,16 +1195,13 @@
 
                 // Hide all forms and containers
                 if (stripeForm) stripeForm.style.display = 'none';
-                if (pixForm) pixForm.style.display = 'none';
                 if (boletoForm) boletoForm.style.display = 'none';
-                if (pixContainer) pixContainer.style.display = 'none';
                 if (boletoContainer) boletoContainer.style.display = 'none';
 
                 // Show selected form
                 if (selectedMethod === 'card' && stripeForm) {
                     stripeForm.style.display = 'block';
-                } else if (selectedMethod === 'pix' && pixForm) {
-                    pixForm.style.display = 'block';
+
                 } else if (selectedMethod === 'boleto' && boletoForm) {
                     boletoForm.style.display = 'block';
                 }
@@ -1164,20 +1230,7 @@
 
                     console.log('📦 Dados do plano:', planData);
 
-                    // Verificar se o usuário está logado ou permitir guest checkout
-                    const user = window.auth ? window.auth.getUser() : null;
-
-                    if (!user) {
-                        console.log('👤 Usuário não logado - usando guest checkout');
-                        // Para guest checkout, vamos redirecionar para login ou criar conta temporária
-                        if (confirm('Você precisa estar logado para comprar créditos. Deseja fazer login agora?')) {
-                            window.location.href = 'analisar.html?login=true&returnTo=payment.html';
-                            return;
-                        }
-                        return;
-                    }
-
-                    // Abrir modal e iniciar pagamento
+                    // Abrir modal e iniciar pagamento (permitir checkout rápido)
                     openPaymentModal(planData);
                 }
             });
@@ -1189,6 +1242,7 @@
 
                     const modal = document.getElementById('paymentModal');
                     const modalTitle = modal.querySelector('.modal-title');
+                    const guestCheckoutSection = document.getElementById('guest-checkout-section');
 
                     if (!modal) {
                         console.error('❌ Modal de pagamento não encontrado');
@@ -1198,38 +1252,57 @@
                     // Armazenar dados do plano globalmente
                     currentPaymentPlan = planData;
 
-                    // Atualizar título do modal
+                    // Verificar se o usuário está logado
                     const user = window.auth ? window.auth.getUser() : null;
+
+                    // Mapeamento dos códigos dos planos para nomes amigáveis
+                    const planNames = {
+                        'basic': 'Análise Completa'
+                    };
+
+                    const planDisplayName = planNames[planData.plan] || 'Análise Completa';
+
+                    // Atualizar título do modal e mostrar/esconder seção de checkout rápido
                     if (modalTitle) {
                         modalTitle.textContent = user ?
-                            `Finalizar Compra - ${planData.plan}` :
-                            `Compra Rápida - ${planData.plan}`;
+                            `Finalizar Compra - ${planDisplayName}` :
+                            `Checkout Rápido - ${planDisplayName}`;
                     }
 
-                    // Limpar mensagens anteriores
+                    // Mostrar seção de checkout rápido apenas para usuários não logados
+                    if (guestCheckoutSection) {
+                        guestCheckoutSection.style.display = user ? 'none' : 'block';
+                    }
+
+                    // Mostrar mensagem informativa
                     const messageEl = document.getElementById('paymentMessage');
-                    if (messageEl) {
+                    if (messageEl && !user) {
+                        messageEl.innerHTML = `
+                            <div style="background: #e3f2fd; color: #1976d2; padding: 12px; border-radius: 6px; border: 1px solid #bbdefb;">
+                                <strong>💡 Checkout Rápido:</strong> Preencha seus dados e aguarde o carregamento das opções de pagamento
+                            </div>
+                        `;
+                        messageEl.className = 'message info';
+                        messageEl.style.display = 'block';
+                    } else if (messageEl) {
                         messageEl.style.display = 'none';
-                        messageEl.textContent = '';
                     }
 
                     // Mostrar modal
                     modal.style.display = 'flex';
                     document.body.style.overflow = 'hidden';
 
-                    console.log('✅ Modal aberto, inicializando pagamento...');
-
-                    // Inicializar pagamento com cartão por padrão
-                    if (typeof payment !== 'undefined' && payment.createPaymentIntent) {
-                        const success = await payment.createPaymentIntent(planData, 'card');
-                        if (!success) {
-                            console.error('❌ Falha ao inicializar pagamento');
-                            showMessage('Erro ao inicializar pagamento. Tente novamente.', 'error');
-                        }
-                    } else {
-                        console.error('❌ Módulo de pagamento não carregado');
-                        showMessage('Sistema de pagamento não carregado. Recarregue a página.', 'error');
+                    // Inicializar o pagamento automaticamente para checkout rápido
+                    if (!user) {
+                        // Para checkout rápido, tentar inicializar com cartão primeiro
+                        setTimeout(() => {
+                            if (typeof payment !== 'undefined' && payment.createPaymentIntent && currentPaymentPlan) {
+                                payment.createPaymentIntent(currentPaymentPlan, 'card');
+                            }
+                        }, 500);
                     }
+
+                    console.log('✅ Modal aberto, pronto para pagamento...');
 
                 } catch (error) {
                     console.error('❌ Erro ao abrir modal:', error);
@@ -1247,38 +1320,76 @@
                 }
             }
 
+            // Função para validar dados de checkout rápido
+            function validateGuestCheckout() {
+                const user = window.auth ? window.auth.getUser() : null;
+                if (user) return true; // Usuário logado, não precisa validar
+
+                const name = document.getElementById('guest-name')?.value?.trim();
+                const email = document.getElementById('guest-email')?.value?.trim();
+
+                if (!name || !email) {
+                    showMessage('Por favor, preencha nome e e-mail para o checkout rápido.', 'error');
+                    return false;
+                }
+
+                // Validar formato do e-mail
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showMessage('Por favor, digite um e-mail válido.', 'error');
+                    return false;
+                }
+
+                return true;
+            }
+
+            // Função para coletar dados de checkout rápido
+            function getGuestCheckoutData() {
+                const user = window.auth ? window.auth.getUser() : null;
+                if (user) return null; // Usuário logado
+
+                return {
+                    name: document.getElementById('guest-name')?.value?.trim(),
+                    email: document.getElementById('guest-email')?.value?.trim(),
+                    phone: document.getElementById('guest-phone')?.value?.trim() || null
+                };
+            }
+
             // Event listeners para formulários
             if (stripeForm) {
                 stripeForm.addEventListener('submit', async function (e) {
                     e.preventDefault();
                     console.log('💳 Processando pagamento com cartão...');
 
-                    if (typeof payment !== 'undefined' && payment.processPayment) {
+                    // Validar checkout rápido se necessário
+                    if (!validateGuestCheckout()) {
+                        return;
+                    }
+
+                    // Criar payment intent agora (com dados validados)
+                    if (typeof payment !== 'undefined' && payment.createPaymentIntent && currentPaymentPlan) {
+                        console.log('🎯 Criando payment intent...');
+                        const success = await payment.createPaymentIntent(currentPaymentPlan, 'card');
+
+                        if (!success) {
+                            console.error('❌ Falha ao criar payment intent');
+                            showMessage('Erro ao inicializar pagamento. Tente novamente.', 'error');
+                            return;
+                        }
+
+                        // Aguardar um pouco para o Stripe Elements carregar
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+
+                        // Agora processar o pagamento
                         await payment.processPayment();
                     } else {
-                        console.error('❌ Função processPayment não encontrada');
+                        console.error('❌ Dados insuficientes para pagamento');
                         showMessage('Erro no sistema de pagamento.', 'error');
                     }
                 });
             }
 
-            if (pixForm) {
-                pixForm.addEventListener('submit', async function (e) {
-                    e.preventDefault();
-                    console.log('🔲 Processando pagamento PIX...');
 
-                    if (currentPaymentPlan && typeof payment !== 'undefined') {
-                        const formData = new FormData(this);
-                        const additionalData = {
-                            name: formData.get('pix-name') || document.getElementById('pix-name')?.value,
-                            email: formData.get('pix-email') || document.getElementById('pix-email')?.value,
-                            taxId: formData.get('pix-cpf') || document.getElementById('pix-cpf')?.value
-                        };
-
-                        await payment.createPaymentIntent(currentPaymentPlan, 'pix', additionalData);
-                    }
-                });
-            }
 
             if (boletoForm) {
                 boletoForm.addEventListener('submit', async function (e) {
@@ -1325,6 +1436,10 @@
             }
 
             console.log('✅ Página de pagamentos inicializada');
+
+            // Expor funções globalmente para payment.js
+            window.validateGuestCheckout = validateGuestCheckout;
+            window.getGuestCheckoutData = getGuestCheckoutData;
         });
     </script>
 </body>

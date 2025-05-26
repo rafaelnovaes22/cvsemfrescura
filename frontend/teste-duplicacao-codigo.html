@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Duplicação de Código de Presente</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #583819;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #e1e8ff;
+            border-radius: 8px;
+            background: #f8f9ff;
+        }
+
+        .test-title {
+            font-weight: bold;
+            color: #583819;
+            margin-bottom: 10px;
+        }
+
+        .test-button {
+            background: #583819;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: 600;
+        }
+
+        .test-button:hover {
+            background: #6d4423;
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .logs {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 6px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 15px;
+        }
+
+        .clear-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧪 Teste - Duplicação de Código de Presente</h1>
+
+        <div class="test-section">
+            <div class="test-title">📋 Status Atual</div>
+            <div id="currentStatus" class="result info">Carregando...</div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🔧 Controles de Teste</div>
+            <button class="test-button" onclick="clearAllData()">🗑️ Limpar Todos os Dados</button>
+            <button class="test-button" onclick="simulateRegisterFlow()">👤 Simular Cadastro + Código</button>
+            <button class="test-button" onclick="simulateLoginFlow()">🔐 Simular Login + Código</button>
+            <button class="test-button" onclick="testDuplicateApplication()">⚠️ Testar Aplicação Duplicada</button>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📊 Resultados dos Testes</div>
+            <div id="testResults" class="result info">Nenhum teste executado ainda.</div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📝 Logs de Debug</div>
+            <button class="clear-btn" onclick="clearLogs()">Limpar Logs</button>
+            <div id="debugLogs" class="logs"></div>
+        </div>
+    </div>
+
+    <script>
+        // Função para adicionar logs
+        function addLog(message, type = 'info') {
+            const logs = document.getElementById('debugLogs');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.style.color = type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#6c757d';
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logs.appendChild(logEntry);
+            logs.scrollTop = logs.scrollHeight;
+        }
+
+        // Função para limpar logs
+        function clearLogs() {
+            document.getElementById('debugLogs').innerHTML = '';
+        }
+
+        // Função para atualizar status atual
+        function updateCurrentStatus() {
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const giftCode = localStorage.getItem('giftCode');
+            const pendingCode = localStorage.getItem('pendingGiftCode');
+            const appliedCodes = JSON.parse(sessionStorage.getItem('appliedGiftCodes') || '[]');
+
+            const status = `
+                🔐 Autenticado: ${token ? 'SIM' : 'NÃO'}
+                👤 Usuário: ${user.name || 'N/A'}
+                💰 Créditos: ${user.credits || 0}
+                🎁 Código na URL: ${new URLSearchParams(window.location.search).get('giftCode') || 'N/A'}
+                📦 Código Local: ${giftCode || 'N/A'}
+                ⏳ Código Pendente: ${pendingCode || 'N/A'}
+                ✅ Códigos Aplicados: ${appliedCodes.length > 0 ? appliedCodes.join(', ') : 'Nenhum'}
+            `;
+
+            document.getElementById('currentStatus').textContent = status;
+            addLog(`Status atualizado - Créditos: ${user.credits || 0}, Códigos aplicados: ${appliedCodes.length}`);
+        }
+
+        // Função para limpar todos os dados
+        function clearAllData() {
+            localStorage.clear();
+            sessionStorage.clear();
+
+            // Limpar parâmetros da URL
+            const currentUrl = new URL(window.location);
+            currentUrl.searchParams.delete('giftCode');
+            window.history.replaceState({}, document.title, currentUrl.pathname);
+
+            updateCurrentStatus();
+            addLog('Todos os dados foram limpos', 'success');
+
+            document.getElementById('testResults').textContent = 'Dados limpos. Pronto para novos testes.';
+            document.getElementById('testResults').className = 'result success';
+        }
+
+        // Função para simular fluxo de cadastro
+        async function simulateRegisterFlow() {
+            addLog('Iniciando simulação de cadastro...', 'info');
+
+            try {
+                // Simular código na URL
+                const testCode = 'ADMIN123';
+                const currentUrl = new URL(window.location);
+                currentUrl.searchParams.set('giftCode', testCode);
+                window.history.replaceState({}, document.title, currentUrl.toString());
+
+                // Simular dados de usuário após cadastro/login
+                const mockUser = {
+                    id: Math.floor(Math.random() * 1000),
+                    name: 'Usuário Teste',
+                    email: 'teste@exemplo.com',
+                    credits: 0
+                };
+
+                const mockToken = 'mock_token_' + Date.now();
+                localStorage.setItem('token', mockToken);
+                localStorage.setItem('user', JSON.stringify(mockUser));
+
+                addLog('Usuário simulado criado e logado', 'success');
+
+                // Simular aplicação do código (primeira vez)
+                await simulateGiftCodeApplication(testCode, 'Cadastro');
+
+                updateCurrentStatus();
+
+            } catch (error) {
+                addLog(`Erro na simulação de cadastro: ${error.message}`, 'error');
+                document.getElementById('testResults').textContent = `Erro: ${error.message}`;
+                document.getElementById('testResults').className = 'result error';
+            }
+        }
+
+        // Função para simular fluxo de login
+        async function simulateLoginFlow() {
+            addLog('Iniciando simulação de login...', 'info');
+
+            try {
+                const testCode = 'ADMIN123';
+
+                // Verificar se já há um usuário
+                const existingUser = JSON.parse(localStorage.getItem('user') || '{}');
+                if (!existingUser.id) {
+                    addLog('Nenhum usuário encontrado. Execute primeiro o teste de cadastro.', 'warning');
+                    document.getElementById('testResults').textContent = 'Execute primeiro o teste de cadastro.';
+                    document.getElementById('testResults').className = 'result warning';
+                    return;
+                }
+
+                // Simular aplicação do código (segunda vez - deve ser bloqueada)
+                await simulateGiftCodeApplication(testCode, 'Login');
+
+                updateCurrentStatus();
+
+            } catch (error) {
+                addLog(`Erro na simulação de login: ${error.message}`, 'error');
+                document.getElementById('testResults').textContent = `Erro: ${error.message}`;
+                document.getElementById('testResults').className = 'result error';
+            }
+        }
+
+        // Função para testar aplicação duplicada diretamente
+        async function testDuplicateApplication() {
+            addLog('Testando aplicação duplicada direta...', 'info');
+
+            const testCode = 'ADMIN123';
+
+            // Primeira aplicação
+            await simulateGiftCodeApplication(testCode, 'Primeira tentativa');
+
+            // Segunda aplicação (deve ser bloqueada)
+            setTimeout(async () => {
+                await simulateGiftCodeApplication(testCode, 'Segunda tentativa (deve ser bloqueada)');
+                updateCurrentStatus();
+            }, 1000);
+        }
+
+        // Função para simular aplicação de código de presente
+        async function simulateGiftCodeApplication(code, context) {
+            addLog(`Aplicando código ${code} - Contexto: ${context}`, 'info');
+
+            // Verificar se este código já foi aplicado nesta sessão
+            const appliedCodes = JSON.parse(sessionStorage.getItem('appliedGiftCodes') || '[]');
+            if (appliedCodes.includes(code)) {
+                addLog(`🔄 Código ${code} já aplicado nesta sessão - BLOQUEADO`, 'warning');
+                document.getElementById('testResults').textContent = `✅ SUCESSO: Duplicação bloqueada para ${code} no contexto "${context}"`;
+                document.getElementById('testResults').className = 'result success';
+                return;
+            }
+
+            try {
+                // Simular chamada para API (sem fazer requisição real)
+                addLog(`Simulando requisição para /api/gift-code/apply com código ${code}`, 'info');
+
+                // Simular resposta de sucesso
+                const mockResponse = {
+                    success: true,
+                    message: 'Código aplicado com sucesso!',
+                    credits: 1
+                };
+
+                // Marcar código como aplicado
+                appliedCodes.push(code);
+                sessionStorage.setItem('appliedGiftCodes', JSON.stringify(appliedCodes));
+
+                // Atualizar créditos do usuário
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                user.credits = (user.credits || 0) + 1;
+                localStorage.setItem('user', JSON.stringify(user));
+
+                addLog(`✅ Código ${code} aplicado com sucesso - Créditos: ${user.credits}`, 'success');
+
+                document.getElementById('testResults').textContent = `Código ${code} aplicado no contexto "${context}" - Créditos: ${user.credits}`;
+                document.getElementById('testResults').className = 'result success';
+
+            } catch (error) {
+                addLog(`❌ Erro ao aplicar código ${code}: ${error.message}`, 'error');
+                document.getElementById('testResults').textContent = `Erro: ${error.message}`;
+                document.getElementById('testResults').className = 'result error';
+            }
+        }
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function () {
+            addLog('Página de teste carregada', 'info');
+            updateCurrentStatus();
+        });
+    </script>
+</body>
+
+</html>

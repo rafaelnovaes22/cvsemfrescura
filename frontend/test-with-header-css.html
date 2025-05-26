@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste com Header CSS</title>
+
+    <!-- IMPORTANTE: Carregar o header.css como nas páginas reais -->
+    <link rel="stylesheet" href="assets/css/header.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #F3EADA;
+        }
+
+        .test-container {
+            border: 2px solid #583819;
+            padding: 20px;
+            margin: 20px 0;
+            background: white;
+        }
+
+        .problem {
+            background: #fee;
+            padding: 15px;
+            border-left: 4px solid #dc3545;
+            margin: 15px 0;
+        }
+
+        .solution {
+            background: #efe;
+            padding: 15px;
+            border-left: 4px solid #22c55e;
+            margin: 15px 0;
+        }
+
+        /* Estilos específicos que vamos testar */
+        #userDropdown {
+            display: none !important;
+            flex-direction: column !important;
+            position: absolute !important;
+            top: 100% !important;
+            right: 0 !important;
+            margin-top: 0.5rem !important;
+            background: white !important;
+            border-radius: 0.5rem !important;
+            min-width: 200px !important;
+            z-index: 999 !important;
+            border: 1px solid #e5e7eb !important;
+            overflow: hidden !important;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1) !important;
+        }
+
+        #userDropdown.show {
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        #userDropdown a {
+            display: block !important;
+            width: 100% !important;
+            padding: 0.75rem 1rem !important;
+            color: #3f3f46 !important;
+            text-decoration: none !important;
+            font-size: 0.875rem !important;
+            border: none !important;
+            text-align: left !important;
+            transition: background-color 0.2s !important;
+        }
+
+        #userDropdown a:hover {
+            background-color: #f5f5f5 !important;
+        }
+
+        #userDropdown #logoutButton {
+            color: #dc3545 !important;
+            border-top: 1px solid #e5e7eb !important;
+        }
+
+        #userDropdown #logoutButton:hover {
+            background-color: #fef2f2 !important;
+        }
+
+        /* Container */
+        #userMenuWrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        #authButton {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: #f4f0ea;
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            text-decoration: none;
+            color: inherit;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔍 Teste com Header CSS (Reproduzindo o Problema)</h1>
+
+    <div class="problem">
+        <strong>🚨 Problema:</strong> Esta página carrega o mesmo <code>header.css</code> das páginas reais,
+        que pode estar causando conflito com nossos estilos.
+    </div>
+
+    <div class="test-container">
+        <h3>🧪 Teste com Header CSS Carregado</h3>
+        <div id="userMenuWrapper">
+            <button id="authButton">
+                <span>Usuário</span>
+                <span
+                    style="background: #583819; color: white; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600;">5
+                    análises</span>
+                <span style="font-size: 0.7rem; color: #583819;">▼</span>
+            </button>
+            <div id="userDropdown" style="display: none;">
+                <a href="#">📊 Analisar Currículo</a>
+                <a href="#">📋 Histórico</a>
+                <a href="#">💳 Comprar análises</a>
+                <a href="#" id="logoutButton">🚪 Sair</a>
+            </div>
+        </div>
+        <div id="debugInfo"></div>
+    </div>
+
+    <div class="solution">
+        <strong>✅ Se funcionar:</strong> Os itens aparecerão verticalmente mesmo com header.css carregado.<br>
+        <strong>❌ Se não funcionar:</strong> Os itens aparecerão horizontalmente, confirmando o conflito.
+    </div>
+
+    <script>
+        console.log('🔍 Teste com header.css iniciado');
+
+        let dropdownOpen = false;
+        const authButton = document.getElementById('authButton');
+        const userDropdown = document.getElementById('userDropdown');
+
+        // Usar exatamente o mesmo código das páginas reais
+        if (authButton) {
+            authButton.addEventListener('click', function (e) {
+                e.preventDefault();
+                dropdownOpen = !dropdownOpen;
+                if (userDropdown) {
+                    if (dropdownOpen) {
+                        // Forçar todos os estilos necessários via JavaScript
+                        userDropdown.style.cssText = `
+                            display: flex !important;
+                            flex-direction: column !important;
+                            position: absolute !important;
+                            top: 100% !important;
+                            right: 0 !important;
+                            margin-top: 0.5rem !important;
+                            background: white !important;
+                            border-radius: 0.5rem !important;
+                            min-width: 200px !important;
+                            z-index: 999 !important;
+                            border: 1px solid #e5e7eb !important;
+                            overflow: hidden !important;
+                            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1) !important;
+                        `;
+
+                        // Forçar estilos nos links do dropdown
+                        const items = userDropdown.querySelectorAll('a');
+                        items.forEach((item, index) => {
+                            item.style.cssText = `
+                                display: block !important;
+                                width: 100% !important;
+                                padding: 0.75rem 1rem !important;
+                                color: ${item.id === 'logoutButton' ? '#dc3545' : '#3f3f46'} !important;
+                                text-decoration: none !important;
+                                font-size: 0.875rem !important;
+                                border: none !important;
+                                text-align: left !important;
+                                transition: background-color 0.2s !important;
+                                ${item.id === 'logoutButton' ? 'border-top: 1px solid #e5e7eb !important;' : ''}
+                            `;
+
+                            // Adicionar eventos de hover
+                            item.addEventListener('mouseenter', function () {
+                                this.style.backgroundColor = item.id === 'logoutButton' ? '#fef2f2' : '#f5f5f5';
+                            });
+
+                            item.addEventListener('mouseleave', function () {
+                                this.style.backgroundColor = 'transparent';
+                            });
+                        });
+
+                        // Debug info
+                        setTimeout(() => {
+                            const computedStyle = window.getComputedStyle(userDropdown);
+                            document.getElementById('debugInfo').innerHTML = `
+                                <h4>🔍 Estilos Computados (com header.css):</h4>
+                                <strong>Display:</strong> ${computedStyle.display}<br>
+                                <strong>Flex Direction:</strong> ${computedStyle.flexDirection}<br>
+                                <strong>Position:</strong> ${computedStyle.position}<br>
+                                <strong>CSS Classes no header.css que podem interferir:</strong><br>
+                                - .dropdown-menu { display: none; flex-direction: column; }<br>
+                                - .dropdown-item { display: block; }<br>
+                                <h4>📏 Medidas dos Itens:</h4>
+                                ${Array.from(userDropdown.children).map((child, i) => {
+                                const childStyle = window.getComputedStyle(child);
+                                return `Item ${i + 1}: display=${childStyle.display}, width=${childStyle.width}`;
+                            }).join('<br>')}
+                            `;
+                        }, 100);
+
+                        console.log('✅ Dropdown aberto com header.css carregado');
+                    } else {
+                        userDropdown.style.display = 'none';
+                        document.getElementById('debugInfo').innerHTML = '<strong>Dropdown fechado</strong>';
+                        console.log('❌ Dropdown fechado');
+                    }
+                }
+            });
+        }
+
+        // Verificar se header.css foi carregado
+        const headerCssLoaded = !!document.querySelector('link[href*="header.css"]');
+        console.log('📝 Header CSS carregado:', headerCssLoaded);
+
+        // Verificar se as classes do header.css existem
+        const testEl = document.createElement('div');
+        testEl.className = 'dropdown-menu';
+        document.body.appendChild(testEl);
+        const hasHeaderStyles = window.getComputedStyle(testEl).flexDirection === 'column';
+        document.body.removeChild(testEl);
+        console.log('🎨 Estilos do header.css ativos:', hasHeaderStyles);
+    </script>
+</body>
+
+</html>

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const paymentController = require('../controllers/paymentController');
 const authMiddleware = require('../utils/authMiddleware');
+const optionalAuthMiddleware = require('../utils/optionalAuthMiddleware');
 
 // Middleware para processar o corpo bruto da requisição para webhooks
 const rawBodyMiddleware = (req, res, next) => {
@@ -18,9 +19,11 @@ const rawBodyMiddleware = (req, res, next) => {
   });
 };
 
-// Rotas de pagamento (todas protegidas, exceto webhook)
-router.post('/create-intent', authMiddleware, paymentController.createPaymentIntent);
-router.post('/confirm', authMiddleware, paymentController.confirmPayment);
+// Rotas de pagamento públicas (autenticação opcional)
+router.post('/create-intent', optionalAuthMiddleware, paymentController.createPaymentIntent);
+router.post('/confirm', optionalAuthMiddleware, paymentController.confirmPayment);
+
+// Rotas de pagamento protegidas (requerem login)
 router.get('/history', authMiddleware, paymentController.getTransactionHistory);
 router.post('/verify-pending', authMiddleware, paymentController.verifyPendingPayments);
 router.get('/user-info', authMiddleware, paymentController.getUserPaymentInfo);

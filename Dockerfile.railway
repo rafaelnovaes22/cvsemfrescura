@@ -1,0 +1,49 @@
+# 🚀 Dockerfile para Railway - CV Sem Frescura
+# Multi-stage build para otimizar o deploy
+
+# Stage 1: Build do Backend
+FROM node:18-alpine AS backend-build
+WORKDIR /app/backend
+COPY backend/package*.json ./
+RUN npm ci --only=production
+COPY backend/ ./
+
+# Stage 2: Build do Frontend
+FROM nginx:alpine AS frontend-build
+WORKDIR /app/frontend
+COPY frontend/ ./
+# Remover arquivos desnecessários e de teste
+RUN rm -f *.html.bak *.html.new test-*.html debug-*.html demo-*.html comparacao-*.html index.html.* teste_*.html
+
+# Stage 3: Produção - Nginx + Node.js
+FROM node:18-alpine AS production
+
+# Instalar nginx
+RUN apk add --no-cache nginx
+
+# Configurar diretórios
+WORKDIR /app
+RUN mkdir -p /var/log/nginx /var/lib/nginx/tmp /run/nginx
+
+# Copiar backend
+COPY --from=backend-build /app/backend ./backend
+
+# Copiar frontend
+COPY --from=frontend-build /app/frontend ./frontend
+
+# Configurar nginx para Railway
+COPY nginx.railway.conf /etc/nginx/nginx.conf
+
+# Script de inicialização
+COPY start-railway.sh ./
+RUN chmod +x start-railway.sh
+
+# Expor porta do Railway
+EXPOSE $PORT
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:$PORT/health || exit 1
+
+# Iniciar aplicação
+CMD ["./start-railway.sh"] 

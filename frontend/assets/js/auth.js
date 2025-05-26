@@ -1,18 +1,34 @@
 // auth.js - Gerenciamento de autenticação e perfil para CV Sem Frescura
 
-// URL base para endpoints de usuários
-const API_URL = 'http://localhost:3000/api/user';
+// API Configuration
+const API_URL = 'http://localhost:3001/api/user';
 
 // Salva token e dados do usuário no localStorage
 function saveAuth(token, user) {
+    console.log('🔒 saveAuth() - salvando dados:');
+    console.log('- Token length:', token ? token.length : 0);
+    console.log('- User:', user?.name, '| Credits:', user?.credits);
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(user));
+    console.log('✅ Dados salvos no localStorage');
+
+    // Disparar evento de mudança de autenticação
+    window.dispatchEvent(new CustomEvent('authChanged', {
+        detail: { authenticated: true, user: user }
+    }));
 }
 
 // Remove dados de autenticação
 function clearAuth() {
+    console.log('🚪 clearAuth() - removendo dados de autenticação...');
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    console.log('🗑️ Token e user removidos do localStorage');
+
+    // Disparar evento de mudança de autenticação
+    window.dispatchEvent(new CustomEvent('authChanged', {
+        detail: { authenticated: false, user: null }
+    }));
 }
 
 // Recupera token
@@ -42,6 +58,7 @@ async function registerUser(name, email, password) {
 
 // Login de usuário
 async function loginUser(email, password) {
+    console.log('🔐 Iniciando processo de login...');
     const res = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -50,6 +67,7 @@ async function loginUser(email, password) {
     if (!res.ok) throw new Error((await res.json()).error || 'Erro ao logar');
     const data = await res.json();
 
+    console.log('✅ Login bem-sucedido, buscando créditos...');
     // Buscar créditos do usuário imediatamente após login
     try {
         const creditsRes = await fetch(`${API_URL}/credits`, {
@@ -59,6 +77,7 @@ async function loginUser(email, password) {
             const creditsData = await creditsRes.json();
             // Adicionar créditos ao objeto do usuário antes de salvar
             data.user.credits = creditsData.credits;
+            console.log('💰 Créditos obtidos:', creditsData.credits);
         }
     } catch (error) {
         console.error('Erro ao buscar créditos:', error);
@@ -66,7 +85,10 @@ async function loginUser(email, password) {
         data.user.credits = 0;
     }
 
+    console.log('💾 Salvando dados de autenticação...');
     saveAuth(data.token, data.user);
+
+    console.log('🎯 Login concluído, usuário:', data.user.name);
     return data.user;
 }
 
@@ -88,6 +110,7 @@ function isAuthenticated() {
 
 // Logout
 function logout() {
+    console.log('🚪 Iniciando processo de logout...');
     clearAuth();
     // Limpar dados relacionados ao código de presente
     localStorage.removeItem('pendingGiftCode');
@@ -104,6 +127,7 @@ function logout() {
     // Função adicional para garantir limpeza completa
     cleanupAllGiftCodeData();
 
+    console.log('🏠 Redirecionando para landing page...');
     // Redirecionar para a landing page após logout
     window.location.href = 'landing.html';
 }
@@ -119,6 +143,7 @@ function cleanupAllGiftCodeData() {
     sessionStorage.removeItem('pendingGiftCode');
     sessionStorage.removeItem('isGiftCodeUser');
     sessionStorage.removeItem('giftCode');
+    sessionStorage.removeItem('appliedGiftCodes');
 
     // Limpar parâmetros da URL
     const currentUrl = new URL(window.location);

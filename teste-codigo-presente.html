@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Nova Experiência de Código de Presente</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #583819;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .test-section {
+            background: #f8f9ff;
+            border: 2px solid #e1e8ff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .test-link {
+            display: inline-block;
+            background: #583819;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .test-link:hover {
+            background: #4a2f15;
+            transform: translateY(-2px);
+        }
+
+        .invalid-link {
+            background: #dc3545;
+        }
+
+        .invalid-link:hover {
+            background: #c82333;
+        }
+
+        .description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .feature-list {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .feature-list li {
+            margin: 0.5rem 0;
+            color: #583819;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 1rem;
+        }
+
+        .status.working {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🎁 Teste - Nova Experiência de Código de Presente</h1>
+
+        <div class="test-section">
+            <h2>✅ Cenário 1: Código Válido <span class="status working">FUNCIONANDO</span></h2>
+            <p class="description">
+                Teste com código válido <strong>ADMIN123</strong>.
+                Deve mostrar modal de boas-vindas com opções de cadastro/login.
+            </p>
+            <div class="feature-list">
+                <strong>🎯 O que deve acontecer:</strong>
+                <ul>
+                    <li>✅ Validação automática do código</li>
+                    <li>🎪 Modal atrativo de boas-vindas</li>
+                    <li>📝 Opções: "Criar Conta" e "Já tenho conta"</li>
+                    <li>⚡ Aplicação automática após login/cadastro</li>
+                </ul>
+            </div>
+            <a href="http://localhost:8080/analisar.html?giftCode=ADMIN123" class="test-link" target="_blank">
+                🧪 Testar Código Válido (ADMIN123)
+            </a>
+        </div>
+
+        <div class="test-section">
+            <h2>❌ Cenário 2: Código Inválido <span class="status error">ERRO ESPERADO</span></h2>
+            <p class="description">
+                Teste com código inválido <strong>INVALIDO123</strong>.
+                Deve mostrar modal de erro específico.
+            </p>
+            <div class="feature-list">
+                <strong>🎯 O que deve acontecer:</strong>
+                <ul>
+                    <li>❌ Validação falha</li>
+                    <li>🚨 Modal de erro específico</li>
+                    <li>💡 Orientações claras para o usuário</li>
+                    <li>🔄 Opção de tentar novamente</li>
+                </ul>
+            </div>
+            <a href="http://localhost:8080/analisar.html?giftCode=INVALIDO123" class="test-link invalid-link"
+                target="_blank">
+                🧪 Testar Código Inválido (INVALIDO123)
+            </a>
+        </div>
+
+        <div class="test-section">
+            <h2>🔄 Cenário 3: Sem Código <span class="status working">NORMAL</span></h2>
+            <p class="description">
+                Acesso normal sem código. Deve mostrar modal de login padrão.
+            </p>
+            <div class="feature-list">
+                <strong>🎯 O que deve acontecer:</strong>
+                <ul>
+                    <li>🔐 Modal de login padrão</li>
+                    <li>📝 Formulários normais</li>
+                    <li>⚡ Funcionamento padrão da aplicação</li>
+                </ul>
+            </div>
+            <a href="http://localhost:8080/analisar.html" class="test-link" target="_blank">
+                🧪 Testar Acesso Normal (Sem Código)
+            </a>
+        </div>
+
+        <div class="test-section">
+            <h2>🎓 Cenário 4: Outros Códigos Válidos</h2>
+            <p class="description">
+                Teste com outros códigos disponíveis no sistema.
+            </p>
+            <a href="http://localhost:8080/analisar.html?giftCode=PROMO2024" class="test-link" target="_blank">
+                🧪 Testar PROMO2024
+            </a>
+            <a href="http://localhost:8080/analisar.html?giftCode=WELCOME" class="test-link" target="_blank">
+                🧪 Testar WELCOME
+            </a>
+            <a href="http://localhost:8080/analisar.html?giftCode=STUDENT" class="test-link" target="_blank">
+                🧪 Testar STUDENT
+            </a>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Checklist de Validação</h2>
+            <div class="feature-list">
+                <strong>✅ Itens para verificar:</strong>
+                <ul>
+                    <li>[ ] Modal de boas-vindas aparece para códigos válidos</li>
+                    <li>[ ] Design atrativo com gradiente e animações</li>
+                    <li>[ ] Botões "Criar Conta" e "Já tenho conta" funcionam</li>
+                    <li>[ ] Formulários mostram contexto do código</li>
+                    <li>[ ] Código é aplicado automaticamente após login/cadastro</li>
+                    <li>[ ] Créditos são adicionados à conta</li>
+                    <li>[ ] Modais de erro são específicos e informativos</li>
+                    <li>[ ] Experiência é fluida e sem atrito</li>
+                </ul>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem; padding: 1rem; background: #f0f8ff; border-radius: 8px;">
+            <p><strong>🎯 Objetivo:</strong> Reduzir atrito e aumentar conversão de códigos de presente</p>
+            <p><strong>📈 Resultado esperado:</strong> Experiência mais fluida e atrativa para novos usuários</p>
+        </div>
+    </div>
+</body>
+
+</html>

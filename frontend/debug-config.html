@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Debug CONFIG - CV Sem Frescura</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .log {
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+
+        .warning {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .info {
+            color: blue;
+        }
+
+        #realtime-logs {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔍 Debug CONFIG & Header</h1>
+
+    <div class="log">
+        <h3>Estado Inicial:</h3>
+        <p>CONFIG definido: <span id="config-initial">Verificando...</span></p>
+        <p>window.CONFIG definido: <span id="window-config-initial">Verificando...</span></p>
+    </div>
+
+    <div class="log">
+        <h3>📊 Status Após Carregamento:</h3>
+        <p>CONFIG disponível: <span id="config-final">Aguardando...</span></p>
+        <p>HeaderManager criado: <span id="header-final">Aguardando...</span></p>
+        <p>Última verificação: <span id="timestamp">-</span></p>
+    </div>
+
+    <div class="log">
+        <h3>📝 Logs em Tempo Real:</h3>
+        <div id="realtime-logs"></div>
+    </div>
+
+    <!-- Interceptar logs do console -->
+    <script>
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+
+        const logsDiv = document.getElementById('realtime-logs');
+
+        function addLog(type, message) {
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logsDiv.appendChild(div);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+
+        console.log = function (...args) {
+            originalLog.apply(console, args);
+            addLog('info', args.join(' '));
+        };
+
+        console.warn = function (...args) {
+            originalWarn.apply(console, args);
+            addLog('warning', args.join(' '));
+        };
+
+        console.error = function (...args) {
+            originalError.apply(console, args);
+            addLog('error', args.join(' '));
+        };
+    </script>
+
+    <!-- Verificação inicial -->
+    <script>
+        console.log('🚀 Iniciando debug...');
+
+        // Verificar estado inicial
+        document.getElementById('config-initial').textContent = typeof CONFIG !== 'undefined' ? '✅ Sim' : '❌ Não';
+        document.getElementById('window-config-initial').textContent = typeof window.CONFIG !== 'undefined' ? '✅ Sim' : '❌ Não';
+
+        // Interceptar erros
+        window.addEventListener('error', (e) => {
+            console.error('ERRO CAPTURADO:', e.error.message);
+            addLog('error', `ERRO: ${e.error.message} em ${e.filename}:${e.lineno}`);
+        });
+    </script>
+
+    <!-- Carregar scripts na ordem correta com cache busting -->
+    <script>
+        const timestamp = Date.now();
+        console.log('⏰ Cache busting timestamp:', timestamp);
+    </script>
+    <script src="assets/js/config.js?v=1732571900"></script>
+    <script src="assets/js/auth.js?v=1732571900"></script>
+    <script src="assets/js/header.js?v=1732571900"></script>
+
+    <!-- Verificação final -->
+    <script>
+        function checkFinalStatus() {
+            const timestamp = new Date().toLocaleTimeString();
+            document.getElementById('timestamp').textContent = timestamp;
+
+            // Verificar CONFIG
+            if (typeof window.CONFIG !== 'undefined' && window.CONFIG && window.CONFIG.api) {
+                document.getElementById('config-final').innerHTML = '<span class="success">✅ Carregado corretamente</span>';
+                console.log('✅ CONFIG está disponível:', window.CONFIG);
+            } else {
+                document.getElementById('config-final').innerHTML = '<span class="error">❌ Não disponível</span>';
+                console.error('❌ CONFIG não está disponível');
+            }
+
+            // Verificar HeaderManager
+            if (window.headerManager) {
+                document.getElementById('header-final').innerHTML = '<span class="success">✅ Criado com sucesso</span>';
+                console.log('✅ HeaderManager criado');
+            } else {
+                document.getElementById('header-final').innerHTML = '<span class="error">❌ Não criado</span>';
+                console.error('❌ HeaderManager não foi criado');
+            }
+        }
+
+        // Verificar após 2 segundos
+        setTimeout(checkFinalStatus, 2000);
+
+        // Verificar periodicamente
+        setInterval(checkFinalStatus, 5000);
+    </script>
+</body>
+
+</html>

@@ -1,8 +1,28 @@
 // Configurações do Frontend - CV Sem Frescura
+console.log('🔧 Carregando config.js v2.0...');
+
 const CONFIG = {
-  // Configurações da API
+  // Configurações da API baseadas no ambiente
   api: {
-    baseUrl: 'http://localhost:3000',
+    // Detectar ambiente automaticamente
+    baseUrl: (() => {
+      const hostname = window.location.hostname;
+      const protocol = window.location.protocol;
+      const port = window.location.port;
+
+      console.log('🌐 Detectando ambiente:', { hostname, protocol, port });
+
+      // DESENVOLVIMENTO
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        console.log('🏠 Ambiente detectado: DESENVOLVIMENTO');
+        return 'http://localhost:3001';
+      }
+
+      // PRODUÇÃO - usar URLs relativas via proxy nginx
+      // O nginx fará proxy de /api/* para backend:3000
+      console.log('🚀 Ambiente detectado: PRODUÇÃO');
+      return `${protocol}//${hostname}${port ? ':' + port : ''}`;
+    })(),
     endpoints: {
       payment: '/api/payment',
       user: '/api/user',
@@ -11,8 +31,11 @@ const CONFIG = {
     }
   },
 
-  // Ambiente atual (altere para 'production' quando for para produção)
-  environment: 'development'
+  // Ambiente atual detectado automaticamente
+  environment: (() => {
+    const hostname = window.location.hostname;
+    return (hostname === 'localhost' || hostname === '127.0.0.1') ? 'development' : 'production';
+  })()
 };
 
 // Cache para a chave obtida do backend
@@ -51,7 +74,7 @@ const getStripeKey = async () => {
   } catch (error) {
     console.error('❌ Erro ao obter chave do backend:', error.message);
     console.error('💡 Certifique-se de que:');
-    console.error('   - O backend está rodando na porta 3000');
+    console.error('   - O backend está rodando na porta 3001');
     console.error('   - O arquivo .env tem STRIPE_PUBLISHABLE_KEY configurado');
     console.error('   - A rota /api/config/stripe-key está funcionando');
     return null;
@@ -84,4 +107,8 @@ window.CONFIG = CONFIG;
 window.getStripeKey = getStripeKey;
 window.clearStripeKeyCache = clearStripeKeyCache;
 window.getApiUrl = getApiUrl;
-window.checkBackendConnection = checkBackendConnection; 
+window.checkBackendConnection = checkBackendConnection;
+
+console.log('✅ CONFIG criado com sucesso!');
+console.log('📊 CONFIG.api.baseUrl:', CONFIG.api.baseUrl);
+console.log('🔗 window.CONFIG:', typeof window.CONFIG, !!window.CONFIG); 

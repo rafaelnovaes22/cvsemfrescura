@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Dropdown</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #F3EADA;
+        }
+
+        .debug-section {
+            background: white;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .test-container {
+            border: 2px solid #583819;
+            padding: 20px;
+            margin: 20px 0;
+            background: white;
+        }
+
+        /* Container de teste */
+        #userMenuWrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        #authButton {
+            padding: 10px 20px;
+            background: #f4f0ea;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* Vamos testar diferentes abordagens */
+        .approach-1 {
+            background: #ffe6e6;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .approach-2 {
+            background: #e6f3ff;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .approach-3 {
+            background: #e6ffe6;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔍 Debug do Dropdown</h1>
+
+    <div class="debug-section">
+        <h3>📊 Informações do Navegador</h3>
+        <div id="browserInfo"></div>
+    </div>
+
+    <!-- Teste 1: Abordagem com CSS puro -->
+    <div class="test-container approach-1">
+        <h3>🧪 Teste 1: CSS Puro</h3>
+        <div style="position: relative; display: inline-block;">
+            <button onclick="toggleDropdown1()">Usuário (CSS) ▼</button>
+            <div id="dropdown1" style="
+                display: none;
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: white;
+                border: 1px solid #ccc;
+                min-width: 200px;
+                z-index: 999;
+            ">
+                <div style="display: block; padding: 10px; border-bottom: 1px solid #eee;">📊 Item 1</div>
+                <div style="display: block; padding: 10px; border-bottom: 1px solid #eee;">📋 Item 2</div>
+                <div style="display: block; padding: 10px; border-bottom: 1px solid #eee;">💳 Item 3</div>
+                <div style="display: block; padding: 10px;">🚪 Sair</div>
+            </div>
+        </div>
+        <div id="result1"></div>
+    </div>
+
+    <!-- Teste 2: Abordagem com Flexbox -->
+    <div class="test-container approach-2">
+        <h3>🧪 Teste 2: Flexbox Forçado</h3>
+        <div style="position: relative; display: inline-block;">
+            <button onclick="toggleDropdown2()">Usuário (Flex) ▼</button>
+            <div id="dropdown2" style="display: none;">
+                <a href="#">📊 Item 1</a>
+                <a href="#">📋 Item 2</a>
+                <a href="#">💳 Item 3</a>
+                <a href="#">🚪 Sair</a>
+            </div>
+        </div>
+        <div id="result2"></div>
+    </div>
+
+    <!-- Teste 3: Abordagem com Lista -->
+    <div class="test-container approach-3">
+        <h3>🧪 Teste 3: Lista HTML</h3>
+        <div style="position: relative; display: inline-block;">
+            <button onclick="toggleDropdown3()">Usuário (Lista) ▼</button>
+            <ul id="dropdown3" style="
+                display: none;
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: white;
+                border: 1px solid #ccc;
+                min-width: 200px;
+                z-index: 999;
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            ">
+                <li style="padding: 10px; border-bottom: 1px solid #eee;">📊 Item 1</li>
+                <li style="padding: 10px; border-bottom: 1px solid #eee;">📋 Item 2</li>
+                <li style="padding: 10px; border-bottom: 1px solid #eee;">💳 Item 3</li>
+                <li style="padding: 10px;">🚪 Sair</li>
+            </ul>
+        </div>
+        <div id="result3"></div>
+    </div>
+
+    <!-- Debug do problema original -->
+    <div class="test-container" style="background: #fff3cd;">
+        <h3>🎯 Reproduzindo o Problema Original</h3>
+        <div id="userMenuWrapper">
+            <button id="authButton">Usuário Original ▼</button>
+            <div id="userDropdown" style="display: none;">
+                <a href="#">📊 Analisar Currículo</a>
+                <a href="#">📋 Histórico</a>
+                <a href="#">💳 Comprar análises</a>
+                <a href="#">🚪 Sair</a>
+            </div>
+        </div>
+        <div id="debugInfo"></div>
+    </div>
+
+    <script>
+        // Informações do navegador
+        document.getElementById('browserInfo').innerHTML = `
+            <strong>User Agent:</strong> ${navigator.userAgent}<br>
+            <strong>Viewport:</strong> ${window.innerWidth}x${window.innerHeight}<br>
+            <strong>CSS Support:</strong><br>
+            - CSS Flexbox: ${CSS.supports('display', 'flex')}<br>
+            - CSS Grid: ${CSS.supports('display', 'grid')}<br>
+        `;
+
+        // Teste 1: CSS Puro
+        function toggleDropdown1() {
+            const dropdown = document.getElementById('dropdown1');
+            const isVisible = dropdown.style.display !== 'none';
+            dropdown.style.display = isVisible ? 'none' : 'block';
+
+            document.getElementById('result1').innerHTML = `
+                <strong>Status:</strong> ${isVisible ? 'Fechado' : 'Aberto'}<br>
+                <strong>Display:</strong> ${dropdown.style.display}<br>
+                <strong>Layout:</strong> ${isVisible ? '-' : 'Itens em divs com display:block'}
+            `;
+        }
+
+        // Teste 2: Flexbox
+        function toggleDropdown2() {
+            const dropdown = document.getElementById('dropdown2');
+            const isVisible = dropdown.style.display === 'flex';
+
+            if (isVisible) {
+                dropdown.style.display = 'none';
+            } else {
+                dropdown.style.cssText = `
+                    display: flex !important;
+                    flex-direction: column !important;
+                    position: absolute !important;
+                    top: 100% !important;
+                    right: 0 !important;
+                    background: white !important;
+                    border: 1px solid #ccc !important;
+                    min-width: 200px !important;
+                    z-index: 999 !important;
+                `;
+
+                // Estilizar itens
+                const items = dropdown.querySelectorAll('a');
+                items.forEach(item => {
+                    item.style.cssText = `
+                        display: block !important;
+                        padding: 10px !important;
+                        text-decoration: none !important;
+                        color: #333 !important;
+                        border-bottom: 1px solid #eee !important;
+                    `;
+                });
+            }
+
+            document.getElementById('result2').innerHTML = `
+                <strong>Status:</strong> ${isVisible ? 'Fechado' : 'Aberto'}<br>
+                <strong>Display:</strong> ${dropdown.style.display}<br>
+                <strong>Flex Direction:</strong> ${dropdown.style.flexDirection}<br>
+                <strong>Items Count:</strong> ${dropdown.querySelectorAll('a').length}
+            `;
+        }
+
+        // Teste 3: Lista
+        function toggleDropdown3() {
+            const dropdown = document.getElementById('dropdown3');
+            const isVisible = dropdown.style.display !== 'none';
+            dropdown.style.display = isVisible ? 'none' : 'block';
+
+            document.getElementById('result3').innerHTML = `
+                <strong>Status:</strong> ${isVisible ? 'Fechado' : 'Aberto'}<br>
+                <strong>Display:</strong> ${dropdown.style.display}<br>
+                <strong>Layout:</strong> ${isVisible ? '-' : 'Lista HTML nativa'}
+            `;
+        }
+
+        // Debug do problema original
+        let dropdownOpen = false;
+        const authButton = document.getElementById('authButton');
+        const userDropdown = document.getElementById('userDropdown');
+
+        authButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            dropdownOpen = !dropdownOpen;
+
+            if (dropdownOpen) {
+                // Aplicar a mesma lógica das páginas reais
+                userDropdown.style.cssText = `
+                    display: flex !important;
+                    flex-direction: column !important;
+                    position: absolute !important;
+                    top: 100% !important;
+                    right: 0 !important;
+                    margin-top: 0.5rem !important;
+                    background: white !important;
+                    border-radius: 0.5rem !important;
+                    min-width: 200px !important;
+                    z-index: 999 !important;
+                    border: 1px solid #e5e7eb !important;
+                    overflow: hidden !important;
+                    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1) !important;
+                `;
+
+                const items = userDropdown.querySelectorAll('a');
+                items.forEach(item => {
+                    item.style.cssText = `
+                        display: block !important;
+                        width: 100% !important;
+                        padding: 0.75rem 1rem !important;
+                        color: #3f3f46 !important;
+                        text-decoration: none !important;
+                        font-size: 0.875rem !important;
+                        border: none !important;
+                        text-align: left !important;
+                    `;
+                });
+
+                // Debug info
+                setTimeout(() => {
+                    const computedStyle = window.getComputedStyle(userDropdown);
+                    document.getElementById('debugInfo').innerHTML = `
+                        <h4>🔍 Estilos Computados:</h4>
+                        <strong>Display:</strong> ${computedStyle.display}<br>
+                        <strong>Flex Direction:</strong> ${computedStyle.flexDirection}<br>
+                        <strong>Position:</strong> ${computedStyle.position}<br>
+                        <strong>Width:</strong> ${computedStyle.width}<br>
+                        <strong>Height:</strong> ${computedStyle.height}<br>
+                        <strong>Children Count:</strong> ${userDropdown.children.length}<br>
+                        <strong>Overflow:</strong> ${computedStyle.overflow}<br>
+                        <h4>📏 Medidas dos Itens:</h4>
+                        ${Array.from(userDropdown.children).map((child, i) => {
+                        const childStyle = window.getComputedStyle(child);
+                        return `Item ${i + 1}: display=${childStyle.display}, width=${childStyle.width}`;
+                    }).join('<br>')}
+                    `;
+                }, 100);
+
+            } else {
+                userDropdown.style.display = 'none';
+                document.getElementById('debugInfo').innerHTML = '<strong>Dropdown fechado</strong>';
+            }
+        });
+
+        console.log('🔍 Debug page loaded');
+        console.log('Elements found:', {
+            authButton: !!authButton,
+            userDropdown: !!userDropdown,
+            itemsCount: userDropdown?.children.length
+        });
+    </script>
+</body>
+
+</html>

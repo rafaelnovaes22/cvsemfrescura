@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  # Database PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: cv_postgres_prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+      - ./backend/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - cv_network_prod
+    # 🔒 PRODUÇÃO: Não expor porta do banco
+    # ports:
+    #   - "5432:5432"
+
+    # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cv_backend_prod
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      FRONTEND_URL: ${FRONTEND_URL}
+    # 🔒 PRODUÇÃO: Não expor porta do backend
+    # ports:
+    #   - "3001:3000"
+    depends_on:
+      - postgres
+    networks:
+      - cv_network_prod
+    command: npm start
+
+  # Frontend com Nginx (proxy para backend)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cv_frontend_prod
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+    networks:
+      - cv_network_prod
+    volumes:
+      # 🔒 Para certificados SSL em produção
+      - ./ssl:/etc/nginx/ssl:ro
+
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    container_name: cv_redis_prod
+    restart: unless-stopped
+    # 🔒 PRODUÇÃO: Não expor porta do Redis
+    # ports:
+    #   - "6379:6379"
+    volumes:
+      - redis_data_prod:/data
+    networks:
+      - cv_network_prod
+  # 🔄 Load Balancer/Reverse Proxy (opcional para alta disponibilidade)
+  # nginx-proxy:
+  #   image: nginx:alpine
+  #   container_name: cv_nginx_proxy
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx/prod.conf:/etc/nginx/nginx.conf:ro
+  #     - ./ssl:/etc/nginx/ssl:ro
+  #   depends_on:
+  #     - frontend
+  #   networks:
+  #     - cv_network_prod
+
+volumes:
+  postgres_data_prod:
+  redis_data_prod:
+
+
+networks:
+  cv_network_prod:
+    driver: bridge

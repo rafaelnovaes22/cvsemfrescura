@@ -7,7 +7,7 @@
  * 1. Verifica se as chaves do Stripe estão configuradas
  * 2. Testa conexão com a API do Stripe
  * 3. Cria PaymentIntents de teste
- * 4. Verifica funcionalidade de PIX e Boleto
+ * 4. Verifica funcionalidade de Boleto
  */
 
 require('dotenv').config();
@@ -78,35 +78,9 @@ async function testStripeIntegration() {
         log.error(`Erro ao criar PaymentIntent para cartão: ${error.message}`);
     }
 
-    // 4. Testar PaymentIntent - PIX
-    try {
-        log.info('Testando criação de PaymentIntent para PIX...');
-        const pixPayment = await stripe.paymentIntents.create({
-            amount: 2000, // R$ 20,00
-            currency: 'brl',
-            payment_method_types: ['pix'],
-            payment_method_options: {
-                pix: {
-                    expires_after_seconds: 24 * 60 * 60 // 24 horas
-                }
-            },
-            metadata: {
-                test: 'true',
-                method: 'pix'
-            }
-        });
-        log.success(`PaymentIntent criado para PIX: ${pixPayment.id}`);
 
-        if (pixPayment.next_action?.pix_display_qr_code) {
-            log.info('✨ QR Code PIX disponível');
-        } else {
-            log.warning('QR Code PIX não foi gerado automaticamente');
-        }
-    } catch (error) {
-        log.error(`Erro ao criar PaymentIntent para PIX: ${error.message}`);
-    }
 
-    // 5. Testar PaymentIntent - Boleto
+    // 4. Testar PaymentIntent - Boleto
     try {
         log.info('Testando criação de PaymentIntent para Boleto...');
         const boletoPayment = await stripe.paymentIntents.create({
@@ -146,7 +120,7 @@ async function testStripeIntegration() {
         log.error(`Erro ao criar PaymentIntent para Boleto: ${error.message}`);
     }
 
-    // 6. Verificar Webhook
+    // 5. Verificar Webhook
     if (process.env.STRIPE_WEBHOOK_SECRET) {
         log.success('Webhook secret configurado');
     } else {
@@ -172,7 +146,7 @@ function showTestCards() {
     console.log('✅ Sucesso: 4242 4242 4242 4242');
     console.log('❌ Falha: 4000 0000 0000 0002');
     console.log('🔍 Requer SCA: 4000 0025 0000 3155');
-    console.log('💰 PIX: Disponível automaticamente');
+
     console.log('🧾 Boleto: Disponível automaticamente\n');
     console.log('📅 Qualquer data futura, qualquer CVV\n');
 }

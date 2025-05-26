@@ -10,7 +10,6 @@ router.get('/', async (req, res) => {
 
         // Verificar variáveis de ambiente críticas
         const requiredEnvVars = [
-            'DATABASE_URL',
             'JWT_SECRET',
             'OPENAI_API_KEY',
             'STRIPE_SECRET_KEY'

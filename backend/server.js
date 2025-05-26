@@ -65,22 +65,20 @@ app.use('/api/ats', atsLimiter, atsRoutes); // Rate limiting específico para AT
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/payment', require('./routes/payment'));
 app.use('/api/gift-code', require('./routes/giftCode'));
+app.use('/api/password-reset', require('./routes/passwordReset'));
+app.use('/api/contact', require('./routes/contact')); // Recuperação de senha
 app.use('/api/admin', require('./routes/admin')); // Rotas administrativas
 app.use('/api/config', require('./routes/config')); // ✅ Configurações dinâmicas
 app.use('/health', require('./routes/health')); // Health check endpoint
 
-// Servir arquivos estáticos do frontend
-const frontendPath = path.resolve(__dirname, '../frontend');
-app.use(express.static(frontendPath));
-
-// Redirecionar rota raiz para a página principal
+// ✅ API raiz simples para health check
 app.get('/', (req, res) => {
-  res.redirect('/index.html');
-});
-
-// Redirecionar qualquer outra rota que não seja API ou a raiz para index.html (SPA)
-app.get(/^\/(?!api)(?!login\.html)(?!$).*/, (req, res) => {
-  res.sendFile(path.join(frontendPath, 'index.html'));
+  res.json({
+    message: 'CV Sem Frescura API',
+    status: 'online',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
 });
 
 const sequelize = require('./db');

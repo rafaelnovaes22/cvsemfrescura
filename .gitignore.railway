@@ -1,0 +1,71 @@
+# 🚀 CV Sem Frescura - .gitignore para Railway Deploy
+
+# Environment variables (sensíveis)
+.env
+.env.local
+.env.production
+.env.staging
+*.env.backup
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Arquivos de teste e debug (não necessários em produção)
+frontend/test-*.html
+frontend/debug*.html
+frontend/demo-*.html
+frontend/*.html.bak
+frontend/*.html.new
+backend/test-*.js
+backend/debug-*.js
+backend/verificacao-*.js
+backend/*.sql
+
+# Uploads temporários
+backend/uploads/test*
+backend/uploads/debug*
+
+# Documentação de desenvolvimento (manter apenas essenciais)
+SISTEMA_*.md
+INSTRUCOES_*.md
+ANALISE_*.md
+TESTE_*.md
+DEPLOY_CHECKLIST.md
+
+# Scripts de desenvolvimento local
+scripts/deploy-emergency.*
+scripts/setup-*.sh
+scripts/backup.sh
+scripts/restore.sh
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Cache e build
+.cache/
+dist/
+build/
+
+# Backups locais
+backups/
+emergency-backup/ 

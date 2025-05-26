@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pagamento Realizado - CV Sem Frescura</title>
-    <link rel="stylesheet" href="/assets/css/style.css">
     <script src="https://js.stripe.com/v3/"></script>
     <script src="/assets/js/config.js"></script>
     <script src="/assets/js/auth.js"></script>
@@ -82,7 +81,7 @@
         }
 
         .credits-badge {
-            background-color: #4CAF50;
+            background-color: #583819;
             color: white;
             padding: 3px 8px;
             border-radius: 12px;
@@ -95,8 +94,58 @@
             margin-left: 5px;
         }
 
+        /* SOLUÇÃO DEFINITIVA - ESTILOS ESPECÍFICOS PARA DROPDOWN */
+        #userDropdown {
+            display: none !important;
+            flex-direction: column !important;
+            position: absolute !important;
+            top: 100% !important;
+            right: 0 !important;
+            margin-top: 0.5rem !important;
+            background: white !important;
+            border-radius: 0.5rem !important;
+            min-width: 200px !important;
+            z-index: 999 !important;
+            border: 1px solid #e5e7eb !important;
+            overflow: hidden !important;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1) !important;
+        }
+
+        /* FORÇA FLEX COLUMN QUANDO VISÍVEL */
+        #userDropdown[style*="flex"] {
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        /* GARANTE QUE OS ITENS SEMPRE SEJAM BLOCK */
+        #userDropdown a {
+            display: block !important;
+            width: 100% !important;
+            padding: 0.75rem 1rem !important;
+            color: #3f3f46 !important;
+            text-decoration: none !important;
+            font-size: 0.875rem !important;
+            border: none !important;
+            text-align: left !important;
+            transition: background-color 0.2s !important;
+            flex-shrink: 0 !important;
+        }
+
+        #userDropdown a:hover {
+            background-color: #f5f5f5 !important;
+        }
+
+        #userDropdown .logout-btn {
+            color: #dc3545 !important;
+            border-top: 1px solid #e5e7eb !important;
+        }
+
+        #userDropdown .logout-btn:hover {
+            background-color: #fef2f2 !important;
+        }
+
         .dropdown-menu {
-            display: none;
+            display: none !important;
             position: absolute;
             top: 65px;
             right: 20px;
@@ -105,8 +154,12 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             padding: 10px 0;
             width: 200px;
-            flex-direction: column;
+            flex-direction: column !important;
             z-index: 1000;
+        }
+
+        .dropdown-menu.show {
+            display: flex !important;
         }
 
         .dropdown-item {
@@ -114,11 +167,8 @@
             color: var(--text-color);
             padding: 8px 15px;
             transition: var(--transition);
-            display: block;
-        }
-
-        .dropdown-item:hover {
-            background-color: #f5f5f5;
+            display: block !important;
+            flex-shrink: 0;
         }
 
         main {
@@ -142,7 +192,7 @@
 
         .success-icon {
             font-size: 60px;
-            color: #4CAF50;
+            color: #583819;
             margin-bottom: 20px;
         }
 
@@ -270,10 +320,44 @@
     <main>
         <div class="success-container">
             <div class="success-icon">✓</div>
-            <h1 class="success-title">Pagamento Confirmado</h1>
-            <p class="success-message" id="success-message">Seu pagamento foi processado com sucesso! Os créditos foram
-                adicionados à sua conta.</p>
-            <a href="index.html" class="btn btn-primary">Voltar para a Página Inicial</a>
+            <h1 class="success-title" id="success-title">Pagamento Confirmado</h1>
+
+            <!-- Conteúdo para usuários logados -->
+            <div id="logged-user-content">
+                <p class="success-message">Seu pagamento foi processado com sucesso! Os créditos foram adicionados à sua
+                    conta.</p>
+                <a href="analisar.html" class="btn btn-primary">Começar Análise</a>
+            </div>
+
+            <!-- Conteúdo específico para checkout rápido -->
+            <div id="guest-success-content" style="display: none;">
+                <p class="success-message">
+                    <strong>🎉 Conta criada automaticamente!</strong><br>
+                    Criamos sua conta com o e-mail fornecido e adicionamos os créditos.
+                </p>
+                <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: left;">
+                    <h3 style="margin-bottom: 15px; color: var(--primary);">📧 Próximos passos:</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 10px;">
+                            <strong>1.</strong> Acesse sua conta para começar a analisar
+                        </li>
+                        <li style="margin-bottom: 10px;">
+                            <strong>2.</strong> Defina uma senha personalizada no primeiro login
+                        </li>
+                        <li style="margin-bottom: 10px;">
+                            <strong>3.</strong> Seus créditos já estão disponíveis!
+                        </li>
+                    </ul>
+                </div>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <a href="analisar.html?login=true" class="btn btn-primary">Fazer Login</a>
+                    <a href="analisar.html" class="btn" style="background: #6c757d; color: white;">Continuar Sem
+                        Login</a>
+                </div>
+                <p style="margin-top: 15px; font-size: 0.9em; color: #666;">
+                    📧 E-mail de confirmação: <span id="guest-email" style="font-weight: bold;"></span>
+                </p>
+            </div>
         </div>
     </main>
 
@@ -293,18 +377,51 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', async function () {
+            // Verificar se o usuário está logado para determinar o tipo de checkout
+            const user = auth.getUser();
+            const loggedUserContent = document.getElementById('logged-user-content');
+            const guestSuccessContent = document.getElementById('guest-success-content');
+            const successTitle = document.getElementById('success-title');
+
+            // Verificar se há dados de checkout rápido no sessionStorage
+            const guestEmail = sessionStorage.getItem('guestCheckoutEmail');
+            const wasGuestCheckout = !user && guestEmail;
+
+            if (wasGuestCheckout) {
+                // Checkout rápido - mostrar instruções específicas
+                loggedUserContent.style.display = 'none';
+                guestSuccessContent.style.display = 'block';
+                successTitle.textContent = 'Checkout Rápido Concluído!';
+
+                const guestEmailSpan = document.getElementById('guest-email');
+                if (guestEmailSpan) {
+                    guestEmailSpan.textContent = guestEmail;
+                }
+
+                // Limpar dados temporários
+                sessionStorage.removeItem('guestCheckoutEmail');
+            } else {
+                // Usuário logado - mostrar conteúdo padrão
+                guestSuccessContent.style.display = 'none';
+                loggedUserContent.style.display = 'block';
+            }
+
             // Verifica o status do pagamento
             const paymentStatus = await payment.checkPaymentStatus();
 
-            // Atualiza a mensagem de sucesso se necessário
-            if (paymentStatus) {
-                document.getElementById('success-message').textContent = paymentStatus.message;
+            // Atualiza a mensagem se necessário
+            if (paymentStatus && !paymentStatus.success) {
+                document.querySelector('.success-icon').textContent = '!';
+                document.querySelector('.success-icon').style.color = '#FFC107';
+                successTitle.textContent = 'Pagamento em Processamento';
 
-                // Se não houver sucesso, modifica o estilo
-                if (!paymentStatus.success) {
-                    document.querySelector('.success-icon').textContent = '!';
-                    document.querySelector('.success-icon').style.color = '#FFC107';
-                    document.querySelector('.success-title').textContent = 'Pagamento em Processamento';
+                // Atualizar mensagens baseado no tipo de checkout
+                if (wasGuestCheckout) {
+                    guestSuccessContent.querySelector('.success-message').innerHTML =
+                        '<strong>⏳ Processando seu pagamento...</strong><br>Aguarde a confirmação para acessar sua conta.';
+                } else {
+                    loggedUserContent.querySelector('.success-message').textContent =
+                        'Seu pagamento está sendo processado. Os créditos serão adicionados em breve.';
                 }
             }
 
@@ -324,15 +441,8 @@
                     // Atualizar créditos
                     if (creditsElement) {
                         creditsElement.textContent = `${user.credits || 0} análises`;
-
-                        // Atualizar cores com base no número de créditos
-                        if ((user.credits || 0) <= 0) {
-                            creditsElement.style.backgroundColor = '#F44336';
-                        } else if ((user.credits || 0) <= 2) {
-                            creditsElement.style.backgroundColor = '#FFC107';
-                        } else {
-                            creditsElement.style.backgroundColor = '#4CAF50';
-                        }
+                        // Manter cor consistente com identidade visual
+                        creditsElement.style.backgroundColor = '#583819';
                     }
                 } else {
                     loginLink.style.display = 'inline-block';
@@ -344,7 +454,7 @@
             // Inicializar UI
             updateUserUI();
 
-            // Dropdown toggle ao clicar no user-menu
+            // Toggle dropdown
             let dropdownOpen = false;
             const authButton = document.getElementById('authButton');
             const userDropdown = document.getElementById('userDropdown');
@@ -354,7 +464,24 @@
             authButton.addEventListener('click', function (e) {
                 e.preventDefault();
                 dropdownOpen = !dropdownOpen;
-                userDropdown.style.display = dropdownOpen ? 'flex' : 'none';
+                if (dropdownOpen) {
+                    // SOLUÇÃO ROBUSTA: Aplicar display flex E flex-direction column
+                    userDropdown.style.display = 'flex';
+                    userDropdown.style.flexDirection = 'column';
+                    console.log('✅ Dropdown aberto com flex-direction forçado');
+                } else {
+                    userDropdown.style.display = 'none';
+                    console.log('❌ Dropdown fechado');
+                }
+            });
+
+            // Fechar dropdown ao clicar fora dele
+            document.addEventListener('click', function (e) {
+                if (authButton && userDropdown && !authButton.contains(e.target) && !userDropdown.contains(e.target)) {
+                    dropdownOpen = false;
+                    userDropdown.style.display = 'none';
+                    console.log('🔄 Dropdown fechado ao clicar fora');
+                }
             });
 
             // Logout

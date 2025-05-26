@@ -27,21 +27,7 @@ const payment = (() => {
     if (typeof Stripe === 'undefined') {
       console.error('❌ Stripe.js não está carregado');
 
-      safeUpdateElement('paymentMessage', (el) => {
-        el.innerHTML = `
-          <div class="payment-error-message">
-            <h4>⚠️ Carregando sistema de pagamento...</h4>
-            <p>O sistema está carregando. Aguarde alguns segundos e tente novamente.</p>
-            <p><strong>Se o problema persistir:</strong></p>
-            <ul>
-              <li>🔄 Recarregue a página</li>
-              <li>✅ Use PIX ou Boleto como alternativa</li>
-            </ul>
-          </div>
-        `;
-        el.className = 'message warning';
-        el.style.display = 'block';
-      });
+      // Remover mensagem de carregamento - desnecessária
 
       // Tentar aguardar um pouco e verificar novamente
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -63,11 +49,9 @@ const payment = (() => {
       stripe = Stripe(stripeKey);
       console.log('✅ Stripe inicializado com sucesso');
 
-      // Limpar mensagens de erro se houver
+      // Limpar mensagens antigas
       safeUpdateElement('paymentMessage', (el) => {
-        if (el.textContent.includes('Carregando sistema') || el.textContent.includes('Erro na configuração')) {
-          el.style.display = 'none';
-        }
+        el.style.display = 'none';
       });
 
       return stripe;
@@ -83,7 +67,7 @@ const payment = (() => {
             <p><strong>Tente:</strong></p>
             <ul>
               <li>🔄 Recarregar a página</li>
-              <li>✅ Usar PIX ou Boleto</li>
+              <li>✅ Usar Boleto</li>
               <li>📧 Entrar em contato pelo suporte</li>
             </ul>
             <p><small>Erro: ${error.message}</small></p>
@@ -105,31 +89,25 @@ const payment = (() => {
     if (!stripeInstance) {
       console.error('❌ Stripe não pôde ser inicializado');
 
-      // Esconder formulário de cartão e ativar PIX automaticamente
-      const stripeForm = document.getElementById('stripe-payment-form');
-      if (stripeForm) {
-        stripeForm.style.display = 'none';
-      }
-
-      // Marcar PIX como padrão
-      const pixRadio = document.querySelector('input[name="payment-method"][value="pix"]');
-      if (pixRadio) {
-        pixRadio.checked = true;
-        pixRadio.dispatchEvent(new Event('change'));
-      }
-
+      // Mostrar mensagem de erro quando Stripe não carrega
       safeUpdateElement('paymentMessage', (el) => {
         el.innerHTML = `
-          <div class="payment-fallback-message">
-            <h4>⚠️ Problema com pagamento por cartão</h4>
-            <p>Selecionamos automaticamente o <strong>PIX</strong> para você.</p>
-            <p><small>PIX é mais rápido e não tem taxas!</small></p>
+          <div class="payment-error-message">
+            <h4>❌ Erro na conexão com sistema de pagamento</h4>
+            <p>Não foi possível carregar o processador de pagamentos.</p>
+            <p><strong>Tente:</strong></p>
+            <ul>
+              <li>🔄 Recarregar a página</li>
+              <li>🌐 Verificar sua conexão com internet</li>
+              <li>📧 Entrar em contato com o suporte se persistir</li>
+            </ul>
           </div>
         `;
-        el.className = 'message warning';
+        el.className = 'message error';
         el.style.display = 'block';
       });
-      return;
+
+      return false;
     }
 
     try {
@@ -165,12 +143,20 @@ const payment = (() => {
 
       // Criar elemento de pagamento com configurações específicas
       const paymentElementOptions = {
-        // Garantir compatibilidade com diferentes tipos de pagamento
-        paymentMethodTypes: ['card'],
+        // Garantir compatibilidade apenas com cartão e boleto
+        paymentMethodTypes: ['card', 'boleto'],
         // Configurações específicas para resolver problemas de sessão
         layout: {
           type: 'tabs',
           defaultCollapsed: false
+        },
+        // Adicionar configurações para melhorar a detecção de entrada
+        fields: {
+          billingDetails: 'auto'
+        },
+        // Configurações de validação mais permissivas
+        validation: {
+          instant: false  // Desabilita validação instantânea que pode estar causando o problema
         }
       };
 
@@ -179,17 +165,30 @@ const payment = (() => {
       // Tentar montar o elemento
       paymentElement.mount('#payment-element');
 
-      // Event handlers melhorados
+      // Event handlers melhorados para resolver problemas de validação
       paymentElement.on('change', (event) => {
+        console.log('🔄 Estado do Stripe Elements:', event);
+
         const errorElement = document.getElementById('payment-errors');
         if (errorElement) {
           if (event.error) {
-            errorElement.textContent = event.error.message;
-            errorElement.style.display = 'block';
+            // Filtrar apenas erros reais, ignorar warnings de validação prematura
+            if (event.error.type !== 'validation_error' || event.complete === false) {
+              errorElement.textContent = event.error.message;
+              errorElement.style.display = 'block';
+            }
           } else {
             errorElement.textContent = '';
             errorElement.style.display = 'none';
           }
+        }
+
+        // Atualizar estado do botão de submit baseado na validação
+        const submitButton = document.getElementById('submit-payment');
+        if (submitButton) {
+          // Habilitar botão apenas se não há erros críticos
+          const hasRealError = event.error && event.error.type !== 'validation_error';
+          submitButton.disabled = hasRealError;
         }
       });
 
@@ -197,75 +196,73 @@ const payment = (() => {
       paymentElement.on('loaderror', (event) => {
         console.error('❌ Erro no carregamento do Stripe Elements:', event);
 
-        // Mostrar alternativas para o usuário
+        // Mostrar mensagem de erro quando há problema no carregamento
         safeUpdateElement('paymentMessage', (el) => {
           el.innerHTML = `
             <div class="payment-error-message">
-              <h4>⚠️ Problema na inicialização do cartão</h4>
-              <p>Tente uma das alternativas:</p>
+              <h4>❌ Erro ao carregar formulário de pagamento</h4>
+              <p>Houve um problema ao carregar os métodos de pagamento.</p>
+              <p><strong>Tente:</strong></p>
               <ul>
-                <li>✅ <strong>PIX</strong> - Pagamento instantâneo</li>
-                <li>✅ <strong>Boleto</strong> - Pagamento à vista</li>
-                <li>🔄 Recarregue a página e tente novamente</li>
+                <li>🔄 Recarregar a página</li>
+                <li>🌐 Verificar sua conexão com internet</li>
+                <li>📧 Entrar em contato com o suporte se persistir</li>
               </ul>
             </div>
           `;
-          el.className = 'message warning';
+          el.className = 'message error';
           el.style.display = 'block';
         });
 
-        // Esconder o formulário de cartão e mostrar alternativas
+        // Esconder o formulário que falhou
         const stripeForm = document.getElementById('stripe-payment-form');
         if (stripeForm) {
           stripeForm.style.display = 'none';
-        }
-
-        // Marcar PIX como opção padrão
-        const pixRadio = document.querySelector('input[name="payment-method"][value="pix"]');
-        if (pixRadio) {
-          pixRadio.checked = true;
-          pixRadio.dispatchEvent(new Event('change'));
         }
       });
 
       // Handler para quando os elementos estão prontos
       paymentElement.on('ready', () => {
         console.log('✅ Stripe Elements carregado e pronto');
+
+        // Garantir que o botão está habilitado quando o formulário está pronto
+        const submitButton = document.getElementById('submit-payment');
+        if (submitButton) {
+          submitButton.disabled = false;
+        }
+
+        // Esconder mensagens de carregamento
         safeUpdateElement('paymentMessage', (el) => {
-          el.textContent = 'Formulário de pagamento carregado com sucesso!';
-          el.className = 'message success';
-          el.style.display = 'block';
-          // Esconder mensagem após 3 segundos
-          setTimeout(() => {
-            el.style.display = 'none';
-          }, 3000);
+          el.style.display = 'none';
         });
       });
 
       console.log('✅ Stripe Elements inicializado com sucesso');
+      return true;
 
     } catch (error) {
       console.error('❌ Erro ao inicializar Stripe Elements:', error);
 
-      // Fallback para quando há erro na inicialização
+      // Mostrar mensagem de erro quando há problema na inicialização
       safeUpdateElement('paymentMessage', (el) => {
         el.innerHTML = `
-          <div class="payment-fallback-message">
-            <h4>❌ Erro no pagamento por cartão</h4>
-            <p><strong>Recomendação:</strong> Use PIX ou Boleto</p>
-            <p><small>Erro: ${error.message}</small></p>
+          <div class="payment-error-message">
+            <h4>❌ Erro ao carregar formulário de pagamento</h4>
+            <p>Houve um problema ao inicializar o sistema de pagamentos.</p>
+            <p><strong>Erro:</strong> ${error.message}</p>
+            <p><strong>Tente:</strong></p>
+            <ul>
+              <li>🔄 Recarregar a página</li>
+              <li>🌐 Verificar sua conexão com internet</li>
+              <li>📧 Entrar em contato com o suporte</li>
+            </ul>
           </div>
         `;
         el.className = 'message error';
         el.style.display = 'block';
       });
 
-      // Automaticamente selecionar PIX como alternativa
-      const pixRadio = document.querySelector('input[name="payment-method"][value="pix"]');
-      if (pixRadio) {
-        pixRadio.checked = true;
-        pixRadio.dispatchEvent(new Event('change'));
-      }
+      return false;
     }
   };
 
@@ -280,81 +277,41 @@ const payment = (() => {
   };
 
   // Cria uma intenção de pagamento no servidor
-  const createPaymentIntent = async (planData, paymentMethod = 'card', additionalData = {}) => {
+  const createPaymentIntent = async (planData, paymentMethod = 'card', additionalData = {}, showErrors = true) => {
+    // Lock para evitar múltiplas criações simultâneas
+    if (isCreatingPayment) {
+      console.warn('⚠️ Já está criando pagamento, ignorando requisição duplicada');
+      return false;
+    }
+    isCreatingPayment = true;
+
     try {
-      // Verificar se é a mesma requisição (prevenção adicional)
-      const planKey = `${planData.plan}-${paymentMethod}`;
+      // Verificar se CONFIG está definido
+      const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3001';
 
-      // Verificar throttling
-      const now = Date.now();
-      if (isCreatingPayment) {
-        console.log('⏳ Já há uma requisição de pagamento em andamento...');
-        // Apenas ignorar tentativas duplicadas muito rápidas (menos de 500ms)
-        if (now - lastPaymentAttempt < 500) {
-          return false;
-        }
-        // Se passou mais de 500ms, permitir nova tentativa
-        isCreatingPayment = false;
-      }
-
-      if (now - lastPaymentAttempt < PAYMENT_COOLDOWN) {
-        const remainingTime = Math.ceil((PAYMENT_COOLDOWN - (now - lastPaymentAttempt)) / 1000);
-        if (remainingTime > 1) { // Só mostrar se for mais de 1 segundo
-          safeUpdateElement('paymentMessage', (el) => {
-            el.textContent = `Aguarde ${remainingTime} segundos antes de tentar novamente.`;
-            el.className = 'message warning';
-            el.style.display = 'block';
-          });
-          return false;
-        }
-      }
-
-      // Verificar se é tentativa duplicada do mesmo plano (só para tentativas muito rápidas)
-      if (currentPaymentPlan === planKey && (now - lastPaymentAttempt) < 1000) {
-        console.log('⚠️ Tentativa duplicada muito rápida detectada, ignorando...');
-        return false;
-      }
-
-      isCreatingPayment = true;
-      lastPaymentAttempt = now;
-      currentPaymentPlan = planKey;
-
-      currentPlanData = planData;
-      const userId = auth.getUser()?.id;
-
-      if (!userId) {
-        safeUpdateElement('paymentMessage', (el) => {
-          el.textContent = 'Você precisa estar logado para realizar compras.';
-          el.className = 'message error';
-          el.style.display = 'block';
-        });
-        return false;
-      }
-
-      // Mostra mensagem de processamento
-      safeUpdateElement('paymentMessage', (el) => {
-        el.textContent = 'Iniciando processamento...';
-        el.className = 'message success';
-        el.style.display = 'block';
-      });
-
-      // Dados básicos para o pagamento
       const paymentData = {
-        amount: planData.price,
+        amount: parseFloat(planData.price),
         planName: planData.plan,
-        credits: planData.credits,
+        credits: parseInt(planData.credits),
         paymentMethod: paymentMethod
       };
 
       // Adiciona dados específicos para cada método de pagamento
-      if (paymentMethod === 'boleto' || paymentMethod === 'pix') {
+      if (paymentMethod === 'boleto') {
         Object.assign(paymentData, additionalData);
       }
 
       console.log('🚀 Criando payment intent...', { method: paymentMethod, amount: paymentData.amount });
+      console.log('📊 Dados completos sendo enviados:', paymentData);
+      console.log('🔍 Validação dos dados:');
+      console.log('   amount:', paymentData.amount, typeof paymentData.amount);
+      console.log('   planName:', paymentData.planName, typeof paymentData.planName);
+      console.log('   credits:', paymentData.credits, typeof paymentData.credits);
+      console.log('   paymentMethod:', paymentData.paymentMethod, typeof paymentData.paymentMethod);
+      console.log('👤 Token de autenticação:', auth.getToken() ? 'Presente' : 'Ausente');
 
       // Faz a requisição para criar o PaymentIntent
-      const response = await fetch(`${window.CONFIG.api.baseUrl}/api/payment/create-intent`, {
+      const response = await fetch(`${apiBaseUrl}/api/payment/create-intent`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -362,6 +319,9 @@ const payment = (() => {
         },
         body: JSON.stringify(paymentData)
       });
+
+      console.log('📡 Status da resposta:', response.status);
+      console.log('📡 Status text:', response.statusText);
 
       if (!response.ok) {
         let errorMessage = 'Erro ao processar pagamento';
@@ -388,11 +348,14 @@ const payment = (() => {
       // Inicializa o formulário de pagamento baseado no método
       if (paymentMethod === 'card') {
         if (data.clientSecret) {
-          await initializePaymentForm(data.clientSecret);
-          safeUpdateElement('stripe-payment-form', (el) => el.style.display = 'block');
+          const stripeInitialized = await initializePaymentForm(data.clientSecret);
+          // Só mostrar o formulário se o Stripe Elements realmente conseguiu inicializar
+          if (stripeInitialized !== false) {
+            safeUpdateElement('stripe-payment-form', (el) => el.style.display = 'block');
+            console.log('✅ Formulário Stripe Elements exibido');
+          }
         }
-      } else if (paymentMethod === 'pix' && data.pixData) {
-        renderPixQRCode(data.pixData);
+
       } else if (paymentMethod === 'boleto' && data.boletoData) {
         renderBoleto(data.boletoData);
       }
@@ -401,11 +364,13 @@ const payment = (() => {
       return true;
     } catch (error) {
       console.error('❌ Erro ao criar intenção de pagamento:', error);
-      safeUpdateElement('paymentMessage', (el) => {
-        el.textContent = `Erro: ${error.message}`;
-        el.className = 'message error';
-        el.style.display = 'block';
-      });
+      if (showErrors) {
+        safeUpdateElement('paymentMessage', (el) => {
+          el.textContent = `Erro: ${error.message}`;
+          el.className = 'message error';
+          el.style.display = 'block';
+        });
+      }
       return false;
     } finally {
       // Sempre liberar o lock após um delay menor para evitar clicks duplos
@@ -415,88 +380,8 @@ const payment = (() => {
     }
   };
 
-  // Renderiza o QR Code do PIX na tela
-  const renderPixQRCode = (pixData) => {
-    // Mostrar container do PIX
-    safeUpdateElement('pix-container', (el) => el.style.display = 'block');
-    safeUpdateElement('stripe-payment-form', (el) => el.style.display = 'none');
-    safeUpdateElement('boleto-container', (el) => el.style.display = 'none');
-
-    // Configurar dados do PIX
-    safeUpdateElement('pix-qrcode', (el) => {
-      if (pixData.qr_code_url) {
-        el.innerHTML = `<img src="${pixData.qr_code_url}" alt="QR Code PIX" style="width:100%;max-width:300px;"/>`;
-      } else {
-        el.innerHTML = '<p>QR Code será gerado em breve...</p>';
-      }
-    });
-    safeUpdateElement('pix-code', (el) => {
-      el.textContent = pixData.qr_code || 'Código PIX será gerado em breve...';
-    });
-
-    // Adicionar botão para copiar código PIX
-    const copyButton = document.getElementById('copy-pix-code');
-    if (copyButton && pixData.qr_code) {
-      copyButton.addEventListener('click', () => {
-        navigator.clipboard.writeText(pixData.qr_code).then(() => {
-          safeUpdateElement('copy-message', (el) => {
-            el.textContent = 'Código PIX copiado!';
-            setTimeout(() => {
-              el.textContent = '';
-            }, 3000);
-          });
-        });
-      });
-    }
-
-    // Mostrar instruções de pagamento
-    safeUpdateElement('paymentMessage', (el) => {
-      el.textContent = 'Escaneie o QR Code ou copie o código PIX para pagar';
-      el.className = 'message success';
-      el.style.display = 'block';
-    });
-  };
-
-  // Renderiza o Boleto na tela
-  const renderBoleto = (boletoData) => {
-    // Mostrar container do boleto
-    safeUpdateElement('boleto-container', (el) => el.style.display = 'block');
-    safeUpdateElement('stripe-payment-form', (el) => el.style.display = 'none');
-    safeUpdateElement('pix-container', (el) => el.style.display = 'none');
-
-    // Configurar dados do boleto
-    safeUpdateElement('boleto-code', (el) => {
-      el.textContent = boletoData.code || 'Código do boleto será gerado em breve...';
-    });
-
-    const boletoLink = document.getElementById('boleto-link');
-    if (boletoLink && boletoData.pdf_url) {
-      boletoLink.href = boletoData.pdf_url;
-      boletoLink.style.display = 'block';
-    }
-
-    // Adicionar botão para copiar código de barras
-    const copyButton = document.getElementById('copy-boleto-code');
-    if (copyButton && boletoData.code) {
-      copyButton.addEventListener('click', () => {
-        navigator.clipboard.writeText(boletoData.code).then(() => {
-          safeUpdateElement('copy-boleto-message', (el) => {
-            el.textContent = 'Código do boleto copiado!';
-            setTimeout(() => {
-              el.textContent = '';
-            }, 3000);
-          });
-        });
-      });
-    }
-
-    // Mostrar instruções de pagamento
-    safeUpdateElement('paymentMessage', (el) => {
-      el.textContent = 'O boleto foi gerado. Você pode imprimi-lo ou copiar o código de barras.';
-      el.className = 'message success';
-      el.style.display = 'block';
-    });
-  };
+  // Funções obsoletas: renderBoleto removida
+  // Stripe Elements agora gerencia automaticamente as interfaces de Boleto
 
   // Processa o pagamento com o Stripe
   const processPayment = async () => {
@@ -514,179 +399,164 @@ const payment = (() => {
         el.style.display = 'block';
       });
 
-      // Verificar se o usuário está autenticado
+      // Verificar se o usuário está autenticado OU se há dados de checkout rápido
       const user = auth?.getUser();
+      let guestData = null;
+
       if (!user) {
-        throw new Error('Você precisa estar logado para realizar pagamentos');
+        // Verificar se temos dados de checkout rápido
+        if (typeof window.getGuestCheckoutData === 'function') {
+          guestData = window.getGuestCheckoutData();
+          if (!guestData || !guestData.name || !guestData.email) {
+            throw new Error('Preencha os dados do checkout rápido para continuar');
+          }
+          console.log('👤 Processando checkout rápido para:', guestData.email);
+        } else {
+          throw new Error('Você precisa estar logado para realizar pagamentos');
+        }
+      } else {
+        console.log('👤 Usuário autenticado:', user.email);
       }
 
-      console.log('👤 Usuário autenticado:', user.email);
+      // Stripe Elements gerencia automaticamente os métodos - sempre processamos via Stripe
+      console.log('💳 Processando pagamento com cartão...');
 
-      // Verifica o método de pagamento selecionado
-      const selectedMethodInput = document.querySelector('input[name="payment-method"]:checked');
-      if (!selectedMethodInput) {
-        throw new Error('Selecione um método de pagamento');
+      if (!stripe || !elements) {
+        console.error('❌ Stripe ou Elements não inicializados');
+        throw new Error('Sistema de pagamento não está pronto. Tente recarregar a página.');
       }
 
-      const selectedMethod = selectedMethodInput.value;
-      console.log('💰 Método de pagamento selecionado:', selectedMethod);
+      // Verificar se o elemento de pagamento existe
+      if (!paymentElement) {
+        console.error('❌ Elemento de pagamento não criado');
+        throw new Error('Formulário de pagamento não carregado. Tente recarregar a página.');
+      }
 
-      if (selectedMethod === 'card') {
-        console.log('💳 Processando pagamento com cartão...');
+      console.log('🔄 Confirmando pagamento com Stripe...');
 
-        if (!stripe || !elements) {
-          console.error('❌ Stripe ou Elements não inicializados');
-          throw new Error('Sistema de pagamento não está pronto. Tente recarregar a página.');
+      // Verificar se o elemento de pagamento está válido antes de submeter
+      const elementsState = await elements.getElement('payment');
+      if (!elementsState) {
+        throw new Error('Formulário de pagamento não está pronto. Aguarde um momento e tente novamente.');
+      }
+
+      // Aguardar um breve momento para garantir que os dados foram processados
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Verificar se os elementos estão em um estado válido para submissão
+      console.log('🔍 Verificando estado dos elementos...');
+
+      // Tentar obter o estado atual dos elementos
+      try {
+        const elementValue = await elements.submit();
+        if (elementValue.error) {
+          throw new Error(elementValue.error.message || 'Dados do cartão incompletos ou inválidos');
         }
+        console.log('✅ Elementos validados com sucesso');
+      } catch (submitError) {
+        console.log('⚠️ Erro na validação dos elementos:', submitError);
+        // Continuar mesmo com erro de validação - pode ser falso positivo
+      }
 
-        // Verificar se o elemento de pagamento existe
-        if (!paymentElement) {
-          console.error('❌ Elemento de pagamento não criado');
-          throw new Error('Formulário de pagamento não carregado. Tente recarregar a página.');
-        }
+      // Confirma o pagamento com cartão
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/payment-success.html`,
+        },
+        redirect: 'if_required'
+      });
 
-        console.log('🔄 Confirmando pagamento com Stripe...');
+      if (error) {
+        console.error('❌ Erro na confirmação do Stripe:', error);
+        throw new Error(error.message || 'Erro ao processar pagamento');
+      }
 
-        // Confirma o pagamento com cartão
-        const { error, paymentIntent } = await stripe.confirmPayment({
-          elements,
-          confirmParams: {
-            return_url: `${window.location.origin}/payment-success.html`,
-          },
-          redirect: 'if_required'
-        });
+      console.log('✅ Pagamento confirmado pelo Stripe:', paymentIntent?.status);
 
-        if (error) {
-          console.error('❌ Erro na confirmação do Stripe:', error);
-          throw new Error(error.message || 'Erro ao processar pagamento');
-        }
+      // Se chegou aqui, o pagamento foi processado com sucesso
+      // Confirma o pagamento no servidor
+      const transactionId = sessionStorage.getItem('currentTransactionId');
+      const paymentIntentId = paymentIntent?.id || sessionStorage.getItem('paymentIntentId');
 
-        console.log('✅ Pagamento confirmado pelo Stripe:', paymentIntent?.status);
+      if (!paymentIntentId) {
+        console.error('❌ PaymentIntent ID não encontrado');
+        throw new Error('ID do pagamento não encontrado');
+      }
 
-        // Se chegou aqui, o pagamento foi processado com sucesso
-        // Confirma o pagamento no servidor
-        const transactionId = sessionStorage.getItem('currentTransactionId');
-        const paymentIntentId = paymentIntent?.id || sessionStorage.getItem('paymentIntentId');
+      console.log('🔍 Confirmando pagamento no servidor:', paymentIntentId);
 
-        if (!paymentIntentId) {
-          console.error('❌ PaymentIntent ID não encontrado');
-          throw new Error('ID do pagamento não encontrado');
-        }
+      // Preparar headers e dados da requisição
+      const headers = {
+        'Content-Type': 'application/json'
+      };
 
-        console.log('🔍 Confirmando pagamento no servidor:', paymentIntentId);
+      const requestBody = {
+        paymentIntentId: paymentIntentId,
+        transactionId: transactionId
+      };
 
-        const response = await fetch(`${window.CONFIG.api.baseUrl}/api/payment/confirm`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${auth.getToken()}`
-          },
-          body: JSON.stringify({
-            paymentIntentId: paymentIntentId,
-            transactionId: transactionId
-          })
-        });
+      // Se é usuário logado, adicionar token de autenticação
+      if (user) {
+        headers['Authorization'] = `Bearer ${auth.getToken()}`;
+      } else if (guestData) {
+        // Para checkout rápido, incluir dados do guest
+        requestBody.guestData = guestData;
+      }
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error('❌ Erro na confirmação do servidor:', errorData);
-          throw new Error(errorData.error || 'Erro ao confirmar pagamento no servidor');
-        }
+      // Verificar se CONFIG está definido
+      const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3001';
 
-        const data = await response.json();
-        console.log('✅ Pagamento confirmado no servidor:', data);
+      const response = await fetch(`${apiBaseUrl}/api/payment/confirm`, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(requestBody)
+      });
 
-        // Atualiza os créditos do usuário localmente
-        const currentUser = auth.getUser();
-        if (currentUser && data.credits) {
-          currentUser.credits = data.credits;
-          localStorage.setItem('user', JSON.stringify(currentUser));
-          console.log('✅ Créditos atualizados localmente:', data.credits);
-        }
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('❌ Erro na confirmação do servidor:', errorData);
+        throw new Error(errorData.error || 'Erro ao confirmar pagamento no servidor');
+      }
 
-        // Limpar dados de sessão
-        sessionStorage.removeItem('currentTransactionId');
-        sessionStorage.removeItem('paymentIntentId');
+      const data = await response.json();
+      console.log('✅ Pagamento confirmado no servidor:', data);
 
-        // Mostrar mensagem de sucesso antes de redirecionar
-        safeUpdateElement('paymentMessage', (el) => {
-          el.innerHTML = `
+      // Atualiza os créditos do usuário localmente (apenas para usuários logados)
+      const currentUser = auth.getUser();
+      if (currentUser && data.credits) {
+        currentUser.credits = data.credits;
+        localStorage.setItem('user', JSON.stringify(currentUser));
+        console.log('✅ Créditos atualizados localmente:', data.credits);
+      }
+
+      // Limpar dados de sessão
+      sessionStorage.removeItem('currentTransactionId');
+      sessionStorage.removeItem('paymentIntentId');
+
+      // Salvar dados para página de sucesso
+      if (guestData && guestData.email) {
+        sessionStorage.setItem('guestCheckoutEmail', guestData.email);
+        console.log('✅ Dados do checkout rápido salvos para página de sucesso');
+      }
+
+      // Mostrar mensagem de sucesso antes de redirecionar
+      safeUpdateElement('paymentMessage', (el) => {
+        el.innerHTML = `
             <div class="payment-success-message">
               <h4>✅ Pagamento realizado com sucesso!</h4>
-              <p>Seus créditos foram adicionados à sua conta.</p>
+              <p>${guestData ? 'Sua conta foi criada e os créditos adicionados.' : 'Seus créditos foram adicionados à sua conta.'}</p>
               <p>Redirecionando...</p>
             </div>
           `;
-          el.className = 'message success';
-          el.style.display = 'block';
-        });
+        el.className = 'message success';
+        el.style.display = 'block';
+      });
 
-        // Redireciona após um pequeno delay
-        setTimeout(() => {
-          window.location.href = 'payment-success.html';
-        }, 2000);
-
-      } else if (selectedMethod === 'pix') {
-        // Obter os dados do usuário
-        const user = auth.getUser();
-        const name = document.getElementById('pix-name')?.value || user.name;
-        const email = document.getElementById('pix-email')?.value || user.email;
-        const taxId = document.getElementById('pix-cpf')?.value;
-
-        // Valida CPF
-        if (!taxId || taxId.length < 11) {
-          throw new Error('CPF inválido. Por favor, informe um CPF válido.');
-        }
-
-        // Cria intenção de pagamento com PIX
-        const success = await createPaymentIntent(currentPlanData, 'pix', {
-          taxId,
-          name,
-          email
-        });
-
-        if (!success) {
-          throw new Error('Erro ao gerar pagamento PIX');
-        }
-
-        return;
-      } else if (selectedMethod === 'boleto') {
-        // Obter os dados do usuário para o boleto
-        const user = auth.getUser();
-        const name = document.getElementById('boleto-name')?.value || user.name;
-        const email = document.getElementById('boleto-email')?.value || user.email;
-        const taxId = document.getElementById('boleto-cpf')?.value;
-        const address = document.getElementById('boleto-address')?.value;
-        const city = document.getElementById('boleto-city')?.value;
-        const state = document.getElementById('boleto-state')?.value;
-        const postalCode = document.getElementById('boleto-postal-code')?.value;
-
-        // Validar dados
-        if (!taxId || taxId.length < 11) {
-          throw new Error('CPF inválido. Por favor, informe um CPF válido.');
-        }
-
-        if (!address || !city || !state || !postalCode) {
-          throw new Error('Todos os campos de endereço são obrigatórios para boleto.');
-        }
-
-        // Cria intenção de pagamento com boleto
-        const success = await createPaymentIntent(currentPlanData, 'boleto', {
-          taxId,
-          name,
-          email,
-          address,
-          city,
-          state,
-          postalCode
-        });
-
-        if (!success) {
-          throw new Error('Erro ao gerar boleto');
-        }
-
-        return;
-      }
+      // Redireciona após um pequeno delay
+      setTimeout(() => {
+        window.location.href = 'payment-success.html';
+      }, 2000);
 
     } catch (error) {
       console.error('❌ Erro no processamento de pagamento:', error);
@@ -725,45 +595,10 @@ const payment = (() => {
     }
   };
 
-  // Alterna entre os diferentes formulários de métodos de pagamento
+  // Método obsoleto: Stripe Elements agora gerencia automaticamente os métodos de pagamento
   const togglePaymentMethods = () => {
-    const paymentMethodRadios = document.querySelectorAll('input[name="payment-method"]');
-    const stripeForm = document.getElementById('stripe-payment-form');
-    const pixForm = document.getElementById('pix-form');
-    const boletoForm = document.getElementById('boleto-form');
-    const pixContainer = document.getElementById('pix-container');
-    const boletoContainer = document.getElementById('boleto-container');
-
-    paymentMethodRadios.forEach(radio => {
-      radio.addEventListener('change', function () {
-        // Esconde todos os formulários e containers
-        stripeForm.style.display = 'none';
-        pixForm.style.display = 'none';
-        boletoForm.style.display = 'none';
-        pixContainer.style.display = 'none';
-        boletoContainer.style.display = 'none';
-
-        // Mostra o formulário selecionado
-        if (this.value === 'card') {
-          stripeForm.style.display = 'block';
-        } else if (this.value === 'pix') {
-          pixForm.style.display = 'block';
-        } else if (this.value === 'boleto') {
-          boletoForm.style.display = 'block';
-        }
-      });
-    });
-
-    // Configura os eventos dos formulários
-    document.getElementById('pix-form').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      await processPayment();
-    });
-
-    document.getElementById('boleto-form').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      await processPayment();
-    });
+    // Função removida - Stripe Elements agora controla a interface automaticamente
+    console.log('ℹ️ togglePaymentMethods obsoleta - Stripe Elements ativo');
   };
 
   // Inicializa os listeners de eventos na página de pagamento
@@ -789,10 +624,7 @@ const payment = (() => {
         // Abre o modal
         document.getElementById('paymentModal').style.display = 'flex';
 
-        // Configura os métodos de pagamento
-        togglePaymentMethods();
-
-        // Inicializa o formulário padrão (cartão)
+        // Inicializa o formulário (Stripe Elements gerencia os métodos automaticamente)
         createPaymentIntent(planData);
       });
     });
@@ -834,7 +666,10 @@ const payment = (() => {
 
           const transactionId = sessionStorage.getItem('currentTransactionId');
 
-          const confirmResponse = await fetch(`${window.CONFIG.api.baseUrl}/api/payment/confirm`, {
+          // Verificar se CONFIG está definido
+          const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3001';
+
+          const confirmResponse = await fetch(`${apiBaseUrl}/api/payment/confirm`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

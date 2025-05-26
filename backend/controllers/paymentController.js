@@ -16,7 +16,7 @@ const User = require('../models/user');
 // Cria uma intenção de pagamento no Stripe
 exports.createPaymentIntent = async (req, res) => {
   try {
-    const { amount, planName, credits, paymentMethod } = req.body;
+    const { amount, planName, credits, paymentMethod, guestUser } = req.body;
 
     if (!amount || !planName || !credits || !paymentMethod) {
       return res.status(400).json({ error: 'Informações de pagamento incompletas' });
@@ -28,13 +28,18 @@ exports.createPaymentIntent = async (req, res) => {
     console.log(`[PAYMENT] 🎯 Criando pagamento: ${paymentMethod} - R$ ${amount} - ${credits} créditos`);
 
     // Opções básicas para o PaymentIntent
+    const userId = req.user ? req.user.id : 'anonymous';
+    const userEmail = req.user ? req.user.email : (guestUser ? guestUser.email : req.body.email || 'anonymous@example.com');
+
     const paymentIntentOptions = {
       amount: amountInCents,
       currency: 'brl',
       metadata: {
-        userId: req.user.id,
+        userId: userId,
         planName,
-        credits: credits.toString()
+        credits: credits.toString(),
+        guestEmail: guestUser ? guestUser.email : null,
+        guestName: guestUser ? guestUser.name : null
       }
     };
 
@@ -57,7 +62,7 @@ exports.createPaymentIntent = async (req, res) => {
         },
         billing_details: {
           name: req.body.name || 'Nome do Pagador',
-          email: req.body.email || req.user.email,
+          email: req.body.email || userEmail,
           address: {
             line1: req.body.address || 'Endereço do Pagador',
             city: req.body.city || 'Cidade',
@@ -70,31 +75,7 @@ exports.createPaymentIntent = async (req, res) => {
 
       paymentIntentOptions.payment_method_data = boletoData;
       console.log('[PAYMENT] 🧾 Configurando pagamento por boleto');
-    } else if (paymentMethod === 'pix') {
-      // Para PIX
-      paymentIntentOptions.payment_method_types = ['pix'];
 
-      // Expiração do PIX (24 horas)
-      const expiresInSeconds = 24 * 60 * 60;
-
-      paymentIntentOptions.payment_method_options = {
-        pix: {
-          expires_after_seconds: expiresInSeconds
-        }
-      };
-
-      // Dados do PIX
-      if (req.body.taxId) {
-        paymentIntentOptions.payment_method_data = {
-          type: 'pix',
-          billing_details: {
-            name: req.body.name || 'Nome do Pagador',
-            email: req.body.email || req.user.email,
-          }
-        };
-      }
-
-      console.log('[PAYMENT] 🔲 Configurando pagamento por PIX');
     } else {
       return res.status(400).json({ error: 'Método de pagamento não suportado' });
     }
@@ -103,25 +84,13 @@ exports.createPaymentIntent = async (req, res) => {
     const paymentIntent = await stripe.paymentIntents.create(paymentIntentOptions);
     console.log('[PAYMENT] ✅ PaymentIntent criado:', paymentIntent.id);
 
-    // Gera um ID de transação
-    const transactionId = 'tr_' + Math.random().toString(36).substring(2, 15);
-
     // Resposta base
     const response = {
-      clientSecret: paymentIntent.client_secret,
-      transactionId: transactionId
+      clientSecret: paymentIntent.client_secret
     };
 
-    // Adiciona dados específicos para PIX e Boleto
-    if (paymentMethod === 'pix') {
-      // Para PIX, vamos criar os dados do QR Code
-      response.pixData = {
-        qr_code: paymentIntent.next_action?.pix_display_qr_code?.data || 'PIX_CODE_PLACEHOLDER',
-        qr_code_url: paymentIntent.next_action?.pix_display_qr_code?.image_url_png || null,
-        expires_at: paymentIntent.next_action?.pix_display_qr_code?.expires_at || null
-      };
-      console.log('[PAYMENT] 🔲 Dados PIX adicionados à resposta');
-    } else if (paymentMethod === 'boleto') {
+    // Adiciona dados específicos para Boleto
+    if (paymentMethod === 'boleto') {
       // Para Boleto, vamos criar os dados do boleto
       response.boletoData = {
         code: paymentIntent.next_action?.boleto_display_details?.number || 'BOLETO_CODE_PLACEHOLDER',
@@ -132,28 +101,32 @@ exports.createPaymentIntent = async (req, res) => {
     }
 
     try {
-      // Tenta criar o registro da transação no banco
-      const transaction = await Transaction.create({
-        userId: req.user.id,
-        amount: amount,
-        credits: credits,
-        status: 'pending',
-        paymentMethod: paymentMethod,
-        paymentIntentId: paymentIntent.id,
-        metadata: {
-          planName,
-          paymentMethod
-        }
-      });
+      // Tenta criar o registro da transação no banco (apenas se usuário estiver logado)
+      if (req.user) {
+        const transaction = await Transaction.create({
+          userId: req.user.id,
+          amount: amount,
+          credits: credits,
+          status: 'pending',
+          paymentMethod: paymentMethod,
+          paymentIntentId: paymentIntent.id,
+          metadata: {
+            planName,
+            paymentMethod
+          }
+        });
 
-      console.log('[PAYMENT] 💾 Transação salva no banco:', transaction.id);
-      response.transactionId = transaction.id;
+        console.log('[PAYMENT] 💾 Transação salva no banco:', transaction.id);
+        response.transactionId = transaction.id;
+      } else {
+        console.log('[PAYMENT] ⚠️ Usuário anônimo - transação não salva no banco');
+      }
 
     } catch (dbError) {
-      console.warn('[PAYMENT] ⚠️ Aviso: Não foi possível salvar a transação no banco de dados. Continuando com ID simulado.', dbError.message);
+      console.warn('[PAYMENT] ⚠️ Aviso: Não foi possível salvar a transação no banco de dados. Continuando sem ID.', dbError.message);
 
-      // Se não conseguir criar no banco, adiciona os créditos diretamente (apenas para desenvolvimento)
-      if (process.env.NODE_ENV === 'development') {
+      // Se não conseguir criar no banco, adiciona os créditos diretamente (apenas para desenvolvimento e usuário logado)
+      if (process.env.NODE_ENV === 'development' && req.user) {
         try {
           const user = await User.findByPk(req.user.id);
           if (user) {
@@ -182,7 +155,7 @@ exports.createPaymentIntent = async (req, res) => {
 // Confirma um pagamento e atualiza os créditos do usuário
 exports.confirmPayment = async (req, res) => {
   try {
-    const { paymentIntentId, transactionId } = req.body;
+    const { paymentIntentId } = req.body;
 
     if (!paymentIntentId) {
       return res.status(400).json({ error: 'PaymentIntent ID é obrigatório' });
@@ -202,16 +175,10 @@ exports.confirmPayment = async (req, res) => {
       });
     }
 
-    // Buscar transação pelo paymentIntentId se transactionId não foi fornecido
-    let transaction = null;
-
-    if (transactionId) {
-      transaction = await Transaction.findByPk(transactionId);
-    } else {
-      transaction = await Transaction.findOne({
-        where: { paymentIntentId: paymentIntentId }
-      });
-    }
+    // Buscar transação pelo paymentIntentId
+    let transaction = await Transaction.findOne({
+      where: { paymentIntentId: paymentIntentId }
+    });
 
     if (!transaction) {
       console.warn(`[PAYMENT] ⚠️ Transação não encontrada para PaymentIntent: ${paymentIntentId}`);
@@ -221,9 +188,11 @@ exports.confirmPayment = async (req, res) => {
       const credits = parseInt(paymentIntent.metadata.credits);
       const planName = paymentIntent.metadata.planName;
 
-      if (userId && credits) {
+      // Validar se userId é numérico (não "anonymous")
+      const numericUserId = parseInt(userId);
+      if (!isNaN(numericUserId) && credits) {
         transaction = await Transaction.create({
-          userId: userId,
+          userId: numericUserId,
           amount: paymentIntent.amount / 100, // Converter de centavos para reais
           credits: credits,
           status: 'completed',
@@ -237,7 +206,10 @@ exports.confirmPayment = async (req, res) => {
         });
         console.log(`[PAYMENT] 💾 Transação criada durante confirmação: ${transaction.id}`);
       } else {
-        return res.status(404).json({ error: 'Transação não encontrada e dados insuficientes para criar' });
+        return res.status(404).json({
+          error: 'Transação não encontrada e dados insuficientes para criar',
+          details: `userId: ${userId}, credits: ${credits}`
+        });
       }
     }
 
@@ -267,6 +239,8 @@ exports.confirmPayment = async (req, res) => {
       credits: currentCredits + transaction.credits
     });
 
+    console.log(`[PAYMENT] ✅ Pagamento confirmado - ${transaction.credits} créditos adicionados ao usuário ${user.id}`);
+
     // Retorna o sucesso e os créditos atualizados
     res.json({
       success: true,
@@ -274,7 +248,7 @@ exports.confirmPayment = async (req, res) => {
       credits: currentCredits + transaction.credits
     });
   } catch (error) {
-    console.error('Erro ao confirmar pagamento:', error);
+    console.error('[PAYMENT] ❌ Erro ao confirmar pagamento:', error);
     res.status(500).json({
       error: 'Erro ao confirmar pagamento',
       details: error.message
@@ -327,12 +301,67 @@ async function handleSuccessfulPayment(paymentIntent) {
     if (!transaction) {
       console.warn(`[WEBHOOK] ⚠️ Transação não encontrada para paymentIntent: ${paymentIntent.id}`);
 
-      // Criar transação baseada nos metadados do PaymentIntent (fallback)
-      const userId = paymentIntent.metadata.userId;
+      // Verificar se é um checkout rápido (usuário anônimo)
+      const guestEmail = paymentIntent.metadata.guestEmail;
+      const guestName = paymentIntent.metadata.guestName;
       const credits = parseInt(paymentIntent.metadata.credits);
       const planName = paymentIntent.metadata.planName;
 
-      if (userId && credits) {
+      if (guestEmail && guestName && credits) {
+        console.log(`[WEBHOOK] 👤 Processando checkout rápido para: ${guestEmail}`);
+
+        // Verificar se o usuário já existe
+        let user = await User.findOne({ where: { email: guestEmail } });
+
+        if (!user) {
+          // Criar conta automaticamente
+          const tempPassword = Math.random().toString(36).substring(2, 15);
+          user = await User.create({
+            name: guestName,
+            email: guestEmail,
+            password: tempPassword, // Será pedido para alterar no primeiro login
+            credits: credits,
+            isGuestAccount: true,
+            metadata: {
+              createdFromCheckout: true,
+              checkoutDate: new Date(),
+              planName: planName
+            }
+          });
+          console.log(`[WEBHOOK] ✅ Conta criada automaticamente: ${user.id} (${guestEmail})`);
+        } else {
+          // Usuário já existe, apenas adicionar créditos
+          const currentCredits = user.credits || 0;
+          await user.update({
+            credits: currentCredits + credits
+          });
+          console.log(`[WEBHOOK] ✅ Créditos adicionados a conta existente: ${credits} para ${guestEmail}`);
+        }
+
+        // Criar transação
+        const newTransaction = await Transaction.create({
+          userId: user.id,
+          amount: paymentIntent.amount / 100,
+          credits: credits,
+          status: 'completed',
+          paymentMethod: 'guest_checkout',
+          paymentIntentId: paymentIntent.id,
+          metadata: {
+            planName: planName,
+            createdFromWebhook: true,
+            webhookDate: new Date(),
+            guestCheckout: true
+          }
+        });
+
+        console.log(`[WEBHOOK] 💾 Transação criada para checkout rápido: ${newTransaction.id}`);
+        return;
+      }
+
+      // Criar transação baseada nos metadados do PaymentIntent (fallback para usuários logados)
+      const userId = paymentIntent.metadata.userId;
+
+      if (userId && userId !== 'anonymous' && credits) {
         const newTransaction = await Transaction.create({
           userId: userId,
           amount: paymentIntent.amount / 100,

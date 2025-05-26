@@ -83,7 +83,8 @@
         .main-content {
             padding: 10px 0;
             flex: 1 0 auto;
-            margin-top: 80px;
+            margin-top: 0;
+            padding-top: 100px;
             /* Espaço para o header fixo */
         }
 
@@ -491,8 +492,78 @@
             }
         }
     </style>
-    <script src="/assets/js/auth.js"></script>
-    <script src="/assets/js/header.js"></script>
+    <script src="/assets/js/config.js?v=1748114546"></script>
+    <script src="/assets/js/auth.js?v=1748114546"></script>
+    <script src="/assets/js/header-new.js?v=1748114561"></script>
+
+    <!-- Script para mostrar menu logado INSTANTANEAMENTE -->
+    <script>
+        (function () {
+            // Verificar IMEDIATAMENTE se usuário está logado
+            function showLoggedUserInstantly() {
+                const token = localStorage.getItem('token');
+                const userDataStr = localStorage.getItem('user');
+
+                if (token && userDataStr) {
+                    try {
+                        const userData = JSON.parse(userDataStr);
+                        const guestActions = document.getElementById('guestActions');
+                        const userMenuWrapper = document.getElementById('userMenuWrapper');
+                        const userName = document.getElementById('userName');
+                        const userCredits = document.getElementById('userCredits');
+
+                        if (guestActions && userMenuWrapper) {
+                            // Esconder menu de convidado
+                            guestActions.style.display = 'none';
+
+                            // Mostrar menu do usuário
+                            userMenuWrapper.style.display = 'block';
+
+                            // Atualizar nome
+                            if (userName && userData.name) {
+                                const firstName = userData.name.split(' ')[0];
+                                userName.textContent = firstName;
+                            }
+
+                            // Atualizar créditos
+                            if (userCredits) {
+                                const credits = userData.credits || 0;
+                                userCredits.textContent = `${credits} análise${credits !== 1 ? 's' : ''}`;
+                                userCredits.style.cssText = `
+                                    background: #583819 !important;
+                                    color: white !important;
+                                    padding: 0.25rem 0.5rem !important;
+                                    border-radius: 0.375rem !important;
+                                    font-size: 0.75rem !important;
+                                    font-weight: 600 !important;
+                                `;
+                            }
+
+                            console.log('⚡ Menu logado exibido INSTANTANEAMENTE na página analisar');
+                        }
+                    } catch (error) {
+                        console.log('Erro ao processar dados do usuário:', error);
+                    }
+                } else {
+                    // Não logado - mostrar menu de convidado
+                    const guestActions = document.getElementById('guestActions');
+                    const userMenuWrapper = document.getElementById('userMenuWrapper');
+
+                    if (guestActions && userMenuWrapper) {
+                        guestActions.style.display = 'flex';
+                        userMenuWrapper.style.display = 'none';
+                    }
+                }
+            }
+
+            // Executar IMEDIATAMENTE
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', showLoggedUserInstantly);
+            } else {
+                showLoggedUserInstantly();
+            }
+        })();
+    </script>
     <script>
         // Função global para mostrar notificações
         window.showNotification = function (message, type = 'info') {
@@ -519,7 +590,7 @@
 
             // Definir cor baseada no tipo
             const colors = {
-                success: '#4CAF50',
+                success: '#583819',
                 error: '#F44336',
                 info: '#2196F3',
                 warning: '#FF9800'
@@ -535,8 +606,202 @@
             }, 5000);
         };
 
+        // Função para validar código ANTES do login/cadastro
+        function validateGiftCodeBeforeAuth(code) {
+            return fetch('/api/gift-code/validate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ code: code })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.valid) {
+                        showGiftCodeWelcomeModal(code, data.credits);
+                        return true;
+                    } else {
+                        showGiftCodeErrorModal(data.error || 'Código inválido');
+                        return false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao validar código:', error);
+                    showGiftCodeErrorModal('Erro de conexão. Verifique sua internet e tente novamente.');
+                    return false;
+                });
+        }
+
+        // Função para mostrar modal de boas-vindas com código válido
+        function showGiftCodeWelcomeModal(code, credits) {
+            const modalHTML = `
+                <div id="giftCodeWelcomeModal" style="
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background: rgba(0,0,0,0.7); display: flex; align-items: center; 
+                    justify-content: center; z-index: 10000;
+                ">
+                    <div style="
+                        background: white; border-radius: 20px; max-width: 550px; width: 90%;
+                        box-shadow: 0 25px 50px rgba(0,0,0,0.4); animation: modalSlideIn 0.4s ease;
+                        overflow: hidden;
+                    ">
+                        <!-- Header com gradiente -->
+                        <div style="
+                            background: linear-gradient(135deg, #583819, #8B4513);
+                            color: white; padding: 2rem; text-align: center;
+                        ">
+                            <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎁</div>
+                            <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">
+                                Código Válido!
+                            </h2>
+                            <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 1rem;">
+                                Você ganhou ${credits} análise${credits > 1 ? 's' : ''} completa${credits > 1 ? 's' : ''}!
+                            </p>
+                        </div>
+
+                        <!-- Conteúdo -->
+                        <div style="padding: 2rem;">
+                            <div style="
+                                background: #f8f9ff; border: 2px solid #e1e8ff; 
+                                border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
+                            ">
+                                <h3 style="color: #583819; margin: 0 0 1rem 0; font-size: 1.1rem;">
+                                    ✨ O que você ganha:
+                                </h3>
+                                <ul style="margin: 0; padding-left: 1.5rem; color: #666; line-height: 1.8;">
+                                    <li><strong>Análise completa</strong> do seu currículo</li>
+                                    <li><strong>Até 7 vagas</strong> por análise</li>
+                                    <li><strong>Feedback personalizado</strong> com IA</li>
+                                    <li><strong>Otimização profissional</strong> para cada vaga</li>
+                                </ul>
+                            </div>
+
+                            <p style="text-align: center; color: #666; margin-bottom: 1.5rem; line-height: 1.6;">
+                                Para usar seu código, você precisa ter uma conta.<br>
+                                <strong>É rápido e gratuito!</strong>
+                            </p>
+
+                            <!-- Botões de ação -->
+                            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                                <button onclick="showRegisterForGiftCode('${code}')" style="
+                                    padding: 0.75rem 1.5rem; background: #583819; color: white;
+                                    border: none; border-radius: 8px; cursor: pointer; font-weight: 600;
+                                    font-size: 1rem; min-width: 140px; transition: all 0.2s;
+                                " onmouseover="this.style.background='#4a2f15'" onmouseout="this.style.background='#583819'">
+                                    📝 Criar Conta
+                                </button>
+                                <button onclick="showLoginForGiftCode('${code}')" style="
+                                    padding: 0.75rem 1.5rem; border: 2px solid #583819; 
+                                    background: transparent; color: #583819; border-radius: 8px;
+                                    cursor: pointer; font-weight: 600; font-size: 1rem; min-width: 140px;
+                                    transition: all 0.2s;
+                                " onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'">
+                                    🔐 Já tenho conta
+                                </button>
+                            </div>
+
+                            <p style="text-align: center; margin-top: 1rem; font-size: 0.85rem; color: #888;">
+                                💡 Seu código <strong>${code}</strong> será aplicado automaticamente após o login
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <style>
+                    @keyframes modalSlideIn {
+                        from { transform: translateY(-30px) scale(0.95); opacity: 0; }
+                        to { transform: translateY(0) scale(1); opacity: 1; }
+                    }
+                </style>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            // Salvar código para aplicar após login/cadastro
+            localStorage.setItem('pendingGiftCode', code);
+            localStorage.setItem('isGiftCodeUser', 'true');
+        }
+
+        // Função para mostrar cadastro com contexto de código
+        window.showRegisterForGiftCode = function (code) {
+            closeGiftCodeWelcomeModal();
+            setTimeout(() => {
+                const authModal = document.getElementById('authModal');
+                if (authModal) {
+                    authModal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                    // Mostrar formulário de cadastro
+                    document.getElementById('loginForm').style.display = 'none';
+                    document.getElementById('registerForm').style.display = 'block';
+                    document.getElementById('authModalTitle').textContent = 'Criar Conta para Usar o Código';
+
+                    // Adicionar mensagem motivacional
+                    let motivationMsg = document.getElementById('giftCodeMotivation');
+                    if (!motivationMsg) {
+                        motivationMsg = document.createElement('div');
+                        motivationMsg.id = 'giftCodeMotivation';
+                        motivationMsg.style.cssText = `
+                            background: linear-gradient(135deg, #583819, #8B4513);
+                            color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;
+                            text-align: center; font-size: 0.9rem;
+                        `;
+                        motivationMsg.innerHTML = `
+                            🎁 <strong>Código ${code}</strong> - 1 análise completa gratuita!<br>
+                            <small>Crie sua conta para ativar o benefício</small>
+                        `;
+                        document.getElementById('registerForm').insertBefore(motivationMsg, document.getElementById('registerForm').firstChild);
+                    }
+                }
+            }, 300);
+        };
+
+        // Função para mostrar login com contexto de código
+        window.showLoginForGiftCode = function (code) {
+            closeGiftCodeWelcomeModal();
+            setTimeout(() => {
+                const authModal = document.getElementById('authModal');
+                if (authModal) {
+                    authModal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                    // Mostrar formulário de login
+                    document.getElementById('loginForm').style.display = 'block';
+                    document.getElementById('registerForm').style.display = 'none';
+                    document.getElementById('authModalTitle').textContent = 'Entrar para Usar o Código';
+
+                    // Adicionar mensagem motivacional
+                    let motivationMsg = document.getElementById('giftCodeMotivation');
+                    if (!motivationMsg) {
+                        motivationMsg = document.createElement('div');
+                        motivationMsg.id = 'giftCodeMotivation';
+                        motivationMsg.style.cssText = `
+                            background: linear-gradient(135deg, #583819, #8B4513);
+                            color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;
+                            text-align: center; font-size: 0.9rem;
+                        `;
+                        motivationMsg.innerHTML = `
+                            🎁 <strong>Código ${code}</strong> - 1 análise completa gratuita!<br>
+                            <small>Faça login para ativar o benefício</small>
+                        `;
+                        document.getElementById('loginForm').insertBefore(motivationMsg, document.getElementById('loginForm').firstChild);
+                    }
+                }
+            }, 300);
+        };
+
+        // Função para fechar modal de boas-vindas
+        window.closeGiftCodeWelcomeModal = function () {
+            const modal = document.getElementById('giftCodeWelcomeModal');
+            if (modal) modal.remove();
+        };
+
         // Função para aplicar código de presente após autenticação
         function applyGiftCodeAfterAuth(code) {
+            // Verificar se este código já foi aplicado nesta sessão para evitar duplicação
+            const appliedCodes = JSON.parse(sessionStorage.getItem('appliedGiftCodes') || '[]');
+            if (appliedCodes.includes(code)) {
+                console.log('🔄 Código já aplicado nesta sessão:', code);
+                return;
+            }
+
             fetch('/api/gift-code/apply', {
                 method: 'POST',
                 headers: {
@@ -560,6 +825,11 @@
                     if (!data) return; // Se foi erro 401, data será null
 
                     if (data.success) {
+                        // Marcar código como aplicado nesta sessão
+                        const appliedCodes = JSON.parse(sessionStorage.getItem('appliedGiftCodes') || '[]');
+                        appliedCodes.push(code);
+                        sessionStorage.setItem('appliedGiftCodes', JSON.stringify(appliedCodes));
+
                         // Mostrar notificação de sucesso
                         showNotification(data.message || 'Código aplicado com sucesso!', 'success');
                         // Atualizar créditos na interface
@@ -781,10 +1051,136 @@
             const modal = document.getElementById('giftCodeErrorModal');
             if (modal) modal.remove();
         };
+
+        // Função global para liberar a página após login
+        window.authSuccess = function () {
+            console.log('🎉 authSuccess() chamada - início');
+
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) mainContent.style.display = '';
+            const footer = document.querySelector('footer');
+            if (footer) footer.style.display = '';
+            document.getElementById('authModal').style.display = 'none';
+            document.body.style.overflow = '';
+
+            console.log('🔄 Forçando refresh do header...');
+            // Forçar atualização do header após login bem-sucedido
+            if (window.headerManager) {
+                window.headerManager.forceRefresh();
+            }
+
+            console.log('🔄 Chamando updateAnalyzeButton IMEDIATAMENTE após authSuccess...');
+            // Garantir que updateAnalyzeButton seja chamada IMEDIATAMENTE
+            updateAnalyzeButton();
+
+            console.log('✅ authSuccess() finalizada');
+        };
     </script>
 </head>
 
 <body>
+    <!-- Header Inline (aparece instantaneamente) -->
+    <header class="header" id="header" style="
+        position: sticky; top: 0; z-index: 50; 
+        background: rgba(250, 249, 247, 0.95); 
+        backdrop-filter: blur(12px); 
+        border-bottom: 1px solid #e8ddd0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    ">
+        <div style="
+            display: flex; align-items: center; justify-content: space-between; 
+            height: 80px; max-width: 1280px; margin: 0 auto; 
+            padding: 0 1.5rem; gap: 2rem;
+        ">
+            <div>
+                <a href="landing.html">
+                    <img src="assets/img/logo.png" alt="CV Sem Frescura" style="height: 48px; width: auto;">
+                </a>
+            </div>
+            <nav style="display: flex; gap: 2rem;" id="headerNav">
+                <a href="landing.html" style="
+                    color: #3f3f46; text-decoration: none; font-weight: 500; 
+                    font-size: 0.95rem; padding: 0.5rem 0; transition: color 0.15s;
+                " onmouseover="this.style.color='#583819'" onmouseout="this.style.color='#3f3f46'">Início</a>
+                <a href="analisar.html" style="
+                    color: #3f3f46; text-decoration: none; font-weight: 500; 
+                    font-size: 0.95rem; padding: 0.5rem 0; transition: color 0.15s;
+                " onmouseover="this.style.color='#583819'" onmouseout="this.style.color='#3f3f46'">Analisar</a>
+                <a href="payment.html" style="
+                    color: #3f3f46; text-decoration: none; font-weight: 500; 
+                    font-size: 0.95rem; padding: 0.5rem 0; transition: color 0.15s;
+                " onmouseover="this.style.color='#583819'" onmouseout="this.style.color='#3f3f46'">Planos</a>
+            </nav>
+            <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <div id="guestActions" style="display: none; gap: 0.75rem; align-items: center;">
+                    <a href="#gift-code" style="
+                        display: inline-flex; align-items: center; gap: 0.5rem;
+                        padding: 0.5rem 1rem; background: #f4f0ea; color: #583819;
+                        border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.8rem;
+                    ">
+                        <span>🎓</span>
+                        <span>Código do Curso</span>
+                    </a>
+                    <a href="analisar.html?login=true" style="
+                        display: inline-flex; align-items: center; gap: 0.5rem;
+                        padding: 0.5rem 1rem; background: transparent; color: #3f3f46;
+                        border: 1px solid #d4d4d8; border-radius: 0.5rem; text-decoration: none; 
+                        font-weight: 600; font-size: 0.8rem;
+                    ">
+                        <span>🔐</span>
+                        <span>Entrar</span>
+                    </a>
+                    <a href="payment.html" style="
+                        display: inline-flex; align-items: center; gap: 0.5rem;
+                        padding: 0.5rem 1rem; background: #583819; color: white;
+                        border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.8rem;
+                    ">
+                        <span>💳</span>
+                        <span>Comprar</span>
+                    </a>
+                </div>
+                <div id="userMenuWrapper" style="display: none; position: relative;">
+                    <a href="#" id="authButton" style="
+                        display: flex; align-items: center; gap: 0.75rem;
+                        background: #f4f0ea; padding: 0.5rem 1rem; border-radius: 0.75rem;
+                        text-decoration: none; color: inherit;
+                    ">
+                        <span id="userName" style="font-weight: 500; color: #583819;">Usuário</span>
+                        <span id="userCredits" style="
+                            background: #583819; color: white; padding: 0.25rem 0.5rem;
+                            border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600;
+                        ">0 análises</span>
+                        <span style="font-size: 0.7rem; color: #583819;">▼</span>
+                    </a>
+                    <div id="userDropdown" style="
+                        position: absolute; top: 100%; right: 0; margin-top: 0.5rem;
+                        background: white; border-radius: 0.5rem; min-width: 200px; z-index: 999;
+                        display: none; border: 1px solid #e5e7eb; overflow: hidden;
+                        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+                    ">
+                        <a href="analisar.html" style="
+                            display: block; padding: 0.75rem 1rem; color: #3f3f46; text-decoration: none;
+                            font-size: 0.875rem; border: none; width: 100%; text-align: left;
+                        ">📊 Analisar Currículo</a>
+                        <a href="history.html" style="
+                            display: block; padding: 0.75rem 1rem; color: #3f3f46; text-decoration: none;
+                            font-size: 0.875rem; border: none; width: 100%; text-align: left;
+                        ">📋 Histórico</a>
+                        <a href="payment.html" style="
+                            display: block; padding: 0.75rem 1rem; color: #3f3f46; text-decoration: none;
+                            font-size: 0.875rem; border: none; width: 100%; text-align: left;
+                        ">💳 Comprar análises</a>
+                        <a href="#" id="logoutButton" style="
+                            display: block; padding: 0.75rem 1rem; color: #dc3545; text-decoration: none;
+                            font-size: 0.875rem; border: none; width: 100%; text-align: left;
+                            border-top: 1px solid #e5e7eb;
+                        ">🚪 Sair</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
     <!-- Modal de Login/Cadastro -->
     <div id="authModal" class="modal"
         style="display:flex; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.45); align-items:center; justify-content:center;">
@@ -804,8 +1200,11 @@
                     style="margin-bottom:12px; width:100%; padding:10px 12px; border:1.5px solid #ECD9B5; border-radius:7px; font-size:1em;">
                 <button type="submit"
                     style="width:100%; background:linear-gradient(90deg,#583819,#ECD9B5); color:#fff; border:none; padding:11px; border-radius:7px; font-weight:700; font-size:1em; margin-bottom:8px; box-shadow:0 2px 8px #58381922;">Entrar</button>
-                <p style="margin:8px 0 0 0; font-size:14px; text-align:center;">Não tem conta? <a href="#"
+                <p style="margin:8px 0 4px 0; font-size:14px; text-align:center;">Não tem conta? <a href="#"
                         id="showRegister" style="color:#583819; font-weight:600;">Cadastre-se</a></p>
+                <p style="margin:0; font-size:13px; text-align:center;">
+                    <a href="forgot-password.html" style="color:#666; text-decoration:none;">🔐 Esqueci minha senha</a>
+                </p>
             </form>
             <form id="registerForm" style="display:none; width:100%;">
                 <input type="text" id="registerName" placeholder="Nome completo" required
@@ -829,23 +1228,6 @@
             const showRegisterLink = document.getElementById('showRegister');
             const showLoginLink = document.getElementById('showLogin');
             const authError = document.getElementById('authError');
-
-            // Função global para liberar a página após login
-            window.authSuccess = function () {
-                const mainContent = document.querySelector('.main-content');
-                if (mainContent) mainContent.style.display = '';
-                const footer = document.querySelector('footer');
-                if (footer) footer.style.display = '';
-                document.getElementById('authModal').style.display = 'none';
-                document.body.style.overflow = '';
-
-                // Forçar atualização do header após login bem-sucedido
-                setTimeout(() => {
-                    if (window.headerManager) {
-                        window.headerManager.forceRefresh();
-                    }
-                }, 100);
-            };
 
             showRegisterLink.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -948,7 +1330,18 @@
                     });
             });
 
-            // Exibe o modal e bloqueia tudo se não autenticado
+            // Verificar se há código de presente na URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const giftCodeFromUrl = urlParams.get('giftCode');
+
+            if (giftCodeFromUrl && giftCodeFromUrl.trim() !== '') {
+                // Se há código na URL, validar primeiro ANTES de pedir login
+                console.log('🎁 Código detectado na URL:', giftCodeFromUrl);
+                validateGiftCodeBeforeAuth(giftCodeFromUrl.trim());
+                return; // Não mostrar modal de login ainda
+            }
+
+            // Exibe o modal e bloqueia tudo se não autenticado E não há código
             if (!auth.getToken()) {
                 document.getElementById('authModal').style.display = 'flex';
                 document.body.style.overflow = 'hidden';
@@ -1120,13 +1513,6 @@
 
             // Função para adicionar um novo campo de vaga
             function addJobLinkField() {
-                // Verificar se é usuário de código de presente
-                const isGiftCodeUser = localStorage.getItem('isGiftCodeUser') === 'true';
-                if (isGiftCodeUser) {
-                    showJobLimitModal(1);
-                    return;
-                }
-
                 const currentCount = jobLinksContainer.querySelectorAll('input.job-link-input').length;
 
                 // Verificar tipo de usuário e aplicar limites
@@ -1161,19 +1547,12 @@
                 const user = auth.getUser();
                 const isGiftCodeUser = localStorage.getItem('isGiftCodeUser') === 'true';
 
-                // Se é usuário de código de presente (gratuito)
-                if (isGiftCodeUser || (!user || user.credits === 0)) {
-                    return 1; // Apenas 1 vaga para códigos gratuitos
-                }
-
-                // Se tem créditos pagos
-                return 7; // Até 7 vagas para planos pagos
+                // Todos os usuários (incluindo códigos gratuitos) têm o mesmo limite
+                return 7; // Até 7 vagas para todos os usuários
             }
 
             // Função para mostrar modal quando atinge limite
             function showJobLimitModal(maxVagas) {
-                const isGiftCode = maxVagas === 1;
-
                 const modalHTML = `
                     <div id="jobLimitModal" style="
                         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -1184,40 +1563,19 @@
                             background: white; padding: 2rem; border-radius: 12px;
                             max-width: 500px; margin: 1rem; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
                         ">
-                            ${isGiftCode ? `
-                                <h3 style="color: #583819; margin-bottom: 1rem;">
-                                    🎓 Código Gratuito - Limite Atingido
-                                </h3>
-                                <p style="margin-bottom: 1.5rem; line-height: 1.6;">
-                                    <strong>Código de presente:</strong> Permite análise de apenas 1 vaga para experimentação.<br><br>
-                                    <strong>Planos pagos:</strong> Permitem até 7 vagas por análise (eficiência máxima do Gupy).
-                                </p>
-                                <div style="display: flex; gap: 1rem; justify-content: center;">
-                                    <button onclick="closeJobLimitModal()" style="
-                                        padding: 0.75rem 1.5rem; border: 2px solid #583819; 
-                                        background: transparent; color: #583819; border-radius: 6px;
-                                        cursor: pointer; font-weight: 600;
-                                    ">Continuar com 1 vaga</button>
-                                    <button onclick="window.location.href='payment.html'" style="
-                                        padding: 0.75rem 1.5rem; background: #583819; color: white;
-                                        border: none; border-radius: 6px; cursor: pointer; font-weight: 600;
-                                    ">Ver Planos 🚀</button>
-                                </div>
-                            ` : `
-                                <h3 style="color: #583819; margin-bottom: 1rem;">
-                                    ✅ Limite Máximo Atingido (7 vagas)
-                                </h3>
-                                <p style="margin-bottom: 1.5rem; line-height: 1.6;">
-                                    Você está usando <strong>100% da eficiência máxima do Gupy</strong>!<br><br>
-                                    Sistemas como Gupy permitem no máximo 7 candidaturas por ciclo de 7-10 dias.
-                                </p>
-                                <div style="text-align: center;">
-                                    <button onclick="closeJobLimitModal()" style="
-                                        padding: 0.75rem 2rem; background: #583819; color: white;
-                                        border: none; border-radius: 6px; cursor: pointer; font-weight: 600;
-                                    ">Entendi, vamos analisar!</button>
-                                </div>
-                            `}
+                            <h3 style="color: #583819; margin-bottom: 1rem;">
+                                ✅ Limite Máximo Atingido (7 vagas)
+                            </h3>
+                            <p style="margin-bottom: 1.5rem; line-height: 1.6;">
+                                Você está usando <strong>100% da eficiência máxima do Gupy</strong>!<br><br>
+                                Sistemas como Gupy permitem no máximo 7 candidaturas por ciclo de 7-10 dias.
+                            </p>
+                            <div style="text-align: center;">
+                                <button onclick="closeJobLimitModal()" style="
+                                    padding: 0.75rem 2rem; background: #583819; color: white;
+                                    border: none; border-radius: 6px; cursor: pointer; font-weight: 600;
+                                ">Entendi, vamos analisar!</button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1275,7 +1633,7 @@
                             </div>
                             
                             <p style="margin-top: 1rem; font-size: 0.85rem; color: #888;">
-                                💡 <strong>Dica:</strong> Com código do curso RH Super Sincero, você ganha 1 análise gratuita!
+                                💡 <strong>Dica:</strong> Com código do curso RH Super Sincero, você ganha 1 análise completa gratuita!
                             </p>
                         </div>
                     </div>
@@ -1303,11 +1661,7 @@
                     } else {
                         addBtn.style.display = 'block';
                         const remaining = maxVagas - currentCount;
-                        if (maxVagas === 1) {
-                            addBtn.style.display = 'none'; // Código gratuito: só 1 vaga
-                        } else {
-                            addBtn.textContent = `+ Adicionar Mais Uma Vaga (${remaining} restantes)`;
-                        }
+                        addBtn.textContent = `+ Adicionar Mais Uma Vaga (${remaining} restantes)`;
                     }
                 }
             }
@@ -1348,8 +1702,8 @@
                         return;
                     }
 
-                    // Verificar se usuário tem créditos (exceto códigos de presente)
-                    if (user && !isGiftCodeUser && user.credits <= 0) {
+                    // Verificar se usuário tem créditos (códigos gratuitos também precisam de créditos)
+                    if (user && user.credits <= 0) {
                         // Redirecionar para compra de créditos
                         window.location.href = 'payment.html';
                         return;
@@ -1402,36 +1756,82 @@
             }
 
             // Inicializar contador ao carregar
-            setTimeout(() => {
-                updateJobCounter();
+            updateJobCounter();
+            // Chamar updateAnalyzeButton IMEDIATAMENTE
+            updateAnalyzeButton();
+
+            // Escutar quando o header for totalmente carregado
+            document.addEventListener('headerLoaded', () => {
+                console.log('🎯 Header carregado, atualizando botão de análise...');
                 updateAnalyzeButton();
-            }, 100);
+            });
+
+            // Escutar mudanças de autenticação
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'user' || e.key === 'token') {
+                    console.log('👤 Mudança de autenticação detectada, atualizando botão...');
+                    updateAnalyzeButton(); // SEM DELAY
+                }
+            });
+
+            // Escutar evento customizado de mudança de autenticação
+            window.addEventListener('authChanged', (e) => {
+                console.log('🔄 Evento authChanged recebido:', e.detail);
+                updateAnalyzeButton(); // SEM DELAY
+            });
+
+            // Escutar quando CONFIG for carregado (se necessário)
+            function waitForConfig() {
+                if (window.CONFIG) {
+                    console.log('⚡ CONFIG disponível, atualizando botão de análise...');
+                    updateAnalyzeButton();
+                } else {
+                    setTimeout(waitForConfig, 50); // Intervalo reduzido
+                }
+            }
+            waitForConfig();
+
+            // Escutar mudanças no header (quando créditos são atualizados)
+            document.addEventListener('userCreditsUpdated', () => {
+                console.log('💰 Créditos atualizados, refrescando botão de análise...');
+                updateAnalyzeButton(); // SEM DELAY
+            });
 
             // Função para atualizar estado do botão de análise baseado nos créditos
             function updateAnalyzeButton() {
                 const analyzeBtn = document.getElementById('analyzeBtn');
                 if (!analyzeBtn) return;
 
+                // Leitura DIRETA e RÁPIDA dos dados (sem delays)
                 const user = auth.getUser();
                 const isGiftCodeUser = localStorage.getItem('isGiftCodeUser') === 'true';
+                const isAuthenticated = auth.isAuthenticated();
 
-                // Se não está logado e não é usuário de código de presente
-                if (!user && !isGiftCodeUser) {
+                console.log('🔄 updateAnalyzeButton OTIMIZADO:', {
+                    isAuthenticated,
+                    hasUser: !!user,
+                    credits: user?.credits,
+                    isGiftCodeUser
+                });
+
+                // LÓGICA SIMPLIFICADA - SEM DELAYS OU VERIFICAÇÕES COMPLEXAS
+
+                // 1. Se não está logado e não é usuário de código de presente
+                if (!isAuthenticated && !isGiftCodeUser) {
                     analyzeBtn.disabled = true;
                     analyzeBtn.textContent = 'Faça login para analisar';
                     analyzeBtn.style.opacity = '0.6';
                     analyzeBtn.style.cursor = 'not-allowed';
+                    analyzeBtn.onclick = null;
                     return;
                 }
 
-                // Se está logado mas não tem créditos e não é usuário de código de presente
-                if (user && !isGiftCodeUser && user.credits <= 0) {
+                // 2. Se está logado mas não tem créditos
+                if (user && user.credits <= 0) {
                     analyzeBtn.disabled = false;
                     analyzeBtn.textContent = 'Comprar Créditos';
                     analyzeBtn.style.opacity = '1';
                     analyzeBtn.style.cursor = 'pointer';
-
-                    // Redirecionar para página de pagamentos
                     analyzeBtn.onclick = function (e) {
                         e.preventDefault();
                         window.location.href = 'payment.html';
@@ -1439,65 +1839,18 @@
                     return;
                 }
 
-                // Se tem créditos ou é usuário de código de presente
+                // 3. USUÁRIO PODE ANALISAR (tem créditos)
                 analyzeBtn.disabled = false;
                 analyzeBtn.textContent = 'Analisar Currículo';
                 analyzeBtn.style.opacity = '1';
                 analyzeBtn.style.cursor = 'pointer';
-
-                // Remover onclick anterior se existir (para voltar ao comportamento padrão)
-                analyzeBtn.onclick = null;
+                analyzeBtn.onclick = null; // Volta ao comportamento padrão
             }
 
             // Atualizar botão quando créditos mudarem
             window.updateAnalyzeButton = updateAnalyzeButton;
 
-            // Verificar se é usuário de código de presente e aplicar restrições
-            const isGiftCodeUser = localStorage.getItem('isGiftCodeUser') === 'true';
-            if (isGiftCodeUser && auth.isAuthenticated()) {
-                setTimeout(() => {
-                    restrictInterfaceForGiftCodeUser();
-                }, 50);
-            }
-
-            function restrictInterfaceForGiftCodeUser() {
-                // Limitar a apenas um campo de link de vaga
-                const jobLinksContainer = document.getElementById('jobLinksContainer');
-                const jobLinkItems = jobLinksContainer.querySelectorAll('.job-link-item');
-
-                // Remover campos extras se existirem
-                if (jobLinkItems.length > 1) {
-                    for (let i = 1; i < jobLinkItems.length; i++) {
-                        jobLinkItems[i].remove();
-                    }
-                }
-
-                // Ocultar botão de adicionar mais links
-                const addJobLinkBtn = document.getElementById('addJobLinkBtn');
-                if (addJobLinkBtn) {
-                    addJobLinkBtn.style.display = 'none';
-                }
-
-                // Adicionar texto explicativo
-                const messageElement = document.createElement('p');
-                messageElement.className = 'gift-code-message';
-                messageElement.textContent = 'Com o código promocional, você pode analisar seu currículo com apenas uma vaga.';
-                messageElement.style.color = '#583819';
-                messageElement.style.fontSize = '14px';
-                messageElement.style.marginTop = '5px';
-
-                // Remover mensagem anterior se existir
-                const existingMessage = jobLinksContainer.querySelector('.gift-code-message');
-                if (existingMessage) {
-                    existingMessage.remove();
-                }
-
-                // Adicionar a mensagem após o container de links
-                jobLinksContainer.appendChild(messageElement);
-
-                // Marcar usuário como usuário de código de presente
-                localStorage.setItem('isGiftCodeUser', 'true');
-            }
+            // Código gratuito agora oferece análise completa - sem restrições de interface
         });
     </script>
 </body>

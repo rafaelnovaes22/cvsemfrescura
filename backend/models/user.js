@@ -51,6 +51,14 @@ const User = sequelize.define('User', {
     type: DataTypes.INTEGER,
     defaultValue: 1, // Novo usuário recebe uma análise grátis
   },
+  isGuestAccount: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  metadata: {
+    type: DataTypes.JSON,
+    defaultValue: {},
+  },
 }, {
   tableName: 'users',
   timestamps: true,

@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="assets/css/header.css">
 
     <script src="/assets/js/auth.js"></script>
-    <script src="/assets/js/header.js"></script>
+    <script src="/assets/js/header-new.js?v=1748114546"></script>
 
     <style>
         :root {
@@ -23,7 +23,7 @@
             --text-dark: #583819;
             --text-gray: #505050;
             --border-color: #D1D1D1;
-            --success-color: #22c55e;
+            --success-color: #583819;
             --error-color: #ef4444;
             --border-radius: 10px;
             --shadow: 0px 4px 6px rgba(33, 33, 33, 0.04);
@@ -379,8 +379,8 @@
                         <div class="info-item">
                             <div class="info-icon">✉</div>
                             <div class="info-content">
-                                <h4>E-mail Geral</h4>
-                                <p>contato@cvsemfrescura.com</p>
+                                <h4>E-mail Principal</h4>
+                                <p>contato@cvsemfrescura.com.br</p>
                                 <p>Resposta em até 24 horas</p>
                             </div>
                         </div>
@@ -389,8 +389,8 @@
                             <div class="info-icon">🛠</div>
                             <div class="info-content">
                                 <h4>Suporte Técnico</h4>
-                                <p>suporte@cvsemfrescura.com</p>
-                                <p>Para problemas técnicos e bugs</p>
+                                <p>contato@cvsemfrescura.com.br</p>
+                                <p>Use o assunto "Suporte Técnico"</p>
                             </div>
                         </div>
 
@@ -398,8 +398,8 @@
                             <div class="info-icon">💰</div>
                             <div class="info-content">
                                 <h4>Financeiro</h4>
-                                <p>financeiro@cvsemfrescura.com</p>
-                                <p>Pagamentos e reembolsos</p>
+                                <p>contato@cvsemfrescura.com.br</p>
+                                <p>Use o assunto "Pagamentos e Planos"</p>
                             </div>
                         </div>
 
@@ -407,8 +407,8 @@
                             <div class="info-icon">🔒</div>
                             <div class="info-content">
                                 <h4>Privacidade</h4>
-                                <p>privacidade@cvsemfrescura.com</p>
-                                <p>Questões sobre dados pessoais</p>
+                                <p>contato@cvsemfrescura.com.br</p>
+                                <p>Use o assunto "Privacidade e Dados"</p>
                             </div>
                         </div>
 
@@ -513,7 +513,8 @@
                     </div>
                     <div class="faq-answer">
                         <p>Entre em contato conosco em até 7 dias após a compra através do e-mail
-                            financeiro@cvsemfrescura.com. Analisamos cada caso e oferecemos reembolso integral se você
+                            contato@cvsemfrescura.com.br com o assunto "Pagamentos e Planos". Analisamos cada caso e
+                            oferecemos reembolso integral se você
                             não usou os créditos.</p>
                     </div>
                 </div>
@@ -581,7 +582,7 @@
         }
 
         // Handle form submission
-        document.getElementById('contactForm').addEventListener('submit', function (e) {
+        document.getElementById('contactForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
             const submitBtn = document.getElementById('submitBtn');
@@ -591,20 +592,42 @@
             submitBtn.disabled = true;
             submitBtn.textContent = 'Enviando...';
 
-            // Simulate form submission (replace with actual endpoint)
-            setTimeout(() => {
-                // Reset form
-                this.reset();
+            try {
+                // Enviar para o endpoint real
+                const response = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: formData.get('name'),
+                        email: formData.get('email'),
+                        subject: formData.get('subject'),
+                        message: formData.get('message')
+                    })
+                });
 
-                // Show success message
-                showNotification('Mensagem enviada com sucesso! Responderemos em breve.', 'success');
+                const data = await response.json();
 
+                if (data.success) {
+                    // Reset form
+                    this.reset();
+
+                    // Show success message
+                    showNotification(data.message, 'success');
+                } else {
+                    // Show error message
+                    showNotification(data.message || 'Erro ao enviar mensagem. Tente novamente.', 'error');
+                }
+
+            } catch (error) {
+                console.error('Erro ao enviar mensagem:', error);
+                showNotification('Erro de conexão. Verifique sua internet e tente novamente.', 'error');
+            } finally {
                 // Reset button
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Enviar Mensagem';
-
-                console.log('Form data:', Object.fromEntries(formData));
-            }, 2000);
+            }
         });
 
         // Auto-resize textarea

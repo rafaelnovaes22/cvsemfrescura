@@ -27,10 +27,15 @@ fs
     );
   })
   .forEach(file => {
-    // Importa o modelo diretamente sem invocá-lo como função
-    const model = require(path.join(__dirname, file));
-    // Usa o nome da constante exportada no arquivo
-    db[file.split('.')[0]] = model;
+    const modelDefiner = require(path.join(__dirname, file));
+    // Verifica se é uma função (novo padrão) ou objeto (padrão antigo)
+    if (typeof modelDefiner === 'function') {
+      const model = modelDefiner(sequelize);
+      db[model.name] = model;
+    } else {
+      // Compatibilidade com modelos antigos
+      db[file.split('.')[0]] = modelDefiner;
+    }
   });
 
 Object.keys(db).forEach(modelName => {

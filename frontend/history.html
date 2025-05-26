@@ -11,8 +11,77 @@
     <link rel="stylesheet" href="assets/css/header.css">
 
     <script src="/assets/js/auth.js"></script>
-    <script src="/assets/js/header.js"></script>
+    <script src="/assets/js/header-new.js?v=1748114560"></script>
     <script src="/assets/js/history.js"></script>
+
+    <!-- Script para mostrar menu logado INSTANTANEAMENTE -->
+    <script>
+        (function () {
+            // Verificar IMEDIATAMENTE se usuário está logado
+            function showLoggedUserInstantly() {
+                const token = localStorage.getItem('token');
+                const userDataStr = localStorage.getItem('user');
+
+                if (token && userDataStr) {
+                    try {
+                        const userData = JSON.parse(userDataStr);
+                        const guestActions = document.getElementById('guestActions');
+                        const userMenuWrapper = document.getElementById('userMenuWrapper');
+                        const userName = document.getElementById('userName');
+                        const userCredits = document.getElementById('userCredits');
+
+                        if (guestActions && userMenuWrapper) {
+                            // Esconder menu de convidado
+                            guestActions.style.display = 'none';
+
+                            // Mostrar menu do usuário
+                            userMenuWrapper.style.display = 'block';
+
+                            // Atualizar nome
+                            if (userName && userData.name) {
+                                const firstName = userData.name.split(' ')[0];
+                                userName.textContent = firstName;
+                            }
+
+                            // Atualizar créditos
+                            if (userCredits) {
+                                const credits = userData.credits || 0;
+                                userCredits.textContent = `${credits} análise${credits !== 1 ? 's' : ''}`;
+                                userCredits.style.cssText = `
+                                    background: #583819 !important;
+                                    color: white !important;
+                                    padding: 0.25rem 0.5rem !important;
+                                    border-radius: 0.375rem !important;
+                                    font-size: 0.75rem !important;
+                                    font-weight: 600 !important;
+                                `;
+                            }
+
+                            console.log('⚡ Menu logado exibido INSTANTANEAMENTE na página histórico');
+                        }
+                    } catch (error) {
+                        console.log('Erro ao processar dados do usuário:', error);
+                    }
+                } else {
+                    // Não logado - mostrar menu de convidado
+                    const guestActions = document.getElementById('guestActions');
+                    const userMenuWrapper = document.getElementById('userMenuWrapper');
+
+                    if (guestActions && userMenuWrapper) {
+                        guestActions.style.display = 'flex';
+                        userMenuWrapper.style.display = 'none';
+                    }
+                }
+            }
+
+            // Executar IMEDIATAMENTE
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', showLoggedUserInstantly);
+            } else {
+                showLoggedUserInstantly();
+            }
+        })();
+    </script>
     <style>
         :root {
             --primary: #583819;
@@ -100,7 +169,7 @@
         }
 
         .credits-badge {
-            background-color: #4CAF50;
+            background-color: #583819;
             color: white;
             padding: 3px 8px;
             border-radius: 12px;
@@ -114,7 +183,7 @@
         }
 
         .dropdown-menu {
-            display: none;
+            display: none !important;
             position: absolute;
             top: 65px;
             right: 20px;
@@ -123,8 +192,14 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             padding: 10px 0;
             width: 200px;
-            flex-direction: column;
+            flex-direction: column !important;
             z-index: 1000;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.show {
+            display: flex !important;
         }
 
         .dropdown-item {
@@ -132,7 +207,12 @@
             color: var(--text-color);
             padding: 8px 15px;
             transition: var(--transition);
-            display: block;
+            display: block !important;
+            font-size: 0.875rem;
+            border: none;
+            width: 100%;
+            text-align: left;
+            flex-shrink: 0;
         }
 
         .dropdown-item:hover {
@@ -140,7 +220,8 @@
         }
 
         main {
-            margin-top: 90px;
+            margin-top: 0;
+            padding-top: 100px;
             padding-bottom: 60px;
             min-height: 70vh;
         }
@@ -199,7 +280,7 @@
         }
 
         .status-completed {
-            color: #4CAF50;
+            color: #583819;
             font-weight: 500;
         }
 
@@ -325,7 +406,107 @@
 </head>
 
 <body>
-    <!-- Header será carregado dinamicamente pelo header.js -->
+    <!-- Header Inline (aparece instantaneamente) -->
+    <header class="header" id="header" style="
+        position: sticky; top: 0; z-index: 50; 
+        background: rgba(250, 249, 247, 0.95); 
+        backdrop-filter: blur(12px); 
+        border-bottom: 1px solid #e8ddd0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    ">
+        <div style="
+            display: flex; align-items: center; justify-content: space-between; 
+            height: 80px; max-width: 1280px; margin: 0 auto; 
+            padding: 0 1.5rem; gap: 2rem;
+        ">
+            <div>
+                <a href="landing.html">
+                    <img src="assets/img/logo.png" alt="CV Sem Frescura" style="height: 48px; width: auto;">
+                </a>
+            </div>
+            <nav style="display: flex; gap: 2rem;" id="headerNav">
+                <a href="landing.html" style="
+                    color: #3f3f46; text-decoration: none; font-weight: 500; 
+                    font-size: 0.95rem; padding: 0.5rem 0; transition: color 0.15s;
+                " onmouseover="this.style.color='#583819'" onmouseout="this.style.color='#3f3f46'">Início</a>
+                <a href="analisar.html" style="
+                    color: #3f3f46; text-decoration: none; font-weight: 500; 
+                    font-size: 0.95rem; padding: 0.5rem 0; transition: color 0.15s;
+                " onmouseover="this.style.color='#583819'" onmouseout="this.style.color='#3f3f46'">Analisar</a>
+                <a href="payment.html" style="
+                    color: #3f3f46; text-decoration: none; font-weight: 500; 
+                    font-size: 0.95rem; padding: 0.5rem 0; transition: color 0.15s;
+                " onmouseover="this.style.color='#583819'" onmouseout="this.style.color='#3f3f46'">Planos</a>
+            </nav>
+            <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <div id="guestActions" style="display: none; gap: 0.75rem; align-items: center;">
+                    <a href="#gift-code" style="
+                        display: inline-flex; align-items: center; gap: 0.5rem;
+                        padding: 0.5rem 1rem; background: #f4f0ea; color: #583819;
+                        border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.8rem;
+                    ">
+                        <span>🎓</span>
+                        <span>Código do Curso</span>
+                    </a>
+                    <a href="analisar.html?login=true" style="
+                        display: inline-flex; align-items: center; gap: 0.5rem;
+                        padding: 0.5rem 1rem; background: transparent; color: #3f3f46;
+                        border: 1px solid #d4d4d8; border-radius: 0.5rem; text-decoration: none; 
+                        font-weight: 600; font-size: 0.8rem;
+                    ">
+                        <span>🔐</span>
+                        <span>Entrar</span>
+                    </a>
+                    <a href="payment.html" style="
+                        display: inline-flex; align-items: center; gap: 0.5rem;
+                        padding: 0.5rem 1rem; background: #583819; color: white;
+                        border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.8rem;
+                    ">
+                        <span>💳</span>
+                        <span>Comprar</span>
+                    </a>
+                </div>
+                <div id="userMenuWrapper" style="display: none; position: relative;">
+                    <a href="#" id="authButton" style="
+                        display: flex; align-items: center; gap: 0.75rem;
+                        background: #f4f0ea; padding: 0.5rem 1rem; border-radius: 0.75rem;
+                        text-decoration: none; color: inherit;
+                    ">
+                        <span id="userName" style="font-weight: 500; color: #583819;">Usuário</span>
+                        <span id="userCredits" style="
+                            background: #583819; color: white; padding: 0.25rem 0.5rem;
+                            border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600;
+                        ">0 análises</span>
+                        <span style="font-size: 0.7rem; color: #583819;">▼</span>
+                    </a>
+                    <div id="userDropdown" style="
+                        position: absolute; top: 100%; right: 0; margin-top: 0.5rem;
+                        background: white; border-radius: 0.5rem; min-width: 200px; z-index: 999;
+                        display: none; border: 1px solid #e5e7eb; overflow: hidden;
+                        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+                    ">
+                        <a href="analisar.html" style="
+                            display: block; padding: 0.75rem 1rem; color: #3f3f46; text-decoration: none;
+                            font-size: 0.875rem; border: none; width: 100%; text-align: left;
+                        ">📊 Analisar Currículo</a>
+                        <a href="history.html" style="
+                            display: block; padding: 0.75rem 1rem; color: #3f3f46; text-decoration: none;
+                            font-size: 0.875rem; border: none; width: 100%; text-align: left;
+                        ">📋 Histórico</a>
+                        <a href="payment.html" style="
+                            display: block; padding: 0.75rem 1rem; color: #3f3f46; text-decoration: none;
+                            font-size: 0.875rem; border: none; width: 100%; text-align: left;
+                        ">💳 Comprar análises</a>
+                        <a href="#" id="logoutButton" style="
+                            display: block; padding: 0.75rem 1rem; color: #dc3545; text-decoration: none;
+                            font-size: 0.875rem; border: none; width: 100%; text-align: left;
+                            border-top: 1px solid #e5e7eb;
+                        ">🚪 Sair</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
 
     <main>
         <div class="container">
@@ -358,138 +539,7 @@
         </div>
     </footer>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Atualizar UI do usuário baseado no login
-            function updateUserUI() {
-                const user = auth.getUser();
-                const loginLink = document.getElementById('loginLink');
-                const authButton = document.getElementById('authButton');
-                const userDropdown = document.getElementById('userDropdown');
-                const creditsElement = document.getElementById('userCredits');
 
-                if (user) {
-                    document.querySelector('.user-name').textContent = user.name.split(' ')[0];
-                    loginLink.style.display = 'none';
-                    authButton.style.display = 'inline-flex';
-                    fetchUserCredits(true);
-                } else {
-                    loginLink.style.display = 'inline-block';
-                    authButton.style.display = 'none';
-                    if (userDropdown) userDropdown.style.display = 'none';
-                    if (creditsElement) creditsElement.textContent = '0 análises';
-
-                    // Redirecionar para index se não estiver logado
-                    window.location.href = 'index.html';
-                }
-            }
-
-            // Função para buscar análises do usuário do servidor
-            function fetchUserCredits(forceRefresh = false) {
-                const creditsElement = document.getElementById('userCredits');
-
-                // Fazer chamada à API para obter os créditos reais do usuário
-                const apiUrl = 'http://localhost:3000/api/user/credits';
-                const requestOptions = {};
-
-                console.log('Buscando créditos do usuário...');
-
-                // Se precisarmos forçar atualização, adicionar headers para evitar cache
-                if (forceRefresh) {
-                    console.log('Forçando atualização de créditos (sem cache)...');
-                    requestOptions.headers = {
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache',
-                        'Expires': '0'
-                    };
-                }
-
-                // Preparar os headers com o token de autenticação
-                let headers = {
-                    'Authorization': `Bearer ${auth.getToken()}`
-                };
-
-                // Adicionar headers de cache se necessário
-                if (requestOptions.headers) {
-                    for (const header in requestOptions.headers) {
-                        headers[header] = requestOptions.headers[header];
-                    }
-                }
-
-                fetch(apiUrl, { headers: headers })
-                    .then(function (response) {
-                        if (response.ok) {
-                            return response.json();
-                        } else {
-                            throw new Error('Falha ao obter créditos do usuário');
-                        }
-                    })
-                    .then(function (data) {
-                        if (creditsElement) {
-                            creditsElement.textContent = `${data.credits} análises`;
-
-                            // Atualizar cores com base no número de créditos
-                            if (data.credits <= 0) {
-                                creditsElement.style.backgroundColor = '#F44336'; // Vermelho se sem créditos
-                            } else if (data.credits <= 2) {
-                                creditsElement.style.backgroundColor = '#FFC107'; // Amarelo se poucos
-                            } else {
-                                creditsElement.style.backgroundColor = '#4CAF50'; // Verde se suficiente
-                            }
-                        }
-
-                        // Salvar créditos no usuário atual
-                        const user = auth.getUser();
-                        if (user) {
-                            user.credits = data.credits;
-                            localStorage.setItem('user', JSON.stringify(user));
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Erro ao obter créditos:', error);
-                        // Em caso de erro, definir para um valor padrão
-                        if (creditsElement) {
-                            creditsElement.textContent = '0 análises';
-                            creditsElement.style.backgroundColor = '#F44336'; // Vermelho
-                        }
-                    });
-            }
-
-            // Inicializar UI
-            updateUserUI();
-
-            // Dropdown toggle ao clicar no user-menu
-            let dropdownOpen = false;
-            const authButton = document.getElementById('authButton');
-            const userDropdown = document.getElementById('userDropdown');
-            const logoutButton = document.getElementById('logoutButton');
-
-            // Toggle dropdown
-            authButton.addEventListener('click', function (e) {
-                e.preventDefault();
-                dropdownOpen = !dropdownOpen;
-                userDropdown.style.display = dropdownOpen ? 'flex' : 'none';
-            });
-
-            // Redireciona para a página de pagamento ao clicar em Comprar análises
-            document.getElementById('buyCredits').onclick = function (e) {
-                e.preventDefault();
-                window.location.href = 'payment.html';
-            };
-
-            // Redireciona para o histórico
-            document.getElementById('transactionHistory').onclick = function (e) {
-                e.preventDefault();
-                window.location.href = 'history.html';
-            };
-
-            // Logout
-            logoutButton.onclick = function (e) {
-                e.preventDefault();
-                auth.logout();
-            };
-        });
-    </script>
 </body>
 
 </html>
