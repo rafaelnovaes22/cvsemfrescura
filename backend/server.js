@@ -34,21 +34,41 @@ app.use(helmet({
 // Rate limiting - proteção contra ataques
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // máximo 100 requests por IP por janela
+  max: 1000, // máximo 1000 requests por IP por janela (10x mais)
   message: 'Muitas tentativas. Tente novamente em 15 minutos.',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    // Pular rate limiting para arquivos estáticos
+    return req.path.includes('/assets/') ||
+      req.path.includes('/favicon.ico') ||
+      req.path.includes('.css') ||
+      req.path.includes('.js') ||
+      req.path.includes('.png') ||
+      req.path.includes('.jpg') ||
+      req.path.includes('.svg');
+  }
 });
 
 // Rate limiting específico para análises ATS
 const atsLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hora
-  max: 10, // máximo 10 análises por IP por hora
+  max: 50, // máximo 50 análises por IP por hora (5x mais)
   message: 'Limite de análises excedido. Tente novamente em 1 hora.',
   standardHeaders: true,
   legacyHeaders: false,
 });
 
+// Rate limiting mais liberal para rotas de usuário (header, perfil)
+const userLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minuto
+  max: 60, // máximo 60 requests por minuto (1 por segundo)
+  message: 'Muitas verificações de usuário. Aguarde um momento.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Aplicar rate limiter global
 app.use(limiter);
 
 // 📊 Sistema de monitoramento - aplicar a todas as rotas
@@ -67,7 +87,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' })); // Limite de payload
-app.use('/api/user', userRoutes);
+app.use('/api/user', userLimiter, userRoutes); // Rate limiting mais liberal para usuário
 app.use('/api/ats', atsLimiter, atsRoutes); // Rate limiting específico para ATS
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/payment', require('./routes/payment'));
