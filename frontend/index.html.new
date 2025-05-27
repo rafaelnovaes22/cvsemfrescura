@@ -194,9 +194,8 @@
                     <img src="/assets/img/logo.png" alt="CV Sem Frescura" class="footer-logo">
                     <p class="footer-text">Ajudamos profissionais a otimizarem seus currículos para passar pelos sistemas de triagem automática (ATS) e conquistarem mais entrevistas.</p>
                     <div class="footer-social">
-                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.instagram.com/lucianarhsincero" target="_blank" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.linkedin.com/in/lucianarhsincero/" target="_blank" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
                     </div>
                 </div>
 

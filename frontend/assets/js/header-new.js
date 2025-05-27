@@ -481,7 +481,7 @@ class HeaderManager {
                 navItems = [
                     { href: '#features', text: 'Recursos' },
                     { href: '#how-it-works', text: 'Como Funciona' },
-                    { href: '#testimonials', text: 'Depoimentos' }
+                    { href: '#idealizadores', text: 'Idealizadores' }
                 ];
                 break;
             default:
