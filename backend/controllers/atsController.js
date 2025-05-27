@@ -2,6 +2,7 @@ const atsService = require('../services/atsService');
 const GupyOptimizationService = require('../services/gupyOptimizationService');
 const fs = require('fs');
 const User = require('../models/user'); // Importando o modelo de usuário para gerenciar créditos
+const { costTracker } = require('../utils/costTracker'); // Sistema de tracking de custos
 
 exports.analyze = async (req, res) => {
   try {

@@ -1,4 +1,5 @@
 const axios = require('axios');
+const { costTracker } = require('../utils/costTracker');
 
 const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY;
 const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
@@ -37,6 +38,25 @@ exports.extractATSDataClaude = async function (prompt) {
   try {
     const response = await axios.post(CLAUDE_URL, body, { headers });
     console.log('[Claude] Resposta recebida com sucesso');
+
+    // 💰 Rastrear custos da API (modelo primário)
+    const usage = response.data.usage;
+    if (usage) {
+      const cost = costTracker.trackClaude(
+        CLAUDE_MODEL,
+        usage.input_tokens || 0,
+        usage.output_tokens || 0,
+        true // isPrimary = true (Claude é agora o modelo principal)
+      );
+      console.log(`[Claude] 💰 Custo da análise: $${cost.toFixed(4)} (${usage.input_tokens} + ${usage.output_tokens} tokens)`);
+
+      // Comparar economia vs OpenAI
+      const openaiEquivalentCost = ((usage.input_tokens || 0) * 0.03 / 1000) + ((usage.output_tokens || 0) * 0.06 / 1000);
+      const savings = openaiEquivalentCost - cost;
+      const savingsPercentage = ((savings / openaiEquivalentCost) * 100).toFixed(1);
+      console.log(`[Claude] 💸 Economia vs OpenAI: $${savings.toFixed(4)} (${savingsPercentage}% mais barato)`);
+    }
+
     // Claude retorna a resposta em response.data.content[0].text
     return response.data.content[0].text;
   } catch (e) {

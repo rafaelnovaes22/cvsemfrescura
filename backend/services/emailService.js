@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const { logger } = require('../utils/logger');
+const { costTracker } = require('../utils/costTracker');
 
 // Configuração do transportador de email
 const createTransporter = () => {
@@ -189,6 +190,9 @@ const sendPasswordResetEmail = async (email, name, token) => {
       logger.info('⚠️  Em produção, configure as variáveis SMTP_HOST, SMTP_USER, SMTP_PASS');
     } else {
       logger.info(`📧 Email de reset enviado para: ${email}`);
+
+      // 💰 Rastrear custo do email
+      costTracker.trackSendGrid(1, 'password_reset');
     }
 
     return info;

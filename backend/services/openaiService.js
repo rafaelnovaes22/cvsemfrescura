@@ -1,5 +1,6 @@
 const axios = require('axios');
 const claudeService = require('./claudeService');
+const { costTracker } = require('../utils/costTracker');
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_URL = 'https://api.openai.com/v1/chat/completions';
@@ -117,66 +118,91 @@ Responda em JSON, SEMPRE incluindo TODAS as chaves abaixo, mesmo que alguma este
 
 exports.extractATSData = async (jobsText, resumeText) => {
   const prompt = buildPrompt(jobsText, resumeText);
-  console.log('[OpenAI] Tamanho do prompt:', prompt.length, 'caracteres');
+  console.log('[ATS] Tamanho do prompt:', prompt.length, 'caracteres');
+  console.log('[ATS] 🔄 Nova estratégia: Claude primeiro → OpenAI fallback (economia de ~80%)');
 
-  const requestConfig = {
-    model: 'gpt-4-turbo-2024-04-09',
-    messages: [
-      { role: 'system', content: 'Você é um ATS especialista.' },
-      { role: 'user', content: prompt }
-    ],
-    temperature: 0.1,
-    max_tokens: 4096 // Limite máximo do GPT-4 Turbo
-  };
-
-  console.log('[OpenAI] Configuração:', {
-    model: requestConfig.model,
-    temperature: requestConfig.temperature,
-    max_tokens: requestConfig.max_tokens,
-    system: 'Você é um ATS especialista.'
-  });
-
+  // 🚀 PRIORIDADE 1: CLAUDE 3.5 SONNET (mais barato e eficiente)
   try {
-    const response = await axios.post(
-      OPENAI_URL,
-      requestConfig,
-      {
-        headers: {
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    console.log('[Claude] Tentando Claude 3.5 Sonnet primeiro...');
+    const claudeRaw = await claudeService.extractATSDataClaude(prompt);
+    console.log('[Claude] ✅ Resposta recebida com sucesso (modelo primário)');
 
-    // Tenta parsear JSON da resposta
-    let text = response.data.choices[0].message.content;
-    console.log('[OpenAI] Resposta recebida com sucesso');
-
-    // Remove blocos markdown e crases
-    text = text.trim();
+    let text = claudeRaw.trim();
     if (text.startsWith('```json')) text = text.slice(7);
     else if (text.startsWith('```')) text = text.slice(3);
     text = text.trim();
     if (text.endsWith('```')) text = text.slice(0, -3);
     text = text.trim();
 
-    // Faz o parse do JSON limpo
     return JSON.parse(text);
-  } catch (e) {
-    console.error('[OpenAI] Falha, tentando fallback com Claude 3 Sonnet:', e.message);
-    // Fallback para Claude
+  } catch (claudeError) {
+    console.error('[Claude] ❌ Falha no modelo primário, tentando fallback com OpenAI:', claudeError.message);
+
+    // 🔄 FALLBACK: OPENAI GPT-4 (quando Claude não funciona)
+    const requestConfig = {
+      model: 'gpt-4-turbo-2024-04-09',
+      messages: [
+        { role: 'system', content: 'Você é um ATS especialista.' },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.1,
+      max_tokens: 4096
+    };
+
+    console.log('[OpenAI] Configuração do fallback:', {
+      model: requestConfig.model,
+      temperature: requestConfig.temperature,
+      max_tokens: requestConfig.max_tokens,
+      reason: 'Claude indisponível'
+    });
+
     try {
-      const claudeRaw = await claudeService.extractATSDataClaude(prompt);
-      console.log('[Claude] Resposta recebida com sucesso (fallback)');
-      let text = claudeRaw.trim();
+      const response = await axios.post(
+        OPENAI_URL,
+        requestConfig,
+        {
+          headers: {
+            'Authorization': `Bearer ${OPENAI_API_KEY}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      let text = response.data.choices[0].message.content;
+      console.log('[OpenAI] ✅ Resposta recebida com sucesso (fallback)');
+
+      // 💰 Rastrear custos da API (fallback mais caro)
+      const usage = response.data.usage;
+      if (usage) {
+        const cost = costTracker.trackOpenAI(
+          requestConfig.model,
+          usage.prompt_tokens || 0,
+          usage.completion_tokens || 0,
+          'completion',
+          false // isPrimary = false (OpenAI agora é fallback)
+        );
+        console.log(`[OpenAI] 💸 Custo do fallback: $${cost.toFixed(4)} (${usage.prompt_tokens} + ${usage.completion_tokens} tokens)`);
+
+        // Comparar custo extra vs Claude
+        const claudeEquivalentCost = ((usage.prompt_tokens || 0) * 0.003 / 1000) + ((usage.completion_tokens || 0) * 0.015 / 1000);
+        const extraCost = cost - claudeEquivalentCost;
+        const extraPercentage = ((extraCost / claudeEquivalentCost) * 100).toFixed(1);
+        console.log(`[OpenAI] ⚠️ Custo extra vs Claude: $${extraCost.toFixed(4)} (${extraPercentage}% mais caro)`);
+        console.log(`[OpenAI] 🔍 Investigar: Por que Claude falhou? Rate limit? API down?`);
+      }
+
+      // Remove blocos markdown e crases
+      text = text.trim();
       if (text.startsWith('```json')) text = text.slice(7);
       else if (text.startsWith('```')) text = text.slice(3);
       text = text.trim();
       if (text.endsWith('```')) text = text.slice(0, -3);
       text = text.trim();
+
       return JSON.parse(text);
-    } catch (errClaude) {
-      throw new Error('Erro ao processar resposta da Claude: ' + errClaude.message);
+    } catch (openaiError) {
+      console.error('[OpenAI] ❌ Fallback também falhou:', openaiError.message);
+      throw new Error(`Ambos modelos falharam - Claude: ${claudeError.message} | OpenAI: ${openaiError.message}`);
     }
   }
 };

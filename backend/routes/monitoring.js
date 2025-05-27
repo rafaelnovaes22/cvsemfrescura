@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const os = require('os');
 const { alertingSystem } = require('../utils/alerting');
+const { costTracker } = require('../utils/costTracker');
 
 // Armazenar métricas em memória (em produção, usar Redis ou banco)
 let metrics = {
@@ -194,6 +195,116 @@ router.get('/alerts', (req, res) => {
         count: alerts.length,
         timestamp: new Date().toISOString()
     });
+});
+
+// 💰 Dashboard de custos das APIs
+router.get('/costs', (req, res) => {
+    try {
+        const costSummary = costTracker.getCostSummary();
+        const creditEstimation = costTracker.estimateCreditDepletion();
+
+        // Calcular estatísticas da nova estratégia Claude-first
+        const breakdown = costSummary.thisMonth.breakdown;
+        const claudeCosts = breakdown.claude?.total || 0;
+        const openaiCosts = breakdown.openai?.total || 0;
+        const totalCosts = claudeCosts + openaiCosts;
+
+        // Estimar economia com estratégia Claude-first
+        const claudeUsage = breakdown.claude?.services || {};
+        const openaiUsage = breakdown.openai?.services || {};
+
+        let totalSavings = 0;
+        let estimatedOpenAIEquivalent = 0;
+
+        // Para cada uso do Claude, calcular quanto custaria no OpenAI
+        Object.values(claudeUsage).forEach(service => {
+            // Estimar tokens baseado no custo (aproximação)
+            const estimatedTokens = service.total / (0.003 / 1000 + 0.015 / 1000); // Custo médio Claude
+            const openaiEquivalent = estimatedTokens * (0.03 / 1000 + 0.06 / 1000); // Custo médio OpenAI
+            estimatedOpenAIEquivalent += openaiEquivalent;
+            totalSavings += (openaiEquivalent - service.total);
+        });
+
+        const savingsPercentage = estimatedOpenAIEquivalent > 0
+            ? ((totalSavings / estimatedOpenAIEquivalent) * 100).toFixed(1)
+            : 0;
+
+        res.json({
+            status: 'success',
+            timestamp: new Date().toISOString(),
+            costs: costSummary,
+            estimation: creditEstimation,
+            limits: {
+                daily: costTracker.limits.daily,
+                monthly: costTracker.limits.monthly,
+                warningThreshold: costTracker.limits.warning_threshold
+            },
+            strategy: {
+                name: 'Claude-first (Nova estratégia)',
+                primaryModel: 'Claude 3.5 Sonnet',
+                fallbackModel: 'OpenAI GPT-4',
+                monthlyStats: {
+                    claudeUsage: claudeCosts,
+                    openaiUsage: openaiCosts,
+                    totalCosts,
+                    estimatedSavings: totalSavings,
+                    savingsPercentage: `${savingsPercentage}%`,
+                    claudeSuccessRate: openaiCosts > 0 ?
+                        `${((claudeCosts / totalCosts) * 100).toFixed(1)}%` : '100%'
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Erro ao obter custos:', error);
+        res.status(500).json({
+            status: 'error',
+            error: 'Erro interno do servidor',
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
+// 💳 Histórico de uso de uma API específica
+router.get('/costs/:provider/:service?', (req, res) => {
+    try {
+        const { provider, service } = req.params;
+        const days = parseInt(req.query.days) || 7;
+
+        if (service) {
+            const history = costTracker.getApiUsageHistory(provider, service, days);
+            res.json({
+                status: 'success',
+                provider,
+                service,
+                days,
+                history,
+                timestamp: new Date().toISOString()
+            });
+        } else {
+            // Retornar todos os serviços do provider
+            const allUsage = {};
+            for (const [key, value] of costTracker.apiUsage.entries()) {
+                if (key.startsWith(`${provider}_`)) {
+                    const serviceName = key.split('_').slice(1).join('_');
+                    allUsage[serviceName] = value.slice(-50); // Últimos 50 registros
+                }
+            }
+
+            res.json({
+                status: 'success',
+                provider,
+                usage: allUsage,
+                timestamp: new Date().toISOString()
+            });
+        }
+    } catch (error) {
+        console.error('Erro ao obter histórico de custos:', error);
+        res.status(500).json({
+            status: 'error',
+            error: 'Erro interno do servidor',
+            timestamp: new Date().toISOString()
+        });
+    }
 });
 
 // 📊 Incrementar métricas de negócio
