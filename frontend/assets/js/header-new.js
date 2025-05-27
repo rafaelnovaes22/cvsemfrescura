@@ -511,7 +511,8 @@ class HeaderManager {
     }
 
     updateUserInterface() {
-        console.log('🔄 Atualizando interface do usuário...');
+        // REMOVER LOG EXCESSIVO - só logar mudanças importantes
+        const wasLoggedIn = this.isLoggedIn;
 
         const guestActions = document.getElementById('guestActions');
         const userMenuWrapper = document.getElementById('userMenuWrapper');
@@ -523,6 +524,11 @@ class HeaderManager {
         // Verificar estado de autenticação
         this.isLoggedIn = window.auth && window.auth.isAuthenticated();
         this.userInfo = this.isLoggedIn ? window.auth.getUser() : null;
+
+        // SÓ LOGAR SE HOUVER MUDANÇA REAL
+        if (wasLoggedIn !== this.isLoggedIn) {
+            console.log(`🔄 Mudança de autenticação: ${wasLoggedIn ? 'logado' : 'deslogado'} → ${this.isLoggedIn ? 'logado' : 'deslogado'}`);
+        }
 
         if (this.isLoggedIn && this.userInfo) {
             // Usuário logado
@@ -556,15 +562,18 @@ class HeaderManager {
             userMenuWrapper.style.display = 'none';
         }
 
-        console.log('✅ Interface atualizada');
+        // SÓ LOGAR CONCLUSÃO SE HOUVE MUDANÇA
+        if (wasLoggedIn !== this.isLoggedIn) {
+            console.log('✅ Interface atualizada com sucesso');
+        }
     }
 
     async fetchUserCredits() {
         if (!this.isLoggedIn || !window.auth || !window.CONFIG?.api?.url) return;
 
-        // Throttling para evitar muitas requisições
+        // THROTTLING MAIS AGRESSIVO - 10 segundos
         const now = Date.now();
-        if (this.lastCreditsRequest && (now - this.lastCreditsRequest) < this.creditsRequestThrottle) {
+        if (this.lastCreditsRequest && (now - this.lastCreditsRequest) < 10000) {
             return;
         }
         this.lastCreditsRequest = now;
@@ -580,23 +589,34 @@ class HeaderManager {
 
                 if (userCredits && data.credits !== undefined) {
                     const credits = data.credits;
-                    userCredits.textContent = `${credits} análise${credits !== 1 ? 's' : ''}`;
+                    const currentCreditsText = userCredits.textContent;
+                    const newCreditsText = `${credits} análise${credits !== 1 ? 's' : ''}`;
 
-                    // Atualizar dados locais
-                    const currentUser = window.auth.getUser();
-                    if (currentUser) {
-                        currentUser.credits = credits;
-                        localStorage.setItem('user', JSON.stringify(currentUser));
+                    // SÓ ATUALIZAR SE MUDOU
+                    if (currentCreditsText !== newCreditsText) {
+                        userCredits.textContent = newCreditsText;
+                        console.log(`💳 Créditos atualizados: ${credits}`);
+
+                        // Atualizar dados locais
+                        const currentUser = window.auth.getUser();
+                        if (currentUser) {
+                            currentUser.credits = credits;
+                            localStorage.setItem('user', JSON.stringify(currentUser));
+                        }
+
+                        // Disparar evento para outras partes da aplicação
+                        window.dispatchEvent(new CustomEvent('userCreditsUpdated', {
+                            detail: { credits }
+                        }));
                     }
-
-                    // Disparar evento para outras partes da aplicação
-                    window.dispatchEvent(new CustomEvent('userCreditsUpdated', {
-                        detail: { credits }
-                    }));
                 }
             }
         } catch (error) {
-            console.log('ℹ️ Erro ao buscar créditos (normal se offline):', error.message);
+            // REMOVER LOG DE ERRO REPETITIVO
+            if (!this.lastErrorLogged || (now - this.lastErrorLogged) > 30000) {
+                console.log('ℹ️ Erro ao buscar créditos (normal se offline)');
+                this.lastErrorLogged = now;
+            }
         }
     }
 
@@ -675,21 +695,28 @@ if (document.readyState === 'loading') {
 // Escutar mudanças de autenticação
 window.addEventListener('storage', (e) => {
     if ((e.key === 'user' || e.key === 'token') && window.headerManager) {
+        console.log('🔄 Mudança detectada no localStorage');
         window.headerManager.refreshUserInterface();
     }
 });
 
-// Função para verificar mudanças periódicas na autenticação
-function checkAuthChange() {
-    if (window.headerManager) {
+// Verificar mudanças apenas quando a aba volta ao foco
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && window.headerManager) {
+        console.log('👁️ Aba voltou ao foco - verificando autenticação');
         window.headerManager.checkAuthStatus();
     }
-}
+});
 
-// Verificar mudanças na autenticação a cada 2 segundos
-setInterval(checkAuthChange, 2000);
+// Verificar mudanças quando window ganha foco
+window.addEventListener('focus', () => {
+    if (window.headerManager) {
+        console.log('🎯 Window ganhou foco - verificando autenticação');
+        window.headerManager.checkAuthStatus();
+    }
+});
 
 // Expor globalmente
 window.HeaderManager = HeaderManager;
 
-console.log('🏆 Header v3.0 INSTANTÂNEO carregado com sucesso!'); 
+console.log('🏆 Header v3.1 OTIMIZADO carregado - logs reduzidos!'); 
