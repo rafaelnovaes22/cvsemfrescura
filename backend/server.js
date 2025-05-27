@@ -104,14 +104,30 @@ console.log('Modelo User importado:', User ? 'OK' : 'ERRO');
 
 const PORT = process.env.PORT || 3000;
 
+console.log('🚀 Configuração do servidor:');
+console.log('- Porta configurada:', PORT);
+console.log('- NODE_ENV:', process.env.NODE_ENV);
+console.log('- Railway PORT env:', process.env.PORT ? 'SIM ✅' : 'NÃO ❌');
+
 // Sincronia leve para garantir que as tabelas existam
 sequelize.sync({ alter: true })
   .then(() => {
-    console.log('Banco de dados sincronizado');
-    app.listen(PORT, () => {
-      console.log(`ATS backend rodando na porta ${PORT}`);
+    console.log('✅ Banco de dados sincronizado');
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 CV Sem Frescura backend rodando na porta ${PORT}`);
+      console.log(`🌐 Servidor disponível em todas as interfaces (0.0.0.0:${PORT})`);
+    });
+
+    // Tratamento de erros do servidor
+    server.on('error', (error) => {
+      console.error('❌ Erro no servidor:', error);
+      if (error.code === 'EADDRINUSE') {
+        console.error(`❌ Porta ${PORT} já está em uso`);
+        process.exit(1);
+      }
     });
   })
   .catch(err => {
-    console.error('Erro ao sincronizar banco de dados:', err);
+    console.error('❌ Erro ao sincronizar banco de dados:', err);
+    process.exit(1);
   });
