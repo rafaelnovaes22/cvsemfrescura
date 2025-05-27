@@ -94,6 +94,35 @@ app.get('/railway-test', (req, res) => {
   });
 });
 
+// 🔧 Endpoint de teste Stripe (sem autenticação)
+app.get('/stripe-test', async (req, res) => {
+  try {
+    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+    // Teste simples - criar PaymentIntent mínimo
+    const testIntent = await stripe.paymentIntents.create({
+      amount: 100, // R$ 1,00
+      currency: 'brl',
+      automatic_payment_methods: { enabled: true }
+    });
+
+    res.json({
+      status: 'Stripe funcionando!',
+      message: 'PaymentIntent de teste criado com sucesso',
+      testIntentId: testIntent.id,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: 'Erro no Stripe',
+      error: error.message,
+      type: error.type,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // ✅ SPA routing - retornar index.html para rotas não-API
 app.get('*', (req, res) => {
   // Se a rota começa com /api, não é uma rota do frontend
