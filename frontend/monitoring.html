@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Sem Frescura - Dashboard de Monitoramento</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-800);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+        }
+
+        .status-healthy {
+            background: #d1fae5;
+            color: var(--success);
+        }
+
+        .status-warning {
+            background: #fef3c7;
+            color: var(--warning);
+        }
+
+        .status-critical {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--gray-200);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .metric-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-600);
+        }
+
+        .metric-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 0.5rem 0;
+        }
+
+        .metric-subtitle {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--gray-200);
+        }
+
+        .alerts-section {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--gray-200);
+        }
+
+        .alert-item {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border-left: 4px solid var(--warning);
+        }
+
+        .alert-critical {
+            background: #fee2e2;
+            border-left: 4px solid var(--danger);
+        }
+
+        .refresh-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .refresh-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .loading {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .endpoint-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .endpoint-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .last-updated {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>
+            <i class="fas fa-chart-line"></i>
+            CV Sem Frescura - Monitoramento
+        </h1>
+        <div class="header-controls">
+            <span id="overall-status" class="status-badge status-healthy">Healthy</span>
+            <button id="refresh-btn" class="refresh-btn" onclick="refreshDashboard()">
+                <i class="fas fa-sync-alt" id="refresh-icon"></i>
+                Atualizar
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Métricas Principais -->
+        <div class="metrics-grid" id="metrics-grid">
+            <!-- Será preenchido pelo JavaScript -->
+        </div>
+
+        <!-- Gráfico de Requests -->
+        <div class="chart-container">
+            <h3>Requests por Hora</h3>
+            <canvas id="requestsChart" width="400" height="150"></canvas>
+        </div>
+
+        <!-- Alertas -->
+        <div class="alerts-section">
+            <h3>Alertas do Sistema</h3>
+            <div id="alerts-container">
+                <!-- Será preenchido pelo JavaScript -->
+            </div>
+        </div>
+
+        <div class="last-updated" id="last-updated">
+            Última atualização: --
+        </div>
+    </div>
+
+    <script src="assets/js/config.js"></script>
+    <script>
+        let requestsChart;
+        let refreshInterval;
+
+        // Configuração do gráfico
+        function initChart() {
+            const ctx = document.getElementById('requestsChart').getContext('2d');
+            requestsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Requests',
+                        data: [],
+                        borderColor: '#2563eb',
+                        backgroundColor: '#2563eb20',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Buscar dados do dashboard
+        async function fetchDashboard() {
+            try {
+                const response = await fetch(`${CONFIG.api.baseUrl}/api/monitoring/dashboard`);
+                if (!response.ok) throw new Error('Erro ao buscar dados');
+                return await response.json();
+            } catch (error) {
+                console.error('Erro ao buscar dashboard:', error);
+                return null;
+            }
+        }
+
+        // Buscar alertas
+        async function fetchAlerts() {
+            try {
+                const response = await fetch(`${CONFIG.api.baseUrl}/api/monitoring/alerts`);
+                if (!response.ok) throw new Error('Erro ao buscar alertas');
+                return await response.json();
+            } catch (error) {
+                console.error('Erro ao buscar alertas:', error);
+                return null;
+            }
+        }
+
+        // Renderizar métricas
+        function renderMetrics(data) {
+            const metricsGrid = document.getElementById('metrics-grid');
+
+            const metrics = [
+                {
+                    title: 'Uptime',
+                    value: data.system.uptimeFormatted,
+                    subtitle: `Desde ${new Date(Date.now() - data.system.uptime * 1000).toLocaleString()}`,
+                    icon: 'fas fa-clock',
+                    color: '#059669'
+                },
+                {
+                    title: 'Total de Requests',
+                    value: data.requests.total.toLocaleString(),
+                    subtitle: `${data.requests.lastHour} na última hora`,
+                    icon: 'fas fa-globe',
+                    color: '#2563eb'
+                },
+                {
+                    title: 'Taxa de Erro',
+                    value: data.requests.errorRate,
+                    subtitle: `${data.requests.errors} erros total`,
+                    icon: 'fas fa-exclamation-triangle',
+                    color: data.requests.errors > 0 ? '#dc2626' : '#059669'
+                },
+                {
+                    title: 'Usuários Cadastrados',
+                    value: data.business.totalUsers.toLocaleString(),
+                    subtitle: 'Total na base',
+                    icon: 'fas fa-users',
+                    color: '#7c3aed'
+                },
+                {
+                    title: 'Análises de CV',
+                    value: data.business.cvAnalyses.toLocaleString(),
+                    subtitle: 'Processadas',
+                    icon: 'fas fa-file-alt',
+                    color: '#059669'
+                },
+                {
+                    title: 'Memória',
+                    value: `${data.system.memory.used} MB`,
+                    subtitle: `${data.system.memory.total} MB total`,
+                    icon: 'fas fa-memory',
+                    color: data.system.memory.used / data.system.memory.total > 0.8 ? '#dc2626' : '#059669'
+                }
+            ];
+
+            metricsGrid.innerHTML = metrics.map(metric => `
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-title">${metric.title}</span>
+                        <div class="metric-icon" style="background: ${metric.color}">
+                            <i class="${metric.icon}"></i>
+                        </div>
+                    </div>
+                    <div class="metric-value">${metric.value}</div>
+                    <div class="metric-subtitle">${metric.subtitle}</div>
+                </div>
+            `).join('');
+        }
+
+        // Renderizar alertas
+        function renderAlerts(alerts) {
+            const alertsContainer = document.getElementById('alerts-container');
+
+            if (!alerts || alerts.count === 0) {
+                alertsContainer.innerHTML = `
+                    <div class="alert-item" style="background: #d1fae5; border-left: 4px solid #059669;">
+                        <i class="fas fa-check-circle" style="color: #059669;"></i>
+                        <span>Nenhum alerta ativo. Sistema funcionando normalmente.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            alertsContainer.innerHTML = alerts.alerts.map(alert => `
+                <div class="alert-item alert-${alert.severity}">
+                    <i class="fas fa-${alert.severity === 'critical' ? 'exclamation-circle' : 'exclamation-triangle'}"></i>
+                    <div>
+                        <strong>${alert.type.toUpperCase()}:</strong> ${alert.message}
+                        <br><small>${new Date(alert.timestamp).toLocaleString()}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Atualizar dashboard
+        async function refreshDashboard() {
+            const refreshBtn = document.getElementById('refresh-btn');
+            const refreshIcon = document.getElementById('refresh-icon');
+            const statusBadge = document.getElementById('overall-status');
+
+            // Mostrar loading
+            refreshIcon.classList.add('loading');
+            refreshBtn.disabled = true;
+
+            try {
+                const [dashboardData, alertsData] = await Promise.all([
+                    fetchDashboard(),
+                    fetchAlerts()
+                ]);
+
+                if (dashboardData) {
+                    renderMetrics(dashboardData);
+
+                    // Atualizar status geral
+                    const hasErrors = dashboardData.requests.errors > 0;
+                    const highMemory = dashboardData.system.memory.used / dashboardData.system.memory.total > 0.9;
+
+                    if (hasErrors || highMemory) {
+                        statusBadge.textContent = 'Warning';
+                        statusBadge.className = 'status-badge status-warning';
+                    } else {
+                        statusBadge.textContent = 'Healthy';
+                        statusBadge.className = 'status-badge status-healthy';
+                    }
+                }
+
+                if (alertsData) {
+                    renderAlerts(alertsData);
+                }
+
+                document.getElementById('last-updated').textContent =
+                    `Última atualização: ${new Date().toLocaleString()}`;
+
+            } catch (error) {
+                console.error('Erro ao atualizar dashboard:', error);
+                statusBadge.textContent = 'Error';
+                statusBadge.className = 'status-badge status-critical';
+            } finally {
+                refreshIcon.classList.remove('loading');
+                refreshBtn.disabled = false;
+            }
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            initChart();
+            refreshDashboard();
+
+            // Atualizar automaticamente a cada 30 segundos
+            refreshInterval = setInterval(refreshDashboard, 30000);
+        });
+
+        // Limpar interval quando a página for fechada
+        window.addEventListener('beforeunload', () => {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
+    </script>
+</body>
+
+</html>

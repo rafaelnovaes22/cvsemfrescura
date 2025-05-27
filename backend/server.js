@@ -15,6 +15,7 @@ const path = require('path');
 const { logger, logRequest, logError } = require('./utils/logger');
 const atsRoutes = require('./routes/ats');
 const userRoutes = require('./routes/user');
+const { router: monitoringRouter, collectMetrics, incrementMetric } = require('./routes/monitoring');
 
 const app = express();
 
@@ -47,6 +48,9 @@ const atsLimiter = rateLimit({
 
 app.use(limiter);
 
+// 📊 Sistema de monitoramento - aplicar a todas as rotas
+app.use(collectMetrics);
+
 // Configuração de CORS para produção
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
@@ -69,6 +73,7 @@ app.use('/api/password-reset', require('./routes/passwordReset'));
 app.use('/api/contact', require('./routes/contact')); // Recuperação de senha
 app.use('/api/admin', require('./routes/admin')); // Rotas administrativas
 app.use('/api/config', require('./routes/config')); // ✅ Configurações dinâmicas
+app.use('/api/monitoring', monitoringRouter); // 📊 Sistema de monitoramento
 app.use('/health', require('./routes/health')); // Health check endpoint
 
 // ✅ Servir arquivos estáticos do frontend
