@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perguntas Frequentes - CV Sem Frescura</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="assets/img/logo.png" as="image">
+
+    <!-- Header CSS -->
+    <link rel="stylesheet" href="assets/css/header.css?v=1748114547">
+
+    <!-- Configuração da API -->
+    <script src="/assets/js/config.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/header-new.js?v=1748114560"></script>
+
+    <!-- Script para mostrar menu logado INSTANTANEAMENTE -->
+    <script>
+        (function () {
+            // Verificar IMEDIATAMENTE se usuário está logado
+            function showLoggedUserInstantly() {
+                const token = localStorage.getItem('token');
+                const userDataStr = localStorage.getItem('user');
+
+                if (token && userDataStr) {
+                    try {
+                        const userData = JSON.parse(userDataStr);
+                        const guestActions = document.getElementById('guestActions');
+                        const userMenuWrapper = document.getElementById('userMenuWrapper');
+                        const userName = document.getElementById('userName');
+                        const userCredits = document.getElementById('userCredits');
+
+                        if (guestActions && userMenuWrapper) {
+                            // Esconder menu de convidado
+                            guestActions.style.display = 'none';
+
+                            // Mostrar menu do usuário
+                            userMenuWrapper.style.display = 'block';
+
+                            // Atualizar nome
+                            if (userName && userData.name) {
+                                const firstName = userData.name.split(' ')[0];
+                                userName.textContent = firstName;
+                            }
+
+                            // Atualizar créditos
+                            if (userCredits) {
+                                const credits = userData.credits || 0;
+                                userCredits.textContent = `${credits} análise${credits !== 1 ? 's' : ''}`;
+                                userCredits.style.cssText = `
+                                    background: #583819 !important;
+                                    color: white !important;
+                                    padding: 0.25rem 0.5rem !important;
+                                    border-radius: 0.375rem !important;
+                                    font-size: 0.75rem !important;
+                                    font-weight: 600 !important;
+                                `;
+                            }
+
+                            console.log('⚡ Menu logado exibido INSTANTANEAMENTE na página FAQ');
+                        }
+                    } catch (error) {
+                        console.log('Erro ao processar dados do usuário:', error);
+                    }
+                } else {
+                    // Não logado - mostrar menu de convidado
+                    const guestActions = document.getElementById('guestActions');
+                    const userMenuWrapper = document.getElementById('userMenuWrapper');
+
+                    if (guestActions && userMenuWrapper) {
+                        guestActions.style.display = 'flex';
+                        userMenuWrapper.style.display = 'none';
+                    }
+                }
+            }
+
+            // Executar IMEDIATAMENTE
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', showLoggedUserInstantly);
+            } else {
+                showLoggedUserInstantly();
+            }
+        })();
+    </script>
+
+    <style>
+        :root {
+            /* Primary Colors */
+            --primary-50: #fdf8f4;
+            --primary-100: #faf0e8;
+            --primary-200: #f2ddc5;
+            --primary-300: #eac297;
+            --primary-400: #df9f67;
+            --primary-500: #d6834a;
+            --primary-600: #c8703f;
+            --primary-700: #a65836;
+            --primary-800: #854732;
+            --primary-900: #6d3b2b;
+            --primary: #583819;
+            --primary-dark: #512808;
+
+            /* Gray Scale */
+            --gray-50: #fafafa;
+            --gray-100: #f5f5f5;
+            --gray-200: #e5e5e5;
+            --gray-300: #d4d4d4;
+            --gray-400: #a3a3a3;
+            --gray-500: #737373;
+            --gray-600: #525252;
+            --gray-700: #404040;
+            --gray-800: #262626;
+            --gray-900: #171717;
+
+            /* Background & Surface */
+            --background: #F3EADA;
+            --surface: #FFFFFF;
+            --surface-card: #FFFCF9;
+
+            /* Status Colors */
+            --success: #583819;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #3b82f6;
+
+            /* Typography */
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --text-muted: #9ca3af;
+
+            /* Spacing System */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
+            --space-12: 3rem;
+            --space-16: 4rem;
+            --space-20: 5rem;
+
+            /* Border Radius */
+            --radius-sm: 0.25rem;
+            --radius: 0.5rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --radius-xl: 1.5rem;
+            --radius-2xl: 2rem;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+
+            /* Transitions */
+            --transition-fast: 150ms ease-out;
+            --transition: 250ms ease-out;
+            --transition-slow: 350ms ease-out;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        *:focus-visible {
+            outline: 2px solid var(--primary-500);
+            outline-offset: 2px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--background) 0%, #f0e8d8 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-feature-settings: 'cv03', 'cv04', 'cv11';
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-6);
+        }
+
+        /* Main Content */
+        main {
+            padding-bottom: var(--space-20);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            margin-bottom: var(--space-16);
+            padding: var(--space-12) 0;
+        }
+
+        .page-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: var(--space-6);
+            line-height: 1.2;
+            letter-spacing: -0.025em;
+        }
+
+        .page-subtitle {
+            font-size: clamp(1rem, 3vw, 1.25rem);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-8);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            font-weight: 400;
+        }
+
+        /* FAQ Sections */
+        .faq-section {
+            margin-bottom: var(--space-16);
+        }
+
+        .faq-category-title {
+            font-size: 1.875rem;
+            color: var(--primary);
+            margin-bottom: var(--space-8);
+            text-align: center;
+            font-weight: 700;
+            position: relative;
+        }
+
+        .faq-category-title::after {
+            content: '';
+            position: absolute;
+            bottom: -var(--space-2);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-sm);
+        }
+
+        .faq-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            margin-bottom: var(--space-6);
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            transition: var(--transition);
+            border: 1px solid var(--gray-200);
+        }
+
+        .faq-item:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--primary);
+            padding: var(--space-6);
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 4px solid var(--primary-200);
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question:hover {
+            background: var(--gray-50);
+            border-left-color: var(--primary);
+        }
+
+        .faq-question::after {
+            content: '+';
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        .faq-question.active::after {
+            content: '−';
+            transform: rotate(0deg);
+        }
+
+        .faq-answer {
+            color: var(--text-secondary);
+            padding: 0 var(--space-6) var(--space-6);
+            line-height: 1.7;
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .faq-answer.active {
+            display: block;
+        }
+
+        .faq-answer p {
+            margin-bottom: var(--space-3);
+        }
+
+        .faq-answer ul {
+            margin: var(--space-3) 0;
+            padding-left: var(--space-6);
+        }
+
+        .faq-answer li {
+            margin-bottom: var(--space-2);
+        }
+
+        .faq-answer strong {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-4) var(--space-8);
+            border-radius: var(--radius-lg);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-family: inherit;
+            font-size: 1rem;
+            text-align: center;
+            min-height: 48px;
+            gap: var(--space-2);
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+            transform: translateX(-100%);
+            transition: var(--transition-slow);
+        }
+
+        .btn:hover::before {
+            transform: translateX(100%);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Contact CTA */
+        .contact-cta {
+            text-align: center;
+            margin: var(--space-16) 0;
+            padding: var(--space-10);
+            background: linear-gradient(135deg, var(--primary-50) 0%, #fffdf9 100%);
+            border-radius: var(--radius-2xl);
+            border: 1px solid var(--primary-200);
+        }
+
+        .contact-cta h3 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: var(--space-4);
+            font-weight: 700;
+        }
+
+        .contact-cta p {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-6);
+            font-size: 1.1rem;
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: var(--space-16) 0;
+        }
+
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--space-8);
+        }
+
+        .footer-logo {
+            height: 50px;
+            margin-bottom: var(--space-2);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: var(--space-6);
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .footer-link:hover {
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .copyright {
+            margin-top: var(--space-2);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.875rem;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .footer-container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-links {
+                justify-content: center;
+            }
+
+            .faq-question {
+                font-size: 1rem;
+                padding: var(--space-4);
+            }
+
+            .faq-answer {
+                padding: 0 var(--space-4) var(--space-4);
+            }
+        }
+
+        /* Force correct badge color - FAQ PAGE SPECIFIC */
+        .credits-badge,
+        #userCredits,
+        .user-credits,
+        [id*="credits"],
+        [class*="credits"] {
+            background: #583819 !important;
+            background-color: #583819 !important;
+            color: white !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header Inline (aparece instantaneamente) -->
+    <header class="header" id="header" style="
+        position: sticky; top: 0; z-index: 50; 
+        background: rgba(250, 249, 247, 0.95); 
+        backdrop-filter: blur(12px); 
+        border-bottom: 1px solid #e8ddd0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    ">
+        <div style="
+            display: flex; align-items: center; justify-content: space-between; 
+            height: 80px; max-width: 1280px; margin: 0 auto; 
+            padding: 0 1.5rem; gap: 2rem;
+        ">
+            <div>
+                <a href="landing.html">
+                    <img src="assets/img/logo.png" alt="CV Sem Frescura" style="height: 48px; width: auto;">
+                </a>
+            </div>
+            <nav style="display: flex; gap: 2rem;" id="headerNav">
+                <a href="landing.html" style="
+                    color: #3f3f46; text-decoration: none; font-weight: 500; 
+                    font-size: 0.95rem; padding: 0.5rem 0; transition: color 0.15s;
+                " onmouseover="this.style.color='#583819'" onmouseout="this.style.color='#3f3f46'">Início</a>
+                <a href="analisar.html" style="
+                    color: #3f3f46; text-decoration: none; font-weight: 500; 
+                    font-size: 0.95rem; padding: 0.5rem 0; transition: color 0.15s;
+                " onmouseover="this.style.color='#583819'" onmouseout="this.style.color='#3f3f46'">Analisar</a>
+                <a href="payment.html" style="
+                    color: #3f3f46; text-decoration: none; font-weight: 500; 
+                    font-size: 0.95rem; padding: 0.5rem 0; transition: color 0.15s;
+                " onmouseover="this.style.color='#583819'" onmouseout="this.style.color='#3f3f46'">Planos</a>
+            </nav>
+            <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <div id="guestActions" style="display: none; gap: 0.75rem; align-items: center;">
+                    <a href="landing.html#gift-code" style="
+                        display: inline-flex; align-items: center; gap: 0.5rem;
+                        padding: 0.5rem 1rem; background: #f4f0ea; color: #583819;
+                        border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.8rem;
+                    ">
+                        <span>🎓</span>
+                        <span>Código do Curso</span>
+                    </a>
+                    <a href="analisar.html?login=true" style="
+                        display: inline-flex; align-items: center; gap: 0.5rem;
+                        padding: 0.5rem 1rem; background: transparent; color: #3f3f46;
+                        border: 1px solid #d4d4d8; border-radius: 0.5rem; text-decoration: none; 
+                        font-weight: 600; font-size: 0.8rem;
+                    ">
+                        <span>🔐</span>
+                        <span>Entrar</span>
+                    </a>
+                    <a href="payment.html" style="
+                        display: inline-flex; align-items: center; gap: 0.5rem;
+                        padding: 0.5rem 1rem; background: #583819; color: white;
+                        border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.8rem;
+                    ">
+                        <span>💳</span>
+                        <span>Comprar</span>
+                    </a>
+                </div>
+                <div id="userMenuWrapper" style="display: none; position: relative;">
+                    <a href="#" id="authButton" style="
+                        display: flex; align-items: center; gap: 0.75rem;
+                        background: #f4f0ea; padding: 0.5rem 1rem; border-radius: 0.75rem;
+                        text-decoration: none; color: inherit;
+                    ">
+                        <span id="userName" style="font-weight: 500; color: #583819;">Usuário</span>
+                        <span id="userCredits" style="
+                            background: #583819; color: white; padding: 0.25rem 0.5rem;
+                            border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600;
+                        ">0 análises</span>
+                        <span style="font-size: 0.7rem; color: #583819;">▼</span>
+                    </a>
+                    <div id="userDropdown" style="
+                        position: absolute; top: 100%; right: 0; margin-top: 0.5rem;
+                        background: white; border-radius: 0.5rem; min-width: 200px; z-index: 999;
+                        display: none; border: 1px solid #e5e7eb; overflow: hidden;
+                        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+                    ">
+                        <a href="analisar.html" style="
+                            display: block; padding: 0.75rem 1rem; color: #3f3f46; text-decoration: none;
+                            font-size: 0.875rem; border: none; width: 100%; text-align: left;
+                        ">📊 Analisar Currículo</a>
+                        <a href="history.html" style="
+                            display: block; padding: 0.75rem 1rem; color: #3f3f46; text-decoration: none;
+                            font-size: 0.875rem; border: none; width: 100%; text-align: left;
+                        ">📋 Histórico</a>
+                        <a href="payment.html" style="
+                            display: block; padding: 0.75rem 1rem; color: #3f3f46; text-decoration: none;
+                            font-size: 0.875rem; border: none; width: 100%; text-align: left;
+                        ">💳 Comprar análises</a>
+                        <a href="#" id="logoutButton" style="
+                            display: block; padding: 0.75rem 1rem; color: #dc3545; text-decoration: none;
+                            font-size: 0.875rem; border: none; width: 100%; text-align: left;
+                            border-top: 1px solid #e5e7eb;
+                        ">🚪 Sair</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <section class="hero-section">
+                <h1 class="page-title">Perguntas Frequentes</h1>
+                <p class="page-subtitle">Tire suas dúvidas sobre o CV Sem Frescura e maximize suas chances de sucesso
+                    profissional</p>
+            </section>
+
+            <!-- FAQ Geral -->
+            <section class="faq-section">
+                <h2 class="faq-category-title">Geral</h2>
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">O que é o CV Sem Frescura?</div>
+                        <div class="faq-answer">
+                            <p>O CV Sem Frescura é uma plataforma de análise de currículos que utiliza inteligência
+                                artificial para otimizar seu currículo e aumentar suas chances de aprovação em processos
+                                seletivos.</p>
+                            <p><strong>Nossa missão:</strong> Tecnologia a serviço de PESSOAS, ajudando você a destacar
+                                seu talento no mercado de trabalho.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">Como funciona a análise de IA?</div>
+                        <div class="faq-answer">
+                            <p>Nossa tecnologia utiliza prompts especializados e algoritmos desenvolvidos
+                                especificamente para análise de currículos e matching com vagas.</p>
+                            <p><strong>O processo inclui:</strong></p>
+                            <ul>
+                                <li>Análise de compatibilidade ATS (Applicant Tracking System)</li>
+                                <li>Identificação de palavras-chave relevantes</li>
+                                <li>Comparação com requisitos específicos das vagas</li>
+                                <li>Sugestões de melhorias personalizadas</li>
+                                <li>Recomendações de otimização por seção</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">Quais formatos de currículo são aceitos?
+                        </div>
+                        <div class="faq-answer">
+                            <p>Aceitamos os formatos mais comuns:</p>
+                            <ul>
+                                <li><strong>PDF</strong> - Formato recomendado para preservar formatação</li>
+                                <li><strong>DOCX</strong> - Documento do Microsoft Word</li>
+                            </ul>
+                            <p><strong>Dica:</strong> PDFs geralmente funcionam melhor com nosso sistema de análise.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">Meus dados estão seguros?</div>
+                        <div class="faq-answer">
+                            <p><strong>Sim, garantimos total segurança!</strong></p>
+                            <ul>
+                                <li>Todos os dados são criptografados</li>
+                                <li>Não compartilhamos informações com terceiros</li>
+                                <li>Seguimos rigorosos protocolos de privacidade</li>
+                                <li>Você pode excluir seus dados a qualquer momento</li>
+                            </ul>
+                            <p>Confira nossa <a href="privacy.html"
+                                    style="color: var(--primary); font-weight: 600;">Política de Privacidade</a> para
+                                mais detalhes.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ Análises e Créditos -->
+            <section class="faq-section">
+                <h2 class="faq-category-title">Análises e Créditos</h2>
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">O que são créditos de análise?</div>
+                        <div class="faq-answer">
+                            <p>Créditos de análise permitem que você submeta seu currículo para nossa tecnologia de
+                                inteligência artificial analisar e comparar com vagas.</p>
+                            <p><strong>1 crédito = 1 análise completa</strong> de até 7 vagas simultaneamente (máximo
+                                permitido pelo Gupy).</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">Qual a diferença entre código gratuito e
+                            análise paga?</div>
+                        <div class="faq-answer">
+                            <p><strong>Código gratuito:</strong> 1 análise para 1 vaga apenas (experimentação)</p>
+                            <p><strong>Análise paga:</strong> Análise completa para até 7 vagas simultaneamente (máximo
+                                eficiência do Gupy)</p>
+                            <p>A análise paga maximiza suas chances aproveitando o limite máximo de candidaturas por
+                                ciclo.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">Por que o limite de 7 vagas é importante?
+                        </div>
+                        <div class="faq-answer">
+                            <p>Sistemas como Gupy limitam candidaturas a no máximo 7 vagas por ciclo de 7-10 dias.</p>
+                            <p><strong>Nossa estratégia:</strong> Se você analisar menos vagas, ainda terá que aguardar
+                                o período completo para se candidatar novamente. Por isso, maximizamos cada ciclo de
+                                candidaturas.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">Quanto tempo duram os créditos?</div>
+                        <div class="faq-answer">
+                            <p><strong>Os créditos não expiram!</strong></p>
+                            <p>Uma vez adquiridos, eles ficam disponíveis em sua conta por tempo indeterminado até serem
+                                utilizados. Você pode usar quando quiser, sem pressa.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">Posso analisar o mesmo currículo várias
+                            vezes?</div>
+                        <div class="faq-answer">
+                            <p><strong>Sim!</strong> Cada análise consome 1 crédito, independentemente de ser o mesmo
+                                currículo.</p>
+                            <p><strong>Recomendamos analisar novamente quando:</strong></p>
+                            <ul>
+                                <li>Você atualizar seu currículo</li>
+                                <li>Encontrar vagas de áreas diferentes</li>
+                                <li>Quiser comparar com novas oportunidades</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ Pagamentos -->
+            <section class="faq-section">
+                <h2 class="faq-category-title">Pagamentos e Reembolsos</h2>
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">Como funciona o pagamento?</div>
+                        <div class="faq-answer">
+                            <p>Processamos pagamentos de forma segura através do Stripe.</p>
+                            <p><strong>Métodos aceitos:</strong></p>
+                            <ul>
+                                <li>Cartões de crédito (Visa, Mastercard, Elo)</li>
+                                <li>Boleto bancário</li>
+                            </ul>
+                            <p>Após a confirmação do pagamento, os créditos são adicionados automaticamente à sua conta
+                                em tempo real.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">Posso solicitar reembolso?</div>
+                        <div class="faq-answer">
+                            <p><strong>Sim!</strong> Oferecemos reembolso integral em até 7 dias após a compra, desde
+                                que nenhum crédito tenha sido utilizado.</p>
+                            <p><strong>Para solicitar:</strong> Entre em contato através do nosso <a href="contact.html"
+                                    style="color: var(--primary); font-weight: 600;">suporte</a> ou email.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">O pagamento é seguro?</div>
+                        <div class="faq-answer">
+                            <p><strong>Totalmente seguro!</strong></p>
+                            <ul>
+                                <li>Utilizamos Stripe, processador internacional de pagamentos</li>
+                                <li>Certificado SSL em todas as transações</li>
+                                <li>Não armazenamos dados de cartão</li>
+                                <li>Conformidade com padrões PCI DSS</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">Preciso criar conta para comprar?</div>
+                        <div class="faq-answer">
+                            <p><strong>Não!</strong> Oferecemos checkout rápido sem necessidade de cadastro prévio.</p>
+                            <p><strong>Como funciona:</strong></p>
+                            <ol>
+                                <li>Preencha seus dados básicos (nome e email)</li>
+                                <li>Realize o pagamento</li>
+                                <li>Sua conta é criada automaticamente</li>
+                                <li>Receba login por email para acessar</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ Técnico -->
+            <section class="faq-section">
+                <h2 class="faq-category-title">Suporte Técnico</h2>
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">Esqueci minha senha, como recuperar?</div>
+                        <div class="faq-answer">
+                            <p><strong>É fácil recuperar:</strong></p>
+                            <ol>
+                                <li>Clique em "Esqueci minha senha" na tela de login</li>
+                                <li>Digite seu email cadastrado</li>
+                                <li>Verifique sua caixa de entrada</li>
+                                <li>Clique no link recebido por email</li>
+                                <li>Defina uma nova senha</li>
+                            </ol>
+                            <p>Se não receber o email, verifique a pasta de spam ou entre em contato conosco.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">A análise não funcionou, o que fazer?</div>
+                        <div class="faq-answer">
+                            <p><strong>Possíveis soluções:</strong></p>
+                            <ul>
+                                <li>Verifique se o arquivo está no formato correto (PDF ou DOCX)</li>
+                                <li>Certifique-se que o arquivo não está corrompido</li>
+                                <li>Tente com um currículo de tamanho menor (máx. 5MB)</li>
+                                <li>Verifique sua conexão com internet</li>
+                            </ul>
+                            <p><strong>Ainda com problema?</strong> Entre em contato conosco e resolveremos rapidamente!
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">Posso usar em dispositivos móveis?</div>
+                        <div class="faq-answer">
+                            <p><strong>Sim!</strong> Nosso site é totalmente responsivo e funciona perfeitamente em:</p>
+                            <ul>
+                                <li>Smartphones Android e iOS</li>
+                                <li>Tablets</li>
+                                <li>Computadores (Windows, Mac, Linux)</li>
+                                <li>Navegadores modernos (Chrome, Firefox, Safari, Edge)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">Como entro em contato com o suporte?</div>
+                        <div class="faq-answer">
+                            <p><strong>Várias formas de contato:</strong></p>
+                            <ul>
+                                <li><strong>Email:</strong> suporte@cvsemfrescura.com.br</li>
+                                <li><strong>Formulário:</strong> <a href="contact.html"
+                                        style="color: var(--primary); font-weight: 600;">Página de Contato</a></li>
+                                <li><strong>Resposta:</strong> Até 24h em dias úteis</li>
+                            </ul>
+                            <p>Nossa equipe está sempre pronta para ajudar!</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact CTA -->
+            <div class="contact-cta">
+                <h3>Ainda tem dúvidas?</h3>
+                <p>Nossa equipe está pronta para ajudar você a ter sucesso na sua carreira!</p>
+                <a href="contact.html" class="btn btn-primary">Fale Conosco</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container footer-container">
+            <div>
+                <img src="assets/img/logo.png" alt="CV Sem Frescura" class="footer-logo">
+                <p class="copyright">© 2025 CV Sem Frescura. Todos os direitos reservados.</p>
+            </div>
+            <div class="footer-links">
+                <a href="privacy.html" class="footer-link">Políticas de Privacidade</a>
+                <a href="terms.html" class="footer-link">Termos de Uso</a>
+                <a href="contact.html" class="footer-link">Contato</a>
+                <a href="faq.html" class="footer-link">FAQ</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        function toggleFaq(element) {
+            const answer = element.nextElementSibling;
+            const isActive = answer.classList.contains('active');
+
+            // Fechar todas as outras FAQs
+            document.querySelectorAll('.faq-answer.active').forEach(item => {
+                item.classList.remove('active');
+                item.previousElementSibling.classList.remove('active');
+            });
+
+            // Alternar a FAQ clicada
+            if (!isActive) {
+                answer.classList.add('active');
+                element.classList.add('active');
+            }
+        }
+
+        // Permitir abrir FAQ via hash na URL
+        document.addEventListener('DOMContentLoaded', function () {
+            // Se há hash na URL, tentar abrir a FAQ correspondente
+            if (window.location.hash) {
+                const targetId = window.location.hash.substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement && targetElement.classList.contains('faq-question')) {
+                    targetElement.click();
+                    targetElement.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
