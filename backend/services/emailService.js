@@ -49,17 +49,17 @@ const sendPasswordResetEmail = async (email, name, token) => {
             body {
               font-family: 'Inter', Arial, sans-serif;
               line-height: 1.6;
-              color: #333;
+              color: #583819;
               max-width: 600px;
               margin: 0 auto;
               padding: 20px;
-              background-color: #f5f5f5;
+              background-color: #F3EADA;
             }
             .container {
-              background: white;
+              background: #FFFCF9;
               padding: 40px;
               border-radius: 12px;
-              box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+              box-shadow: 0 4px 12px rgba(88, 56, 25, 0.1);
             }
             .header {
               text-align: center;
@@ -78,13 +78,18 @@ const sendPasswordResetEmail = async (email, name, token) => {
             }
             .button {
               display: inline-block;
-              background: #583819;
-              color: white;
+              background-color: #583819 !important;
+              color: white !important;
               padding: 15px 30px;
-              text-decoration: none;
+              text-decoration: none !important;
               border-radius: 8px;
               font-weight: 600;
               margin: 20px 0;
+              border: none;
+              font-size: 16px;
+            }
+            .button:hover {
+              background-color: #512808 !important;
             }
             .warning {
               background: #fff3cd;
@@ -116,8 +121,15 @@ const sendPasswordResetEmail = async (email, name, token) => {
             
             <p>Recebemos uma solicitação para redefinir a senha da sua conta. Se você fez esta solicitação, clique no botão abaixo para criar uma nova senha:</p>
             
-            <div style="text-align: center;">
-              <a href="${resetUrl}" class="button">Redefinir Minha Senha</a>
+            <div style="text-align: center; margin: 30px 0; padding: 20px; background-color: #f8f9fa; border: 2px solid #583819; border-radius: 8px;">
+              <p style="margin: 0 0 15px 0; font-size: 18px; font-weight: bold; color: #583819;">
+                🔐 Para redefinir sua senha, clique no link abaixo:
+              </p>
+              <p style="margin: 0; font-size: 16px;">
+                <a href="${resetUrl}" style="color: #583819; font-weight: bold; text-decoration: underline;">
+                  👉 REDEFINIR MINHA SENHA AGORA
+                </a>
+              </p>
             </div>
             
             <div class="warning">
@@ -129,14 +141,18 @@ const sendPasswordResetEmail = async (email, name, token) => {
               </ul>
             </div>
             
-            <p>Se o botão não funcionar, copie e cole este link no seu navegador:</p>
-            <p style="word-break: break-all; background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace;">
+            <p><strong>Alternativa:</strong> Se o botão não funcionar, copie e cole este link no seu navegador:</p>
+            <p style="word-break: break-all; background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; border: 1px solid #ddd;">
               ${resetUrl}
+            </p>
+            
+            <p style="font-size: 12px; color: #666; margin-top: 20px;">
+              <em>Nota: Se o link principal não funcionar, use o link alternativo acima.</em>
             </p>
             
             <div class="footer">
               <p>Este email foi enviado automaticamente. Não responda a este email.</p>
-              <p><strong>CV Sem Frescura</strong> - Currículos inteligentes para vencer filtros automáticos</p>
+              <p><strong>CV Sem Frescura</strong> - IA a serviço do que importa: você, seu talento, sua carreira.</p>
             </div>
           </div>
         </body>
@@ -158,7 +174,7 @@ const sendPasswordResetEmail = async (email, name, token) => {
         - Se você não solicitou esta redefinição, ignore este email
         
         CV Sem Frescura
-        Currículos inteligentes para vencer filtros automáticos
+        IA a serviço do que importa: você, seu talento, sua carreira.
       `
     };
 
@@ -203,17 +219,17 @@ const sendPasswordChangedEmail = async (email, name) => {
             body {
               font-family: 'Inter', Arial, sans-serif;
               line-height: 1.6;
-              color: #333;
+              color: #583819;
               max-width: 600px;
               margin: 0 auto;
               padding: 20px;
-              background-color: #f5f5f5;
+              background-color: #F3EADA;
             }
             .container {
-              background: white;
+              background: #FFFCF9;
               padding: 40px;
               border-radius: 12px;
-              box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+              box-shadow: 0 4px 12px rgba(88, 56, 25, 0.1);
             }
             .header {
               text-align: center;
@@ -267,7 +283,7 @@ const sendPasswordChangedEmail = async (email, name) => {
             
             <div class="footer">
               <p>Este email foi enviado automaticamente. Não responda a este email.</p>
-              <p><strong>CV Sem Frescura</strong> - Currículos inteligentes para vencer filtros automáticos</p>
+              <p><strong>CV Sem Frescura</strong> - IA a serviço do que importa: você, seu talento, sua carreira.</p>
             </div>
           </div>
         </body>
@@ -284,7 +300,7 @@ const sendPasswordChangedEmail = async (email, name) => {
         Se você não fez esta alteração, entre em contato conosco imediatamente.
         
         CV Sem Frescura
-        Currículos inteligentes para vencer filtros automáticos
+        IA a serviço do que importa: você, seu talento, sua carreira.
       `
     };
 
@@ -319,17 +335,17 @@ const sendContactEmail = async ({ name, email, subject, message }) => {
             body {
               font-family: 'Inter', Arial, sans-serif;
               line-height: 1.6;
-              color: #333;
+              color: #583819;
               max-width: 600px;
               margin: 0 auto;
               padding: 20px;
-              background-color: #f5f5f5;
+              background-color: #F3EADA;
             }
             .container {
-              background: white;
+              background: #FFFCF9;
               padding: 40px;
               border-radius: 12px;
-              box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+              box-shadow: 0 4px 12px rgba(88, 56, 25, 0.1);
             }
             .header {
               text-align: center;
@@ -475,4 +491,5 @@ module.exports = {
   sendPasswordResetEmail,
   sendPasswordChangedEmail,
   sendContactEmail
-}; 
+};
+
