@@ -19,6 +19,9 @@ const { router: monitoringRouter, collectMetrics, incrementMetric } = require('.
 
 const app = express();
 
+// ✅ Configurar trust proxy para Railway/produção
+app.set('trust proxy', true);
+
 // Logging de requests
 app.use(logRequest);
 
@@ -79,6 +82,17 @@ app.use('/health', require('./routes/health')); // Health check endpoint
 // ✅ Servir arquivos estáticos do frontend
 const frontendPath = path.join(__dirname, '../frontend');
 app.use(express.static(frontendPath));
+
+// 🔧 Endpoint de teste Railway
+app.get('/railway-test', (req, res) => {
+  res.json({
+    status: 'Railway conectado!',
+    message: 'Servidor funcionando corretamente',
+    timestamp: new Date().toISOString(),
+    port: PORT,
+    env: process.env.NODE_ENV
+  });
+});
 
 // ✅ SPA routing - retornar index.html para rotas não-API
 app.get('*', (req, res) => {
