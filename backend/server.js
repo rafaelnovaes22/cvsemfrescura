@@ -71,14 +71,20 @@ app.use('/api/admin', require('./routes/admin')); // Rotas administrativas
 app.use('/api/config', require('./routes/config')); // ✅ Configurações dinâmicas
 app.use('/health', require('./routes/health')); // Health check endpoint
 
-// ✅ API raiz simples para health check
-app.get('/', (req, res) => {
-  res.json({
-    message: 'CV Sem Frescura API',
-    status: 'online',
-    timestamp: new Date().toISOString(),
-    version: '1.0.0'
-  });
+// ✅ Servir arquivos estáticos do frontend
+const frontendPath = path.join(__dirname, '../frontend');
+app.use(express.static(frontendPath));
+
+// ✅ SPA routing - retornar index.html para rotas não-API
+app.get('*', (req, res) => {
+  // Se a rota começa com /api, não é uma rota do frontend
+  if (req.path.startsWith('/api') || req.path.startsWith('/health')) {
+    return res.status(404).json({ error: 'API endpoint não encontrado' });
+  }
+
+  // Para rotas do frontend, servir landing.html como padrão
+  const indexPath = path.join(frontendPath, 'landing.html');
+  res.sendFile(indexPath);
 });
 
 const sequelize = require('./db');

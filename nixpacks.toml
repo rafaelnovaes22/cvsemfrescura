@@ -9,6 +9,8 @@ cmds = [
 
 [phases.build]
 cmds = [
+    'echo "Copying frontend files to backend directory..."',
+    'cp -r frontend backend/',
     'echo "Build completed successfully"'
 ]
 

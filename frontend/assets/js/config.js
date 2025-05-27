@@ -18,15 +18,10 @@ const CONFIG = {
         return 'http://localhost:3001';
       }
 
-      // PRODUÇÃO - usar domínio específico da API
+      // PRODUÇÃO - backend e frontend servidos pelo mesmo domínio
       console.log('🚀 Ambiente detectado: PRODUÇÃO');
 
-      // Se estamos no domínio principal, usar subdomínio da API
-      if (hostname === 'cvsemfrescura.com.br' || hostname === 'www.cvsemfrescura.com.br') {
-        return 'https://api.cvsemfrescura.com.br';
-      }
-
-      // Fallback para Railway direto
+      // Backend serve frontend na mesma URL
       return `${protocol}//${hostname}${port ? ':' + port : ''}`;
     })(),
     endpoints: {
