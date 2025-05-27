@@ -16,14 +16,20 @@ const User = require('../models/user');
 // Cria uma intenção de pagamento no Stripe
 exports.createPaymentIntent = async (req, res) => {
   try {
+    console.log('[PAYMENT] 🚀 Iniciando createPaymentIntent');
+    console.log('[PAYMENT] 📝 Body recebido:', req.body);
+    console.log('[PAYMENT] 👤 User:', req.user ? 'Logado' : 'Anônimo');
+
     const { amount, planName, credits, paymentMethod, guestUser } = req.body;
 
     if (!amount || !planName || !credits || !paymentMethod) {
+      console.log('[PAYMENT] ❌ Dados incompletos:', { amount, planName, credits, paymentMethod });
       return res.status(400).json({ error: 'Informações de pagamento incompletas' });
     }
 
     // Converte o valor para centavos (Stripe trabalha com centavos)
     const amountInCents = Math.round(parseFloat(amount) * 100);
+    console.log('[PAYMENT] 💰 Valor em centavos:', amountInCents);
 
     console.log(`[PAYMENT] 🎯 Criando pagamento: ${paymentMethod} - R$ ${amount} - ${credits} créditos`);
 
@@ -81,6 +87,9 @@ exports.createPaymentIntent = async (req, res) => {
     }
 
     // Cria o PaymentIntent com as opções configuradas
+    console.log('[PAYMENT] 🔧 Configurações finais:', paymentIntentOptions);
+    console.log('[PAYMENT] 📡 Chamando Stripe API...');
+
     const paymentIntent = await stripe.paymentIntents.create(paymentIntentOptions);
     console.log('[PAYMENT] ✅ PaymentIntent criado:', paymentIntent.id);
 
