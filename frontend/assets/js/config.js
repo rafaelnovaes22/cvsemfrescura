@@ -18,9 +18,15 @@ const CONFIG = {
         return 'http://localhost:3001';
       }
 
-      // PRODUÇÃO - usar URLs relativas via proxy nginx
-      // O nginx fará proxy de /api/* para backend:3000
+      // PRODUÇÃO - usar domínio específico da API
       console.log('🚀 Ambiente detectado: PRODUÇÃO');
+
+      // Se estamos no domínio principal, usar subdomínio da API
+      if (hostname === 'cvsemfrescura.com.br' || hostname === 'www.cvsemfrescura.com.br') {
+        return 'https://api.cvsemfrescura.com.br';
+      }
+
+      // Fallback para Railway direto
       return `${protocol}//${hostname}${port ? ':' + port : ''}`;
     })(),
     endpoints: {
