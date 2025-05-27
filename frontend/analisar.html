@@ -1189,7 +1189,7 @@
             <img src="assets/img/logo.png" alt="Logo CV Sem Frescura"
                 style="width:110px; margin-bottom:18px; display:block;">
             <button id="closeAuthModal"
-                style="position:absolute; right:18px; top:14px; background:none; border:none; font-size:22px; color:#583819; cursor:pointer; display:none;">×</button>
+                style="position:absolute; right:18px; top:14px; background:none; border:none; font-size:22px; color:#583819; cursor:pointer; display:block;">×</button>
             <h2 id="authModalTitle"
                 style="font-family:'IBM Plex Sans',sans-serif; color:#583819; font-size:1.4em; font-weight:700; margin-bottom:18px;">
                 Entrar</h2>
@@ -1851,6 +1851,42 @@
             window.updateAnalyzeButton = updateAnalyzeButton;
 
             // Código gratuito agora oferece análise completa - sem restrições de interface
+        });
+    </script>
+
+    <!-- Botão de fechar modal -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const closeModalBtn = document.getElementById('closeAuthModal');
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', function () {
+                    console.log('🚪 Fechando modal de login - redirecionando para landing');
+                    // Permitir voltar para a landing ao invés de ficar preso
+                    window.location.href = 'landing.html';
+                });
+            }
+
+            // Permitir fechar modal com ESC
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    const authModal = document.getElementById('authModal');
+                    if (authModal && authModal.style.display !== 'none') {
+                        console.log('🚪 ESC pressionado - redirecionando para landing');
+                        window.location.href = 'landing.html';
+                    }
+                }
+            });
+
+            // Permitir clicar fora do modal para fechar
+            const authModal = document.getElementById('authModal');
+            if (authModal) {
+                authModal.addEventListener('click', function (e) {
+                    if (e.target === this) {
+                        console.log('🚪 Clique fora do modal - redirecionando para landing');
+                        window.location.href = 'landing.html';
+                    }
+                });
+            }
         });
     </script>
 </body>
