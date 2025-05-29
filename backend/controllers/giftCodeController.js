@@ -69,28 +69,43 @@ exports.applyCode = async (req, res) => {
     const { code } = req.body;
     const userId = req.user?.id;
 
-    console.log('🎁 Aplicando código:', code, 'para usuário:', userId);
+    console.log('🎁 [GIFT CODE] Aplicando código:', code, 'para usuário:', userId);
+    console.log('🔍 [GIFT CODE] Dados recebidos:', { code, userId, userObject: req.user });
 
     if (!userId) {
+      console.log('❌ [GIFT CODE] Usuário não autenticado - ID não encontrado');
       return res.status(401).json({ error: 'Usuário não autenticado.' });
     }
 
     if (!code) {
+      console.log('❌ [GIFT CODE] Código não fornecido');
       return res.status(400).json({ error: 'Código de presente é obrigatório.' });
     }
 
     // Verificar se o código existe e é válido
+    console.log('🔍 [GIFT CODE] Buscando código no banco:', code);
     const giftCode = await GiftCode.findOne({ where: { code } });
 
     if (!giftCode) {
+      console.log('❌ [GIFT CODE] Código não encontrado no banco:', code);
       return res.status(400).json({
         success: false,
         error: 'Código de presente não encontrado.'
       });
     }
 
+    console.log('✅ [GIFT CODE] Código encontrado:', {
+      id: giftCode.id,
+      code: giftCode.code,
+      isActive: giftCode.isActive,
+      usedCount: giftCode.usedCount,
+      maxUses: giftCode.maxUses,
+      expiresAt: giftCode.expiresAt
+    });
+
     // Verificar se o código está ativo
     if (!giftCode.isActive) {
+      console.log('❌ [GIFT CODE] Código inativo:', code);
       return res.status(400).json({
         success: false,
         error: 'Código de presente inativo.'
@@ -99,6 +114,7 @@ exports.applyCode = async (req, res) => {
 
     // Verificar se ainda há usos disponíveis
     if (giftCode.usedCount >= giftCode.maxUses) {
+      console.log('❌ [GIFT CODE] Código esgotado:', code, `(${giftCode.usedCount}/${giftCode.maxUses})`);
       return res.status(400).json({
         success: false,
         error: 'Código de presente esgotado.'
@@ -107,6 +123,7 @@ exports.applyCode = async (req, res) => {
 
     // Verificar se o código expirou
     if (giftCode.expiresAt && new Date() > giftCode.expiresAt) {
+      console.log('❌ [GIFT CODE] Código expirado:', code, 'em:', giftCode.expiresAt);
       return res.status(400).json({
         success: false,
         error: 'Código de presente expirado.'
@@ -114,6 +131,7 @@ exports.applyCode = async (req, res) => {
     }
 
     // Verificar se o usuário já usou este código antes
+    console.log('🔍 [GIFT CODE] Verificando uso anterior do código pelo usuário...');
     const existingUsage = await GiftCodeUsage.findOne({
       where: {
         giftCodeId: giftCode.id,
@@ -122,6 +140,11 @@ exports.applyCode = async (req, res) => {
     });
 
     if (existingUsage) {
+      console.log('❌ [GIFT CODE] Usuário já usou este código:', {
+        userId,
+        giftCodeId: giftCode.id,
+        usedAt: existingUsage.usedAt
+      });
       return res.status(400).json({
         success: false,
         error: 'Você já utilizou este código de presente anteriormente.'
@@ -129,33 +152,85 @@ exports.applyCode = async (req, res) => {
     }
 
     // Buscar o usuário
+    console.log('🔍 [GIFT CODE] Buscando dados do usuário:', userId);
     const user = await User.findByPk(userId);
     if (!user) {
+      console.log('❌ [GIFT CODE] Usuário não encontrado no banco:', userId);
       return res.status(404).json({ error: 'Usuário não encontrado.' });
     }
 
-    // Registrar o uso do código por este usuário
-    await GiftCodeUsage.create({
-      giftCodeId: giftCode.id,
-      userId: userId
+    console.log('✅ [GIFT CODE] Usuário encontrado:', {
+      id: user.id,
+      email: user.email,
+      creditsAntes: user.credits
     });
 
-    // Incrementar o contador de uso do código
-    await giftCode.update({ usedCount: giftCode.usedCount + 1 });
+    // INICIAR TRANSAÇÃO PARA GARANTIR CONSISTÊNCIA
+    const transaction = await db.sequelize.transaction();
 
-    // Adicionar um crédito ao usuário
-    const newCredits = (user.credits || 0) + 1;
-    await user.update({ credits: newCredits });
+    try {
+      console.log('🔄 [GIFT CODE] Iniciando transação...');
 
-    console.log('✅ Código aplicado com sucesso! Usuário agora tem', newCredits, 'créditos');
+      // Registrar o uso do código por este usuário
+      console.log('📝 [GIFT CODE] Registrando uso do código...');
+      const usage = await GiftCodeUsage.create({
+        giftCodeId: giftCode.id,
+        userId: userId
+      }, { transaction });
 
-    return res.status(200).json({
-      success: true,
-      message: 'Código aplicado com sucesso! Você recebeu 1 crédito.',
-      credits: newCredits
-    });
+      console.log('✅ [GIFT CODE] Uso registrado:', usage.id);
+
+      // Incrementar o contador de uso do código
+      console.log('🔄 [GIFT CODE] Incrementando contador do código...');
+      const [updatedRowsCode] = await GiftCode.update(
+        { usedCount: giftCode.usedCount + 1 },
+        {
+          where: { id: giftCode.id },
+          transaction
+        }
+      );
+
+      console.log('✅ [GIFT CODE] Contador incrementado. Linhas afetadas:', updatedRowsCode);
+
+      // Adicionar um crédito ao usuário
+      const newCredits = (user.credits || 0) + 1;
+      console.log('💳 [GIFT CODE] Atualizando créditos:', {
+        creditosAtuais: user.credits || 0,
+        novosCreditos: newCredits
+      });
+
+      const [updatedRowsUser] = await User.update(
+        { credits: newCredits },
+        {
+          where: { id: userId },
+          transaction
+        }
+      );
+
+      console.log('✅ [GIFT CODE] Créditos atualizados. Linhas afetadas:', updatedRowsUser);
+
+      // Confirmar transação
+      await transaction.commit();
+      console.log('✅ [GIFT CODE] Transação confirmada com sucesso!');
+
+      console.log('🎉 [GIFT CODE] Código aplicado com sucesso! Usuário agora tem', newCredits, 'créditos');
+
+      return res.status(200).json({
+        success: true,
+        message: 'Código aplicado com sucesso! Você recebeu 1 crédito.',
+        credits: newCredits
+      });
+
+    } catch (transactionError) {
+      // Reverter transação em caso de erro
+      await transaction.rollback();
+      console.error('❌ [GIFT CODE] Erro na transação, revertendo:', transactionError);
+      throw transactionError;
+    }
+
   } catch (error) {
-    console.error('❌ Erro ao aplicar código de presente:', error);
+    console.error('❌ [GIFT CODE] Erro geral ao aplicar código de presente:', error);
+    console.error('❌ [GIFT CODE] Stack trace:', error.stack);
     return res.status(500).json({
       success: false,
       error: 'Erro interno do servidor.'

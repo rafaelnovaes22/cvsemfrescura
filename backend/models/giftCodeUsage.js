@@ -38,5 +38,20 @@ module.exports = (sequelize) => {
         ]
     });
 
+    // Definir associações
+    GiftCodeUsage.associate = (models) => {
+        // Um uso pertence a um código de presente
+        GiftCodeUsage.belongsTo(models.GiftCode, {
+            foreignKey: 'giftCodeId',
+            as: 'GiftCode'
+        });
+
+        // Um uso pertence a um usuário
+        GiftCodeUsage.belongsTo(models.User, {
+            foreignKey: 'userId',
+            as: 'User'
+        });
+    };
+
     return GiftCodeUsage;
 }; 

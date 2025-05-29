@@ -64,5 +64,20 @@ module.exports = (sequelize) => {
     timestamps: true,
   });
 
+  // Definir associações
+  User.associate = (models) => {
+    // Um usuário pode ter múltiplos usos de códigos de presente
+    User.hasMany(models.GiftCodeUsage, {
+      foreignKey: 'userId',
+      as: 'giftCodeUsages'
+    });
+
+    // Um usuário pode criar múltiplos códigos de presente (se for admin)
+    User.hasMany(models.GiftCode, {
+      foreignKey: 'createdById',
+      as: 'createdGiftCodes'
+    });
+  };
+
   return User;
 };

@@ -1,5 +1,5 @@
 const sequelize = require('./db');
-const GiftCode = require('./models/giftCode');
+const { GiftCode } = require('./models');
 
 const PRODUCTION_CODES = [
     'GIFTDL6608',
