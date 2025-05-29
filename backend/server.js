@@ -19,8 +19,14 @@ const { router: monitoringRouter, collectMetrics, incrementMetric } = require('.
 
 const app = express();
 
-// ✅ Configurar trust proxy para Railway/produção
-app.set('trust proxy', true);
+// ✅ Configurar trust proxy específico para Railway
+if (process.env.NODE_ENV === 'production') {
+  // Em produção (Railway), confiar apenas no primeiro proxy
+  app.set('trust proxy', 1);
+} else {
+  // Em desenvolvimento, não configurar trust proxy
+  app.set('trust proxy', false);
+}
 
 // Logging de requests
 app.use(logRequest);
@@ -34,10 +40,12 @@ app.use(helmet({
 // Rate limiting - proteção contra ataques
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 1000, // máximo 1000 requests por IP por janela (10x mais)
+  max: 1000, // máximo 1000 requests por IP por janela
   message: 'Muitas tentativas. Tente novamente em 15 minutos.',
   standardHeaders: true,
   legacyHeaders: false,
+  // Configuração mais específica para Railway
+  trustProxy: process.env.NODE_ENV === 'production',
   skip: (req) => {
     // Pular rate limiting para arquivos estáticos
     return req.path.includes('/assets/') ||
@@ -53,10 +61,11 @@ const limiter = rateLimit({
 // Rate limiting específico para análises ATS
 const atsLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hora
-  max: 50, // máximo 50 análises por IP por hora (5x mais)
+  max: 50, // máximo 50 análises por IP por hora
   message: 'Limite de análises excedido. Tente novamente em 1 hora.',
   standardHeaders: true,
   legacyHeaders: false,
+  trustProxy: process.env.NODE_ENV === 'production',
 });
 
 // Rate limiting mais liberal para rotas de usuário (header, perfil)
@@ -66,6 +75,7 @@ const userLimiter = rateLimit({
   message: 'Muitas verificações de usuário. Aguarde um momento.',
   standardHeaders: true,
   legacyHeaders: false,
+  trustProxy: process.env.NODE_ENV === 'production',
 });
 
 // Aplicar rate limiter global
