@@ -1,43 +1,60 @@
 const express = require('express');
 const router = express.Router();
 
-// Rota para fornecer a chave pública do Stripe
-router.get('/stripe-key', (req, res) => {
-    try {
-        const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
+// 🚦 Importar rate limiting
+const { stripeKeyRateLimit } = require('../middleware/rateLimiting');
 
-        if (!publishableKey) {
-            return res.status(500).json({
-                error: 'Chave Stripe não configurada no servidor',
-                details: 'STRIPE_PUBLISHABLE_KEY não encontrada no .env'
-            });
-        }
+// 🛡️ Importar headers de segurança
+const { additionalSecurityHeaders, detectBypassAttempts } = require('../middleware/securityHeaders');
 
-        // Validar formato da chave
-        if (!publishableKey.startsWith('pk_')) {
-            return res.status(500).json({
-                error: 'Chave Stripe inválida',
-                details: 'A chave deve começar com pk_test_ ou pk_live_'
-            });
-        }
-
-        console.log('✅ Fornecendo chave Stripe:', publishableKey.substring(0, 20) + '...');
-
-        res.json({
-            publishableKey: publishableKey,
-            environment: publishableKey.startsWith('pk_test_') ? 'test' : 'live',
-            source: '.env',
+// Rota para obter a chave pública do Stripe (PROTEGIDA)
+router.get('/stripe-key',
+    additionalSecurityHeaders,     // 🛡️ Headers de segurança
+    detectBypassAttempts,          // 🛡️ Detectar tentativas de bypass
+    stripeKeyRateLimit,            // 🚦 Rate limiting específico para chaves
+    (req, res) => {
+        console.log('🔑 [CONFIG] Solicitação de chave pública do Stripe:', {
+            ip: req.ip,
+            userAgent: req.get('User-Agent'),
             timestamp: new Date().toISOString()
         });
 
-    } catch (error) {
-        console.error('❌ Erro ao obter chave Stripe:', error);
-        res.status(500).json({
-            error: 'Erro interno do servidor',
-            details: error.message
-        });
+        try {
+            const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
+
+            if (!publishableKey) {
+                console.error('❌ [CONFIG] STRIPE_PUBLISHABLE_KEY não configurada');
+                return res.status(500).json({
+                    error: 'Configuração incompleta',
+                    message: 'Chave pública do Stripe não configurada'
+                });
+            }
+
+            // Verificar se é uma chave pública válida (deve começar com pk_)
+            if (!publishableKey.startsWith('pk_')) {
+                console.error('🚨 [CONFIG] TENTATIVA DE EXPOSIÇÃO: Chave não é pública!');
+                return res.status(500).json({
+                    error: 'Configuração inválida',
+                    message: 'Tipo de chave incorreto'
+                });
+            }
+
+            console.log('✅ [CONFIG] Chave pública fornecida com sucesso');
+
+            res.json({
+                publishableKey: publishableKey,
+                environment: publishableKey.includes('test') ? 'test' : 'live'
+            });
+
+        } catch (error) {
+            console.error('❌ [CONFIG] Erro ao fornecer chave:', error);
+            res.status(500).json({
+                error: 'Erro interno',
+                message: 'Não foi possível obter configuração'
+            });
+        }
     }
-});
+);
 
 // Rota de health check para configurações
 router.get('/health', (req, res) => {

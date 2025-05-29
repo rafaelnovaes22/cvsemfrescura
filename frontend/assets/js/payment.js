@@ -312,13 +312,52 @@ const payment = (() => {
       }
 
       console.log('🚀 Criando payment intent...', { method: paymentMethod, amount: paymentData.amount });
-      console.log('📊 Dados completos sendo enviados:', paymentData);
-      console.log('🔍 Validação dos dados:');
-      console.log('   amount:', paymentData.amount, typeof paymentData.amount);
-      console.log('   planName:', paymentData.planName, typeof paymentData.planName);
-      console.log('   credits:', paymentData.credits, typeof paymentData.credits);
-      console.log('   paymentMethod:', paymentData.paymentMethod, typeof paymentData.paymentMethod);
+      console.log('📊 Dados antes da criptografia:', paymentData);
+
+      // 🔐 Criptografar dados sensíveis se suportado
+      let encryptedPayload;
+      if (typeof window.encryptPaymentData === 'function') {
+        try {
+          console.log('🔐 Tentando criptografar dados de pagamento...');
+          encryptedPayload = await window.encryptPaymentData(paymentData);
+
+          if (encryptedPayload.encrypted) {
+            console.log('✅ Dados criptografados com sucesso');
+            console.log('🔍 Payload criptografado:', {
+              encrypted: encryptedPayload.encrypted,
+              timestamp: encryptedPayload.timestamp,
+              dataLength: encryptedPayload.data.length
+            });
+          } else {
+            console.log('📝 Enviando dados sem criptografia');
+            encryptedPayload = { encrypted: false, data: paymentData };
+          }
+        } catch (error) {
+          console.warn('⚠️ Erro na criptografia, enviando dados normalmente:', error);
+          encryptedPayload = { encrypted: false, data: paymentData };
+        }
+      } else {
+        console.log('📝 Módulo de criptografia não disponível');
+        encryptedPayload = { encrypted: false, data: paymentData };
+      }
+
+      console.log('🔍 Validação dos dados finais:');
+      if (encryptedPayload.encrypted) {
+        console.log('   Criptografado: SIM');
+        console.log('   Timestamp:', encryptedPayload.timestamp);
+        console.log('   Tamanho dos dados:', encryptedPayload.data.length, 'caracteres');
+      } else {
+        console.log('   Criptografado: NÃO');
+        console.log('   amount:', encryptedPayload.data.amount, typeof encryptedPayload.data.amount);
+        console.log('   planName:', encryptedPayload.data.planName, typeof encryptedPayload.data.planName);
+        console.log('   credits:', encryptedPayload.data.credits, typeof encryptedPayload.data.credits);
+        console.log('   paymentMethod:', encryptedPayload.data.paymentMethod, typeof encryptedPayload.data.paymentMethod);
+      }
+
       console.log('👤 Token de autenticação:', auth.getToken() ? 'Presente' : 'Ausente');
+
+      // Determinar payload final baseado no tipo de criptografia
+      const requestPayload = encryptedPayload.encrypted ? encryptedPayload : encryptedPayload.data;
 
       // Faz a requisição para criar o PaymentIntent
       const response = await fetch(`${apiBaseUrl}/api/payment/create-intent`, {
@@ -327,7 +366,7 @@ const payment = (() => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${auth.getToken()}`
         },
-        body: JSON.stringify(paymentData)
+        body: JSON.stringify(requestPayload)
       });
 
       console.log('📡 Status da resposta:', response.status);
@@ -350,7 +389,19 @@ const payment = (() => {
         throw new Error(errorMessage);
       }
 
-      const data = await response.json();
+      let data = await response.json();
+
+      // 🔓 Descriptografar resposta se necessário
+      if (data.encrypted && typeof window.decryptServerResponse === 'function') {
+        try {
+          console.log('🔓 Descriptografando resposta do servidor...');
+          data = await window.decryptServerResponse(data);
+          console.log('✅ Resposta descriptografada com sucesso');
+        } catch (error) {
+          console.warn('⚠️ Erro na descriptografia da resposta:', error);
+          // Continuar com dados não descriptografados
+        }
+      }
 
       // Guarda o ID da transação
       sessionStorage.setItem('currentTransactionId', data.transactionId);

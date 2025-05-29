@@ -9,13 +9,15 @@ if (!process.env.JWT_SECRET) {
 
 const express = require('express');
 const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 const path = require('path');
 const { logger, logRequest, logError } = require('./utils/logger');
 const atsRoutes = require('./routes/ats');
 const userRoutes = require('./routes/user');
 const { router: monitoringRouter, collectMetrics, incrementMetric } = require('./routes/monitoring');
+
+// 🛡️ Importar proteções de segurança robustas
+const { securityHeaders, additionalSecurityHeaders } = require('./middleware/securityHeaders');
+const { apiRateLimit, authRateLimit } = require('./middleware/rateLimiting');
 
 const app = express();
 
@@ -28,58 +30,15 @@ if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', false);
 }
 
+// 🛡️ PROTEÇÕES DE SEGURANÇA ROBUSTAS - PRIMEIRA LINHA DE DEFESA
+app.use(securityHeaders()); // Headers de segurança rigorosos com Helmet
+app.use(additionalSecurityHeaders); // Headers personalizados
+
 // Logging de requests
 app.use(logRequest);
 
-// Segurança - Headers HTTP
-app.use(helmet({
-  contentSecurityPolicy: false, // Desabilitar CSP para não quebrar o frontend
-  crossOriginEmbedderPolicy: false
-}));
-
-// Rate limiting - proteção contra ataques
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 1000, // máximo 1000 requests por IP por janela
-  message: 'Muitas tentativas. Tente novamente em 15 minutos.',
-  standardHeaders: true,
-  legacyHeaders: false,
-  // Configuração mais específica para Railway
-  trustProxy: process.env.NODE_ENV === 'production',
-  skip: (req) => {
-    // Pular rate limiting para arquivos estáticos
-    return req.path.includes('/assets/') ||
-      req.path.includes('/favicon.ico') ||
-      req.path.includes('.css') ||
-      req.path.includes('.js') ||
-      req.path.includes('.png') ||
-      req.path.includes('.jpg') ||
-      req.path.includes('.svg');
-  }
-});
-
-// Rate limiting específico para análises ATS
-const atsLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hora
-  max: 50, // máximo 50 análises por IP por hora
-  message: 'Limite de análises excedido. Tente novamente em 1 hora.',
-  standardHeaders: true,
-  legacyHeaders: false,
-  trustProxy: process.env.NODE_ENV === 'production',
-});
-
-// Rate limiting mais liberal para rotas de usuário (header, perfil)
-const userLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minuto
-  max: 60, // máximo 60 requests por minuto (1 por segundo)
-  message: 'Muitas verificações de usuário. Aguarde um momento.',
-  standardHeaders: true,
-  legacyHeaders: false,
-  trustProxy: process.env.NODE_ENV === 'production',
-});
-
-// Aplicar rate limiter global
-app.use(limiter);
+// 🚦 Rate limiting GLOBAL - proteção contra ataques
+app.use(apiRateLimit);
 
 // 📊 Sistema de monitoramento - aplicar a todas as rotas
 app.use(collectMetrics);
@@ -97,16 +56,47 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' })); // Limite de payload
-app.use('/api/user', userLimiter, userRoutes); // Rate limiting mais liberal para usuário
+
+// 🔒 ROTAS COM PROTEÇÕES ESPECÍFICAS
+// Rate limiting específico para análises ATS
+const atsLimiter = require('express-rate-limit')({
+  windowMs: 60 * 60 * 1000, // 1 hora
+  max: 50, // máximo 50 análises por IP por hora
+  message: {
+    error: 'Limite de análises excedido',
+    message: 'Tente novamente em 1 hora',
+    code: 'ATS_RATE_LIMIT'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  trustProxy: process.env.NODE_ENV === 'production',
+});
+
+// Rate limiting mais liberal para rotas de usuário (header, perfil)
+const userLimiter = require('express-rate-limit')({
+  windowMs: 60 * 1000, // 1 minuto
+  max: 60, // máximo 60 requests por minuto (1 por segundo)
+  message: {
+    error: 'Muitas verificações de usuário',
+    message: 'Aguarde um momento',
+    code: 'USER_RATE_LIMIT'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  trustProxy: process.env.NODE_ENV === 'production',
+});
+
+// 🔐 APLICAR ROTAS COM SUAS PROTEÇÕES ESPECÍFICAS
+app.use('/api/user', authRateLimit, userLimiter, userRoutes); // Rate limiting para auth + usuário
 app.use('/api/ats', atsLimiter, atsRoutes); // Rate limiting específico para ATS
 app.use('/api/analysis', require('./routes/analysis')); // Rotas de histórico de análises
 app.use('/api/upload', require('./routes/upload'));
-app.use('/api/payment', require('./routes/payment'));
+app.use('/api/payment', require('./routes/payment')); // 🔒 JÁ TEM PROTEÇÃO MÁXIMA
 app.use('/api/gift-code', require('./routes/giftCode'));
-app.use('/api/password-reset', require('./routes/passwordReset'));
+app.use('/api/password-reset', authRateLimit, require('./routes/passwordReset')); // Proteção anti-brute force
 app.use('/api/contact', require('./routes/contact')); // Recuperação de senha
 app.use('/api/admin', require('./routes/admin')); // Rotas administrativas
-app.use('/api/config', require('./routes/config')); // ✅ Configurações dinâmicas
+app.use('/api/config', require('./routes/config')); // ✅ Configurações dinâmicas (JÁ PROTEGIDAS)
 app.use('/api/monitoring', monitoringRouter); // 📊 Sistema de monitoramento
 app.use('/health', require('./routes/health')); // Health check endpoint
 
