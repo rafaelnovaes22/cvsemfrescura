@@ -153,6 +153,71 @@ app.get('/stripe-test', async (req, res) => {
   }
 });
 
+// 🎁 Endpoint temporário para criar códigos de presente
+app.get('/create-gift-codes', async (req, res) => {
+  try {
+    const GiftCode = require('./models/giftCode');
+
+    const PRODUCTION_CODES = [
+      'GIFTDL6608', 'GIFTIT6ISO', 'GIFT8Y20CT', 'GIFT28TTW1', 'GIFTSVWDFO',
+      'GIFTFW98FA', 'GIFTBCGGLV', 'GIFTL026ZO', 'GIFT02NTXG', 'GIFTPYSD9P', 'GIFTJA0EH0'
+    ];
+
+    let created = 0;
+    let existing = 0;
+    const results = [];
+
+    for (const code of PRODUCTION_CODES) {
+      try {
+        const existingCode = await GiftCode.findOne({ where: { code } });
+
+        if (existingCode) {
+          results.push(`⚠️ ${code} - já existe`);
+          existing++;
+          continue;
+        }
+
+        await GiftCode.create({
+          code: code,
+          maxUses: 1,
+          usedCount: 0,
+          isActive: true,
+          expiresAt: null,
+          createdById: 1
+        });
+
+        results.push(`✅ ${code} - criado`);
+        created++;
+
+      } catch (error) {
+        results.push(`❌ ${code} - erro: ${error.message}`);
+      }
+    }
+
+    const totalCodes = await GiftCode.count({ where: { isActive: true } });
+
+    res.json({
+      success: true,
+      message: '🎁 Códigos de presente criados!',
+      summary: {
+        created,
+        existing,
+        total: created + existing,
+        totalInDatabase: totalCodes
+      },
+      codes: results,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      message: 'Erro ao criar códigos de presente'
+    });
+  }
+});
+
 // ✅ SPA routing - retornar index.html para rotas não-API
 app.get('*', (req, res) => {
   // Se a rota começa com /api, não é uma rota do frontend
