@@ -225,9 +225,13 @@ class ATSUniversalService {
         const gupyAnalysis = GupyOptimizationService.analyzeGupyCompatibility(resumeText, jobDescription);
         const gupyGuarantee = GupyPassGuaranteeService.guaranteePassGupy(resumeText, jobDescription, jobUrl);
 
+        // Extrair keywords da análise Gupy
+        const keywords = this.extractKeywordsFromGupy(gupyAnalysis, jobDescription);
+
         return {
             algorithm: 'GAIA',
             gaia_score: gupyAnalysis.score,
+            keywords: keywords,
             pass_guarantee: gupyGuarantee,
             critical_factors: [
                 'Verbos de ação no início (30% do score)',
@@ -270,6 +274,9 @@ class ATSUniversalService {
             (analysis.network_signals.score * 0.1)
         );
 
+        // Extrair keywords do LinkedIn
+        analysis.keywords = this.extractKeywordsFromLinkedIn(analysis, jobDescription);
+
         return analysis;
     }
 
@@ -295,6 +302,9 @@ class ATSUniversalService {
             (analysis.regional_matching.score * 0.25) +
             (analysis.education_focus.score * 0.15)
         );
+
+        // Extrair keywords do Catho
+        analysis.keywords = analysis.keyword_density.found_keywords || this.extractBasicKeywords(jobDescription);
 
         return analysis;
     }
@@ -322,6 +332,9 @@ class ATSUniversalService {
             (analysis.title_matching.score * 0.1)
         );
 
+        // Extrair keywords do Indeed
+        analysis.keywords = analysis.simple_matching.found_keywords || this.extractBasicKeywords(jobDescription);
+
         return analysis;
     }
 
@@ -348,6 +361,9 @@ class ATSUniversalService {
             (analysis.certification_focus.score * 0.2)
         );
 
+        // Extrair keywords do InfoJobs
+        analysis.keywords = this.extractBasicKeywords(jobDescription);
+
         return analysis;
     }
 
@@ -372,6 +388,9 @@ class ATSUniversalService {
             (analysis.simple_filters.score * 0.2)
         );
 
+        // Extrair keywords do Vagas.com
+        analysis.keywords = analysis.basic_keywords.found_keywords || this.extractBasicKeywords(jobDescription);
+
         return analysis;
     }
 
@@ -382,21 +401,24 @@ class ATSUniversalService {
         console.log('💻 [99JOBS] Aplicando otimização para 99Jobs...');
 
         const analysis = {
-            algorithm: '99Jobs Tech Matching',
+            algorithm: '99Jobs Tech Focus',
             score: 0,
-            tech_focus: this.analyze99JobsTech(resumeText, jobDescription),
-            salary_matching: this.analyze99JobsSalary(resumeText, jobDescription),
-            remote_priority: this.analyze99JobsRemote(resumeText, jobDescription),
-            stack_alignment: this.analyze99JobsStack(resumeText, jobDescription)
+            tech_stack: this.analyze99JobsTech(resumeText, jobDescription),
+            salary_match: this.analyze99JobsSalary(resumeText, jobDescription),
+            remote_readiness: this.analyze99JobsRemote(resumeText, jobDescription),
+            modern_stack: this.analyze99JobsStack(resumeText, jobDescription)
         };
 
-        // 99Jobs: Tech (40%) + Stack (30%) + Remote (20%) + Salary (10%)
+        // 99Jobs: Tech (40%) + Salary (30%) + Remote (20%) + Stack (10%)
         analysis.score = Math.round(
-            (analysis.tech_focus.score * 0.4) +
-            (analysis.stack_alignment.score * 0.3) +
-            (analysis.remote_priority.score * 0.2) +
-            (analysis.salary_matching.score * 0.1)
+            (analysis.tech_stack.score * 0.4) +
+            (analysis.salary_match.score * 0.3) +
+            (analysis.remote_readiness.score * 0.2) +
+            (analysis.modern_stack.score * 0.1)
         );
+
+        // Extrair keywords do 99Jobs
+        analysis.keywords = analysis.tech_stack.found_keywords || this.extractTechKeywords(jobDescription);
 
         return analysis;
     }
@@ -423,6 +445,9 @@ class ATSUniversalService {
             (analysis.format_compliance.score * 0.2) +
             (analysis.completeness.score * 0.1)
         );
+
+        // Extrair keywords genéricas
+        analysis.keywords = analysis.keyword_matching.found_keywords || this.extractBasicKeywords(jobDescription);
 
         return analysis;
     }
@@ -548,6 +573,7 @@ class ATSUniversalService {
 
     /**
      * Calcula score universal baseado na otimização específica
+     * 🔧 VERSÃO AJUSTADA V2.1 - Com melhorias de precisão
      */
     static calculateUniversalScore(platformAnalysis, atsInfo) {
         // Para Gupy, usar gaia_score ao invés de score
@@ -558,14 +584,70 @@ class ATSUniversalService {
             baseScore = platformAnalysis.score || 0;
         }
 
-        // Ajuste baseado na complexidade do ATS
+        // ===================================================
+        // 🎯 AJUSTES ESPECÍFICOS POR ATS (V2.1)
+        // ===================================================
+
+        switch (atsInfo.type) {
+            case 'CATHO':
+                // 🔧 AJUSTE 1: Catho mais rigoroso (40→50 pontos mínimo)
+                // Se score está entre 40-60, reduzir proporcionalmente
+                if (baseScore >= 40 && baseScore < 70) {
+                    baseScore = Math.max(30, baseScore - 10); // Reduzir 10 pontos para ser mais rigoroso
+                }
+                console.log(`🏢 [CATHO AJUSTE] Score base: ${platformAnalysis.score} → Ajustado: ${baseScore} (mais rigoroso)`);
+                break;
+
+            case 'INFOJOBS':
+                // 🔧 AJUSTE 2: InfoJobs menos rigoroso (bonus para CVs brasileiros)
+                const brazilianBonus = 15; // Bonus para compensar rigor europeu
+                baseScore = Math.min(100, baseScore + brazilianBonus);
+                console.log(`🇪🇺 [INFOJOBS AJUSTE] Score base: ${platformAnalysis.score} → Ajustado: ${baseScore} (+${brazilianBonus} bonus brasileiro)`);
+                break;
+
+            case 'INDEED':
+                // 🔧 AJUSTE 3: Indeed mais preciso (ajuste menor)
+                if (baseScore < 50) {
+                    baseScore = Math.min(50, baseScore + 5); // Pequeno boost para scores baixos
+                }
+                break;
+
+            case 'LINKEDIN':
+                // LinkedIn já está bem calibrado, ajuste mínimo
+                if (baseScore > 85) {
+                    baseScore = Math.max(85, baseScore - 2); // Leve redução em scores muito altos
+                }
+                break;
+        }
+
+        // Ajuste baseado na complexidade do ATS (mantido)
         if (atsInfo.complexity === 'ALTA') {
             baseScore = baseScore * 0.95; // ATS mais rigorosos
         } else if (atsInfo.complexity === 'BAIXA') {
             baseScore = baseScore * 1.05; // ATS mais simples
         }
 
-        return Math.min(100, Math.max(0, Math.round(baseScore)));
+        // ===================================================
+        // 🎯 VALIDAÇÃO DE LIMITES MÍNIMOS ESPECÍFICOS
+        // ===================================================
+        const minThresholds = {
+            'GUPY': 55,      // Mais rigoroso (GAIA)
+            'INFOJOBS': 35,  // Reduzido de 50 para 35 (menos rigoroso)
+            'LINKEDIN': 45,  // Médio
+            'CATHO': 50,     // Aumentado de 40 para 50 (mais rigoroso)
+            'INDEED': 35,    // Permissivo
+            'VAGAS': 30,     // Mais permissivo
+            'JOBS99': 25     // Menos rigoroso (tech-friendly)
+        };
+
+        const minThreshold = minThresholds[atsInfo.type] || 40;
+        const finalScore = Math.min(100, Math.max(0, Math.round(baseScore)));
+
+        // Log de validação
+        const passesThreshold = finalScore >= minThreshold;
+        console.log(`📊 [${atsInfo.type}] Score: ${finalScore}/100 | Limite: ${minThreshold} | Status: ${passesThreshold ? '✅ APROVADO' : '❌ REPROVADO'}`);
+
+        return finalScore;
     }
 
     /**
@@ -613,6 +695,123 @@ class ATSUniversalService {
         }
 
         return recommendations;
+    }
+
+    // ===================================================
+    // 🛠️ MÉTODOS AUXILIARES PARA EXTRAÇÃO DE KEYWORDS
+    // ===================================================
+
+    /**
+     * Extrai keywords do serviço Gupy
+     */
+    static extractKeywordsFromGupy(gupyAnalysis, jobDescription) {
+        let keywords = [];
+
+        // Tentar extrair das análises Gupy existentes
+        if (gupyAnalysis.keywords && Array.isArray(gupyAnalysis.keywords)) {
+            keywords = gupyAnalysis.keywords;
+        } else if (gupyAnalysis.job_keywords && Array.isArray(gupyAnalysis.job_keywords)) {
+            keywords = gupyAnalysis.job_keywords;
+        } else if (gupyAnalysis.keywords?.present && Array.isArray(gupyAnalysis.keywords.present)) {
+            keywords = gupyAnalysis.keywords.present;
+        } else {
+            // Fallback: extrair diretamente da descrição
+            keywords = this.extractBasicKeywords(jobDescription);
+        }
+
+        // Se ainda não temos keywords ou são muito poucas, adicionar keywords específicas da Gupy
+        if (keywords.length < 8) {
+            const gupySpecificKeywords = [
+                // Skills comportamentais que a Gupy valoriza
+                'liderança', 'comunicação', 'proatividade', 'organização', 'planejamento',
+                'trabalho em equipe', 'resolução de problemas', 'adaptabilidade', 'criatividade',
+
+                // Competências técnicas comuns
+                'análise', 'desenvolvimento', 'gestão', 'coordenação', 'implementação',
+                'execução', 'monitoramento', 'relatórios', 'apresentações', 'negociação',
+
+                // Áreas de atuação
+                'vendas', 'marketing', 'administração', 'recursos humanos', 'financeiro',
+                'tecnologia', 'logística', 'qualidade', 'atendimento', 'comercial'
+            ];
+
+            // Adicionar keywords que não estão presentes
+            const missingKeywords = gupySpecificKeywords.filter(k => !keywords.includes(k));
+            keywords = [...keywords, ...missingKeywords.slice(0, 10 - keywords.length)];
+        }
+
+        return keywords.slice(0, 15); // Limitar a 15 keywords
+    }
+
+    /**
+     * Extrai keywords do LinkedIn
+     */
+    static extractKeywordsFromLinkedIn(analysis, jobDescription) {
+        let keywords = [];
+
+        if (analysis.skills_matching?.found_skills) {
+            keywords = [...keywords, ...analysis.skills_matching.found_skills];
+        }
+
+        // Adicionar keywords básicas se não há suficientes
+        if (keywords.length < 5) {
+            keywords = [...keywords, ...this.extractBasicKeywords(jobDescription)];
+        }
+
+        return [...new Set(keywords)].slice(0, 15);
+    }
+
+    /**
+     * Extrai keywords técnicas (para 99Jobs)
+     */
+    static extractTechKeywords(jobDescription) {
+        const techTerms = [
+            'javascript', 'python', 'java', 'react', 'node', 'angular', 'vue',
+            'docker', 'kubernetes', 'aws', 'azure', 'git', 'sql', 'mongodb',
+            'api', 'rest', 'graphql', 'microservices', 'agile', 'scrum'
+        ];
+
+        const jobLower = jobDescription.toLowerCase();
+        const foundTech = techTerms.filter(term => jobLower.includes(term));
+
+        // Combinar com keywords básicas
+        const basicKeywords = this.extractBasicKeywords(jobDescription);
+
+        return [...new Set([...foundTech, ...basicKeywords])].slice(0, 15);
+    }
+
+    /**
+     * Extrai keywords básicas de qualquer descrição
+     */
+    static extractBasicKeywords(text) {
+        // Se o texto é muito curto ou é apenas a URL, usar keywords padrão mais inteligentes
+        if (!text || text.length < 50 || text.includes('Análise baseada na URL da vaga')) {
+            return [
+                // Keywords gerais que todo ATS procura
+                'experiência', 'conhecimento', 'habilidades', 'formação', 'competências',
+                'responsabilidades', 'atividades', 'desenvolvimento', 'gestão', 'análise',
+                'comunicação', 'trabalho', 'equipe', 'projetos', 'resultados',
+                'planejamento', 'organização', 'liderança', 'coordenação', 'execução'
+            ];
+        }
+
+        const commonWords = ['o', 'a', 'de', 'da', 'do', 'para', 'com', 'em', 'e', 'ou', 'que', 'se', 'na', 'no', 'um', 'uma', 'ser', 'ter', 'estar', 'vaga', 'empresa', 'candidato'];
+        const words = text.toLowerCase()
+            .replace(/[^\w\sáàâãéèêíìîóòôõúùûç]/g, ' ')
+            .split(/\s+/)
+            .filter(word => word.length > 3 && !commonWords.includes(word))
+            .slice(0, 20);
+
+        const uniqueWords = [...new Set(words)];
+
+        // Se ainda não temos keywords suficientes, adicionar keywords padrão
+        if (uniqueWords.length < 5) {
+            uniqueWords.push(...[
+                'experiência', 'conhecimento', 'habilidades', 'desenvolvimento', 'gestão'
+            ].filter(w => !uniqueWords.includes(w)));
+        }
+
+        return uniqueWords;
     }
 }
 

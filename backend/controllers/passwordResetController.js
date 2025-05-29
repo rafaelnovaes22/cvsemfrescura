@@ -1,8 +1,8 @@
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
-const User = require('../models/user');
-const sequelize = require('../db');
-const PasswordReset = require('../models/PasswordReset')(sequelize);
+const db = require('../models');
+const User = db.User;
+const PasswordReset = db.PasswordReset;
 const { sendPasswordResetEmail } = require('../services/emailService');
 const { logger } = require('../utils/logger');
 

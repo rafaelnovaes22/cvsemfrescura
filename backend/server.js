@@ -99,6 +99,7 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' })); // Limite de payload
 app.use('/api/user', userLimiter, userRoutes); // Rate limiting mais liberal para usuário
 app.use('/api/ats', atsLimiter, atsRoutes); // Rate limiting específico para ATS
+app.use('/api/analysis', require('./routes/analysis')); // Rotas de histórico de análises
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/payment', require('./routes/payment'));
 app.use('/api/gift-code', require('./routes/giftCode'));
@@ -156,7 +157,8 @@ app.get('/stripe-test', async (req, res) => {
 // 🎁 Endpoint temporário para criar códigos de presente
 app.get('/create-gift-codes', async (req, res) => {
   try {
-    const GiftCode = require('./models/giftCode');
+    const db = require('./models');
+    const GiftCode = db.GiftCode;
 
     const PRODUCTION_CODES = [
       'GIFTDL6608', 'GIFTIT6ISO', 'GIFT8Y20CT', 'GIFT28TTW1', 'GIFTSVWDFO',
@@ -218,6 +220,62 @@ app.get('/create-gift-codes', async (req, res) => {
   }
 });
 
+// 🧪 Endpoint temporário para adicionar créditos em modo desenvolvimento
+app.get('/dev-add-credits/:userId/:credits', async (req, res) => {
+  try {
+    // Só funciona em desenvolvimento
+    if (process.env.NODE_ENV !== 'development') {
+      return res.status(403).json({
+        error: 'Endpoint disponível apenas em modo de desenvolvimento'
+      });
+    }
+
+    const db = require('./models');
+    const User = db.User;
+    const userId = parseInt(req.params.userId);
+    const creditsToAdd = parseInt(req.params.credits);
+
+    if (isNaN(userId) || isNaN(creditsToAdd)) {
+      return res.status(400).json({
+        error: 'userId e credits devem ser números válidos'
+      });
+    }
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({
+        error: 'Usuário não encontrado'
+      });
+    }
+
+    const currentCredits = user.credits || 0;
+    const newCredits = currentCredits + creditsToAdd;
+
+    await user.update({ credits: newCredits });
+
+    res.json({
+      success: true,
+      message: `🎁 Créditos adicionados para teste!`,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        creditsAntes: currentCredits,
+        creditsDepois: newCredits,
+        creditosAdicionados: creditsToAdd
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      message: 'Erro ao adicionar créditos'
+    });
+  }
+});
+
 // ✅ SPA routing - retornar index.html para rotas não-API
 app.get('*', (req, res) => {
   // Se a rota começa com /api, não é uma rota do frontend
@@ -233,12 +291,13 @@ app.get('*', (req, res) => {
 const sequelize = require('./db');
 
 // Carregar modelos para sincronização
-const User = require('./models/user');
-const GiftCode = require('./models/giftCode');
-const GiftCodeUsage = require('./models/giftCodeUsage');
-const Transaction = require('./models/Transaction');
+const db = require('./models');
+const User = db.User;
+const GiftCode = db.GiftCode;
+const GiftCodeUsage = db.GiftCodeUsage;
+const Transaction = db.Transaction;
 
-console.log('Modelo User importado:', User ? 'OK' : 'ERRO');
+console.log('✅ Modelos carregados com sucesso');
 
 const PORT = process.env.PORT || 3000;
 

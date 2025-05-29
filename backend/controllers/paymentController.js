@@ -4,8 +4,8 @@ let stripe;
 try {
   if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY !== 'sk_test_desenvolvimento_temporario') {
     stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-console.log('[STRIPE] ✅ Integração configurada com Stripe');
-console.log('[STRIPE] 🔑 Chave:', process.env.STRIPE_SECRET_KEY.substring(0, 20) + '...');
+    console.log('[STRIPE] ✅ Integração configurada com Stripe');
+    console.log('[STRIPE] 🔑 Chave:', process.env.STRIPE_SECRET_KEY.substring(0, 20) + '...');
   } else {
     console.log('[STRIPE] ⚠️ Executando em modo de desenvolvimento sem Stripe configurado');
     console.log('[STRIPE] 💡 Para habilitar pagamentos, configure STRIPE_SECRET_KEY no .env');
@@ -16,8 +16,9 @@ console.log('[STRIPE] 🔑 Chave:', process.env.STRIPE_SECRET_KEY.substring(0, 2
   stripe = null;
 }
 
-const Transaction = require('../models/Transaction');
-const User = require('../models/user');
+const db = require('../models');
+const Transaction = db.Transaction;
+const User = db.User;
 
 // Cria uma intenção de pagamento no Stripe
 exports.createPaymentIntent = async (req, res) => {
@@ -29,10 +30,27 @@ exports.createPaymentIntent = async (req, res) => {
     // Verificar se Stripe está configurado
     if (!stripe) {
       console.log('[PAYMENT] ⚠️ Stripe não configurado - simulando pagamento para desenvolvimento');
+
+      // MODO DESENVOLVIMENTO: Adicionar créditos automaticamente
+      if (req.user) {
+        try {
+          const user = await User.findByPk(req.user.id);
+          if (user) {
+            const currentCredits = user.credits || 0;
+            const newCredits = currentCredits + parseInt(credits);
+            await user.update({ credits: newCredits });
+            console.log(`[PAYMENT] 🎁 Créditos adicionados automaticamente (DEV): ${credits} → Total: ${newCredits}`);
+          }
+        } catch (error) {
+          console.error('[PAYMENT] ❌ Erro ao adicionar créditos:', error);
+        }
+      }
+
       return res.json({
         clientSecret: 'dev_mock_client_secret',
         success: true,
-        message: 'Modo desenvolvimento - Stripe não configurado'
+        message: 'Modo desenvolvimento - Stripe não configurado',
+        transactionId: 'dev_transaction_' + Date.now()
       });
     }
 
@@ -191,6 +209,24 @@ exports.confirmPayment = async (req, res) => {
     // Verificar se Stripe está configurado
     if (!stripe) {
       console.log('[PAYMENT] ⚠️ Stripe não configurado - simulando confirmação para desenvolvimento');
+
+      // MODO DESENVOLVIMENTO: Retornar créditos atualizados
+      if (req.user) {
+        try {
+          const user = await User.findByPk(req.user.id);
+          if (user) {
+            console.log(`[PAYMENT] ✅ Simulando confirmação para usuário ${req.user.id} - créditos atuais: ${user.credits}`);
+            return res.json({
+              success: true,
+              message: 'Modo desenvolvimento - pagamento simulado como confirmado',
+              credits: user.credits
+            });
+          }
+        } catch (error) {
+          console.error('[PAYMENT] ❌ Erro ao buscar usuário:', error);
+        }
+      }
+
       return res.json({
         success: true,
         message: 'Modo desenvolvimento - pagamento simulado como confirmado'

@@ -1,6 +1,7 @@
-const GiftCode = require('../models/giftCode');
-const GiftCodeUsage = require('../models/giftCodeUsage');
-const User = require('../models/user');
+const db = require('../models');
+const GiftCode = db.GiftCode;
+const GiftCodeUsage = db.GiftCodeUsage;
+const User = db.User;
 const { Op } = require('sequelize');
 
 // Dashboard com estatísticas gerais

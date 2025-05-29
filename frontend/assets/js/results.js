@@ -7,10 +7,46 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
         atsResult = JSON.parse(sessionStorage.getItem('atsResult'));
     } catch (e) {
+        console.error('❌ Erro ao parsear dados da análise:', e);
         atsResult = null;
     }
 
-    if (!atsResult) { document.getElementById('conclusion').innerText = 'Nenhum resultado de análise encontrado.'; return; }    // Atualizar créditos do usuário se retornados na análise    if (atsResult.credits_remaining !== undefined && window.auth) {        const user = window.auth.getUser();        if (user) {            user.credits = atsResult.credits_remaining;            localStorage.setItem('user', JSON.stringify(user));            console.log(`💳 Créditos atualizados: ${atsResult.credits_remaining} restantes`);                        // Atualizar interface do header se disponível            if (window.headerManager) {                setTimeout(() => {                    window.headerManager.refreshUserInterface();                }, 100);            }        }    }
+    // Verificar se houve falha na análise
+    const analysisError = sessionStorage.getItem('analysisError');
+    if (analysisError) {
+        try {
+            const errorData = JSON.parse(analysisError);
+            displayAnalysisFailure(errorData);
+            return;
+        } catch (e) {
+            console.error('❌ Erro ao parsear dados de falha:', e);
+        }
+    }
+
+    if (!atsResult) {
+        document.getElementById('conclusion').innerText = 'Nenhum resultado de análise encontrado. Retorne para fazer uma nova análise.';
+        console.error('❌ Nenhum dado de análise encontrado no sessionStorage');
+        return;
+    }
+
+    console.log('✅ Dados da análise carregados:', Object.keys(atsResult));
+
+    // Atualizar créditos do usuário se retornados na análise    
+    if (atsResult.credits_remaining !== undefined && window.auth) {
+        const user = window.auth.getUser();
+        if (user) {
+            user.credits = atsResult.credits_remaining;
+            localStorage.setItem('user', JSON.stringify(user));
+            console.log(`💳 Créditos atualizados: ${atsResult.credits_remaining} restantes`);
+
+            // Atualizar interface do header se disponível            
+            if (window.headerManager) {
+                setTimeout(() => {
+                    window.headerManager.refreshUserInterface();
+                }, 100);
+            }
+        }
+    }
 
     // Nome do arquivo de currículo
     const cvFileName = sessionStorage.getItem('fileName');
@@ -24,25 +60,40 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Palavras-chave das vagas
     const jobKeywordsList = document.getElementById('vaga-keywords');
-    if (jobKeywordsList && atsResult.job_keywords) {
+    if (jobKeywordsList) {
         jobKeywordsList.innerHTML = '';
-        atsResult.job_keywords.forEach(keyword => {
-            const div = document.createElement('div');
-            div.className = 'keyword-tag';
-            div.innerText = keyword;
-            jobKeywordsList.appendChild(div);
-        });
+
+        if (atsResult.job_keywords && atsResult.job_keywords.length > 0) {
+            console.log(`📝 Carregando ${atsResult.job_keywords.length} palavras-chave das vagas`);
+            atsResult.job_keywords.forEach(keyword => {
+                const div = document.createElement('div');
+                div.className = 'keyword-tag';
+                div.innerText = keyword;
+                jobKeywordsList.appendChild(div);
+            });
+        } else {
+            console.warn('⚠️ Nenhuma palavra-chave de vaga encontrada');
+            jobKeywordsList.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #6b7280; background: #f8fafc; border-radius: 8px; border: 2px dashed #d1d5db;">
+                    <div style="font-size: 20px; margin-bottom: 8px;">🔍</div>
+                    <p style="font-weight: 600; margin-bottom: 4px;">Palavras-chave não identificadas</p>
+                    <p style="font-size: 14px;">As palavras-chave das vagas não puderam ser extraídas automaticamente.</p>
+                </div>
+            `;
+        }
     }
 
     // Palavras-chave presentes no currículo (comparação direta com texto do currículo)
     const foundKeywordsList = document.getElementById('presentes-keywords');
-    // Exibir diretamente job_keywords_present ou fallback para found_keywords
     if (foundKeywordsList) {
         foundKeywordsList.innerHTML = '';
         const presentes = atsResult.job_keywords_present && atsResult.job_keywords_present.length
             ? atsResult.job_keywords_present
             : (atsResult.found_keywords && atsResult.found_keywords.length ? atsResult.found_keywords : []);
-        if (presentes.length) {
+
+        console.log(`✅ Carregando ${presentes.length} palavras-chave presentes`);
+
+        if (presentes.length > 0) {
             presentes.forEach(keyword => {
                 const div = document.createElement('div');
                 div.className = 'keyword-tag';
@@ -50,20 +101,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 foundKeywordsList.appendChild(div);
             });
         } else {
-            foundKeywordsList.innerHTML = '<div style="color:red">Nenhuma palavra-chave da vaga foi identificada no currículo ou resultado não disponível.</div>';
+            foundKeywordsList.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #6b7280; background: #f8fafc; border-radius: 8px; border: 2px dashed #d1d5db;">
+                    <div style="font-size: 20px; margin-bottom: 8px;">📋</div>
+                    <p style="font-weight: 600; margin-bottom: 4px;">Análise de palavras-chave em desenvolvimento</p>
+                    <p style="font-size: 14px;">A comparação entre seu currículo e as vagas será aprimorada em futuras versões.</p>
+                </div>
+            `;
         }
     }
 
-
     // Palavras-chave ausentes no currículo (comparação direta com texto do currículo)
     const missingKeywordsList = document.getElementById('ausentes-keywords');
-    // Exibir diretamente job_keywords_missing ou fallback para missing_keywords
     if (missingKeywordsList) {
         missingKeywordsList.innerHTML = '';
         const ausentes = atsResult.job_keywords_missing && atsResult.job_keywords_missing.length
             ? atsResult.job_keywords_missing
             : (atsResult.missing_keywords && atsResult.missing_keywords.length ? atsResult.missing_keywords : []);
-        if (ausentes.length) {
+
+        console.log(`❌ Carregando ${ausentes.length} palavras-chave ausentes`);
+
+        if (ausentes.length > 0) {
             ausentes.forEach(keyword => {
                 const div = document.createElement('div');
                 div.className = 'keyword-tag';
@@ -71,20 +129,38 @@ document.addEventListener('DOMContentLoaded', function () {
                 missingKeywordsList.appendChild(div);
             });
         } else {
-            missingKeywordsList.innerHTML = '<div style="color:red">Nenhuma palavra-chave ausente identificada ou resultado não disponível.</div>';
+            missingKeywordsList.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #6b7280; background: #f8fafc; border-radius: 8px; border: 2px dashed #d1d5db;">
+                    <div style="font-size: 20px; margin-bottom: 8px;">✅</div>
+                    <p style="font-weight: 600; margin-bottom: 4px;">Análise de gaps em desenvolvimento</p>
+                    <p style="font-size: 14px;">A identificação de palavras-chave ausentes será aprimorada em futuras versões.</p>
+                </div>
+            `;
         }
     }
 
-
     // Recomendações
     const recommendationsList = document.getElementById('recommendations-list');
-    if (recommendationsList && atsResult.recommendations) {
+    if (recommendationsList) {
         recommendationsList.innerHTML = '';
-        atsResult.recommendations.forEach(rec => {
-            const li = document.createElement('li');
-            li.innerText = rec;
-            recommendationsList.appendChild(li);
-        });
+
+        if (atsResult.recommendations && atsResult.recommendations.length > 0) {
+            console.log(`💡 Carregando ${atsResult.recommendations.length} recomendações`);
+            atsResult.recommendations.forEach(rec => {
+                const li = document.createElement('li');
+                li.innerText = rec;
+                recommendationsList.appendChild(li);
+            });
+        } else {
+            console.warn('⚠️ Nenhuma recomendação encontrada');
+            recommendationsList.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #6b7280; background: #f8fafc; border-radius: 8px; border: 2px dashed #d1d5db;">
+                    <div style="font-size: 20px; margin-bottom: 8px;">💡</div>
+                    <p style="font-weight: 600; margin-bottom: 4px;">Recomendações em desenvolvimento</p>
+                    <p style="font-size: 14px;">O sistema de recomendações personalizadas será aprimorado em futuras versões.</p>
+                </div>
+            `;
+        }
     }
 
     // Campos de avaliação detalhada
@@ -99,8 +175,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     campos.forEach(campo => {
         const avaliacao = atsResult[campo.chave];
-        if (avaliacao) {
-            // Nota com formatação visual
+
+        // Verificar se há dados válidos e reais
+        const hasRealData = avaliacao &&
+            avaliacao.data_available !== false &&
+            avaliacao.nota !== null &&
+            avaliacao.nota !== undefined;
+
+        if (hasRealData) {
+            // Exibir dados reais
             const notaElem = document.getElementById(campo.nota);
             if (notaElem) {
                 const nota = parseFloat(avaliacao.nota) || 0;
@@ -108,7 +191,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 notaElem.innerHTML = notaFormatada;
             }
 
-            // Texto de avaliação + sugestões
             const textoElem = document.getElementById(campo.texto);
             if (textoElem) {
                 let html = '';
@@ -130,19 +212,28 @@ document.addEventListener('DOMContentLoaded', function () {
                 textoElem.innerHTML = html;
             }
         } else {
-            // Se não há dados da análise, mostrar mensagem padrão
+            // Dados não disponíveis - ser transparente
             const notaElem = document.getElementById(campo.nota);
             if (notaElem) {
-                notaElem.innerHTML = '<span style="color: #999;">N/A</span>';
+                notaElem.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 8px; color: #6b7280;">
+                        <span style="font-size: 16px;">⏳</span>
+                        <span style="font-size: 14px; font-weight: 600;">Em Desenvolvimento</span>
+                    </div>
+                `;
             }
 
             const textoElem = document.getElementById(campo.texto);
             if (textoElem) {
+                const mensagem = avaliacao?.avaliacao || `Análise detalhada de ${campo.titulo} não disponível nesta versão.`;
                 textoElem.innerHTML = `
-                    <div style="text-align: center; padding: 20px; color: #666; background: #f9f9f9; border-radius: 8px; border: 2px dashed #ddd;">
-                        <div style="font-size: 24px; margin-bottom: 8px;">⏳</div>
-                        <p>Análise de ${campo.titulo} não disponível.</p>
-                        <p style="font-size: 14px; margin-top: 4px;">Esta seção será avaliada em análises futuras.</p>
+                    <div style="text-align: center; padding: 20px; color: #6b7280; background: #f8fafc; border-radius: 8px; border: 2px dashed #d1d5db;">
+                        <div style="font-size: 20px; margin-bottom: 8px;">🔄</div>
+                        <p style="font-weight: 600; margin-bottom: 4px;">Seção em Desenvolvimento</p>
+                        <p style="font-size: 14px;">${mensagem}</p>
+                        <p style="font-size: 12px; margin-top: 8px; color: #9ca3af;">
+                            Esta análise será disponibilizada em futuras atualizações do sistema.
+                        </p>
                     </div>
                 `;
             }
@@ -663,4 +754,134 @@ function createGupyStatisticsCard(gupyTips) {
     `;
 
     return card;
+}
+
+/**
+ * Exibe interface de falha na análise com explicações e sugestões
+ */
+function displayAnalysisFailure(errorData) {
+    console.log('⚠️ Exibindo falha na análise:', errorData);
+
+    // Limpar sessionStorage do erro
+    sessionStorage.removeItem('analysisError');
+
+    const mainContainer = document.querySelector('.container');
+    if (!mainContainer) return;
+
+    mainContainer.innerHTML = `
+        <div style="max-width: 800px; margin: 20px auto; padding: 0 20px;">
+            <!-- Header de Falha -->
+            <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+                <h1 style="margin: 0 0 12px 0; font-size: 24px; font-weight: 700;">Análise Não Concluída</h1>
+                <p style="margin: 0; font-size: 16px; opacity: 0.9;">Encontramos problemas que impediram a conclusão da sua análise</p>
+            </div>
+            
+            <!-- Proteção de Créditos -->
+            <div style="background: #10b981; color: white; padding: 20px; display: flex; align-items: center; gap: 16px;">
+                <div style="font-size: 32px;">🛡️</div>
+                <div>
+                    <div style="font-weight: 700; font-size: 18px; margin-bottom: 4px;">Seus Créditos Foram Protegidos</div>
+                    <div style="font-size: 14px; opacity: 0.9;">Nenhum crédito foi descontado. Você pode tentar novamente sem custo adicional.</div>
+                </div>
+            </div>
+            
+            <!-- Explicação do Problema -->
+            <div style="background: white; padding: 30px; border: 1px solid #e5e7eb;">
+                <h2 style="color: #1f2937; font-size: 20px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                    <span>🔍</span> O que aconteceu?
+                </h2>
+                <p style="color: #6b7280; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                    ${errorData.error || 'Não conseguimos completar sua análise com a qualidade esperada.'}
+                </p>
+                
+                ${errorData.details && errorData.details.length > 0 ? `
+                    <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                        <div style="font-weight: 600; color: #dc2626; margin-bottom: 12px;">Problemas Identificados:</div>
+                        <ul style="margin: 0; padding-left: 20px; color: #6b7280;">
+                            ${errorData.details.map(detail => `
+                                <li style="margin-bottom: 8px;">
+                                    <strong>${detail.component}:</strong> ${detail.issue}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+            </div>
+            
+            <!-- Sugestões de Solução -->
+            ${errorData.recovery_options && errorData.recovery_options.length > 0 ? `
+                <div style="background: white; padding: 30px; border: 1px solid #e5e7eb; border-top: 0;">
+                    <h2 style="color: #1f2937; font-size: 20px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                        <span>💡</span> Como resolver?
+                    </h2>
+                    
+                    ${errorData.recovery_options.map(option => `
+                        <div style="margin-bottom: 24px; background: #f8fafc; border-radius: 8px; padding: 20px; border-left: 4px solid #3b82f6;">
+                            <div style="font-weight: 600; color: #1f2937; margin-bottom: 12px; font-size: 16px;">
+                                ${option.issue}
+                            </div>
+                            <ul style="margin: 0; padding-left: 20px; color: #6b7280;">
+                                ${option.suggestions.map(suggestion => `
+                                    <li style="margin-bottom: 6px; line-height: 1.5;">${suggestion}</li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+            
+            <!-- Informações de Suporte -->
+            <div style="background: #f8fafc; padding: 24px; border-radius: 0 0 12px 12px; border: 1px solid #e5e7eb; border-top: 0;">
+                <div style="display: flex; align-items: start; gap: 16px;">
+                    <div style="font-size: 32px;">🤝</div>
+                    <div style="flex: 1;">
+                        <h3 style="margin: 0 0 8px 0; font-size: 18px; color: #1f2937; font-weight: 600;">Precisa de Ajuda?</h3>
+                        <p style="margin: 0 0 16px 0; color: #6b7280; line-height: 1.5;">
+                            ${errorData.support_info?.message || 'Nossa equipe foi notificada sobre este problema e está trabalhando para resolvê-lo.'}
+                        </p>
+                        <p style="margin: 0; color: #6b7280; font-size: 14px;">
+                            ${errorData.support_info?.contact || 'Tente novamente em alguns minutos ou entre em contato conosco se o problema persistir.'}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Botões de Ação -->
+            <div style="text-align: center; margin-top: 30px; padding-bottom: 20px;">
+                <button onclick="window.location.href='/'" 
+                        style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; padding: 12px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-right: 12px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); transition: all 0.2s;">
+                    🔄 Tentar Novamente
+                </button>
+                <button onclick="window.location.href='/history.html'" 
+                        style="background: transparent; color: #6b7280; border: 2px solid #d1d5db; padding: 12px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                    📋 Ver Histórico
+                </button>
+            </div>
+        </div>
+    `;
+
+    // Adicionar hover effects
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+        if (button.style.background.includes('gradient')) {
+            button.addEventListener('mouseenter', () => {
+                button.style.transform = 'translateY(-2px)';
+                button.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.4)';
+            });
+            button.addEventListener('mouseleave', () => {
+                button.style.transform = 'translateY(0)';
+                button.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+            });
+        } else {
+            button.addEventListener('mouseenter', () => {
+                button.style.borderColor = '#9ca3af';
+                button.style.color = '#374151';
+            });
+            button.addEventListener('mouseleave', () => {
+                button.style.borderColor = '#d1d5db';
+                button.style.color = '#6b7280';
+            });
+        }
+    });
 }

@@ -1,9 +1,7 @@
 const bcrypt = require('bcrypt');
-const User = require('../models/user');
+const db = require('../models');
+const User = db.User;
 const { generateToken } = require('../utils/jwtHelper');
-
-// Registra o modelo para debug
-console.log('Modelo User importado:', User ? 'OK' : 'Não encontrado');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 

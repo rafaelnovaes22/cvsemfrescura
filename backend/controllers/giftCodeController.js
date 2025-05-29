@@ -1,6 +1,7 @@
-const GiftCode = require('../models/giftCode');
-const User = require('../models/user');
-const GiftCodeUsage = require('../models/giftCodeUsage');
+const db = require('../models');
+const GiftCode = db.GiftCode;
+const User = db.User;
+const GiftCodeUsage = db.GiftCodeUsage;
 
 // Verificar e aplicar um código de presente
 exports.validateCode = async (req, res) => {

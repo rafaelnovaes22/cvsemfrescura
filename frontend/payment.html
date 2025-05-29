@@ -1238,76 +1238,62 @@
 
             // Função para abrir modal e inicializar pagamento
             async function openPaymentModal(planData) {
+                console.log('🎯 Abrindo modal de pagamento...');
+
+                const modal = document.getElementById('paymentModal');
+                const modalTitle = modal.querySelector('.modal-title');
+                const guestCheckoutSection = document.getElementById('guest-checkout-section');
+                const messageEl = document.getElementById('paymentMessage');
+
+                if (!modal) {
+                    console.error('❌ Modal de pagamento não encontrado');
+                    return;
+                }
+
+                // Armazenar dados do plano globalmente
+                currentPaymentPlan = planData;
+
+                // Verificar se o usuário está logado
+                const user = window.auth ? window.auth.getUser() : null;
+
+                // Atualizar título do modal
+                if (modalTitle) {
+                    modalTitle.textContent = user ? 'Finalizar Compra - Análise Completa' : 'Checkout Rápido - Análise Completa';
+                }
+
+                // Mostrar/esconder seção de checkout rápido
+                if (guestCheckoutSection) {
+                    guestCheckoutSection.style.display = user ? 'none' : 'block';
+                }
+
+                // Mostrar modal
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+
+                console.log('✅ Modal aberto, inicializando Stripe Elements...');
+
+                // INICIALIZAÇÃO INSTANTÂNEA
+                if (messageEl) {
+                    messageEl.innerHTML = '<div style="background: #f8f9fa; color: #495057; padding: 12px; border-radius: 6px;"><strong>⏳</strong> Carregando formulário...</div>';
+                    messageEl.className = 'message info';
+                    messageEl.style.display = 'block';
+                }
+
+                // Inicializar Stripe Elements IMEDIATAMENTE
                 try {
-                    console.log('🎯 Abrindo modal de pagamento...');
-
-                    const modal = document.getElementById('paymentModal');
-                    const modalTitle = modal.querySelector('.modal-title');
-                    const guestCheckoutSection = document.getElementById('guest-checkout-section');
-
-                    if (!modal) {
-                        console.error('❌ Modal de pagamento não encontrado');
-                        return;
+                    if (payment && payment.createPaymentIntent) {
+                        await payment.createPaymentIntent(planData, 'card', {}, false);
+                        console.log('✅ Stripe Elements pronto!');
+                    } else {
+                        throw new Error('Sistema de pagamento não disponível');
                     }
-
-                    // Armazenar dados do plano globalmente
-                    currentPaymentPlan = planData;
-
-                    // Verificar se o usuário está logado
-                    const user = window.auth ? window.auth.getUser() : null;
-
-                    // Mapeamento dos códigos dos planos para nomes amigáveis
-                    const planNames = {
-                        'basic': 'Análise Completa'
-                    };
-
-                    const planDisplayName = planNames[planData.plan] || 'Análise Completa';
-
-                    // Atualizar título do modal e mostrar/esconder seção de checkout rápido
-                    if (modalTitle) {
-                        modalTitle.textContent = user ?
-                            `Finalizar Compra - ${planDisplayName}` :
-                            `Checkout Rápido - ${planDisplayName}`;
-                    }
-
-                    // Mostrar seção de checkout rápido apenas para usuários não logados
-                    if (guestCheckoutSection) {
-                        guestCheckoutSection.style.display = user ? 'none' : 'block';
-                    }
-
-                    // Mostrar mensagem informativa
-                    const messageEl = document.getElementById('paymentMessage');
-                    if (messageEl && !user) {
-                        messageEl.innerHTML = `
-                            <div style="background: #e3f2fd; color: #1976d2; padding: 12px; border-radius: 6px; border: 1px solid #bbdefb;">
-                                <strong>💡 Checkout Rápido:</strong> Preencha seus dados e aguarde o carregamento das opções de pagamento
-                            </div>
-                        `;
-                        messageEl.className = 'message info';
-                        messageEl.style.display = 'block';
-                    } else if (messageEl) {
-                        messageEl.style.display = 'none';
-                    }
-
-                    // Mostrar modal
-                    modal.style.display = 'flex';
-                    document.body.style.overflow = 'hidden';
-
-                    // Inicializar o pagamento automaticamente para checkout rápido
-                    if (!user) {
-                        // Para checkout rápido, tentar inicializar com cartão primeiro
-                        setTimeout(() => {
-                            if (typeof payment !== 'undefined' && payment.createPaymentIntent && currentPaymentPlan) {
-                                payment.createPaymentIntent(currentPaymentPlan, 'card');
-                            }
-                        }, 500);
-                    }
-
-                    console.log('✅ Modal aberto, pronto para pagamento...');
-
                 } catch (error) {
-                    console.error('❌ Erro ao abrir modal:', error);
-                    showMessage('Erro ao abrir formulário de pagamento.', 'error');
+                    console.error('❌ Erro:', error);
+                    if (messageEl) {
+                        messageEl.innerHTML = '<div style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 6px;"><strong>❌</strong> Erro ao carregar. Recarregue a página.</div>';
+                        messageEl.className = 'message error';
+                        messageEl.style.display = 'block';
+                    }
                 }
             }
 
@@ -1356,6 +1342,20 @@
                 };
             }
 
+            // NOVO: Adicionar listeners aos campos de checkout rápido
+            const guestNameField = document.getElementById('guest-name');
+            const guestEmailField = document.getElementById('guest-email');
+
+            if (guestNameField) {
+                // guestNameField.addEventListener('input', checkAndInitializePayment);
+                // guestNameField.addEventListener('blur', checkAndInitializePayment);
+            }
+
+            if (guestEmailField) {
+                // guestEmailField.addEventListener('input', checkAndInitializePayment);
+                // guestEmailField.addEventListener('blur', checkAndInitializePayment);
+            }
+
             // Event listeners para formulários
             if (stripeForm) {
                 stripeForm.addEventListener('submit', async function (e) {
@@ -1367,30 +1367,15 @@
                         return;
                     }
 
-                    // Criar payment intent agora (com dados validados)
-                    if (typeof payment !== 'undefined' && payment.createPaymentIntent && currentPaymentPlan) {
-                        console.log('🎯 Criando payment intent...');
-                        const success = await payment.createPaymentIntent(currentPaymentPlan, 'card');
-
-                        if (!success) {
-                            console.error('❌ Falha ao criar payment intent');
-                            showMessage('Erro ao inicializar pagamento. Tente novamente.', 'error');
-                            return;
-                        }
-
-                        // Aguardar um pouco para o Stripe Elements carregar
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-
-                        // Agora processar o pagamento
+                    // Processar o pagamento diretamente (processPayment irá criar o PaymentIntent se necessário)
+                    if (typeof payment !== 'undefined' && payment.processPayment) {
                         await payment.processPayment();
                     } else {
-                        console.error('❌ Dados insuficientes para pagamento');
+                        console.error('❌ Sistema de pagamento não disponível');
                         showMessage('Erro no sistema de pagamento.', 'error');
                     }
                 });
             }
-
-
 
             if (boletoForm) {
                 boletoForm.addEventListener('submit', async function (e) {

@@ -5,6 +5,14 @@ const { costTracker } = require('../utils/costTracker');
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_URL = 'https://api.openai.com/v1/chat/completions';
 
+// Verificar se está em modo de desenvolvimento
+const isDevelopmentMode = !OPENAI_API_KEY || OPENAI_API_KEY === 'sk_test_desenvolvimento_temporario' || OPENAI_API_KEY === 'your_openai_key_here';
+
+if (isDevelopmentMode) {
+  console.log('[ATS] ⚠️ Executando em modo de desenvolvimento - OpenAI não configurada');
+  console.log('[ATS] 💡 Para habilitar análises reais, configure OPENAI_API_KEY no .env');
+}
+
 function buildPrompt(jobsText, resumeText) {
   return `Responda sempre em português do Brasil.
 Você é um sistema ATS especialista em análise de currículos e vagas.
@@ -117,6 +125,91 @@ Responda em JSON, SEMPRE incluindo TODAS as chaves abaixo, mesmo que alguma este
 }
 
 exports.extractATSData = async (jobsText, resumeText) => {
+  // Modo de desenvolvimento - retornar dados simulados
+  if (isDevelopmentMode) {
+    console.log('[ATS] 🧪 Modo desenvolvimento ativo - retornando análise simulada');
+
+    return {
+      "job_keywords": [
+        "JavaScript", "React", "Node.js", "TypeScript", "Git", "API REST",
+        "Metodologias ágeis", "Scrum", "SQL", "MongoDB", "AWS", "Docker"
+      ],
+      "resume_keywords": [
+        "JavaScript", "React", "Node.js", "Git", "SQL", "Metodologias ágeis"
+      ],
+      "missing_keywords": [
+        "TypeScript", "API REST", "Scrum", "MongoDB", "AWS", "Docker"
+      ],
+      "found_keywords": [
+        "JavaScript", "React", "Node.js", "Git", "SQL", "Metodologias ágeis"
+      ],
+      "recommendations": [
+        "Incluir experiência com TypeScript para demonstrar conhecimento em tipagem estática",
+        "Destacar experiência com APIs REST e integração de sistemas",
+        "Mencionar participação em projetos utilizando metodologia Scrum",
+        "Adicionar conhecimento em bancos NoSQL como MongoDB",
+        "Incluir experiência com cloud computing (AWS, Azure)",
+        "Demonstrar conhecimento em containerização com Docker"
+      ],
+      "conclusion": "Seu currículo demonstra uma base sólida em desenvolvimento web moderno, especialmente em JavaScript e React. Para maximizar suas oportunidades, considere aprimorar as competências identificadas como ausentes e destacar mais claramente sua experiência com metodologias ágeis. Com alguns ajustes estratégicos, você estará bem posicionado para as vagas analisadas.",
+      "resumo": {
+        "nota": 7,
+        "avaliacao": "Seu perfil profissional demonstra uma trajetória interessante na área de tecnologia. É possível identificar suas principais competências e interesses profissionais. Para tornar seu resumo ainda mais impactante, seria valioso desenvolver uma apresentação mais estruturada que destaque seus diferenciais únicos.",
+        "sugestoes": [
+          "Criar um resumo executivo de 3-4 linhas destacando suas principais qualificações",
+          "Incluir suas tecnologias principais e anos de experiência",
+          "Mencionar seus objetivos profissionais de forma clara"
+        ]
+      },
+      "idiomas": {
+        "nota": 4,
+        "avaliacao": "Esta é uma área com grande potencial para desenvolvimento em seu currículo. Incluir informações sobre idiomas pode ser um diferencial importante, especialmente em um mercado cada vez mais globalizado. Mesmo que você esteja em processo de aprendizado, é valioso mencionar seu nível atual.",
+        "sugestoes": [
+          "Incluir seu nível de português (nativo) e inglês com escala de proficiência",
+          "Se estiver estudando algum idioma, mencionar o nível atual",
+          "Considerar fazer certificações de proficiência em inglês"
+        ]
+      },
+      "formacao": {
+        "nota": 6,
+        "avaliacao": "Sua formação acadêmica fornece uma base importante para sua carreira. É positivo ver o investimento em educação formal. Para enriquecer ainda mais esta seção, seria interessante complementar com cursos específicos da área de tecnologia que demonstrem seu comprometimento com o aprendizado contínuo.",
+        "sugestoes": [
+          "Incluir cursos complementares e certificações relevantes",
+          "Mencionar projetos acadêmicos ou TCC relacionados à tecnologia",
+          "Adicionar cursos online de plataformas reconhecidas (Coursera, Udemy, etc.)"
+        ]
+      },
+      "habilidades": {
+        "nota": 8,
+        "avaliacao": "Você demonstra um conjunto sólido de habilidades técnicas relevantes para o mercado atual. Suas competências em desenvolvimento web estão bem alinhadas com as demandas do setor. Esta é definitivamente uma das forças do seu currículo, mostrando versatilidade e conhecimento atual das tecnologias.",
+        "sugestoes": [
+          "Organizar as habilidades por categorias (Frontend, Backend, Ferramentas)",
+          "Incluir nível de proficiência para cada tecnologia",
+          "Adicionar soft skills importantes como trabalho em equipe e comunicação"
+        ]
+      },
+      "informacoes_pessoais": {
+        "nota": 5,
+        "avaliacao": "As informações de contato básicas estão presentes, o que é fundamental. Para tornar esta seção mais completa e profissional, seria valioso expandir com informações que facilitem o contato e demonstrem sua presença digital profissional.",
+        "sugestoes": [
+          "Incluir LinkedIn atualizado e GitHub com projetos",
+          "Adicionar localização (cidade/estado) se relevante para a vaga",
+          "Considerar incluir um portfólio online se aplicável"
+        ]
+      },
+      "experiencia_profissional": {
+        "nota": 7,
+        "avaliacao": "Sua trajetória profissional mostra evolução e experiência prática importante. É positivo ver aplicação real das tecnologias que você domina. Para tornar esta seção ainda mais impactante, seria valioso detalhar melhor seus resultados e conquistas específicas em cada posição.",
+        "sugestoes": [
+          "Quantificar resultados sempre que possível (ex: melhorou performance em X%)",
+          "Usar verbos de ação no início de cada responsabilidade",
+          "Destacar projetos específicos e tecnologias utilizadas",
+          "Incluir o tamanho das equipes em que trabalhou"
+        ]
+      }
+    };
+  }
+
   const prompt = buildPrompt(jobsText, resumeText);
   console.log('[ATS] Tamanho do prompt:', prompt.length, 'caracteres');
   console.log('[ATS] 🔄 Nova estratégia: Claude primeiro → OpenAI fallback (economia de ~80%)');

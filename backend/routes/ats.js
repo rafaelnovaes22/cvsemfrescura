@@ -5,6 +5,10 @@ const atsController = require('../controllers/atsController');
 const authMiddleware = require('../utils/authMiddleware');
 
 const router = express.Router();
+
+// Log de debug
+console.log('🔧 [DEBUG] Registrando rotas ATS...');
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, path.resolve(__dirname, '../uploads/'));
@@ -19,6 +23,14 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+// Rota de teste para debug
+router.get('/test', (req, res) => {
+    console.log('🔧 [DEBUG] Rota de teste ATS chamada');
+    res.json({ message: 'ATS routes funcionando!', timestamp: new Date().toISOString() });
+});
+
 router.post('/analyze', authMiddleware, upload.single('resume'), atsController.analyze);
+
+console.log('✅ [DEBUG] Rotas ATS registradas com sucesso');
 
 module.exports = router;

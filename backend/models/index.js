@@ -28,13 +28,18 @@ fs
   })
   .forEach(file => {
     const modelDefiner = require(path.join(__dirname, file));
+
     // Verifica se é uma função (novo padrão) ou objeto (padrão antigo)
     if (typeof modelDefiner === 'function') {
       const model = modelDefiner(sequelize);
       db[model.name] = model;
+    } else if (modelDefiner && modelDefiner.name) {
+      // Model já definido - adicionar diretamente
+      db[modelDefiner.name] = modelDefiner;
     } else {
-      // Compatibilidade com modelos antigos
-      db[file.split('.')[0]] = modelDefiner;
+      // Compatibilidade com modelos antigos sem name
+      const modelName = file.split('.')[0];
+      db[modelName] = modelDefiner;
     }
   });
 
