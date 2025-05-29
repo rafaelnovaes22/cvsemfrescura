@@ -17,7 +17,7 @@ const GupyPassGuaranteeService = require('../services/gupyPassGuaranteeService')
 
 const atsService = require('../services/atsService'); // ✅ RESTAURADO
 const ATSUniversalService = require('../services/atsUniversalService');
-const relevantScraper = require('../utils/relevantScraper'); // ✅ SCRAPER REAL
+const relevantScraper = require('../utils/relevantJobScraper'); // ✅ SCRAPER REAL CORRIGIDO
 
 exports.analyze = async (req, res) => {
   try {
