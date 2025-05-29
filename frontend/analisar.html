@@ -794,11 +794,12 @@
         };
 
         // Função para aplicar código de presente após autenticação
-        function applyGiftCodeAfterAuth(code) {
+        function applyGiftCodeAfterAuth(code, callback) {
             // Verificar se este código já foi aplicado nesta sessão para evitar duplicação
             const appliedCodes = JSON.parse(sessionStorage.getItem('appliedGiftCodes') || '[]');
             if (appliedCodes.includes(code)) {
                 console.log('🔄 Código já aplicado nesta sessão:', code);
+                if (callback) callback();
                 return;
             }
 
@@ -846,7 +847,13 @@
                         // Limpar código após uso bem-sucedido
                         localStorage.removeItem('giftCode');
                         localStorage.removeItem('pendingGiftCode');
+
+                        // Executar callback se fornecido
+                        if (callback) callback();
                     } else {
+                        // Executar callback mesmo em caso de erro para continuar o fluxo
+                        if (callback) callback();
+
                         // Verificar se é erro de código já utilizado
                         if (data.error && (data.error.includes('já foi utilizado') || data.error.includes('já utilizou') || data.error.includes('inválido ou não pode ser utilizado'))) {
                             showGiftCodeErrorModal(data.error);
@@ -886,6 +893,8 @@
                 .catch(error => {
                     console.error('Erro ao aplicar código:', error);
                     showGiftCodeErrorModal('Erro de conexão. Verifique sua internet e tente novamente.');
+                    // Executar callback mesmo em caso de erro para continuar o fluxo
+                    if (callback) callback();
                 });
         }
 
@@ -1260,21 +1269,25 @@
                         const giftCodeFromUrl = urlParams.get('giftCode');
                         const pendingCode = localStorage.getItem('giftCode') || localStorage.getItem('pendingGiftCode');
 
-                        // Só aplicar código se:
-                        // 1. Há um código na URL atual OU
-                        // 2. Há um código pendente e o usuário veio de uma página com código
+                        // Determinar qual código aplicar
+                        let codeToApply = null;
                         if (giftCodeFromUrl && giftCodeFromUrl.trim() !== '') {
-                            // Aplicar código que veio da URL
-                            applyGiftCodeAfterAuth(giftCodeFromUrl);
+                            codeToApply = giftCodeFromUrl;
                         } else if (pendingCode && pendingCode.trim() !== '' && document.referrer.includes('giftCode=')) {
-                            // Só aplicar código pendente se o usuário veio de uma página com código
-                            applyGiftCodeAfterAuth(pendingCode);
+                            codeToApply = pendingCode;
+                        }
+
+                        if (codeToApply) {
+                            // Aplicar código PRIMEIRO, depois chamar authSuccess
+                            applyGiftCodeAfterAuth(codeToApply, () => {
+                                window.authSuccess();
+                            });
                         } else {
                             // Limpar códigos antigos se não há código válido
                             localStorage.removeItem('giftCode');
                             localStorage.removeItem('pendingGiftCode');
+                            window.authSuccess();
                         }
-                        window.authSuccess();
                     })
                     .catch(function (error) {
                         authError.textContent = error.message || 'Erro ao fazer login';
@@ -1299,21 +1312,25 @@
                         const giftCodeFromUrl = urlParams.get('giftCode');
                         const pendingCode = localStorage.getItem('giftCode') || localStorage.getItem('pendingGiftCode');
 
-                        // Só aplicar código se:
-                        // 1. Há um código na URL atual OU
-                        // 2. Há um código pendente e o usuário veio de uma página com código
+                        // Determinar qual código aplicar
+                        let codeToApply = null;
                         if (giftCodeFromUrl && giftCodeFromUrl.trim() !== '') {
-                            // Aplicar código que veio da URL
-                            applyGiftCodeAfterAuth(giftCodeFromUrl);
+                            codeToApply = giftCodeFromUrl;
                         } else if (pendingCode && pendingCode.trim() !== '' && document.referrer.includes('giftCode=')) {
-                            // Só aplicar código pendente se o usuário veio de uma página com código
-                            applyGiftCodeAfterAuth(pendingCode);
+                            codeToApply = pendingCode;
+                        }
+
+                        if (codeToApply) {
+                            // Aplicar código PRIMEIRO, depois chamar authSuccess
+                            applyGiftCodeAfterAuth(codeToApply, () => {
+                                window.authSuccess();
+                            });
                         } else {
                             // Limpar códigos antigos se não há código válido
                             localStorage.removeItem('giftCode');
                             localStorage.removeItem('pendingGiftCode');
+                            window.authSuccess();
                         }
-                        window.authSuccess();
                     })
                     .catch(function (error) {
                         // Se falhou no cadastro, mostrar erro de cadastro
