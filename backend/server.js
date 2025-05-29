@@ -296,13 +296,38 @@ console.log('- Porta configurada:', PORT);
 console.log('- NODE_ENV:', process.env.NODE_ENV);
 console.log('- Railway PORT env:', process.env.PORT ? 'SIM ✅' : 'NÃO ❌');
 
-// Sincronia leve para garantir que as tabelas existam
-sequelize.sync({ alter: true })
-  .then(() => {
-    console.log('✅ Banco de dados sincronizado');
+// 🔧 Função para inicializar servidor com fallback
+async function startServer() {
+  try {
+    console.log('🔄 [SERVER] Iniciando servidor...');
+
+    // Tentar conectar e sincronizar banco
+    console.log('🔍 [DATABASE] Testando conexão com banco de dados...');
+    const connectionOk = await db.testConnection();
+
+    if (connectionOk) {
+      console.log('✅ [DATABASE] Conexão estabelecida, sincronizando...');
+      const syncOk = await db.safeSync({ alter: true });
+
+      if (syncOk) {
+        console.log('✅ [DATABASE] Banco de dados sincronizado com sucesso');
+      } else {
+        console.warn('⚠️ [DATABASE] Falha na sincronização, mas servidor continuará');
+      }
+    } else {
+      console.warn('⚠️ [DATABASE] Conexão falhou, sistema funcionará sem persistência');
+    }
+
+    // Iniciar servidor independentemente do banco
+    console.log('🚀 [SERVER] Iniciando servidor HTTP...');
     const server = app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 CV Sem Frescura backend rodando na porta ${PORT}`);
       console.log(`🌐 Servidor disponível em todas as interfaces (0.0.0.0:${PORT})`);
+
+      if (!connectionOk) {
+        console.log('⚠️ [WARNING] Funcionalidades que dependem do banco (códigos de presente, histórico) podem não funcionar');
+        console.log('ℹ️ [INFO] Configure DATABASE_URL para funcionalidade completa');
+      }
     });
 
     // Tratamento de erros do servidor
@@ -313,8 +338,27 @@ sequelize.sync({ alter: true })
         process.exit(1);
       }
     });
-  })
-  .catch(err => {
-    console.error('❌ Erro ao sincronizar banco de dados:', err);
-    process.exit(1);
-  });
+
+    return server;
+
+  } catch (error) {
+    console.error('❌ [SERVER] Erro crítico ao iniciar:', error);
+
+    // Tentar iniciar mesmo com erro
+    console.log('🔄 [SERVER] Tentando iniciar sem banco de dados...');
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 CV Sem Frescura backend rodando na porta ${PORT} (modo limitado)`);
+      console.log(`⚠️ Algumas funcionalidades podem não estar disponíveis`);
+    });
+
+    server.on('error', (serverError) => {
+      console.error('❌ Erro crítico no servidor:', serverError);
+      process.exit(1);
+    });
+
+    return server;
+  }
+}
+
+// Inicializar servidor
+startServer();
