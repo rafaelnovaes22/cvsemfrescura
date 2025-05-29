@@ -163,8 +163,24 @@ function displayCompatibilityScores(atsResult) {
 
     let hasScores = false;
 
+    // NOVA: Exibir garantias de aprovação na Gupy (PRIORIDADE MÁXIMA)
+    if (atsResult.gupy_pass_guarantee && atsResult.gupy_pass_guarantee.length > 0) {
+        compatibilityContainer.innerHTML = '';
+
+        atsResult.gupy_pass_guarantee.forEach(guarantee => {
+            const card = createGupyPassGuaranteeCard(guarantee);
+            compatibilityContainer.appendChild(card);
+            hasScores = true;
+        });
+
+        // Adicionar dicas específicas se existirem
+        if (atsResult.gupy_tips && atsResult.gupy_tips.gupy_statistics) {
+            const tipsCard = createGupyStatisticsCard(atsResult.gupy_tips);
+            compatibilityContainer.appendChild(tipsCard);
+        }
+    }
     // Método 1: Análise específica do Gupy (mais precisa)
-    if (atsResult.gupy_optimization && atsResult.gupy_optimization.length > 0) {
+    else if (atsResult.gupy_optimization && atsResult.gupy_optimization.length > 0) {
         compatibilityContainer.innerHTML = '';
 
         atsResult.gupy_optimization.forEach(job => {
@@ -298,10 +314,10 @@ function createCompatibilityCard(job, type = 'general') {
             <div style="margin-top: 16px; padding: 12px; background: #f0f9ff; border-radius: 8px; border: 1px solid #0ea5e9;">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
                     <span style="font-size: 16px;">🤖</span>
-                    <span style="font-weight: 600; color: #0ea5e9; font-size: 14px;">Análise Especializada Gupy</span>
+                    <span style="font-weight: 600; color: #0ea5e9; font-size: 14px;">Análise Especializada ATS</span>
                 </div>
                 <div style="font-size: 13px; color: #666;">
-                    Análise otimizada para o algoritmo GAIA da Gupy, considerando verbos de ação, formato e densidade de palavras-chave.
+                    Análise otimizada para sistemas de triagem automática modernos, considerando verbos de ação, formato e densidade de palavras-chave.
                 </div>
             </div>
         ` : ''}
@@ -467,4 +483,184 @@ function formatarNota(nota) {
             <span style="color: ${cor}; font-size: 13px; font-weight: 600; background: ${cor}15; padding: 4px 8px; border-radius: 12px;">${texto}</span>
         </div>
     `;
+}
+
+/**
+ * Cria card de garantia de aprovação em ATS
+ */
+function createGupyPassGuaranteeCard(guarantee) {
+    const card = document.createElement('div');
+    card.className = 'compatibility-card gupy-guarantee-card';
+
+    // Determinar cor baseada no score
+    const getScoreColor = (score) => {
+        if (score >= 85) return '#10b981'; // Verde
+        if (score >= 70) return '#f59e0b'; // Amarelo
+        if (score >= 55) return '#f97316'; // Laranja
+        return '#ef4444'; // Vermelho
+    };
+
+    const scoreColor = getScoreColor(guarantee.pass_score);
+
+    card.innerHTML = `
+        <div style="background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+            <div style="position: relative; z-index: 1;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <span style="font-size: 24px;">🎯</span>
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 700;">GARANTIA DE APROVAÇÃO ATS</h3>
+                </div>
+                <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">${guarantee.job_title}</div>
+                <div style="font-size: 14px; opacity: 0.9;">Análise Avançada de ATS • 200+ Métricas</div>
+            </div>
+        </div>
+        
+        <div style="padding: 24px; background: white;">
+            <!-- Score de Aprovação -->
+            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 24px; padding: 20px; background: linear-gradient(135deg, ${scoreColor}15, ${scoreColor}08); border-radius: 12px; border: 2px solid ${scoreColor};">
+                <div style="text-align: center;">
+                    <div style="font-size: 36px; font-weight: 800; color: ${scoreColor}; margin-bottom: 4px;">${guarantee.pass_score}%</div>
+                    <div style="font-size: 14px; color: #6b7280; font-weight: 600;">SCORE DE APROVAÇÃO</div>
+                    <div style="font-size: 13px; color: ${scoreColor}; font-weight: 600; margin-top: 4px;">${guarantee.confidence_level}</div>
+                </div>
+            </div>
+
+            <!-- Análise ATS -->
+            ${guarantee.gaia_compatibility && guarantee.gaia_compatibility.gaia_factors ? `
+                <div style="margin-bottom: 24px;">
+                    <h4 style="color: #1f2937; font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                        <span>🤖</span> Análise de Fatores ATS
+                    </h4>
+                    <div style="display: grid; gap: 12px;">
+                        ${guarantee.gaia_compatibility.gaia_factors.map(factor => `
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: ${factor.status === 'PASS' ? '#10b98115' : '#ef444415'}; border-radius: 8px; border: 1px solid ${factor.status === 'PASS' ? '#10b981' : '#ef4444'};">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 16px;">${factor.status === 'PASS' ? '✅' : '❌'}</span>
+                                    <div>
+                                        <div style="font-weight: 600; color: #1f2937; font-size: 14px;">${factor.factor.replace(/_/g, ' ').toUpperCase()}</div>
+                                        <div style="font-size: 12px; color: #6b7280;">Peso: ${factor.weight}%</div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-weight: 700; color: ${factor.status === 'PASS' ? '#10b981' : '#ef4444'}; font-size: 16px;">${factor.score}%</div>
+                                    <div style="font-size: 11px; color: #9ca3af; font-weight: 600;">${factor.status}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+
+            <!-- Issues Críticos -->
+            ${guarantee.critical_issues && guarantee.critical_issues.length > 0 ? `
+                <div style="margin-bottom: 24px;">
+                    <h4 style="color: #dc2626; font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                        <span>⚠️</span> Issues Críticos para Resolver
+                    </h4>
+                    <div style="display: grid; gap: 12px;">
+                        ${guarantee.critical_issues.map(issue => `
+                            <div style="padding: 16px; background: #fef2f2; border-radius: 8px; border-left: 4px solid #dc2626;">
+                                <div style="font-weight: 600; color: #dc2626; font-size: 14px; margin-bottom: 6px;">${issue.description}</div>
+                                <div style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">${issue.impact}</div>
+                                <div style="font-size: 13px; color: #059669; font-weight: 600;">💡 ${issue.solution}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+
+            <!-- Plano de Ação -->
+            ${guarantee.action_plan && guarantee.action_plan.length > 0 ? `
+                <div style="margin-bottom: 24px;">
+                    <h4 style="color: #059669; font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                        <span>📋</span> Plano de Ação para Garantir Aprovação
+                    </h4>
+                    <div style="display: grid; gap: 10px;">
+                        ${guarantee.action_plan.slice(0, 5).map(step => `
+                            <div style="display: flex; gap: 12px; padding: 12px; background: #f0fdf4; border-radius: 8px; border: 1px solid #22c55e;">
+                                <div style="background: #22c55e; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0;">${step.step}</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; color: #1f2937; font-size: 14px; margin-bottom: 4px;">${step.title}</div>
+                                    <div style="font-size: 12px; color: #6b7280; margin-bottom: 6px;">${step.description}</div>
+                                    <div style="display: flex; gap: 16px; font-size: 11px;">
+                                        <span style="color: #dc2626; font-weight: 600;">📈 ${step.expectedImpact}</span>
+                                        <span style="color: #7c3aed; font-weight: 600;">⏱️ ${step.timeEstimate}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+
+            <!-- Dicas Específicas de ATS -->
+            ${guarantee.gupy_specific_tips && guarantee.gupy_specific_tips.length > 0 ? `
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #7c3aed; font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                        <span>💡</span> Dicas Específicas para ATS
+                    </h4>
+                    <div style="display: grid; gap: 10px;">
+                        ${guarantee.gupy_specific_tips.slice(0, 4).map(tip => `
+                            <div style="padding: 12px; background: #faf5ff; border-radius: 8px; border-left: 4px solid #7c3aed;">
+                                <div style="font-weight: 600; color: #7c3aed; font-size: 13px; margin-bottom: 4px;">${tip.category}</div>
+                                <div style="font-size: 13px; color: #374151;">${tip.tip}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+
+            <!-- Link para vaga -->
+            ${guarantee.job_link && guarantee.job_link !== '#' ? `
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="${guarantee.job_link}" target="_blank" 
+                       style="display: inline-flex; align-items: center; gap: 8px; color: white; text-decoration: none; font-size: 14px; font-weight: 600; padding: 12px 24px; background: linear-gradient(135deg, #0ea5e9, #3b82f6); border-radius: 8px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); transition: all 0.2s;">
+                        <span>🔗</span>
+                        <span>Ver Vaga Original</span>
+                    </a>
+                </div>
+            ` : ''}
+        </div>
+    `;
+
+    return card;
+}
+
+/**
+ * Cria card com estatísticas de ATS
+ */
+function createGupyStatisticsCard(gupyTips) {
+    const card = document.createElement('div');
+    card.className = 'gupy-statistics-card';
+
+    card.innerHTML = `
+        <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 20px; margin-top: 24px; border-radius: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                <span style="font-size: 24px;">📊</span>
+                <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Estatísticas de Sucesso em ATS</h3>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                ${Object.entries(gupyTips.gupy_statistics).map(([key, value]) => `
+                    <div style="background: rgba(255,255,255,0.15); padding: 16px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">${key.replace(/_/g, ' ')}</div>
+                        <div style="font-size: 16px; font-weight: 700;">${value}</div>
+                    </div>
+                `).join('')}
+            </div>
+            
+            ${gupyTips.algorithm_insights && gupyTips.algorithm_insights.critical_success_factors ? `
+                <div style="margin-top: 20px; padding: 16px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                    <div style="font-weight: 700; margin-bottom: 12px; font-size: 16px;">🎯 Fatores Críticos de Sucesso:</div>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.6;">
+                        ${gupyTips.algorithm_insights.critical_success_factors.map(factor => `
+                            <li style="margin-bottom: 6px;">${factor}</li>
+                        `).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+        </div>
+    `;
+
+    return card;
 }

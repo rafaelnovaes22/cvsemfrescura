@@ -49,7 +49,7 @@ const User = sequelize.define('User', {
   },
   credits: {
     type: DataTypes.INTEGER,
-    defaultValue: 1, // Novo usuário recebe uma análise grátis
+    defaultValue: 0, // Novos usuários começam sem créditos
   },
   isGuestAccount: {
     type: DataTypes.BOOLEAN,

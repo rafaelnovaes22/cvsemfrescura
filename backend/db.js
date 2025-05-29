@@ -1,6 +1,6 @@
 const { Sequelize } = require('sequelize');
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '.env') });
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 // Construindo DATABASE_URL a partir das variáveis individuais se não estiver definida
 const DATABASE_URL = process.env.DATABASE_URL ||

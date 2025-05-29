@@ -2943,3 +2943,5 @@
 {"duration":"0ms","ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"cv-sem-frescura","status":304,"timestamp":"2025-05-24T16:56:15.835Z","url":"/assets/components/header.html","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"}
 {"apiProvider":"openai","cost":"$0.0930","level":"info","message":"API cost tracked","metadata":{"inputTokens":1500,"outputTokens":800,"requestType":"completion"},"service":"gpt-4","timestamp":"2025-05-27T18:07:08.544Z"}
 {"apiProvider":"sendgrid","cost":"$0.0006","level":"info","message":"API cost tracked","metadata":{"emailCount":1},"service":"test","timestamp":"2025-05-27T18:07:08.546Z"}
+{"duration":"5ms","ip":"127.0.0.1","level":"info","message":"HTTP Request","method":"GET","service":"cv-sem-frescura","status":200,"timestamp":"2025-05-28T20:47:32.661Z","url":"/","userAgent":"curl/8.12.1"}
+{"duration":"4ms","ip":"127.0.0.1","level":"info","message":"HTTP Request","method":"GET","service":"cv-sem-frescura","status":404,"timestamp":"2025-05-28T20:47:43.130Z","url":"/api/user/login","userAgent":"curl/8.12.1"}

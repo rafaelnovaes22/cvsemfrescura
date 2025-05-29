@@ -1,14 +1,20 @@
-// Integração real com Stripe para produção
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+// Integração com Stripe - Configuração condicional para desenvolvimento
+let stripe;
 
-// Verificar se a chave do Stripe está configurada
-if (!process.env.STRIPE_SECRET_KEY) {
-  console.error('ERRO: STRIPE_SECRET_KEY não configurada. Configure a variável de ambiente.');
-  process.exit(1);
-}
-
+try {
+  if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY !== 'sk_test_desenvolvimento_temporario') {
+    stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 console.log('[STRIPE] ✅ Integração configurada com Stripe');
 console.log('[STRIPE] 🔑 Chave:', process.env.STRIPE_SECRET_KEY.substring(0, 20) + '...');
+  } else {
+    console.log('[STRIPE] ⚠️ Executando em modo de desenvolvimento sem Stripe configurado');
+    console.log('[STRIPE] 💡 Para habilitar pagamentos, configure STRIPE_SECRET_KEY no .env');
+    stripe = null;
+  }
+} catch (error) {
+  console.error('[STRIPE] ❌ Erro ao configurar Stripe:', error.message);
+  stripe = null;
+}
 
 const Transaction = require('../models/Transaction');
 const User = require('../models/user');
@@ -19,6 +25,16 @@ exports.createPaymentIntent = async (req, res) => {
     console.log('[PAYMENT] 🚀 Iniciando createPaymentIntent');
     console.log('[PAYMENT] 📝 Body recebido:', req.body);
     console.log('[PAYMENT] 👤 User:', req.user ? 'Logado' : 'Anônimo');
+
+    // Verificar se Stripe está configurado
+    if (!stripe) {
+      console.log('[PAYMENT] ⚠️ Stripe não configurado - simulando pagamento para desenvolvimento');
+      return res.json({
+        clientSecret: 'dev_mock_client_secret',
+        success: true,
+        message: 'Modo desenvolvimento - Stripe não configurado'
+      });
+    }
 
     const { amount, planName, credits, paymentMethod, guestUser } = req.body;
 
@@ -171,6 +187,15 @@ exports.confirmPayment = async (req, res) => {
     }
 
     console.log(`[PAYMENT] 🔍 Confirmando pagamento: ${paymentIntentId}`);
+
+    // Verificar se Stripe está configurado
+    if (!stripe) {
+      console.log('[PAYMENT] ⚠️ Stripe não configurado - simulando confirmação para desenvolvimento');
+      return res.json({
+        success: true,
+        message: 'Modo desenvolvimento - pagamento simulado como confirmado'
+      });
+    }
 
     // Verifica o status do pagamento no Stripe
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);

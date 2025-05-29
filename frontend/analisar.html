@@ -837,7 +837,11 @@
                         if (user) {
                             user.credits = data.credits;
                             localStorage.setItem('user', JSON.stringify(user));
-                            // Header será atualizado automaticamente pelo header.js
+                            // Forçar atualização imediata do header removendo throttling
+                            if (window.headerManager) {
+                                window.headerManager.lastCreditsRequest = null; // Reset throttling
+                                window.headerManager.fetchUserCredits();
+                            }
                         }
                         // Limpar código após uso bem-sucedido
                         localStorage.removeItem('giftCode');
