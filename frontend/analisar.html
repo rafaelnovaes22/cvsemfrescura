@@ -936,6 +936,12 @@
 
         // Função para mostrar modal específico baseado no tipo de erro
         function showGiftCodeErrorModal(errorMessage) {
+            // 🔧 CORREÇÃO: Primeiro fechar qualquer modal existente
+            const existingModal = document.getElementById('giftCodeErrorModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+
             // Analisar o tipo de erro para personalizar a resposta
             let title, message, actions;
 
@@ -964,11 +970,15 @@
                         <button onclick="closeGiftCodeModal()" style="
                             padding: 12px 24px; border: 2px solid #583819; background: transparent; 
                             color: #583819; border-radius: 8px; cursor: pointer; font-weight: 600;
-                        ">Entendi</button>
+                            transition: all 0.2s;
+                        " onmouseover="this.style.background='#583819'; this.style.color='white';" 
+                           onmouseout="this.style.background='transparent'; this.style.color='#583819';">Entendi</button>
                         <button onclick="window.location.href='payment.html'" style="
                             padding: 12px 24px; background: #583819; color: white; border: none; 
                             border-radius: 8px; cursor: pointer; font-weight: 600;
-                        ">Ver Planos 🚀</button>
+                            transition: all 0.2s;
+                        " onmouseover="this.style.background='#3f2b13';" 
+                           onmouseout="this.style.background='#583819';">Ver Planos 🚀</button>
                     </div>
                 `;
             } else if (errorMessage.includes('esgotado')) {
@@ -988,7 +998,9 @@
                         <button onclick="closeGiftCodeModal()" style="
                             padding: 12px 24px; background: #583819; color: white; border: none; 
                             border-radius: 8px; cursor: pointer; font-weight: 600;
-                        ">Entendi</button>
+                            transition: all 0.2s;
+                        " onmouseover="this.style.background='#3f2b13';" 
+                           onmouseout="this.style.background='#583819';">Entendi</button>
                     </div>
                 `;
             } else if (errorMessage.includes('expirado')) {
@@ -1008,7 +1020,9 @@
                         <button onclick="closeGiftCodeModal()" style="
                             padding: 12px 24px; background: #583819; color: white; border: none; 
                             border-radius: 8px; cursor: pointer; font-weight: 600;
-                        ">Entendi</button>
+                            transition: all 0.2s;
+                        " onmouseover="this.style.background='#3f2b13';" 
+                           onmouseout="this.style.background='#583819';">Entendi</button>
                     </div>
                 `;
             } else {
@@ -1017,33 +1031,60 @@
                     <div style="text-align: center; padding: 20px;">
                         <div style="font-size: 48px; margin-bottom: 16px;">❌</div>
                         <h3 style="color: #583819; margin-bottom: 16px;">Código não encontrado</h3>
-                        <p style="color: #666; line-height: 1.6;">
+                        <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
                             Este código de presente não foi encontrado em nosso sistema. <br>
                             Verifique se foi digitado corretamente.
                         </p>
+                        <div style="background: #fff8e1; border: 1px solid #ffeb3b; border-radius: 8px; padding: 16px; margin: 16px 0;">
+                            <strong style="color: #583819;">💡 Dicas:</strong>
+                            <ul style="text-align: left; margin: 8px 0; padding-left: 20px; color: #666;">
+                                <li>Verifique se digitou o código corretamente</li>
+                                <li>Códigos são sensíveis a maiúsculas e minúsculas</li>
+                                <li>Certifique-se que não há espaços extras</li>
+                            </ul>
+                        </div>
                     </div>
                 `;
                 actions = `
-                    <div style="text-align: center; margin-top: 20px;">
+                    <div style="display: flex; gap: 12px; justify-content: center; margin-top: 20px;">
                         <button onclick="closeGiftCodeModal()" style="
+                            padding: 12px 24px; border: 2px solid #583819; background: transparent; 
+                            color: #583819; border-radius: 8px; cursor: pointer; font-weight: 600;
+                            transition: all 0.2s;
+                        " onmouseover="this.style.background='#583819'; this.style.color='white';" 
+                           onmouseout="this.style.background='transparent'; this.style.color='#583819';">Tentar Novamente</button>
+                        <button onclick="window.location.href='payment.html'" style="
                             padding: 12px 24px; background: #583819; color: white; border: none; 
                             border-radius: 8px; cursor: pointer; font-weight: 600;
-                        ">Tentar Novamente</button>
+                            transition: all 0.2s;
+                        " onmouseover="this.style.background='#3f2b13';" 
+                           onmouseout="this.style.background='#583819';">Comprar Plano 💳</button>
                     </div>
                 `;
             }
 
-            // Criar e mostrar modal
+            // Criar e mostrar modal com melhorias
             const modalHTML = `
                 <div id="giftCodeErrorModal" style="
                     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
                     background: rgba(0,0,0,0.6); display: flex; align-items: center; 
                     justify-content: center; z-index: 10000;
-                ">
+                    backdrop-filter: blur(2px);
+                " onclick="event.target === this && closeGiftCodeModal()">
                     <div style="
                         background: white; border-radius: 16px; max-width: 500px; width: 90%;
                         box-shadow: 0 20px 40px rgba(0,0,0,0.3); animation: modalSlideIn 0.3s ease;
-                    ">
+                        position: relative;
+                    " onclick="event.stopPropagation()">
+                        <button onclick="closeGiftCodeModal()" style="
+                            position: absolute; top: 12px; right: 16px; 
+                            background: none; border: none; font-size: 24px; 
+                            color: #666; cursor: pointer; z-index: 1;
+                            width: 32px; height: 32px; display: flex; 
+                            align-items: center; justify-content: center;
+                            border-radius: 50%; transition: all 0.2s;
+                        " onmouseover="this.style.background='#f0f0f0';" 
+                           onmouseout="this.style.background='none';">×</button>
                         ${message}
                         ${actions}
                     </div>
@@ -1057,13 +1098,56 @@
             `;
 
             document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            // 🔧 CORREÇÃO: Adicionar event listeners robustos
+            setTimeout(() => {
+                const modal = document.getElementById('giftCodeErrorModal');
+                if (modal) {
+                    // Event listener para ESC key
+                    const handleEscape = (e) => {
+                        if (e.key === 'Escape') {
+                            closeGiftCodeModal();
+                            document.removeEventListener('keydown', handleEscape);
+                        }
+                    };
+                    document.addEventListener('keydown', handleEscape);
+
+                    // Focar no modal para melhor acessibilidade
+                    modal.focus();
+                }
+            }, 100);
         }
 
-        // Função para fechar modal
+        // 🔧 CORREÇÃO: Função melhorada para fechar modal
         window.closeGiftCodeModal = function () {
+            console.log('🔧 Fechando modal de código de presente...');
             const modal = document.getElementById('giftCodeErrorModal');
-            if (modal) modal.remove();
+            if (modal) {
+                // Animação de saída suave
+                modal.style.animation = 'modalSlideOut 0.2s ease';
+                setTimeout(() => {
+                    modal.remove();
+                    console.log('✅ Modal de código removido');
+                }, 200);
+            } else {
+                console.log('⚠️ Modal de código não encontrado');
+            }
+
+            // Remover event listeners de escape
+            document.removeEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeGiftCodeModal();
+            });
         };
+
+        // Adicionar CSS para animação de saída
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes modalSlideOut {
+                from { transform: translateY(0); opacity: 1; }
+                to { transform: translateY(-50px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
 
         // Função global para liberar a página após login
         window.authSuccess = function () {
