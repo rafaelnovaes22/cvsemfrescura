@@ -175,7 +175,7 @@ app.get('/create-gift-codes', async (req, res) => {
           usedCount: 0,
           isActive: true,
           expiresAt: null,
-          createdById: 1
+          createdById: null
         });
 
         results.push(`✅ ${code} - criado`);

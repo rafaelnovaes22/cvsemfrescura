@@ -6,7 +6,6 @@ const axios = require('axios');
 const FormData = require('form-data');
 const mime = require('mime-types');
 const { User, Analysis } = require('../models');
-const UserModel = require('../models/user');
 const { costTracker } = require('../utils/costTracker'); // Sistema de tracking de custos
 const sequelize = require('../db'); // Usando db.js diretamente
 
@@ -30,7 +29,7 @@ exports.analyze = async (req, res) => {
       return res.status(401).json({ error: 'Usuário não autenticado.' });
     }
 
-    const user = await UserModel.findByPk(userId);
+    const user = await User.findByPk(userId);
     if (!user) {
       return res.status(404).json({ error: 'Usuário não encontrado.' });
     }

@@ -26,5 +26,9 @@
         "hr"
     ],
     "author": "Rafael de Novaes & Luciana Ditter",
-    "license": "MIT"
+    "license": "MIT",
+    "dependencies": {
+        "form-data": "^4.0.2",
+        "node-fetch": "^3.3.2"
+    }
 }

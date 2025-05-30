@@ -48,7 +48,7 @@ async function createProductionCodes() {
                     usedCount: 0,
                     isActive: true,
                     expiresAt: null, // Sem expiração
-                    createdById: 1 // Admin
+                    createdById: null // Sistema ao invés de usuário específico
                 });
 
                 console.log(`✅ Código ${code} criado com sucesso`);

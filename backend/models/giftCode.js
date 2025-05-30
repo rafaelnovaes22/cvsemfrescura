@@ -53,7 +53,11 @@ module.exports = (sequelize) => {
     // Um código foi criado por um usuário
     GiftCode.belongsTo(models.User, {
       foreignKey: 'createdById',
-      as: 'creator'
+      as: 'creator',
+      constraints: false,  // Remove constraint rígida
+      allowNull: true,
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE'
     });
   };
 
