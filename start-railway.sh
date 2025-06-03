@@ -4,34 +4,26 @@
 
 echo "🚀 Iniciando CV Sem Frescura no Railway..."
 
-# Configurar porta padrão se não definida
+# Configurar porta padrão do Railway
 export PORT=${PORT:-3000}
 
-# Substituir $PORT na configuração do nginx
-envsubst '$PORT' < /etc/nginx/nginx.conf > /tmp/nginx.conf
-mv /tmp/nginx.conf /etc/nginx/nginx.conf
+echo "📁 Listando arquivos do diretório atual:"
+ls -la
 
-# Iniciar nginx em background
-echo "🌐 Iniciando Nginx na porta $PORT..."
-nginx &
+echo "📁 Verificando estrutura backend:"
+ls -la backend/ || echo "❌ Diretório backend não encontrado"
 
-# Aguardar nginx inicializar
-sleep 2
+# Navegar para o backend
+cd /app/backend || cd backend || {
+    echo "❌ Erro: Diretório backend não encontrado!"
+    echo "📁 Conteúdo atual:"
+    pwd
+    ls -la
+    exit 1
+}
 
-# Iniciar backend Node.js
-echo "⚙️ Iniciando Backend Node.js..."
-cd /app/backend
+echo "📦 Instalando dependências..."
+npm install
 
-# Aguardar banco de dados (se usando Railway PostgreSQL)
-echo "🗄️ Aguardando banco de dados..."
-sleep 5
-
-# Executar migrações se necessário
-if [ "$NODE_ENV" = "production" ]; then
-    echo "📊 Executando migrações do banco..."
-    npm run migrate 2>/dev/null || echo "⚠️ Migrações não configuradas"
-fi
-
-# Iniciar aplicação
-echo "✅ Iniciando aplicação principal..."
+echo "✅ Iniciando aplicação na porta $PORT..."
 exec node server.js 
