@@ -62,17 +62,11 @@ app.use(helmet({
 
 // Rate limiting - proteção contra ataques
 const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutos por padrão
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // máximo 100 requests por IP por janela
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // máximo 100 requests por IP por janela
   message: 'Muitas tentativas. Tente novamente em 15 minutos.',
   standardHeaders: true,
   legacyHeaders: false,
-  // 🔧 Configuração para proxies
-  trustProxy: process.env.NODE_ENV === 'production',
-  keyGenerator: (req) => {
-    // Em produção, usa X-Forwarded-For se disponível, senão usa IP da conexão
-    return req.ip || req.connection.remoteAddress;
-  }
 });
 
 // Rate limiting específico para análises ATS
@@ -82,12 +76,6 @@ const atsLimiter = rateLimit({
   message: 'Limite de análises excedido. Tente novamente em 1 hora.',
   standardHeaders: true,
   legacyHeaders: false,
-  // 🔧 Configuração para proxies
-  trustProxy: process.env.NODE_ENV === 'production',
-  keyGenerator: (req) => {
-    // Em produção, usa X-Forwarded-For se disponível, senão usa IP da conexão
-    return req.ip || req.connection.remoteAddress;
-  }
 });
 
 app.use(limiter);
@@ -121,8 +109,8 @@ app.use('/api/admin', require('./routes/admin')); // Rotas administrativas
 app.use('/api/config', require('./routes/config')); // ✅ Configurações dinâmicas
 app.use('/health', require('./routes/health')); // Health check endpoint
 
-// ✅ API raiz simples para health check (apenas para /api)
-app.get('/api', (req, res) => {
+// ✅ API health check para Railway
+app.get('/api/health', (req, res) => {
   res.json({
     message: 'CV Sem Frescura API',
     status: 'online',
@@ -131,14 +119,19 @@ app.get('/api', (req, res) => {
   });
 });
 
-// 🏠 Servir o frontend para todas as rotas não-API
+// ✅ Rota raiz serve a página principal (landing.html)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/landing.html'));
+});
+
+// ✅ Catch-all para SPA - redireciona para landing.html
 app.get('*', (req, res) => {
-  // Se não é uma rota de API, serve o index.html
-  if (!req.path.startsWith('/api')) {
-    res.sendFile(path.join(__dirname, '../frontend/index.html'));
-  } else {
-    res.status(404).json({ error: 'API endpoint not found' });
+  // Se for uma requisição para API, retorna 404
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
   }
+  // Caso contrário, serve a landing page
+  res.sendFile(path.join(__dirname, '../frontend/landing.html'));
 });
 
 const sequelize = require('./db');
@@ -159,6 +152,7 @@ sequelize.sync({ alter: true })
     console.log('Banco de dados sincronizado');
     app.listen(PORT, () => {
       console.log(`ATS backend rodando na porta ${PORT}`);
+      console.log(`Frontend servido em: http://localhost:${PORT}`);
     });
   })
   .catch(err => {
