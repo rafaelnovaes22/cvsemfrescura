@@ -108,4 +108,4 @@ return 7; // Até 7 vagas para todos os usuários
 - ✅ **Interface premium** sem restrições
 
 **Mensagem atualizada:**
-> 💡 **Dica:** Com código do curso RH Super Sincero, você ganha 1 análise **completa** gratuita! 
+> 💡 **Dica:** Com código de presente RH Super Sincero, você ganha 1 análise **completa** gratuita! 

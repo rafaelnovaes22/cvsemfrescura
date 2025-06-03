@@ -260,7 +260,7 @@ class HeaderManager {
                             border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.8rem;
                         ">
                             <span>🎓</span>
-                            <span>Código do Curso</span>
+                            <span>Código de Presente</span>
                         </a>
                         <a href="analisar.html?login=true" style="
                             display: inline-flex; align-items: center; gap: 0.5rem;

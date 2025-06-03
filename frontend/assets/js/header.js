@@ -318,7 +318,7 @@ class HeaderManager {
                         <div class="guest-actions" id="guestActions" style="display: none;">
                             <a href="#gift-code" class="btn btn-secondary btn-sm">
                                 <span>🎓</span>
-                                <span>Código do Curso</span>
+                                <span>Código de Presente</span>
                             </a>
                             <a href="analisar.html?login=true" class="btn btn-ghost btn-sm">
                                 <span>🔐</span>

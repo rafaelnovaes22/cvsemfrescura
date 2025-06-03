@@ -14,7 +14,7 @@ const testCodes = [
     {
         code: 'RHSUPER2025',
         maxUses: 5,
-        description: 'Código do curso RH Super Sincero',
+        description: 'Código de presente RH Super Sincero',
         status: 'ATIVO'
     },
     {
@@ -54,7 +54,7 @@ console.log('4️⃣ Você receberá 1 crédito para análise');
 console.log('\n🎯 TESTE NA LANDING PAGE:');
 console.log('═════════════════════════════');
 console.log('🌐 http://localhost:3000/landing.html');
-console.log('👆 Clique em "🎓 Código do Curso"');
+console.log('👆 Clique em "🎓 Código de Presente"');
 console.log('📝 Digite qualquer código acima');
 console.log('🚀 Será redirecionado para análise');
 

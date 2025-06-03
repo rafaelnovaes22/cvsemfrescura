@@ -28,7 +28,7 @@
 
 ### **Passo 2: Teste na Landing Page**
 1. Acesse: `http://localhost:3000/landing.html`
-2. Clique em qualquer botão "🎓 Código do Curso"
+2. Clique em qualquer botão "🎓 Código de Presente"
 3. Digite: `TESTE123`
 4. Clique "Aplicar"
 5. **Resultado esperado:** Redirecionamento para app.html com notificações
@@ -71,7 +71,7 @@ Acesse: `http://localhost:3000/test-buttons.html`
 ## 📋 **Checklist de Validação - FINAL**
 
 ### **Landing Page:**
-- [ ] Botão "🎓 Código do Curso" faz scroll para formulário
+- [ ] Botão "🎓 Código de Presente" faz scroll para formulário
 - [ ] Botão "💳 Comprar Análise" redireciona para app.html (se não logado)
 - [ ] Formulário aceita código e redireciona para app.html
 
@@ -148,5 +148,3 @@ O usuário que usar um código de presente:
 - **App:** `http://localhost:3000/app.html`
 - **App com código:** `http://localhost:3000/app.html?giftCode=TESTE123`
 - **Teste:** `http://localhost:3000/test-buttons.html`
-
-🎯 **Sistema 100% operacional e sem erros!** 
