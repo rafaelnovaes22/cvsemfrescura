@@ -1,31 +1,30 @@
-# 🚀 Dockerfile para Railway - CV Sem Frescura (Simplificado)
+# 🚀 Dockerfile para Railway - CV Sem Frescura (Direto)
 FROM node:18-alpine
 
 # Instalar curl para healthcheck
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl bash
 
 # Configurar diretório de trabalho
 WORKDIR /app
 
-# Copiar todo o projeto
+# Copiar package.json primeiro para cache das dependências
+COPY backend/package*.json ./backend/
+RUN cd backend && npm install
+
+# Copiar o resto do projeto
 COPY . .
 
-# Dar permissão de execução ao script
-RUN chmod +x start-railway.sh
-
-# Instalar dependências do backend
-WORKDIR /app/backend
-RUN npm install
-
-# Voltar para raiz
-WORKDIR /app
+# Configurar variáveis de ambiente
+ENV NODE_ENV=production
+ENV PORT=3000
 
 # Expor porta
 EXPOSE $PORT
 
-# Healthcheck básico
+# Healthcheck
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:${PORT:-3000}/api/health || exit 1
+    CMD curl -f http://localhost:$PORT/api/health || exit 1
 
-# Iniciar aplicação
-CMD ["./start-railway.sh"] 
+# Mudar para diretório do backend e iniciar diretamente
+WORKDIR /app/backend
+CMD ["node", "server.js"] 
