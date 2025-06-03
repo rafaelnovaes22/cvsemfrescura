@@ -105,6 +105,11 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' })); // Limite de payload
+
+// 🎨 Servir arquivos estáticos do frontend
+app.use(express.static(path.join(__dirname, '../frontend')));
+
+// API Routes
 app.use('/api/user', userRoutes);
 app.use('/api/ats', atsLimiter, atsRoutes); // Rate limiting específico para ATS
 app.use('/api/upload', require('./routes/upload'));
@@ -116,14 +121,24 @@ app.use('/api/admin', require('./routes/admin')); // Rotas administrativas
 app.use('/api/config', require('./routes/config')); // ✅ Configurações dinâmicas
 app.use('/health', require('./routes/health')); // Health check endpoint
 
-// ✅ API raiz simples para health check
-app.get('/', (req, res) => {
+// ✅ API raiz simples para health check (apenas para /api)
+app.get('/api', (req, res) => {
   res.json({
     message: 'CV Sem Frescura API',
     status: 'online',
     timestamp: new Date().toISOString(),
     version: '1.0.0'
   });
+});
+
+// 🏠 Servir o frontend para todas as rotas não-API
+app.get('*', (req, res) => {
+  // Se não é uma rota de API, serve o index.html
+  if (!req.path.startsWith('/api')) {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+  } else {
+    res.status(404).json({ error: 'API endpoint not found' });
+  }
 });
 
 const sequelize = require('./db');
