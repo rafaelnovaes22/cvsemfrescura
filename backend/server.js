@@ -7,6 +7,12 @@ if (!process.env.JWT_SECRET) {
   console.log('❌ Isso causará erro 401 em todas as requisições autenticadas');
 }
 
+// DEBUG: Verificar configurações de proxy e rate limiting
+console.log('🔍 NODE_ENV:', process.env.NODE_ENV);
+console.log('🔍 Trust Proxy habilitado:', process.env.NODE_ENV === 'production' ? 'SIM (1)' : 'SIM (true)');
+console.log('🔍 Rate Limit Window:', parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, 'ms');
+console.log('🔍 Rate Limit Max:', parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, 'requests');
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -18,8 +24,35 @@ const userRoutes = require('./routes/user');
 
 const app = express();
 
+// 🔧 Trust proxy para Railway/proxies reversos
+// Isso permite que o Express confie nos headers X-Forwarded-*
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1); // Confia no primeiro proxy
+} else {
+  app.set('trust proxy', true); // Para desenvolvimento
+}
+
 // Logging de requests
 app.use(logRequest);
+
+// 🔧 Middleware para debug de IPs em produção
+if (process.env.NODE_ENV === 'production') {
+  app.use((req, res, next) => {
+    const forwarded = req.get('X-Forwarded-For');
+    const real = req.get('X-Real-IP');
+    const ip = req.ip;
+
+    if (forwarded || real) {
+      logger.info('🔍 Request IP Info:', {
+        forwarded,
+        real,
+        express_ip: ip,
+        connection_ip: req.connection.remoteAddress
+      });
+    }
+    next();
+  });
+}
 
 // Segurança - Headers HTTP
 app.use(helmet({
@@ -29,11 +62,17 @@ app.use(helmet({
 
 // Rate limiting - proteção contra ataques
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // máximo 100 requests por IP por janela
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutos por padrão
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // máximo 100 requests por IP por janela
   message: 'Muitas tentativas. Tente novamente em 15 minutos.',
   standardHeaders: true,
   legacyHeaders: false,
+  // 🔧 Configuração para proxies
+  trustProxy: process.env.NODE_ENV === 'production',
+  keyGenerator: (req) => {
+    // Em produção, usa X-Forwarded-For se disponível, senão usa IP da conexão
+    return req.ip || req.connection.remoteAddress;
+  }
 });
 
 // Rate limiting específico para análises ATS
@@ -43,6 +82,12 @@ const atsLimiter = rateLimit({
   message: 'Limite de análises excedido. Tente novamente em 1 hora.',
   standardHeaders: true,
   legacyHeaders: false,
+  // 🔧 Configuração para proxies
+  trustProxy: process.env.NODE_ENV === 'production',
+  keyGenerator: (req) => {
+    // Em produção, usa X-Forwarded-For se disponível, senão usa IP da conexão
+    return req.ip || req.connection.remoteAddress;
+  }
 });
 
 app.use(limiter);
