@@ -16,5 +16,4 @@ cmds = [
 cmd = 'cd backend && npm start'
 
 [variables]
-NODE_ENV = 'production'
-PORT = '3001' 
+NODE_ENV = 'production' 

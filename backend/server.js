@@ -60,6 +60,11 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' })); // Limite de payload
+
+// ✅ Servir arquivos estáticos do frontend
+app.use(express.static(path.join(__dirname, '../frontend')));
+
+// Rotas da API
 app.use('/api/user', userRoutes);
 app.use('/api/ats', atsLimiter, atsRoutes); // Rate limiting específico para ATS
 app.use('/api/upload', require('./routes/upload'));
@@ -71,14 +76,29 @@ app.use('/api/admin', require('./routes/admin')); // Rotas administrativas
 app.use('/api/config', require('./routes/config')); // ✅ Configurações dinâmicas
 app.use('/health', require('./routes/health')); // Health check endpoint
 
-// ✅ API raiz simples para health check
-app.get('/', (req, res) => {
+// ✅ API health check para Railway
+app.get('/api/health', (req, res) => {
   res.json({
     message: 'CV Sem Frescura API',
     status: 'online',
     timestamp: new Date().toISOString(),
     version: '1.0.0'
   });
+});
+
+// ✅ Rota raiz serve a página principal (landing.html)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/landing.html'));
+});
+
+// ✅ Catch-all para SPA - redireciona para landing.html
+app.get('*', (req, res) => {
+  // Se for uma requisição para API, retorna 404
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  // Caso contrário, serve a landing page
+  res.sendFile(path.join(__dirname, '../frontend/landing.html'));
 });
 
 const sequelize = require('./db');
@@ -99,6 +119,7 @@ sequelize.sync({ alter: true })
     console.log('Banco de dados sincronizado');
     app.listen(PORT, () => {
       console.log(`ATS backend rodando na porta ${PORT}`);
+      console.log(`Frontend servido em: http://localhost:${PORT}`);
     });
   })
   .catch(err => {
