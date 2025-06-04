@@ -10,13 +10,83 @@ document.addEventListener('DOMContentLoaded', function () {
         atsResult = null;
     }
 
-    if (!atsResult) { document.getElementById('conclusion').innerText = 'Nenhum resultado de análise encontrado.'; return; }    // Atualizar créditos do usuário se retornados na análise    if (atsResult.credits_remaining !== undefined && window.auth) {        const user = window.auth.getUser();        if (user) {            user.credits = atsResult.credits_remaining;            localStorage.setItem('user', JSON.stringify(user));            console.log(`💳 Créditos atualizados: ${atsResult.credits_remaining} restantes`);                        // Atualizar interface do header se disponível            if (window.headerManager) {                setTimeout(() => {                    window.headerManager.refreshUserInterface();                }, 100);            }        }    }
+    if (!atsResult) {
+        document.getElementById('conclusion').innerText = 'Nenhum resultado de análise encontrado.';
+        return;
+    }
+
+    // Verificar se é uma visualização histórica
+    const isHistoricalView = sessionStorage.getItem('isHistoricalView') === 'true' ||
+        atsResult.isHistoricalView === true;
+
+    // Atualizar créditos do usuário APENAS se NÃO for uma análise histórica
+    if (!isHistoricalView && atsResult.credits_remaining !== undefined && window.auth) {
+        const user = window.auth.getUser();
+        if (user) {
+            user.credits = atsResult.credits_remaining;
+            localStorage.setItem('user', JSON.stringify(user));
+            console.log(`💳 Créditos atualizados: ${atsResult.credits_remaining} restantes`);
+
+            // Atualizar interface do header se disponível
+            if (window.headerManager) {
+                setTimeout(() => {
+                    window.headerManager.refreshUserInterface();
+                }, 100);
+            }
+        }
+    } else if (isHistoricalView) {
+        console.log('📋 Visualizando análise histórica - créditos não foram alterados');
+    }
 
     // Nome do arquivo de currículo
     const cvFileName = sessionStorage.getItem('fileName');
     if (cvFileName) {
         const cvFileNameDiv = document.getElementById('cv-filename');
         if (cvFileNameDiv) cvFileNameDiv.textContent = cvFileName;
+    }
+
+    // Adicionar indicador visual se for análise histórica
+    if (isHistoricalView) {
+        const analysisInfo = document.querySelector('.analysis-info');
+        if (analysisInfo) {
+            const historicalBadge = document.createElement('div');
+            historicalBadge.style.cssText = `
+                background: linear-gradient(135deg, #e8f5e8 0%, #f0f9f0 100%); 
+                color: #166534; 
+                padding: 12px 20px; 
+                border-radius: 12px; 
+                margin: 15px 0; 
+                font-size: 14px; 
+                font-weight: 600;
+                border: 2px solid #22c55e;
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                box-shadow: 0 2px 8px rgba(34, 197, 94, 0.15);
+                position: relative;
+                overflow: hidden;
+            `;
+
+            // Adicionar um pequeno efeito de brilho
+            historicalBadge.innerHTML = `
+                <span style="font-size: 16px;">📋</span>
+                <span>Análise do histórico - consulta gratuita</span>
+                <span style="font-size: 12px; opacity: 0.8; margin-left: 8px;">✨ Sem consumo de créditos</span>
+            `;
+
+            analysisInfo.appendChild(historicalBadge);
+        }
+
+        // Modificar o título para indicar que é histórico
+        const pageTitle = document.querySelector('.page-title');
+        if (pageTitle) {
+            pageTitle.innerHTML = `📋 Análise de Currículo <small style="font-size: 0.6em; color: #166534; font-weight: 500;">(Histórico)</small>`;
+        }
+    }
+
+    // Limpar flag de visualização histórica após carregar
+    if (isHistoricalView) {
+        sessionStorage.removeItem('isHistoricalView');
     }
 
     // NOVA SEÇÃO: Scores de Compatibilidade por Vaga

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Login - CV Sem Frescura</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="email"],
+        input[type="password"],
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #583819;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background: #512808;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background: #f0f0f0;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .debug-info {
+            margin-top: 20px;
+            background: #e2e3e5;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔐 Teste de Autenticação</h1>
+
+        <h3>Cadastro</h3>
+        <div class="form-group">
+            <label>Nome:</label>
+            <input type="text" id="registerName" placeholder="João Silva">
+        </div>
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" id="registerEmail" placeholder="joao@email.com">
+        </div>
+        <div class="form-group">
+            <label>Senha:</label>
+            <input type="password" id="registerPassword" placeholder="123456">
+        </div>
+        <button onclick="testRegister()">Cadastrar</button>
+
+        <hr style="margin: 30px 0;">
+
+        <h3>Login</h3>
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" id="loginEmail" placeholder="joao@email.com">
+        </div>
+        <div class="form-group">
+            <label>Senha:</label>
+            <input type="password" id="loginPassword" placeholder="123456">
+        </div>
+        <button onclick="testLogin()">Login</button>
+
+        <hr style="margin: 30px 0;">
+
+        <h3>Testes de Token</h3>
+        <button onclick="testToken()">Verificar Token Atual</button>
+        <button onclick="testHistoryAPI()">Testar API de Histórico</button>
+        <button onclick="clearStorage()">Limpar Storage</button>
+
+        <div id="result" class="result" style="display: none;"></div>
+        <div id="debugInfo" class="debug-info" style="display: none;"></div>
+    </div>
+
+    <script src="frontend/assets/js/config.js"></script>
+    <script src="frontend/assets/js/auth.js"></script>
+
+    <script>
+        function showResult(message, isSuccess = true) {
+            const result = document.getElementById('result');
+            result.style.display = 'block';
+            result.className = isSuccess ? 'result success' : 'result error';
+            result.innerHTML = message;
+        }
+
+        function showDebug(info) {
+            const debug = document.getElementById('debugInfo');
+            debug.style.display = 'block';
+            debug.innerHTML = '<strong>Debug Info:</strong><br>' + JSON.stringify(info, null, 2);
+        }
+
+        async function testRegister() {
+            try {
+                const name = document.getElementById('registerName').value;
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+
+                if (!name || !email || !password) {
+                    showResult('Preencha todos os campos de cadastro', false);
+                    return;
+                }
+
+                showResult('Registrando usuário...');
+
+                const result = await window.auth.registerUser(name, email, password);
+                showResult('✅ Usuário registrado com sucesso!');
+                showDebug(result);
+
+            } catch (error) {
+                showResult('❌ Erro no cadastro: ' + error.message, false);
+                showDebug({ error: error.message });
+            }
+        }
+
+        async function testLogin() {
+            try {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+
+                if (!email || !password) {
+                    showResult('Preencha email e senha', false);
+                    return;
+                }
+
+                showResult('Fazendo login...');
+
+                const result = await window.auth.loginUser(email, password);
+                showResult('✅ Login realizado com sucesso!');
+
+                const token = window.auth.getToken();
+                const user = window.auth.getUser();
+
+                showDebug({
+                    loginResult: result,
+                    currentToken: token ? token.substring(0, 20) + '...' : null,
+                    currentUser: user,
+                    localStorage: {
+                        token: localStorage.getItem('token') ? localStorage.getItem('token').substring(0, 20) + '...' : null,
+                        user: localStorage.getItem('user')
+                    }
+                });
+
+            } catch (error) {
+                showResult('❌ Erro no login: ' + error.message, false);
+                showDebug({ error: error.message });
+            }
+        }
+
+        async function testToken() {
+            try {
+                const token = window.auth.getToken();
+                const user = window.auth.getUser();
+                const isAuth = window.auth.isAuthenticated();
+
+                if (!token) {
+                    showResult('❌ Nenhum token encontrado', false);
+                    return;
+                }
+
+                showResult('🔍 Verificando token...');
+
+                // Testar token fazendo uma requisição para o profile
+                const apiUrl = 'http://localhost:3000/api/user';
+                const response = await fetch(`${apiUrl}/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const profile = await response.json();
+                    showResult('✅ Token válido! Perfil obtido com sucesso.');
+                    showDebug({
+                        tokenValid: true,
+                        isAuthenticated: isAuth,
+                        currentUser: user,
+                        profileFromAPI: profile
+                    });
+                } else {
+                    showResult('❌ Token inválido ou expirado (Status: ' + response.status + ')', false);
+                    showDebug({
+                        tokenValid: false,
+                        responseStatus: response.status,
+                        responseText: await response.text()
+                    });
+                }
+
+            } catch (error) {
+                showResult('❌ Erro ao verificar token: ' + error.message, false);
+                showDebug({ error: error.message });
+            }
+        }
+
+        async function testHistoryAPI() {
+            try {
+                const token = window.auth.getToken();
+
+                if (!token) {
+                    showResult('❌ Faça login primeiro', false);
+                    return;
+                }
+
+                showResult('🔍 Testando APIs de histórico...');
+
+                const apiUrl = 'http://localhost:3000/api';
+
+                // Testar API de transações
+                const transactionsResponse = await fetch(`${apiUrl}/payment/history`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                // Testar API de análises
+                const analysesResponse = await fetch(`${apiUrl}/ats/history`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const results = {
+                    transactions: {
+                        status: transactionsResponse.status,
+                        ok: transactionsResponse.ok,
+                        data: transactionsResponse.ok ? await transactionsResponse.json() : await transactionsResponse.text()
+                    },
+                    analyses: {
+                        status: analysesResponse.status,
+                        ok: analysesResponse.ok,
+                        data: analysesResponse.ok ? await analysesResponse.json() : await analysesResponse.text()
+                    }
+                };
+
+                if (transactionsResponse.ok && analysesResponse.ok) {
+                    showResult('✅ APIs de histórico funcionando!');
+                } else {
+                    showResult('❌ Problema nas APIs de histórico', false);
+                }
+
+                showDebug(results);
+
+            } catch (error) {
+                showResult('❌ Erro ao testar APIs: ' + error.message, false);
+                showDebug({ error: error.message });
+            }
+        }
+
+        function clearStorage() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            if (window.auth && window.auth.clearAuth) {
+                window.auth.clearAuth();
+            }
+            showResult('🗑️ Storage limpo!');
+            showDebug({ action: 'localStorage cleared' });
+        }
+
+        // Debug inicial
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('🧪 Página de teste carregada');
+            console.log('Auth disponível:', !!window.auth);
+            console.log('CONFIG disponível:', !!window.CONFIG);
+
+            if (window.auth) {
+                const token = window.auth.getToken();
+                const user = window.auth.getUser();
+
+                if (token && user) {
+                    showResult('ℹ️ Usuário já está logado: ' + user.name);
+                    showDebug({
+                        alreadyLoggedIn: true,
+                        user: user,
+                        hasToken: !!token
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

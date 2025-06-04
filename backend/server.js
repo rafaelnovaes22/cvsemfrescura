@@ -1,5 +1,5 @@
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 // DEBUG: Verificar JWT_SECRET
 console.log('🔍 JWT_SECRET está definido?', process.env.JWT_SECRET ? 'SIM ✅' : 'NÃO ❌');
@@ -267,15 +267,23 @@ console.log('Modelo User importado:', User ? 'OK' : 'ERRO');
 
 const PORT = process.env.PORT || 3000;
 
-// Sincronia leve para garantir que as tabelas existam
-sequelize.sync({ alter: true })
+// ✅ Sincronização segura - apenas criar tabelas que não existem
+// Alterado de { alter: true } para { force: false } para evitar conflitos de foreign key
+sequelize.sync({ force: false })
   .then(() => {
-    console.log('Banco de dados sincronizado');
+    console.log('✅ Banco de dados sincronizado com segurança');
+    console.log('📊 Tabelas criadas se necessário, sem alterar estruturas existentes');
     app.listen(PORT, () => {
-      console.log(`ATS backend rodando na porta ${PORT}`);
-      console.log(`Frontend servido em: http://localhost:${PORT}`);
+      console.log(`🚀 ATS backend rodando na porta ${PORT}`);
+      console.log(`🌐 Frontend servido em: http://localhost:${PORT}`);
+      console.log('✅ Servidor pronto para teste de validação!');
     });
   })
   .catch(err => {
-    console.error('Erro ao sincronizar banco de dados:', err);
+    console.error('❌ Erro ao sincronizar banco de dados:', err);
+    console.log('⚠️ Tentando iniciar servidor mesmo assim...');
+    app.listen(PORT, () => {
+      console.log(`🚀 ATS backend rodando na porta ${PORT} (modo fallback)`);
+      console.log(`🌐 Frontend servido em: http://localhost:${PORT}`);
+    });
   });

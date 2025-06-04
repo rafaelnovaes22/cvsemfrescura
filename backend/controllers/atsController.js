@@ -2,6 +2,7 @@ const atsService = require('../services/atsService');
 const GupyOptimizationService = require('../services/gupyOptimizationService');
 const fs = require('fs');
 const User = require('../models/user'); // Importando o modelo de usuário para gerenciar créditos
+const AnalysisResults = require('../models/AnalysisResults'); // Importando o modelo para salvar análises
 
 exports.analyze = async (req, res) => {
   try {
@@ -52,9 +53,9 @@ exports.analyze = async (req, res) => {
       if (!result.jobs) result.jobs = [];
     } catch (error) {
       console.error('[ATS] Erro no processamento ATS:', error);
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: 'Erro ao processar análise ATS. Por favor, tente novamente.',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined 
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
       });
     }
 
@@ -72,13 +73,13 @@ exports.analyze = async (req, res) => {
 
       // Para cada vaga da Gupy, fazer análise especializada
       result.gupy_optimization = [];
-      
+
       // Verificar se result.jobs existe e é um array antes de acessar length
       if (!result.jobs) {
         console.warn('[ATS] Alerta: result.jobs está undefined ou null');
         result.jobs = [];
       }
-      
+
       for (let i = 0; i < Math.min(gupyJobs.length, result.jobs.length); i++) {
         const jobData = result.jobs.find(job =>
           gupyJobs.some(gupyLink => job && job.link === gupyLink)
@@ -145,8 +146,6 @@ exports.analyze = async (req, res) => {
       result.job_keywords_missing = ausentes;
     }
 
-    fs.unlink(resumePath, () => { }); // Limpa upload temporário
-
     // Decrementar créditos do usuário após análise bem-sucedida
     try {
       // Decrementar crédito do usuário
@@ -161,6 +160,24 @@ exports.analyze = async (req, res) => {
       // Não interromper o fluxo se houver erro ao atualizar créditos
     }
 
+    // Salvar a análise no banco de dados
+    try {
+      const fileName = req.file?.originalname || 'arquivo.pdf';
+      await AnalysisResults.create({
+        userId: userId,
+        resumeFileName: fileName,
+        resumeContent: resumeText,
+        jobUrls: jobLinks,
+        result: result
+      });
+      console.log(`[ATS] Análise salva no histórico para o usuário ${userId}`);
+    } catch (saveErr) {
+      console.error('[ATS] Erro ao salvar análise no histórico:', saveErr);
+      // Não interromper o fluxo se houver erro ao salvar
+    }
+
+    fs.unlink(resumePath, () => { }); // Limpa upload temporário
+
     console.log('[ATS] Análise concluída. Resultado:', JSON.stringify(result, null, 2));
     res.json(result);
   } catch (err) {
@@ -172,5 +189,75 @@ exports.analyze = async (req, res) => {
       console.error('[ATS] Erro na análise:', err.message, err);
       res.status(500).json({ error: err.message || 'Erro interno no ATS.' });
     }
+  }
+};
+
+// Nova função para buscar análises anteriores sem consumir créditos
+exports.getAnalysisHistory = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Usuário não autenticado.' });
+    }
+
+    const analyses = await AnalysisResults.findAll({
+      where: { userId },
+      order: [['createdAt', 'DESC']],
+      limit: 50 // Limitar a 50 análises mais recentes
+    });
+
+    const formattedAnalyses = analyses.map(analysis => ({
+      id: analysis.id,
+      fileName: analysis.resumeFileName,
+      jobUrls: analysis.jobUrls,
+      createdAt: analysis.createdAt,
+      jobCount: Array.isArray(analysis.jobUrls) ? analysis.jobUrls.length : 0,
+      // Resumo básico sem enviar todo o resultado
+      summary: {
+        hasCompatibilityScores: !!(analysis.result && analysis.result.jobs),
+        hasKeywords: !!(analysis.result && analysis.result.job_keywords),
+        hasEvaluations: !!(analysis.result && (analysis.result.resumo || analysis.result.idiomas))
+      }
+    }));
+
+    res.json(formattedAnalyses);
+  } catch (err) {
+    console.error('[ATS] Erro ao buscar histórico:', err);
+    res.status(500).json({ error: 'Erro ao buscar histórico de análises.' });
+  }
+};
+
+// Nova função para buscar uma análise específica sem consumir créditos
+exports.getAnalysisById = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    const analysisId = req.params.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Usuário não autenticado.' });
+    }
+
+    const analysis = await AnalysisResults.findOne({
+      where: {
+        id: analysisId,
+        userId: userId // Garantir que o usuário só acesse suas próprias análises
+      }
+    });
+
+    if (!analysis) {
+      return res.status(404).json({ error: 'Análise não encontrada.' });
+    }
+
+    // Retornar a análise completa sem decrementar créditos
+    const result = analysis.result;
+
+    // Adicionar informação de que é uma consulta histórica
+    result.isHistoricalView = true;
+    result.originalDate = analysis.createdAt;
+
+    res.json(result);
+  } catch (err) {
+    console.error('[ATS] Erro ao buscar análise:', err);
+    res.status(500).json({ error: 'Erro ao buscar análise.' });
   }
 };

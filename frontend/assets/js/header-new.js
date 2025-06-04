@@ -696,7 +696,7 @@ class HeaderManager {
         if (!this.isLoggedIn ||
             !window.auth ||
             typeof window.auth.getToken !== 'function' ||
-            !window.CONFIG?.api?.url) {
+            !window.CONFIG?.api?.baseUrl) {
             console.log('ℹ️ Requisitos para fetchUserCredits não atendidos, pulando...');
             return;
         }
@@ -715,7 +715,7 @@ class HeaderManager {
                 return;
             }
 
-            const response = await fetch(`${window.CONFIG.api.url}/api/user/profile`, {
+            const response = await fetch(`${window.CONFIG.api.baseUrl}/api/user/profile`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 

@@ -21,4 +21,8 @@ const upload = multer({ storage });
 
 router.post('/analyze', authMiddleware, upload.single('resume'), atsController.analyze);
 
+// Novas rotas para histórico de análises
+router.get('/history', authMiddleware, atsController.getAnalysisHistory);
+router.get('/analysis/:id', authMiddleware, atsController.getAnalysisById);
+
 module.exports = router;

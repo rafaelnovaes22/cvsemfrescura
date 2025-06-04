@@ -1297,30 +1297,21 @@
                         return;
                     }
 
-                    // Criar payment intent agora (com dados validados)
-                    if (typeof payment !== 'undefined' && payment.createPaymentIntent && currentPaymentPlan) {
-                        console.log('🎯 Criando payment intent...');
-                        const success = await payment.createPaymentIntent(currentPaymentPlan, 'card');
+                    // Verificar se o payment intent já foi criado e o Stripe Elements está pronto
+                    if (typeof payment !== 'undefined' && payment.processPayment) {
+                        console.log('🎯 Processando pagamento com Stripe Elements...');
 
-                        if (!success) {
-                            console.error('❌ Falha ao criar payment intent');
-                            showMessage('Erro ao inicializar pagamento. Tente novamente.', 'error');
-                            return;
-                        }
+                        // Aguardar um momento para garantir que todos os dados estão processados
+                        await new Promise(resolve => setTimeout(resolve, 200));
 
-                        // Aguardar um pouco para o Stripe Elements carregar
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-
-                        // Agora processar o pagamento
+                        // Processar o pagamento diretamente (sem recriar payment intent)
                         await payment.processPayment();
                     } else {
-                        console.error('❌ Dados insuficientes para pagamento');
+                        console.error('❌ Sistema de pagamento não está disponível');
                         showMessage('Erro no sistema de pagamento.', 'error');
                     }
                 });
             }
-
-
 
             if (boletoForm) {
                 boletoForm.addEventListener('submit', async function (e) {

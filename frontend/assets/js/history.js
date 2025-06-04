@@ -1,4 +1,4 @@
-// Script para gerenciar o histórico de transações
+// Script para gerenciar o histórico de transações e análises
 const transactionHistory = (() => {
   // Função para formatar data
   const formatDate = (dateString) => {
@@ -11,11 +11,27 @@ const transactionHistory = (() => {
     return 'R$ ' + parseFloat(value).toFixed(2).replace('.', ',');
   };
 
+  // Função para obter token com fallback seguro
+  const getAuthToken = () => {
+    if (window.auth && typeof window.auth.getToken === 'function') {
+      return window.auth.getToken();
+    }
+    // Fallback para localStorage
+    return localStorage.getItem('token');
+  };
+
   // Função para carregar histórico de transações
   const loadTransactions = async () => {
     try {
       const historyContainer = document.getElementById('transaction-history');
       if (!historyContainer) return;
+
+      // Verificar autenticação antes de fazer a requisição
+      const token = getAuthToken();
+      if (!token) {
+        historyContainer.innerHTML = '<p class="error-state">Você precisa estar logado para ver o histórico.</p>';
+        return;
+      }
 
       // Exibir mensagem de carregamento
       historyContainer.innerHTML = '<p class="loading">Carregando histórico de transações...</p>';
@@ -23,11 +39,19 @@ const transactionHistory = (() => {
       const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3000';
       const response = await fetch(`${apiBaseUrl}/api/payment/history`, {
         headers: {
-          'Authorization': `Bearer ${auth.getToken()}`
+          'Authorization': `Bearer ${token}`
         }
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          historyContainer.innerHTML = '<p class="error-state">Sessão expirada. Faça login novamente.</p>';
+          // Limpar dados de autenticação inválidos
+          if (window.auth && window.auth.clearAuth) {
+            window.auth.clearAuth();
+          }
+          return;
+        }
         throw new Error('Falha ao carregar histórico');
       }
 
@@ -95,16 +119,205 @@ const transactionHistory = (() => {
     }
   };
 
+  // Função para carregar histórico de análises
+  const loadAnalyses = async () => {
+    try {
+      const analysisContainer = document.getElementById('analysis-history');
+      if (!analysisContainer) return;
+
+      // Verificar autenticação antes de fazer a requisição
+      const token = getAuthToken();
+      if (!token) {
+        analysisContainer.innerHTML = '<p class="error-state">Você precisa estar logado para ver o histórico.</p>';
+        return;
+      }
+
+      // Exibir mensagem de carregamento
+      analysisContainer.innerHTML = '<p class="loading">Carregando histórico de análises...</p>';
+
+      const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3000';
+      const response = await fetch(`${apiBaseUrl}/api/ats/history`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          analysisContainer.innerHTML = '<p class="error-state">Sessão expirada. Faça login novamente.</p>';
+          // Limpar dados de autenticação inválidos
+          if (window.auth && window.auth.clearAuth) {
+            window.auth.clearAuth();
+          }
+          return;
+        }
+        throw new Error('Falha ao carregar histórico de análises');
+      }
+
+      const analyses = await response.json();
+
+      if (analyses.length === 0) {
+        analysisContainer.innerHTML = `
+          <div class="empty-state" style="text-align: center; padding: 40px 20px;">
+            <div style="font-size: 48px; margin-bottom: 16px;">📊</div>
+            <h3 style="color: var(--primary); margin-bottom: 12px;">Nenhuma análise encontrada</h3>
+            <p style="color: #6b7280; margin-bottom: 24px;">
+              Você ainda não realizou nenhuma análise de currículo. 
+              Que tal fazer sua primeira análise agora?
+            </p>
+            <a href="analisar.html" style="
+              display: inline-block; 
+              background: var(--primary); 
+              color: white; 
+              padding: 12px 24px; 
+              border-radius: 8px; 
+              text-decoration: none; 
+              font-weight: 600;
+              transition: background-color 0.3s;
+            " onmouseover="this.style.backgroundColor='var(--primary-dark)'" 
+              onmouseout="this.style.backgroundColor='var(--primary)'">
+              🚀 Fazer primeira análise
+            </a>
+          </div>
+        `;
+        return;
+      }
+
+      // Construir tabela de análises
+      let tableHtml = `
+        <table class="analysis-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Arquivo</th>
+              <th>Vagas Analisadas</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      // Adicionar cada análise à tabela
+      analyses.forEach(analysis => {
+        const shortFileName = analysis.fileName && analysis.fileName.length > 30
+          ? analysis.fileName.substring(0, 30) + '...'
+          : analysis.fileName || 'Não informado';
+
+        tableHtml += `
+          <tr>
+            <td class="analysis-date">${formatDate(analysis.createdAt)}</td>
+            <td title="${analysis.fileName || 'Não informado'}">${shortFileName}</td>
+            <td>
+              <span class="job-count-badge">${analysis.jobCount} vaga${analysis.jobCount !== 1 ? 's' : ''}</span>
+            </td>
+            <td>
+              <button class="view-analysis-btn" onclick="viewAnalysis('${analysis.id}')">
+                Ver Análise
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+
+      tableHtml += `
+          </tbody>
+        </table>
+      `;
+
+      analysisContainer.innerHTML = tableHtml;
+    } catch (error) {
+      console.error('Erro ao carregar análises:', error);
+      document.getElementById('analysis-history').innerHTML =
+        `<p class="error-state">Erro ao carregar histórico de análises: ${error.message}</p>`;
+    }
+  };
+
   // Inicializa e retorna função pública
   return {
-    loadTransactions
+    loadTransactions,
+    loadAnalyses
   };
 })();
+
+// Função para alternar entre abas
+function switchTab(tabName) {
+  // Remover classe active de todas as abas e conteúdos
+  document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+  // Adicionar classe active na aba clicada
+  event.target.classList.add('active');
+
+  // Mostrar conteúdo correspondente
+  const contentId = tabName + '-content';
+  document.getElementById(contentId).classList.add('active');
+
+  // Carregar dados se necessário
+  if (tabName === 'transactions') {
+    transactionHistory.loadTransactions();
+  } else if (tabName === 'analyses') {
+    transactionHistory.loadAnalyses();
+  }
+}
+
+// Função para visualizar uma análise específica
+async function viewAnalysis(analysisId) {
+  try {
+    // Verificar autenticação antes de fazer a requisição
+    const token = getAuthToken();
+    if (!token) {
+      alert('Você precisa estar logado para ver a análise.');
+      return;
+    }
+
+    const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3000';
+    const response = await fetch(`${apiBaseUrl}/api/ats/analysis/${analysisId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        alert('Sessão expirada. Faça login novamente.');
+        // Limpar dados de autenticação inválidos
+        if (window.auth && window.auth.clearAuth) {
+          window.auth.clearAuth();
+        }
+        return;
+      }
+      throw new Error('Falha ao carregar análise');
+    }
+
+    const analysisResult = await response.json();
+
+    // Salvar resultado na sessionStorage e redirecionar para results.html
+    sessionStorage.setItem('atsResult', JSON.stringify(analysisResult));
+    sessionStorage.setItem('fileName', analysisResult.fileName || 'análise-anterior.pdf');
+    sessionStorage.setItem('isHistoricalView', 'true');
+
+    // Redirecionar para a página de resultados
+    window.location.href = 'results.html';
+  } catch (error) {
+    console.error('Erro ao carregar análise:', error);
+    alert('Erro ao carregar análise: ' + error.message);
+  }
+}
+
+// Função helper para obter token (disponível globalmente para viewAnalysis)
+function getAuthToken() {
+  if (window.auth && typeof window.auth.getToken === 'function') {
+    return window.auth.getToken();
+  }
+  // Fallback para localStorage
+  return localStorage.getItem('token');
+}
 
 // Carregar histórico quando a página for carregada
 document.addEventListener('DOMContentLoaded', () => {
   // Se estivermos na página de histórico
   if (document.getElementById('transaction-history')) {
+    // Carregar transações por padrão (aba ativa)
     transactionHistory.loadTransactions();
   }
 });

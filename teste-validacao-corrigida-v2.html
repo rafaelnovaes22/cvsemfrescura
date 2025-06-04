@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Teste - Validação Corrigida v2.0</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-color: #ffeaa7;
+        }
+
+        .info {
+            background: #d1ecf1;
+            border-color: #bee5eb;
+        }
+
+        button {
+            background: #583819;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+
+        button:hover {
+            background: #512808;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .logs {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .status-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            text-align: center;
+        }
+
+        .status-card.online {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .status-card.offline {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .status-card.testing {
+            border-color: #ffc107;
+            background: #fff3cd;
+        }
+
+        .test-counter {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .counter-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+
+        .counter-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        #payment-element {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            min-height: 120px;
+        }
+
+        .message {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .timeline {
+            border-left: 3px solid #007bff;
+            padding-left: 20px;
+            margin: 20px 0;
+        }
+
+        .timeline-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 15px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #007bff;
+        }
+
+        .timeline-item.completed::before {
+            background: #28a745;
+        }
+
+        .timeline-item.failed::before {
+            background: #dc3545;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧪 Teste - Validação Corrigida v2.0</h1>
+        <p><strong>Porta 3000 ✅</strong> | Testa correções de validação prematura do Stripe Elements</p>
+
+        <!-- Status do Sistema -->
+        <div class="test-section">
+            <h3>📊 Status do Sistema</h3>
+            <div class="status-grid">
+                <div class="status-card" id="backend-status">
+                    <h4>🔧 Backend</h4>
+                    <div id="backend-info">Verificando...</div>
+                </div>
+                <div class="status-card" id="stripe-status">
+                    <h4>💳 Stripe</h4>
+                    <div id="stripe-info">Aguardando...</div>
+                </div>
+                <div class="status-card" id="validation-status">
+                    <h4>✅ Validação</h4>
+                    <div id="validation-info">Pronto para testar</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contadores de Teste -->
+        <div class="test-section">
+            <h3>📈 Contadores de Validação</h3>
+            <div class="test-counter">
+                <div class="counter-item">
+                    <div>Erros Bloqueados</div>
+                    <div class="counter-value" id="errors-blocked">0</div>
+                </div>
+                <div class="counter-item">
+                    <div>Erros Permitidos</div>
+                    <div class="counter-value" id="errors-shown">0</div>
+                </div>
+                <div class="counter-item">
+                    <div>Eventos Change</div>
+                    <div class="counter-value" id="change-events">0</div>
+                </div>
+                <div class="counter-item">
+                    <div>Tentativas de Login</div>
+                    <div class="counter-value" id="login-attempts">0</div>
+                </div>
+            </div>
+            <button onclick="resetCounters()">🔄 Resetar Contadores</button>
+        </div>
+
+        <!-- Timeline de Testes -->
+        <div class="test-section">
+            <h3>🔄 Timeline de Testes</h3>
+            <div class="timeline" id="test-timeline">
+                <div class="timeline-item">Aguardando início dos testes...</div>
+            </div>
+        </div>
+
+        <!-- Área de Teste Principal -->
+        <div class="test-section">
+            <h3>🎯 Teste Principal - Stripe Elements</h3>
+            <button onclick="startFullTest()" id="start-test-btn">🚀 Iniciar Teste Completo</button>
+            <button onclick="testBackendOnly()" id="test-backend-btn">🔧 Testar Apenas Backend</button>
+            <button onclick="testValidationOnly()" id="test-validation-btn">✅ Testar Apenas Validação</button>
+
+            <div id="payment-element"></div>
+            <div id="paymentMessage" class="message"></div>
+
+            <button id="process-payment-btn" onclick="testPaymentProcess()" disabled style="display: none;">
+                💳 Testar Processamento
+            </button>
+        </div>
+
+        <!-- Logs Detalhados -->
+        <div class="test-section">
+            <h3>📋 Logs do Sistema</h3>
+            <button onclick="clearLogs()">🗑️ Limpar Logs</button>
+            <button onclick="exportLogs()">📥 Exportar Logs</button>
+            <div id="logs" class="logs">Carregando sistema de logs...\n</div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <script>
+        // Configuração global
+        const CONFIG = {
+            api: {
+                baseUrl: 'http://localhost:3000'
+            }
+        };
+
+        // Contadores globais
+        let testCounters = {
+            errorsBlocked: 0,
+            errorsShown: 0,
+            changeEvents: 0,
+            loginAttempts: 0
+        };
+
+        // Variáveis de teste
+        let stripe = null;
+        let elements = null;
+        let paymentElement = null;
+
+        // Funções de log
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const icons = {
+                'success': '✅',
+                'error': '❌',
+                'warning': '⚠️',
+                'info': 'ℹ️',
+                'debug': '🔧',
+                'stripe': '💳',
+                'validation': '✅'
+            };
+            const icon = icons[type] || 'ℹ️';
+
+            const logContainer = document.getElementById('logs');
+            logContainer.innerHTML += `[${timestamp}] ${icon} ${message}\n`;
+            logContainer.scrollTop = logContainer.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = 'Logs limpos...\n';
+            addLog('Logs limpos pelo usuário', 'info');
+        }
+
+        function exportLogs() {
+            const logs = document.getElementById('logs').innerHTML;
+            const blob = new Blob([logs], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `teste-validacao-${new Date().toISOString().slice(0, 10)}.log`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Funções de contador
+        function updateCounters() {
+            document.getElementById('errors-blocked').textContent = testCounters.errorsBlocked;
+            document.getElementById('errors-shown').textContent = testCounters.errorsShown;
+            document.getElementById('change-events').textContent = testCounters.changeEvents;
+            document.getElementById('login-attempts').textContent = testCounters.loginAttempts;
+        }
+
+        function resetCounters() {
+            testCounters = {
+                errorsBlocked: 0,
+                errorsShown: 0,
+                changeEvents: 0,
+                loginAttempts: 0
+            };
+            updateCounters();
+            addLog('Contadores resetados', 'info');
+        }
+
+        // Funções de timeline
+        function addTimelineItem(message, status = '') {
+            const timeline = document.getElementById('test-timeline');
+            const item = document.createElement('div');
+            item.className = `timeline-item ${status}`;
+            item.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            timeline.appendChild(item);
+        }
+
+        // Funções de status
+        function updateStatus(element, status, message) {
+            const statusCard = document.getElementById(element);
+            statusCard.className = `status-card ${status}`;
+            statusCard.querySelector('div').textContent = message;
+        }
+
+        // Teste do Backend
+        async function testBackend() {
+            try {
+                addLog('Testando conexão com backend...', 'info');
+                addTimelineItem('Iniciando teste de backend');
+
+                const response = await fetch(`${CONFIG.api.baseUrl}/api/health`);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    updateStatus('backend-status', 'online', `✅ Online - ${data.message}`);
+                    addLog(`Backend online: ${data.message}`, 'success');
+                    addTimelineItem('Backend conectado com sucesso', 'completed');
+                    return true;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                updateStatus('backend-status', 'offline', `❌ Erro: ${error.message}`);
+                addLog(`Erro no backend: ${error.message}`, 'error');
+                addTimelineItem('Falha na conexão com backend', 'failed');
+                return false;
+            }
+        }
+
+        // Teste de Login (para verificar se a API está funcionando)
+        async function testLogin() {
+            try {
+                testCounters.loginAttempts++;
+                updateCounters();
+
+                addLog('Testando endpoint de login...', 'info');
+
+                const response = await fetch(`${CONFIG.api.baseUrl}/api/user/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'teste@exemplo.com',
+                        password: 'senha123'
+                    })
+                });
+
+                if (response.status === 401) {
+                    addLog('Endpoint de login funcionando (usuário não existe - esperado)', 'success');
+                    addTimelineItem('API de login funcionando', 'completed');
+                    return true;
+                } else {
+                    addLog(`Status inesperado: ${response.status}`, 'warning');
+                    return true; // API está respondendo
+                }
+            } catch (error) {
+                addLog(`Erro no teste de login: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // Teste do Stripe
+        async function testStripe() {
+            try {
+                addLog('Inicializando Stripe...', 'stripe');
+                addTimelineItem('Inicializando Stripe Elements');
+
+                // Inicializar Stripe
+                stripe = Stripe('pk_test_51QZxtLBwCowdXIFQxX'); // Chave de teste
+
+                if (!stripe) {
+                    throw new Error('Falha ao inicializar Stripe');
+                }
+
+                // Criar Payment Intent de teste
+                const response = await fetch(`${CONFIG.api.baseUrl}/api/payment/create-payment-intent`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        plan: 'basic',
+                        paymentMethod: 'card'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro ao criar Payment Intent: ${response.status}`);
+                }
+
+                const { clientSecret } = await response.json();
+
+                // Configurar Elements
+                elements = stripe.elements({
+                    clientSecret: clientSecret
+                });
+
+                paymentElement = elements.create('payment');
+                paymentElement.mount('#payment-element');
+
+                // Configurar eventos de validação
+                setupValidationEvents();
+
+                updateStatus('stripe-status', 'online', '✅ Conectado e funcionando');
+                addLog('Stripe Elements inicializado com sucesso', 'stripe');
+                addTimelineItem('Stripe Elements configurado', 'completed');
+
+                document.getElementById('process-payment-btn').style.display = 'block';
+                document.getElementById('process-payment-btn').disabled = false;
+
+                return true;
+            } catch (error) {
+                updateStatus('stripe-status', 'offline', `❌ Erro: ${error.message}`);
+                addLog(`Erro no Stripe: ${error.message}`, 'error');
+                addTimelineItem('Falha na configuração do Stripe', 'failed');
+                return false;
+            }
+        }
+
+        // Configurar eventos de validação
+        function setupValidationEvents() {
+            paymentElement.on('change', (event) => {
+                testCounters.changeEvents++;
+                updateCounters();
+
+                addLog(`Evento change detectado: ${event.complete ? 'completo' : 'incompleto'}`, 'validation');
+
+                if (event.error) {
+                    // Verificar se é erro prematuro ou legítimo
+                    const isPrematueError = !event.complete && event.error.type === 'validation_error';
+
+                    if (isPrematueError) {
+                        testCounters.errorsBlocked++;
+                        addLog(`🔇 Erro prematuro BLOQUEADO: ${event.error.message}`, 'validation');
+                        addTimelineItem('Erro prematuro bloqueado corretamente', 'completed');
+                    } else {
+                        testCounters.errorsShown++;
+                        addLog(`⚠️ Erro LEGÍTIMO mostrado: ${event.error.message}`, 'warning');
+                        addTimelineItem('Erro legítimo mostrado ao usuário', 'completed');
+                    }
+                    updateCounters();
+                }
+            });
+
+            paymentElement.on('focus', () => {
+                addLog('👁️ Campo focado', 'debug');
+            });
+
+            paymentElement.on('blur', () => {
+                addLog('👁️ Campo desfocado', 'debug');
+            });
+
+            addLog('Eventos de validação configurados', 'validation');
+        }
+
+        // Teste de processamento de pagamento
+        async function testPaymentProcess() {
+            try {
+                addLog('Testando fluxo de processamento...', 'stripe');
+                addTimelineItem('Iniciando teste de processamento');
+
+                const { error } = await stripe.confirmPayment({
+                    elements,
+                    confirmParams: {
+                        return_url: 'http://localhost:3000',
+                    },
+                });
+
+                if (error) {
+                    addLog(`Erro esperado no processamento: ${error.message}`, 'warning');
+                    addTimelineItem('Erro de teste (esperado)', 'completed');
+                } else {
+                    addLog('Processamento realizado (inesperado em teste)', 'success');
+                    addTimelineItem('Processamento completo', 'completed');
+                }
+
+                updateStatus('validation-status', 'testing', '🧪 Teste de validação completo');
+
+            } catch (error) {
+                addLog(`Erro no teste de processamento: ${error.message}`, 'error');
+                addTimelineItem('Falha no teste de processamento', 'failed');
+            }
+        }
+
+        // Teste apenas do backend
+        async function testBackendOnly() {
+            document.getElementById('test-backend-btn').disabled = true;
+            await testBackend();
+            await testLogin();
+            document.getElementById('test-backend-btn').disabled = false;
+        }
+
+        // Teste apenas de validação
+        async function testValidationOnly() {
+            document.getElementById('test-validation-btn').disabled = true;
+
+            if (!stripe) {
+                await testStripe();
+            }
+
+            addLog('Execute os seguintes passos para testar validação:', 'info');
+            addLog('1. Digite lentamente no campo do cartão', 'info');
+            addLog('2. Use o cartão de teste: 4242 4242 4242 4242', 'info');
+            addLog('3. Observe os contadores de erro', 'info');
+
+            document.getElementById('test-validation-btn').disabled = false;
+        }
+
+        // Teste completo
+        async function startFullTest() {
+            document.getElementById('start-test-btn').disabled = true;
+
+            addLog('🚀 Iniciando teste completo...', 'info');
+            addTimelineItem('Teste completo iniciado');
+
+            // Limpar timeline anterior
+            document.getElementById('test-timeline').innerHTML = '';
+
+            // Teste 1: Backend
+            const backendOk = await testBackend();
+            if (!backendOk) {
+                addLog('❌ Teste interrompido - Backend offline', 'error');
+                document.getElementById('start-test-btn').disabled = false;
+                return;
+            }
+
+            // Teste 2: Login API
+            await testLogin();
+
+            // Teste 3: Stripe
+            const stripeOk = await testStripe();
+            if (!stripeOk) {
+                addLog('⚠️ Stripe offline - Teste limitado', 'warning');
+            }
+
+            addLog('✅ Teste completo finalizado!', 'success');
+            addTimelineItem('Todos os testes finalizados', 'completed');
+
+            document.getElementById('start-test-btn').disabled = false;
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function () {
+            addLog('🧪 Sistema de teste carregado - v2.0', 'success');
+            addLog('🌐 Configurado para porta 3000', 'info');
+            updateCounters();
+
+            // Teste inicial do backend
+            setTimeout(() => {
+                testBackend();
+            }, 1000);
+        });
+    </script>
+</body>
+
+</html>

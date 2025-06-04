@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste das Correções - Stripe Elements</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-color: #ffeaa7;
+        }
+
+        .info {
+            background: #d1ecf1;
+            border-color: #bee5eb;
+        }
+
+        button {
+            background: #583819;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+
+        button:hover {
+            background: #512808;
+        }
+
+        .logs {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔧 Teste das Correções</h1>
+        <p>Esta página testa as correções implementadas no header e Stripe Elements</p>
+
+        <!-- Teste 1: Header Loop Fix -->
+        <div class="test-section" id="header-test">
+            <h3>1. Teste do Header (Loop Infinito)</h3>
+            <p>Verificando se o loop infinito do header foi corrigido...</p>
+            <button onclick="testHeader()">Testar Header</button>
+            <div id="header-result"></div>
+        </div>
+
+        <!-- Teste 2: Stripe Elements Fix -->
+        <div class="test-section" id="stripe-test">
+            <h3>2. Teste do Stripe Elements (Múltiplas Inicializações)</h3>
+            <p>Verificando se o Stripe Elements não é recriado múltiplas vezes...</p>
+            <button onclick="testStripeElements()">Testar Stripe Elements</button>
+            <button onclick="simulatePaymentFlow()">Simular Fluxo de Pagamento</button>
+            <div id="stripe-result"></div>
+            <div id="payment-element-test"
+                style="margin-top: 20px; padding: 15px; border: 1px dashed #ccc; min-height: 50px;"></div>
+        </div>
+
+        <!-- Teste 3: Performance Monitor -->
+        <div class="test-section" id="performance-test">
+            <h3>3. Monitor de Performance</h3>
+            <p>Monitorando chamadas de API e loops infinitos...</p>
+            <button onclick="startMonitoring()">Iniciar Monitoramento</button>
+            <button onclick="stopMonitoring()">Parar Monitoramento</button>
+            <div id="performance-result"></div>
+        </div>
+
+        <!-- Logs -->
+        <div class="test-section">
+            <h3>📋 Logs em Tempo Real</h3>
+            <button onclick="clearLogs()">Limpar Logs</button>
+            <div id="logs" class="logs"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="frontend/assets/js/config.js"></script>
+    <script src="frontend/assets/js/auth.js"></script>
+    <script src="frontend/assets/js/header-new.js?v=1748114560"></script>
+    <script src="frontend/assets/js/payment.js"></script>
+
+    <script>
+        let monitoring = false;
+        let apiCallCount = 0;
+        let headerUpdateCount = 0;
+        let stripeInitCount = 0;
+        let originalFetch = window.fetch;
+        let logContainer = document.getElementById('logs');
+
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const icons = {
+                'success': '✅',
+                'error': '❌',
+                'warning': '⚠️',
+                'info': 'ℹ️',
+                'debug': '🔧'
+            };
+            const icon = icons[type] || 'ℹ️';
+
+            logContainer.innerHTML += `[${timestamp}] ${icon} ${message}\n`;
+            logContainer.scrollTop = logContainer.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function clearLogs() {
+            logContainer.innerHTML = 'Logs limpos...\n';
+            apiCallCount = 0;
+            headerUpdateCount = 0;
+            stripeInitCount = 0;
+            addLog('Monitor resetado', 'info');
+        }
+
+        function testHeader() {
+            addLog('Iniciando teste do header...', 'info');
+            const resultDiv = document.getElementById('header-result');
+
+            try {
+                // Verificar se HeaderManager existe
+                if (!window.HeaderManager) {
+                    resultDiv.innerHTML = '<p class="error">❌ HeaderManager não encontrado</p>';
+                    addLog('HeaderManager não encontrado', 'error');
+                    return;
+                }
+
+                // Verificar se headerManager foi criado
+                if (!window.headerManager) {
+                    resultDiv.innerHTML = '<p class="warning">⚠️ headerManager não foi instanciado</p>';
+                    addLog('headerManager não foi instanciado', 'warning');
+                    return;
+                }
+
+                // Testar se a função updateUserInterface não entra em loop
+                const startTime = Date.now();
+                const initialCount = headerUpdateCount;
+
+                // Simular algumas atualizações
+                window.headerManager.updateUserInterface();
+                window.headerManager.refreshUserInterface();
+
+                setTimeout(() => {
+                    const endTime = Date.now();
+                    const timeTaken = endTime - startTime;
+                    const updatesCount = headerUpdateCount - initialCount;
+
+                    if (timeTaken < 1000 && updatesCount < 10) {
+                        resultDiv.innerHTML = `<p class="success">✅ Header funcionando corretamente (${timeTaken}ms, ${updatesCount} atualizações)</p>`;
+                        addLog(`Header teste OK: ${timeTaken}ms, ${updatesCount} atualizações`, 'success');
+                    } else {
+                        resultDiv.innerHTML = `<p class="error">❌ Possível problema no header (${timeTaken}ms, ${updatesCount} atualizações)</p>`;
+                        addLog(`Header pode ter problema: ${timeTaken}ms, ${updatesCount} atualizações`, 'error');
+                    }
+                }, 500);
+
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Erro: ${error.message}</p>`;
+                addLog(`Erro no teste do header: ${error.message}`, 'error');
+            }
+        }
+
+        async function testStripeElements() {
+            addLog('Iniciando teste do Stripe Elements...', 'info');
+            const resultDiv = document.getElementById('stripe-result');
+            const container = document.getElementById('payment-element-test');
+
+            try {
+                // Verificar se payment está disponível
+                if (typeof payment === 'undefined') {
+                    resultDiv.innerHTML = '<p class="error">❌ Objeto payment não encontrado</p>';
+                    addLog('Objeto payment não encontrado', 'error');
+                    return;
+                }
+
+                // Simular criação de payment intent
+                const planData = {
+                    plan: 'basic',
+                    price: '39.97',
+                    credits: 1
+                };
+
+                addLog('Criando payment intent de teste...', 'info');
+                const success = await payment.createPaymentIntent(planData, 'card');
+
+                if (success) {
+                    resultDiv.innerHTML = '<p class="success">✅ Stripe Elements inicializado com sucesso</p>';
+                    addLog('Stripe Elements criado com sucesso', 'success');
+
+                    // Aguardar um pouco e verificar se está funcionando
+                    setTimeout(() => {
+                        const stripeContainer = document.getElementById('payment-element');
+                        if (stripeContainer && stripeContainer.children.length > 0) {
+                            addLog('Stripe Elements container populado corretamente', 'success');
+                        } else {
+                            addLog('Stripe Elements container vazio', 'warning');
+                        }
+                    }, 2000);
+                } else {
+                    resultDiv.innerHTML = '<p class="error">❌ Falha ao inicializar Stripe Elements</p>';
+                    addLog('Falha ao criar Stripe Elements', 'error');
+                }
+
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Erro: ${error.message}</p>`;
+                addLog(`Erro no teste do Stripe: ${error.message}`, 'error');
+            }
+        }
+
+        async function simulatePaymentFlow() {
+            addLog('Simulando fluxo completo de pagamento...', 'info');
+
+            try {
+                // 1. Criar payment intent
+                const planData = { plan: 'basic', price: '39.97', credits: 1 };
+                addLog('Passo 1: Criando payment intent...', 'info');
+
+                const success1 = await payment.createPaymentIntent(planData, 'card');
+                if (!success1) {
+                    addLog('❌ Falha no passo 1', 'error');
+                    return;
+                }
+
+                addLog('✅ Passo 1 concluído', 'success');
+
+                // 2. Aguardar e tentar criar novamente (testar proteção)
+                addLog('Passo 2: Testando proteção contra dupla criação...', 'info');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                const success2 = await payment.createPaymentIntent(planData, 'card');
+                addLog(`Passo 2: ${success2 ? 'Criado novamente' : 'Proteção funcionou'}`, success2 ? 'warning' : 'success');
+
+                // 3. Verificar estado final
+                const container = document.getElementById('payment-element');
+                if (container && container.children.length > 0) {
+                    addLog('✅ Simulação completa: Elements mantidos corretamente', 'success');
+                } else {
+                    addLog('❌ Simulação falhou: Elements perdidos', 'error');
+                }
+
+            } catch (error) {
+                addLog(`Erro na simulação: ${error.message}`, 'error');
+            }
+        }
+
+        function startMonitoring() {
+            if (monitoring) return;
+
+            monitoring = true;
+            addLog('Iniciando monitoramento...', 'info');
+
+            // Interceptar fetch para contar chamadas de API
+            window.fetch = function (...args) {
+                apiCallCount++;
+                addLog(`API Call #${apiCallCount}: ${args[0]}`, 'debug');
+                return originalFetch.apply(this, args);
+            };
+
+            // Interceptar console.log para detectar loops
+            const originalConsoleLog = console.log;
+            console.log = function (...args) {
+                const message = args.join(' ');
+                if (message.includes('🔄 Atualizando interface')) {
+                    headerUpdateCount++;
+                    if (headerUpdateCount > 10) {
+                        addLog(`⚠️ ALERTA: Muitas atualizações do header (${headerUpdateCount})`, 'warning');
+                    }
+                }
+                return originalConsoleLog.apply(this, args);
+            };
+
+            addLog('Monitoramento ativo', 'success');
+        }
+
+        function stopMonitoring() {
+            if (!monitoring) return;
+
+            monitoring = false;
+            window.fetch = originalFetch;
+
+            addLog('Monitoramento parado', 'info');
+            addLog(`Estatísticas: ${apiCallCount} calls API, ${headerUpdateCount} header updates`, 'info');
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function () {
+            addLog('Página de teste carregada', 'success');
+            addLog('CONFIG disponível: ' + (!!window.CONFIG), 'info');
+            addLog('Auth disponível: ' + (!!window.auth), 'info');
+            addLog('HeaderManager disponível: ' + (!!window.HeaderManager), 'info');
+            addLog('Payment disponível: ' + (typeof payment !== 'undefined'), 'info');
+        });
+    </script>
+</body>
+
+</html>
