@@ -29,6 +29,8 @@ const getStripeConfig = () => {
         console.log('🔍 [DEBUG] Cleaned secretKey length:', secretKey.length);
         console.log('🔍 [DEBUG] Cleaned secretKey first 10 chars:', JSON.stringify(secretKey.substring(0, 10)));
         console.log('🔍 [DEBUG] Starts with sk_:', secretKey.startsWith('sk_'));
+        console.log('🔍 [DEBUG] Starts with rk_:', secretKey.startsWith('rk_'));
+        console.log('🔍 [DEBUG] Valid Stripe key:', secretKey.startsWith('sk_') || secretKey.startsWith('rk_'));
     }
 
     if (publishableKey) {
@@ -60,7 +62,8 @@ const getStripeConfig = () => {
             console.error('💡 [PRODUÇÃO] Configure as variáveis no Railway Dashboard');
         } else {
             console.log('✅ [PRODUÇÃO] Chaves encontradas e limpas');
-            console.log('🔑 [PRODUÇÃO] SecretKey válida:', secretKey.startsWith('sk_'));
+            console.log('🔑 [PRODUÇÃO] SecretKey válida:', secretKey.startsWith('sk_') || secretKey.startsWith('rk_'));
+            console.log('🔑 [PRODUÇÃO] Tipo da chave:', secretKey.startsWith('sk_') ? 'Completa (sk_)' : 'Restrita (rk_) - Mais Segura');
             console.log('🔑 [PRODUÇÃO] PublishableKey válida:', publishableKey.startsWith('pk_'));
         }
 

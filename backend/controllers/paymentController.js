@@ -21,13 +21,18 @@ function initializeStripe() {
       console.log('[STRIPE] 🔍 Length original vs limpa:', stripeConfig.secretKey?.length, 'vs', secretKey.length);
     }
 
-    if (secretKey && secretKey.startsWith('sk_')) {
+    // ✅ ACEITAR TANTO CHAVES COMPLETAS (sk_) QUANTO CHAVES RESTRITAS (rk_)
+    // Chaves restritas são mais seguras e recomendadas pelo Stripe
+    const isValidStripeKey = secretKey && (secretKey.startsWith('sk_') || secretKey.startsWith('rk_'));
+
+    if (isValidStripeKey) {
       const Stripe = require('stripe');
       stripe = Stripe(secretKey);
 
       console.log('[STRIPE] ✅ Integração configurada com Stripe');
       console.log('[STRIPE] 🌍 Ambiente:', config.environment.name);
       console.log('[STRIPE] 🔑 Tipo de chave:', stripeConfig.environment);
+      console.log('[STRIPE] 🔐 Tipo de key:', secretKey.startsWith('sk_') ? 'Completa (sk_)' : 'Restrita (rk_) - Mais Segura');
       console.log('[STRIPE] 🔑 Chave:', secretKey.substring(0, 20) + '...');
       return true;
     } else {
@@ -36,6 +41,7 @@ function initializeStripe() {
       console.log('[STRIPE] 🔍 Debug - secretKey type:', typeof secretKey);
       console.log('[STRIPE] 🔍 Debug - secretKey length:', secretKey?.length || 0);
       console.log('[STRIPE] 🔍 Debug - startsWith sk_:', secretKey ? secretKey.startsWith('sk_') : 'N/A');
+      console.log('[STRIPE] 🔍 Debug - startsWith rk_:', secretKey ? secretKey.startsWith('rk_') : 'N/A');
 
       if (secretKey && secretKey.length > 0) {
         console.log('[STRIPE] 🔍 First 20 chars:', JSON.stringify(secretKey.substring(0, 20)));
