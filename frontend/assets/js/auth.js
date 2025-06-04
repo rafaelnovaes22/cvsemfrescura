@@ -1,7 +1,7 @@
 // auth.js - Gerenciamento de autenticação e perfil para CV Sem Frescura
 
 // Autenticação de usuários - CV Sem Frescura
-console.log('🔐 Carregando auth.js v2.4...');
+console.log('🔐 Carregando auth.js v2.5...');
 
 // Função para obter a URL da API de forma dinâmica
 const getAuthApiUrl = async () => {
@@ -55,8 +55,8 @@ function clearApiUrlCache() {
     console.log('🗑️ Cache da API URL limpo');
 }
 
-// Função para obter a URL da API (com cache renovável)
-const getApiUrl = async (forceRefresh = false) => {
+// Função para obter a URL da API (com cache renovável) - renomeada para evitar conflito com config.js
+const getAuthApiUrlFromCache = async (forceRefresh = false) => {
     if (_cachedApiUrl && !forceRefresh) {
         console.log('📋 Usando API_URL do cache:', _cachedApiUrl);
         return _cachedApiUrl;
@@ -68,7 +68,7 @@ const getApiUrl = async (forceRefresh = false) => {
 };
 
 // Legacy support - manter API_URL_PROMISE para compatibilidade
-const API_URL_PROMISE = getApiUrl();
+const API_URL_PROMISE = getAuthApiUrlFromCache();
 
 // Salva token e dados do usuário no localStorage
 function saveAuth(token, user) {

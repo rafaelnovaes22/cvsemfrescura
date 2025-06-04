@@ -493,7 +493,7 @@
         }
     </style>
     <script src="/assets/js/config.js?v=1748114546"></script>
-    <script src="/assets/js/auth.js?v=1748114546"></script>
+    <script src="/assets/js/auth.js?v=1748114547"></script>
     <script src="/assets/js/header-new.js?v=1748114561"></script>
 
     <!-- Script para mostrar menu logado INSTANTANEAMENTE -->
@@ -1075,6 +1075,19 @@
 
             console.log('✅ authSuccess() finalizada');
         };
+
+        // Função global para alternar para o formulário de cadastro
+        function switchToRegister() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('authModalTitle').textContent = 'Cadastrar';
+            document.getElementById('authError').style.display = 'none';
+            // Preencher o email se foi digitado no formulário de login
+            const loginEmail = document.getElementById('loginEmail').value;
+            if (loginEmail) {
+                document.getElementById('registerEmail').value = loginEmail;
+            }
+        }
     </script>
 </head>
 
@@ -1229,6 +1242,19 @@
             const showLoginLink = document.getElementById('showLogin');
             const authError = document.getElementById('authError');
 
+            // Função para alternar para o formulário de cadastro
+            window.switchToRegister = function () {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                document.getElementById('authModalTitle').textContent = 'Cadastrar';
+                authError.style.display = 'none';
+                // Preencher o email se foi digitado no formulário de login
+                const loginEmail = document.getElementById('loginEmail').value;
+                if (loginEmail) {
+                    document.getElementById('registerEmail').value = loginEmail;
+                }
+            };
+
             showRegisterLink.addEventListener('click', function (e) {
                 e.preventDefault();
                 loginForm.style.display = 'none';
@@ -1273,9 +1299,34 @@
                         window.authSuccess();
                     })
                     .catch(function (error) {
-                        authError.textContent = error.message || 'Erro ao fazer login';
-                        authError.style.display = 'block';
-                        authError.style.color = '#b22';
+                        // Verificar se é erro de usuário não encontrado/precisa se cadastrar
+                        if (error.message && error.message.includes('ainda não está cadastrado')) {
+                            // Mostrar mensagem específica e alternar para tela de cadastro
+                            authError.innerHTML = `
+                                <div style="margin-bottom: 15px;">
+                                    <strong>Este email ainda não está cadastrado!</strong><br>
+                                    <span style="font-size: 14px;">Clique no botão abaixo para criar sua conta primeiro.</span>
+                                </div>
+                                <button onclick="switchToRegister()" style="background: #2a7a2a; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                                    ✨ Criar Minha Conta Agora
+                                </button>
+                            `;
+                            authError.style.display = 'block';
+                            authError.style.color = '#2a7a2a';
+                            authError.style.background = '#f0f9f0';
+                            authError.style.padding = '15px';
+                            authError.style.borderRadius = '8px';
+                            authError.style.border = '1px solid #2a7a2a';
+                        } else {
+                            // Outros tipos de erro (senha incorreta, etc.)
+                            authError.textContent = error.message || 'Erro ao fazer login';
+                            authError.style.display = 'block';
+                            authError.style.color = '#b22';
+                            authError.style.background = 'transparent';
+                            authError.style.padding = '0';
+                            authError.style.borderRadius = '0';
+                            authError.style.border = 'none';
+                        }
                     });
             });
 
