@@ -59,11 +59,9 @@ class HeaderManager {
                 justify-content: flex-start !important;
             }
 
-            /* FORÇA FLEX COLUMN EM QUALQUER SITUAÇÃO */
-            #userDropdown[style*="flex"],
+            /* FORÇA FLEX COLUMN APENAS QUANDO EXPLICITAMENTE MOSTRADO */
             #userDropdown.show,
             #userDropdown.dropdown-open,
-            .dropdown-menu[style*="flex"],
             .dropdown-menu.show {
                 display: flex !important;
                 flex-direction: column !important;
@@ -342,20 +340,54 @@ class HeaderManager {
         document.addEventListener('click', (e) => {
             const userMenuWrapper = document.getElementById('userMenuWrapper');
             if (userMenuWrapper && !userMenuWrapper.contains(e.target)) {
-                this.closeDropdown();
+                if (this.dropdownOpen) {
+                    console.log('🔄 Fechando dropdown - clique fora detectado');
+                    this.closeDropdown();
+                }
             }
         });
 
-        // Toggle dropdown - SUPER OTIMIZADO
+        // Toggle dropdown - CORRIGIDO PARA FUNCIONAR COM <a> TAG
         const authButton = document.getElementById('authButton');
         if (authButton) {
             console.log('✅ Event listener INSTANTÂNEO adicionado ao authButton');
-            authButton.addEventListener('click', (e) => {
+
+            // Remover event listeners anteriores se existirem
+            if (this.authButtonClickHandler) {
+                authButton.removeEventListener('click', this.authButtonClickHandler);
+            }
+
+            // Criar uma função vinculada para poder remover depois
+            this.authButtonClickHandler = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('🔽 Clique no menu detectado - Dropdown INSTANTÂNEO');
-                this.toggleDropdownInstant();
-            });
+
+                console.log('🖱️ Clique no authButton detectado');
+                console.log(`📊 Estado atual antes do toggle: dropdownOpen = ${this.dropdownOpen}`);
+
+                // Toggle imediato do estado
+                this.dropdownOpen = !this.dropdownOpen;
+                console.log(`🔄 Novo estado: dropdownOpen = ${this.dropdownOpen}`);
+
+                // DEBUG: Verificar se elementos existem
+                const userDropdown = document.getElementById('userDropdown');
+                console.log(`🔍 userDropdown encontrado: ${!!userDropdown}`);
+                if (userDropdown) {
+                    console.log(`📏 userDropdown display atual: ${userDropdown.style.display}`);
+                }
+
+                // Aplicar mudança visual imediatamente
+                this.applyDropdownState();
+
+                // DEBUG: Verificar estado após aplicar
+                if (userDropdown) {
+                    console.log(`📏 userDropdown display após aplicar: ${userDropdown.style.display}`);
+                }
+            };
+
+            authButton.addEventListener('click', this.authButtonClickHandler);
+        } else {
+            console.warn('⚠️ authButton não encontrado para adicionar event listener');
         }
 
         // Logout
@@ -373,100 +405,172 @@ class HeaderManager {
         this.setupContextualNavigation();
     }
 
-    // DROPDOWN INSTANTÂNEO - VERSÃO ULTRA OTIMIZADA
-    toggleDropdownInstant() {
+    // NOVA FUNÇÃO PARA APLICAR O ESTADO DO DROPDOWN
+    applyDropdownState() {
         const userDropdown = document.getElementById('userDropdown');
+        const authButton = document.getElementById('authButton');
+
         if (!userDropdown) {
             console.warn('⚠️ userDropdown não encontrado');
             return;
         }
 
-        this.dropdownOpen = !this.dropdownOpen;
-
         if (this.dropdownOpen) {
-            // APLICAÇÃO INSTANTÂNEA E TOTAL DOS ESTILOS
-            userDropdown.style.cssText = `
-                display: flex !important;
-                flex-direction: column !important;
-                flex-wrap: nowrap !important;
-                align-items: stretch !important;
-                justify-content: flex-start !important;
-                position: absolute !important;
-                top: 100% !important;
-                right: 0 !important;
-                margin-top: 0.5rem !important;
-                background: white !important;
-                border-radius: 0.5rem !important;
-                min-width: 200px !important;
-                max-width: 250px !important;
-                z-index: 9999 !important;
-                border: 1px solid #e5e7eb !important;
-                overflow: hidden !important;
-                box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1) !important;
+            this.openDropdownInstant(userDropdown, authButton);
+        } else {
+            this.closeDropdownInstant(userDropdown, authButton);
+        }
+    }
+
+    // DROPDOWN INSTANTÂNEO - VERSÃO FINAL CORRIGIDA
+    toggleDropdownInstant() {
+        // Esta função agora é apenas um wrapper para compatibilidade
+        this.dropdownOpen = !this.dropdownOpen;
+        this.applyDropdownState();
+        console.log(`🔄 Toggle dropdown: ${this.dropdownOpen}`);
+    }
+
+    openDropdownInstant(userDropdown, authButton) {
+        // APLICAÇÃO INSTANTÂNEA E TOTAL DOS ESTILOS
+        userDropdown.style.cssText = `
+            display: flex !important;
+            flex-direction: column !important;
+            flex-wrap: nowrap !important;
+            align-items: stretch !important;
+            justify-content: flex-start !important;
+            position: absolute !important;
+            top: 100% !important;
+            right: 0 !important;
+            margin-top: 0.5rem !important;
+            background: white !important;
+            border-radius: 0.5rem !important;
+            min-width: 200px !important;
+            max-width: 250px !important;
+            z-index: 9999 !important;
+            border: 1px solid #e5e7eb !important;
+            overflow: hidden !important;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1) !important;
+            box-sizing: border-box !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        `;
+
+        // FORÇA ESTILOS EM TODOS OS ITENS - INSTANTÂNEO
+        const items = userDropdown.querySelectorAll('a');
+        items.forEach((item) => {
+            const isLogout = item.id === 'logoutButton' || item.textContent.includes('Sair');
+            item.style.cssText = `
+                display: block !important;
+                width: 100% !important;
+                padding: 0.75rem 1rem !important;
+                color: ${isLogout ? '#dc3545' : '#3f3f46'} !important;
+                text-decoration: none !important;
+                font-size: 0.875rem !important;
+                border: none !important;
+                text-align: left !important;
+                background: transparent !important;
+                cursor: pointer !important;
+                font-family: inherit !important;
+                line-height: 1.5 !important;
                 box-sizing: border-box !important;
-                visibility: visible !important;
-                opacity: 1 !important;
+                transition: background-color 0.2s ease !important;
+                flex-shrink: 0 !important;
+                white-space: nowrap !important;
+                ${isLogout ? 'border-top: 1px solid #e5e7eb !important;' : ''}
             `;
 
-            // FORÇA ESTILOS EM TODOS OS ITENS - INSTANTÂNEO
-            const items = userDropdown.querySelectorAll('a');
-            items.forEach((item) => {
-                const isLogout = item.id === 'logoutButton' || item.textContent.includes('Sair');
-                item.style.cssText = `
-                    display: block !important;
-                    width: 100% !important;
-                    padding: 0.75rem 1rem !important;
-                    color: ${isLogout ? '#dc3545' : '#3f3f46'} !important;
-                    text-decoration: none !important;
-                    font-size: 0.875rem !important;
-                    border: none !important;
-                    text-align: left !important;
-                    background: transparent !important;
-                    cursor: pointer !important;
-                    font-family: inherit !important;
-                    line-height: 1.5 !important;
-                    box-sizing: border-box !important;
-                    transition: background-color 0.2s ease !important;
-                    flex-shrink: 0 !important;
-                    white-space: nowrap !important;
-                    ${isLogout ? 'border-top: 1px solid #e5e7eb !important;' : ''}
-                `;
+            // HOVER INSTANTÂNEO VIA JAVASCRIPT
+            item.onmouseenter = function () {
+                this.style.backgroundColor = isLogout ? '#fef2f2' : '#f4f4f5';
+            };
+            item.onmouseleave = function () {
+                this.style.backgroundColor = 'transparent';
+            };
+        });
 
-                // HOVER INSTANTÂNEO VIA JAVASCRIPT
-                item.onmouseenter = function () {
-                    this.style.backgroundColor = isLogout ? '#fef2f2' : '#f4f4f5';
-                };
-                item.onmouseleave = function () {
-                    this.style.backgroundColor = 'transparent';
-                };
-            });
+        // Atualizar seta
+        this.updateDropdownArrow(authButton, true);
+        console.log('⚡ Dropdown INSTANTÂNEO aberto');
+    }
 
-            console.log('⚡ Dropdown INSTANTÂNEO aberto');
-        } else {
-            userDropdown.style.display = 'none';
-            console.log('❌ Dropdown fechado');
+    closeDropdownInstant(userDropdown, authButton) {
+        // LIMPEZA COMPLETA DO STYLE E FORÇAR DISPLAY NONE
+        userDropdown.style.cssText = 'display: none !important;';
+
+        // Remover classes que possam forçar display
+        userDropdown.classList.remove('show', 'dropdown-open');
+
+        // Forçar atualização visual
+        userDropdown.offsetHeight; // Trigger reflow
+
+        // Verificação final - garantir que está escondido
+        if (userDropdown.offsetParent !== null) {
+            console.warn('⚠️ Dropdown ainda visível, aplicando força bruta...');
+            userDropdown.style.setProperty('display', 'none', 'important');
+            userDropdown.style.setProperty('visibility', 'hidden', 'important');
+            userDropdown.style.setProperty('opacity', '0', 'important');
         }
 
-        // Animar ícone
-        const dropdownIcon = userDropdown.parentElement.querySelector('span:last-child');
+        // Atualizar seta
+        this.updateDropdownArrow(authButton, false);
+        console.log('❌ Dropdown fechado');
+    }
+
+    updateDropdownArrow(authButton, isOpen) {
+        if (!authButton) return;
+
+        // Busca inteligente pela seta
+        const spans = authButton.querySelectorAll('span');
+        let dropdownIcon = null;
+
+        // 1. Buscar por conteúdo de seta
+        for (let i = spans.length - 1; i >= 0; i--) {
+            const span = spans[i];
+            const text = span.textContent || span.innerHTML;
+            if (text.includes('▼') || text.includes('▲')) {
+                dropdownIcon = span;
+                break;
+            }
+        }
+
+        // 2. Buscar por estilo (font-size pequeno)
+        if (!dropdownIcon) {
+            for (let i = spans.length - 1; i >= 0; i--) {
+                const span = spans[i];
+                const fontSize = window.getComputedStyle(span).fontSize;
+                if (fontSize === '0.7rem' || parseFloat(fontSize) < 12) {
+                    dropdownIcon = span;
+                    break;
+                }
+            }
+        }
+
+        // 3. Usar último span como fallback
+        if (!dropdownIcon && spans.length > 0) {
+            dropdownIcon = spans[spans.length - 1];
+        }
+
         if (dropdownIcon) {
-            dropdownIcon.style.transform = this.dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+            // Aplicar animação e texto
+            dropdownIcon.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
             dropdownIcon.style.transition = 'transform 0.15s ease';
+            dropdownIcon.textContent = isOpen ? '▲' : '▼';
+
+            console.log(`🎯 Seta atualizada: ${isOpen ? '▲ (para cima)' : '▼ (para baixo)'}`);
+        } else {
+            console.warn('⚠️ Ícone da seta não encontrado no authButton');
         }
     }
 
     closeDropdown() {
         const userDropdown = document.getElementById('userDropdown');
+        const authButton = document.getElementById('authButton');
+
         if (!userDropdown) return;
 
         this.dropdownOpen = false;
-        userDropdown.style.display = 'none';
-
-        // Resetar ícone
-        const dropdownIcon = userDropdown.parentElement.querySelector('span:last-child');
-        if (dropdownIcon) {
-            dropdownIcon.style.transform = 'rotate(0deg)';
-        }
+        this.closeDropdownInstant(userDropdown, authButton);
+        console.log('🔄 Dropdown fechado via closeDropdown()');
     }
 
     setupContextualNavigation() {
@@ -480,8 +584,7 @@ class HeaderManager {
             case 'landing':
                 navItems = [
                     { href: '#features', text: 'Recursos' },
-                    { href: '#how-it-works', text: 'Como Funciona' },
-                    { href: '#testimonials', text: 'Depoimentos' }
+                    { href: '#how-it-works', text: 'Como Funciona' }
                 ];
                 break;
             default:
@@ -520,9 +623,27 @@ class HeaderManager {
 
         if (!guestActions || !userMenuWrapper) return;
 
-        // Verificar estado de autenticação
-        this.isLoggedIn = window.auth && window.auth.isAuthenticated();
-        this.userInfo = this.isLoggedIn ? window.auth.getUser() : null;
+        // **PRESERVAR ESTADO DO DROPDOWN** - Salvar antes de qualquer modificação
+        const userDropdown = document.getElementById('userDropdown');
+        let dropdownWasVisible = false;
+        if (userDropdown && this.dropdownOpen) {
+            dropdownWasVisible = true;
+            console.log('💾 Salvando estado do dropdown (estava aberto)');
+        }
+
+        // Verificação defensiva mais robusta do estado de autenticação
+        try {
+            this.isLoggedIn = window.auth &&
+                typeof window.auth.isAuthenticated === 'function' &&
+                window.auth.isAuthenticated();
+            this.userInfo = this.isLoggedIn &&
+                typeof window.auth.getUser === 'function' ?
+                window.auth.getUser() : null;
+        } catch (error) {
+            console.log('ℹ️ Auth não disponível ou incompleto, assumindo usuário não logado');
+            this.isLoggedIn = false;
+            this.userInfo = null;
+        }
 
         if (this.isLoggedIn && this.userInfo) {
             // Usuário logado
@@ -548,8 +669,19 @@ class HeaderManager {
                 `;
             }
 
-            // Buscar créditos atualizados (throttled)
-            this.fetchUserCredits();
+            // **RESTAURAR ESTADO DO DROPDOWN** - Após todas as modificações
+            if (dropdownWasVisible && userDropdown) {
+                console.log('🔄 Restaurando estado do dropdown (reabrindo)');
+                // Forçar reabertura com delay mínimo para garantir que a modificação anterior foi aplicada
+                setTimeout(() => {
+                    this.openDropdownInstant(userDropdown, document.getElementById('authButton'));
+                }, 10);
+            }
+
+            // Buscar créditos atualizados (throttled) - apenas se auth está completo
+            if (window.auth && typeof window.auth.getToken === 'function') {
+                this.fetchUserCredits();
+            }
         } else {
             // Usuário não logado
             guestActions.style.display = 'flex';
@@ -560,7 +692,14 @@ class HeaderManager {
     }
 
     async fetchUserCredits() {
-        if (!this.isLoggedIn || !window.auth || !window.CONFIG?.api?.url) return;
+        // Verificação defensiva mais robusta
+        if (!this.isLoggedIn ||
+            !window.auth ||
+            typeof window.auth.getToken !== 'function' ||
+            !window.CONFIG?.api?.url) {
+            console.log('ℹ️ Requisitos para fetchUserCredits não atendidos, pulando...');
+            return;
+        }
 
         // Throttling para evitar muitas requisições
         const now = Date.now();
@@ -570,8 +709,14 @@ class HeaderManager {
         this.lastCreditsRequest = now;
 
         try {
+            const token = window.auth.getToken();
+            if (!token) {
+                console.log('ℹ️ Token não disponível, pulando fetchUserCredits');
+                return;
+            }
+
             const response = await fetch(`${window.CONFIG.api.url}/api/user/profile`, {
-                headers: { 'Authorization': `Bearer ${window.auth.getToken()}` }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
 
             if (response.ok) {
@@ -582,11 +727,13 @@ class HeaderManager {
                     const credits = data.credits;
                     userCredits.textContent = `${credits} análise${credits !== 1 ? 's' : ''}`;
 
-                    // Atualizar dados locais
-                    const currentUser = window.auth.getUser();
-                    if (currentUser) {
-                        currentUser.credits = credits;
-                        localStorage.setItem('user', JSON.stringify(currentUser));
+                    // Atualizar dados locais - apenas se getUser está disponível
+                    if (typeof window.auth.getUser === 'function') {
+                        const currentUser = window.auth.getUser();
+                        if (currentUser) {
+                            currentUser.credits = credits;
+                            localStorage.setItem('user', JSON.stringify(currentUser));
+                        }
                     }
 
                     // Disparar evento para outras partes da aplicação
@@ -596,7 +743,7 @@ class HeaderManager {
                 }
             }
         } catch (error) {
-            console.log('ℹ️ Erro ao buscar créditos (normal se offline):', error.message);
+            console.log('ℹ️ Erro ao buscar créditos (normal se offline ou auth incompleto):', error.message);
         }
     }
 
