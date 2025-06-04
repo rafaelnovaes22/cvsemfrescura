@@ -26,24 +26,15 @@ const getAuthApiUrl = async () => {
         return baseUrl + '/api/user';
     }
 
-    // Fallback apenas para desenvolvimento - verificar se estamos em localhost
+    // Fallback: detectar ambiente
     const hostname = window.location.hostname;
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        console.log('🔧 FALLBACK DESENVOLVIMENTO: Detectando porta do backend...');
-        // Fallback: detectar automaticamente a porta do backend apenas em desenvolvimento
-        if (window.detectBackendPort) {
-            const detectedUrl = await window.detectBackendPort();
-            return detectedUrl + '/api/user';
-        }
-
-        // Fallback final - sempre porta 3000 em desenvolvimento
         console.log('🔧 FALLBACK FINAL: Usando localhost:3000');
-        return 'http://localhost:3000/api/user';
+        return 'http://localhost:3000/api/user'; // Desenvolvimento
+    } else {
+        console.log('🔧 FALLBACK FINAL: Usando URL relativa para produção');
+        return '/api/user'; // Produção - URL relativa
     }
-
-    // Em produção sem CONFIG, usar URL relativa
-    console.log('🚀 FALLBACK PRODUÇÃO: Usando URL relativa');
-    return '/api/user';
 };
 
 // Cache da URL da API

@@ -36,7 +36,19 @@ const transactionHistory = (() => {
       // Exibir mensagem de carregamento
       historyContainer.innerHTML = '<p class="loading">Carregando histórico de transações...</p>';
 
-      const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3000';
+      const apiBaseUrl = (() => {
+        if (window.CONFIG && window.CONFIG.api && typeof window.CONFIG.api.baseUrl === 'string') {
+          return window.CONFIG.api.baseUrl;
+        }
+
+        // Fallback: detectar ambiente
+        const hostname = window.location.hostname;
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+          return 'http://localhost:3000'; // Desenvolvimento
+        } else {
+          return ''; // Produção - URL relativa
+        }
+      })();
       const response = await fetch(`${apiBaseUrl}/api/payment/history`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -135,7 +147,19 @@ const transactionHistory = (() => {
       // Exibir mensagem de carregamento
       analysisContainer.innerHTML = '<p class="loading">Carregando histórico de análises...</p>';
 
-      const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3000';
+      const apiBaseUrl = (() => {
+        if (window.CONFIG && window.CONFIG.api && typeof window.CONFIG.api.baseUrl === 'string') {
+          return window.CONFIG.api.baseUrl;
+        }
+
+        // Fallback: detectar ambiente
+        const hostname = window.location.hostname;
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+          return 'http://localhost:3000'; // Desenvolvimento
+        } else {
+          return ''; // Produção - URL relativa
+        }
+      })();
       const response = await fetch(`${apiBaseUrl}/api/ats/history`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -270,7 +294,19 @@ async function viewAnalysis(analysisId) {
       return;
     }
 
-    const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3000';
+    const apiBaseUrl = (() => {
+      if (window.CONFIG && window.CONFIG.api && typeof window.CONFIG.api.baseUrl === 'string') {
+        return window.CONFIG.api.baseUrl;
+      }
+
+      // Fallback: detectar ambiente
+      const hostname = window.location.hostname;
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'http://localhost:3000'; // Desenvolvimento
+      } else {
+        return ''; // Produção - URL relativa
+      }
+    })();
     const response = await fetch(`${apiBaseUrl}/api/ats/analysis/${analysisId}`, {
       headers: {
         'Authorization': `Bearer ${token}`

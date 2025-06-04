@@ -127,7 +127,19 @@ class OnboardingTester {
             console.log('🧪 Resetando status de onboarding...');
 
             // Simular chamada para facilitar testes - em produção, crie um endpoint específico
-            const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3000';
+            const apiBaseUrl = (() => {
+                if (window.CONFIG && window.CONFIG.api && typeof window.CONFIG.api.baseUrl === 'string') {
+                    return window.CONFIG.api.baseUrl;
+                }
+
+                // Fallback: detectar ambiente
+                const hostname = window.location.hostname;
+                if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                    return 'http://localhost:3000'; // Desenvolvimento
+                } else {
+                    return ''; // Produção - URL relativa
+                }
+            })();
             await fetch(`${apiBaseUrl}/api/user/reset-onboarding`, {
                 method: 'POST',
                 headers: {
