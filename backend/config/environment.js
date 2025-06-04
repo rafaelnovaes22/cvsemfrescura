@@ -14,9 +14,26 @@ console.log('🚀 Produção:', isProduction);
 // 🔑 Configuração de Chaves Stripe baseada no ambiente
 const getStripeConfig = () => {
     // Sempre usar variáveis de ambiente - NUNCA hardcode!
-    const secretKey = process.env.STRIPE_SECRET_KEY;
-    const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
+    let secretKey = process.env.STRIPE_SECRET_KEY;
+    let publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    // 🧹 LIMPEZA FORÇADA DAS VARIÁVEIS (correção para problemas de encoding)
+    if (secretKey) {
+        console.log('🔍 [DEBUG] Raw secretKey length:', secretKey.length);
+        console.log('🔍 [DEBUG] Raw secretKey first 10 chars:', JSON.stringify(secretKey.substring(0, 10)));
+
+        // Limpar espaços, quebras de linha e caracteres especiais
+        secretKey = secretKey.trim().replace(/[\r\n\t]/g, '');
+
+        console.log('🔍 [DEBUG] Cleaned secretKey length:', secretKey.length);
+        console.log('🔍 [DEBUG] Cleaned secretKey first 10 chars:', JSON.stringify(secretKey.substring(0, 10)));
+        console.log('🔍 [DEBUG] Starts with sk_:', secretKey.startsWith('sk_'));
+    }
+
+    if (publishableKey) {
+        publishableKey = publishableKey.trim().replace(/[\r\n\t]/g, '');
+    }
 
     if (isLocal) {
         console.log('🔧 [LOCAL] Configuração para desenvolvimento');
@@ -41,6 +58,10 @@ const getStripeConfig = () => {
         if (!secretKey || !publishableKey) {
             console.error('❌ [PRODUÇÃO] Chaves do Stripe não configuradas no Railway');
             console.error('💡 [PRODUÇÃO] Configure as variáveis no Railway Dashboard');
+        } else {
+            console.log('✅ [PRODUÇÃO] Chaves encontradas e limpas');
+            console.log('🔑 [PRODUÇÃO] SecretKey válida:', secretKey.startsWith('sk_'));
+            console.log('🔑 [PRODUÇÃO] PublishableKey válida:', publishableKey.startsWith('pk_'));
         }
 
         return {

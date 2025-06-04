@@ -8,20 +8,39 @@ function initializeStripe() {
   try {
     // Usar configuração de ambiente para determinar as chaves  
     const stripeConfig = config.stripe;
+    let secretKey = stripeConfig.secretKey;
 
-    if (stripeConfig.secretKey && stripeConfig.secretKey.startsWith('sk_')) {
+    // 🧹 LIMPEZA ADICIONAL (backup safety)
+    if (secretKey && typeof secretKey === 'string') {
+      console.log('[STRIPE] 🔍 Chave original:', secretKey ? `${secretKey.substring(0, 10)}...` : 'NULL');
+
+      // Limpeza extra por segurança
+      secretKey = secretKey.trim().replace(/[\r\n\t\u0000-\u001f]/g, '');
+
+      console.log('[STRIPE] 🧹 Chave limpa:', secretKey ? `${secretKey.substring(0, 10)}...` : 'NULL');
+      console.log('[STRIPE] 🔍 Length original vs limpa:', stripeConfig.secretKey?.length, 'vs', secretKey.length);
+    }
+
+    if (secretKey && secretKey.startsWith('sk_')) {
       const Stripe = require('stripe');
-      stripe = Stripe(stripeConfig.secretKey);
+      stripe = Stripe(secretKey);
 
       console.log('[STRIPE] ✅ Integração configurada com Stripe');
       console.log('[STRIPE] 🌍 Ambiente:', config.environment.name);
       console.log('[STRIPE] 🔑 Tipo de chave:', stripeConfig.environment);
-      console.log('[STRIPE] 🔑 Chave:', stripeConfig.secretKey.substring(0, 20) + '...');
+      console.log('[STRIPE] 🔑 Chave:', secretKey.substring(0, 20) + '...');
       return true;
     } else {
-      console.log('[STRIPE] ⚠️ STRIPE_SECRET_KEY não configurada.');
-      console.log('[STRIPE] 🔍 Debug - secretKey:', stripeConfig.secretKey ? 'EXISTS' : 'NULL');
-      console.log('[STRIPE] 🔍 Debug - startsWith sk_:', stripeConfig.secretKey ? stripeConfig.secretKey.startsWith('sk_') : 'N/A');
+      console.log('[STRIPE] ⚠️ STRIPE_SECRET_KEY não configurada ou inválida.');
+      console.log('[STRIPE] 🔍 Debug - secretKey exists:', !!secretKey);
+      console.log('[STRIPE] 🔍 Debug - secretKey type:', typeof secretKey);
+      console.log('[STRIPE] 🔍 Debug - secretKey length:', secretKey?.length || 0);
+      console.log('[STRIPE] 🔍 Debug - startsWith sk_:', secretKey ? secretKey.startsWith('sk_') : 'N/A');
+
+      if (secretKey && secretKey.length > 0) {
+        console.log('[STRIPE] 🔍 First 20 chars:', JSON.stringify(secretKey.substring(0, 20)));
+      }
+
       return false;
     }
   } catch (stripeError) {
