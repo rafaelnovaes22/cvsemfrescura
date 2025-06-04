@@ -1,7 +1,74 @@
 // auth.js - Gerenciamento de autenticação e perfil para CV Sem Frescura
 
-// API Configuration
-const API_URL = 'http://localhost:3001/api/user';
+// Autenticação de usuários - CV Sem Frescura
+console.log('🔐 Carregando auth.js v2.4...');
+
+// Função para obter a URL da API de forma dinâmica
+const getAuthApiUrl = async () => {
+    // Aguardar CONFIG estar disponível
+    let attempts = 0;
+    while (!window.CONFIG && attempts < 50) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+    }
+
+    if (window.CONFIG && window.CONFIG.api && window.CONFIG.api.hasOwnProperty('baseUrl')) {
+        const baseUrl = window.CONFIG.api.baseUrl;
+
+        // Se baseUrl é uma string vazia, significa que estamos em produção usando URLs relativas
+        if (baseUrl === '') {
+            console.log('🚀 PRODUÇÃO: Usando URL relativa para API');
+            return '/api/user';
+        }
+
+        // Se baseUrl tem valor, é desenvolvimento ou tem URL específica
+        console.log('🏠 DESENVOLVIMENTO: Usando baseUrl do CONFIG:', baseUrl);
+        return baseUrl + '/api/user';
+    }
+
+    // Fallback apenas para desenvolvimento - verificar se estamos em localhost
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        console.log('🔧 FALLBACK DESENVOLVIMENTO: Detectando porta do backend...');
+        // Fallback: detectar automaticamente a porta do backend apenas em desenvolvimento
+        if (window.detectBackendPort) {
+            const detectedUrl = await window.detectBackendPort();
+            return detectedUrl + '/api/user';
+        }
+
+        // Fallback final - sempre porta 3000 em desenvolvimento
+        console.log('🔧 FALLBACK FINAL: Usando localhost:3000');
+        return 'http://localhost:3000/api/user';
+    }
+
+    // Em produção sem CONFIG, usar URL relativa
+    console.log('🚀 FALLBACK PRODUÇÃO: Usando URL relativa');
+    return '/api/user';
+};
+
+// Cache da URL da API
+let _cachedApiUrl = null;
+
+// Função para limpar cache da API URL (útil para debugging e mudanças de ambiente)
+function clearApiUrlCache() {
+    _cachedApiUrl = null;
+    console.log('🗑️ Cache da API URL limpo');
+}
+
+// Função para obter a URL da API (com cache renovável)
+const getApiUrl = async (forceRefresh = false) => {
+    if (_cachedApiUrl && !forceRefresh) {
+        console.log('📋 Usando API_URL do cache:', _cachedApiUrl);
+        return _cachedApiUrl;
+    }
+
+    _cachedApiUrl = await getAuthApiUrl();
+    console.log('🔗 API_URL definida como:', _cachedApiUrl);
+    return _cachedApiUrl;
+};
+
+// Legacy support - manter API_URL_PROMISE para compatibilidade
+const API_URL_PROMISE = getApiUrl();
 
 // Salva token e dados do usuário no localStorage
 function saveAuth(token, user) {
@@ -47,6 +114,7 @@ function getUser() {
 
 // Registro de usuário
 async function registerUser(name, email, password) {
+    const API_URL = await API_URL_PROMISE;
     const res = await fetch(`${API_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -59,6 +127,9 @@ async function registerUser(name, email, password) {
 // Login de usuário
 async function loginUser(email, password) {
     console.log('🔐 Iniciando processo de login...');
+    const API_URL = await API_URL_PROMISE;
+    console.log('🔗 Usando API_URL:', API_URL);
+
     const res = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -96,6 +167,7 @@ async function loginUser(email, password) {
 async function fetchProfile() {
     const token = getToken();
     if (!token) throw new Error('Não autenticado');
+    const API_URL = await API_URL_PROMISE;
     const res = await fetch(`${API_URL}/profile`, {
         headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -161,6 +233,7 @@ async function fetchUserCredits(forceRefresh = false) {
     if (!token) return 0;
 
     try {
+        const API_URL = await API_URL_PROMISE;
         const res = await fetch(`${API_URL}/credits`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -201,5 +274,8 @@ window.auth = {
     logout,
     saveAuth,
     clearAuth,
-    cleanupAllGiftCodeData
+    cleanupAllGiftCodeData,
+    clearApiUrlCache
 };
+
+console.log('✅ Auth.js carregado com sucesso! Objeto auth disponível:', !!window.auth);

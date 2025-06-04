@@ -1,5 +1,5 @@
 // Configurações do Frontend - CV Sem Frescura
-console.log('🔧 Carregando config.js v2.0...');
+console.log('🔧 Carregando config.js v2.3...');
 
 const CONFIG = {
   // Configurações da API baseadas no ambiente
@@ -15,13 +15,14 @@ const CONFIG = {
       // DESENVOLVIMENTO
       if (hostname === 'localhost' || hostname === '127.0.0.1') {
         console.log('🏠 Ambiente detectado: DESENVOLVIMENTO');
-        return 'http://localhost:3001';
+        // Sempre usar porta 3000 em desenvolvimento
+        return 'http://localhost:3000';
       }
 
-      // PRODUÇÃO - usar URLs relativas via proxy nginx
-      // O nginx fará proxy de /api/* para backend:3000
+      // PRODUÇÃO - usar URLs relativas (mesmo domínio/servidor)
+      // O servidor Express serve tanto frontend quanto API
       console.log('🚀 Ambiente detectado: PRODUÇÃO');
-      return `${protocol}//${hostname}${port ? ':' + port : ''}`;
+      return ''; // URL relativa - vai usar o mesmo servidor
     })(),
     endpoints: {
       payment: '/api/payment',
@@ -74,11 +75,36 @@ const getStripeKey = async () => {
   } catch (error) {
     console.error('❌ Erro ao obter chave do backend:', error.message);
     console.error('💡 Certifique-se de que:');
-    console.error('   - O backend está rodando na porta 3001');
+    console.error('   - O backend está rodando na porta 3000');
     console.error('   - O arquivo .env tem STRIPE_PUBLISHABLE_KEY configurado');
     console.error('   - A rota /api/config/stripe-key está funcionando');
     return null;
   }
+};
+
+// Função para detectar automaticamente a porta do backend
+const detectBackendPort = async () => {
+  const ports = [3000, 3001]; // Tentar 3000 primeiro, depois 3001
+
+  for (const port of ports) {
+    try {
+      const testUrl = `http://localhost:${port}/api/config/stripe-key`;
+      const response = await fetch(testUrl, {
+        method: 'HEAD',
+        timeout: 2000
+      });
+
+      if (response.ok || response.status === 404) {
+        console.log(`✅ Backend detectado na porta ${port}`);
+        return `http://localhost:${port}`;
+      }
+    } catch (error) {
+      console.log(`⚠️ Porta ${port} não acessível`);
+    }
+  }
+
+  console.log('❌ Nenhuma porta do backend encontrada, usando padrão 3000');
+  return 'http://localhost:3000';
 };
 
 // Função auxiliar para limpar cache (útil para testes)
@@ -108,6 +134,7 @@ window.getStripeKey = getStripeKey;
 window.clearStripeKeyCache = clearStripeKeyCache;
 window.getApiUrl = getApiUrl;
 window.checkBackendConnection = checkBackendConnection;
+window.detectBackendPort = detectBackendPort;
 
 console.log('✅ CONFIG criado com sucesso!');
 console.log('📊 CONFIG.api.baseUrl:', CONFIG.api.baseUrl);
