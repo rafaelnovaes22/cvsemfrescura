@@ -1,13 +1,20 @@
-// Integração com Stripe para pagamentos
+// Integração com Stripe para pagamentos - CV Sem Frescura
+const config = require('../config/environment');
+
 let stripe = null;
 
 try {
-  // Verificar se a chave do Stripe está configurada
-  if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY.startsWith('sk_')) {
+  // Usar configuração de ambiente para determinar as chaves
+  const stripeConfig = config.stripe;
+
+  if (stripeConfig.secretKey && stripeConfig.secretKey.startsWith('sk_')) {
     const Stripe = require('stripe');
-    stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+    stripe = Stripe(stripeConfig.secretKey);
+
     console.log('[STRIPE] ✅ Integração configurada com Stripe');
-    console.log('[STRIPE] 🔑 Chave:', process.env.STRIPE_SECRET_KEY.substring(0, 20) + '...');
+    console.log('[STRIPE] 🌍 Ambiente:', config.environment.name);
+    console.log('[STRIPE] 🔑 Tipo de chave:', stripeConfig.environment);
+    console.log('[STRIPE] 🔑 Chave:', stripeConfig.secretKey.substring(0, 20) + '...');
   } else {
     console.log('[STRIPE] ⚠️ STRIPE_SECRET_KEY não configurada. Funcionalidades de pagamento desabilitadas.');
   }

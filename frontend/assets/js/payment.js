@@ -6,6 +6,11 @@ const payment = (() => {
   let paymentElement;
   let currentPlanData = {};
 
+  // Variáveis de estado para controle de validação
+  let hasUserAttemptedSubmit = false;
+  let isProcessingPayment = false;
+  let paymentConfirmedSuccessfully = false;
+
   // Sistema de throttling para evitar spam de requisições
   let isCreatingPayment = false;
   let lastPaymentAttempt = 0;
@@ -172,119 +177,95 @@ const payment = (() => {
       // Tentar montar o elemento
       paymentElement.mount('#payment-element');
 
-      // Event handlers melhorados para resolver problemas de validação prematura
+      // Event handlers para Stripe Elements - apenas suprimir validações prematuras
       paymentElement.on('change', (event) => {
-        console.log('🔄 Estado do Stripe Elements:', event);
+        // Se pagamento foi confirmado com sucesso, suprimir TODAS as validações
+        if (paymentConfirmedSuccessfully) {
+          const errorElement = document.getElementById('payment-errors');
+          if (errorElement) {
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+          }
+          return; // Não processar mais nada
+        }
 
-        const errorElement = document.getElementById('payment-errors');
-        if (errorElement) {
-          if (event.error) {
-            // FILTRO MELHORADO: Só mostrar erros depois que o usuário parou de digitar
-            // Ignorar completamente validation_error até que o campo tenha sido focado e desfocado
-            const isRealError = event.error.type !== 'validation_error';
-            const isIncompleteField = event.error.code === 'incomplete_number' ||
-              event.error.code === 'incomplete_cvc' ||
-              event.error.code === 'incomplete_expiry';
-
-            // Só mostrar erros se for um erro real (não de validação prematura)
-            if (isRealError && !isIncompleteField) {
-              errorElement.textContent = event.error.message;
-              errorElement.style.display = 'block';
-              console.log('⚠️ Mostrando erro real:', event.error.message);
-            } else {
-              // Para erros de validação prematura, apenas logar sem mostrar ao usuário
-              console.log('🔇 Ignorando erro de validação prematura:', event.error.code);
-              errorElement.textContent = '';
-              errorElement.style.display = 'none';
-            }
-          } else {
+        // Sempre limpar erros se ainda não tentou submeter
+        if (!hasUserAttemptedSubmit) {
+          const errorElement = document.getElementById('payment-errors');
+          if (errorElement) {
             errorElement.textContent = '';
             errorElement.style.display = 'none';
           }
         }
 
-        // BOTÃO SEMPRE HABILITADO até erro crítico real
+        // Manter botão habilitado (exceto durante processamento)
         const submitButton = document.getElementById('submit-payment');
-        if (submitButton) {
-          // Só desabilitar se for erro crítico (não de validação prematura)
-          const isCriticalError = event.error &&
-            event.error.type !== 'validation_error' &&
-            event.error.code !== 'incomplete_number' &&
-            event.error.code !== 'incomplete_cvc' &&
-            event.error.code !== 'incomplete_expiry';
+        if (submitButton && !isProcessingPayment) {
+          submitButton.disabled = false;
+        }
 
-          submitButton.disabled = isCriticalError;
-          if (isCriticalError) {
-            console.log('🚫 Botão desabilitado por erro crítico:', event.error.code);
+        // Processar erros normalmente APENAS após tentativa de submissão
+        if (event.error && hasUserAttemptedSubmit && !paymentConfirmedSuccessfully) {
+          const errorElement = document.getElementById('payment-errors');
+          if (errorElement) {
+            errorElement.textContent = event.error.message;
+            errorElement.style.display = 'block';
           }
         }
       });
 
-      // Handler para detectar quando o usuário sai de um campo (blur)
+      // Handler para blur - suprimir se pagamento confirmado
       paymentElement.on('blur', (event) => {
-        console.log('👁️ Campo desfocado:', event);
-        // Agora sim, podemos mostrar erros de validação se houver
-        const errorElement = document.getElementById('payment-errors');
-        if (errorElement && event.error) {
-          errorElement.textContent = event.error.message;
-          errorElement.style.display = 'block';
+        if (paymentConfirmedSuccessfully) {
+          const errorElement = document.getElementById('payment-errors');
+          if (errorElement) {
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+          }
+          return;
+        }
+
+        if (!hasUserAttemptedSubmit) {
+          const errorElement = document.getElementById('payment-errors');
+          if (errorElement) {
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+          }
         }
       });
 
-      // Handler para quando o usuário foca em um campo
+      // Handler para focus - sempre limpar erros
       paymentElement.on('focus', (event) => {
-        console.log('👁️ Campo focado:', event);
-        // Limpar mensagens de erro quando o usuário começar a digitar
         const errorElement = document.getElementById('payment-errors');
         if (errorElement) {
           errorElement.textContent = '';
           errorElement.style.display = 'none';
         }
-      });
 
-      // Handler específico para erros de carregamento
-      paymentElement.on('loaderror', (event) => {
-        console.error('❌ Erro no carregamento do Stripe Elements:', event);
+        // Se pagamento confirmado, não fazer mais nada
+        if (paymentConfirmedSuccessfully) {
+          return;
+        }
 
-        // Mostrar mensagem de erro quando há problema no carregamento
-        safeUpdateElement('paymentMessage', (el) => {
-          el.innerHTML = `
-            <div class="payment-error-message">
-              <h4>❌ Erro ao carregar formulário de pagamento</h4>
-              <p>Houve um problema ao carregar os métodos de pagamento.</p>
-              <p><strong>Tente:</strong></p>
-              <ul>
-                <li>🔄 Recarregar a página</li>
-                <li>🌐 Verificar sua conexão com internet</li>
-                <li>📧 Entrar em contato com o suporte se persistir</li>
-              </ul>
-            </div>
-          `;
-          el.className = 'message error';
-          el.style.display = 'block';
-        });
-
-        // Esconder o formulário que falhou
-        const stripeForm = document.getElementById('stripe-payment-form');
-        if (stripeForm) {
-          stripeForm.style.display = 'none';
+        // Sempre garantir botão habilitado
+        const submitButton = document.getElementById('submit-payment');
+        if (submitButton && !isProcessingPayment) {
+          submitButton.disabled = false;
         }
       });
 
       // Handler para quando os elementos estão prontos
       paymentElement.on('ready', () => {
-        console.log('✅ Stripe Elements carregado e pronto');
-
-        // Garantir que o botão está habilitado quando o formulário está pronto
         const submitButton = document.getElementById('submit-payment');
         if (submitButton) {
           submitButton.disabled = false;
         }
 
         // Esconder mensagens de carregamento
-        safeUpdateElement('paymentMessage', (el) => {
-          el.style.display = 'none';
-        });
+        const messageEl = document.getElementById('paymentMessage');
+        if (messageEl) {
+          messageEl.style.display = 'none';
+        }
       });
 
       console.log('✅ Stripe Elements inicializado com sucesso');
@@ -438,10 +419,32 @@ const payment = (() => {
     try {
       console.log('💳 Iniciando processamento de pagamento...');
 
+      // Declarar errorElement UMA única vez
+      let errorElement = document.getElementById('payment-errors');
+
+      // Limpar erros existentes antes de iniciar
+      if (errorElement) {
+        errorElement.textContent = '';
+        errorElement.style.display = 'none';
+      }
+
+      const messageEl = document.getElementById('paymentMessage');
+      if (messageEl) {
+        messageEl.textContent = '';
+        messageEl.style.display = 'none';
+      }
+
+      // MARCAR que o usuário tentou submeter - agora validações podem aparecer
+      hasUserAttemptedSubmit = true;
+      isProcessingPayment = true;
+
       const submitButton = document.getElementById('submit-payment');
       if (submitButton) {
         submitButton.disabled = true;
       }
+
+      // Aguardar um momento para garantir que interface está limpa
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       safeUpdateElement('paymentMessage', (el) => {
         el.textContent = 'Processando pagamento...';
@@ -468,7 +471,7 @@ const payment = (() => {
         console.log('👤 Usuário autenticado:', user.email);
       }
 
-      // Stripe Elements gerencia automaticamente os métodos - sempre processamos via Stripe
+      // Verificar se Stripe Elements está pronto
       console.log('💳 Processando pagamento com cartão...');
 
       if (!stripe || !elements) {
@@ -484,10 +487,7 @@ const payment = (() => {
 
       console.log('🔄 Confirmando pagamento com Stripe...');
 
-      // Confirma o pagamento com cartão DIRETAMENTE - sem validações prévias
-      console.log('💳 Confirmando pagamento com Stripe (sem validação prévia)...');
-
-      // CONFIGURAÇÃO OTIMIZADA para evitar validações durante o processamento
+      // CONFIRMAR PAGAMENTO DIRETAMENTE - sem pré-validação
       const confirmParams = {
         elements,
         confirmParams: {
@@ -496,44 +496,60 @@ const payment = (() => {
         redirect: 'if_required'
       };
 
-      let result;
-      try {
-        // Silenciar temporariamente console.error para evitar logs de validação falsos
-        const originalConsoleError = console.error;
-        console.error = (...args) => {
-          const message = args.join(' ');
-          // Ignorar erros específicos de validação durante confirmPayment
-          if (message.includes('incomplete') ||
-            message.includes('validation') ||
-            message.includes('required') ||
-            message.includes('empty')) {
-            console.log('🔇 Ignorando log de validação durante processamento:', message);
-            return;
-          }
-          // Outros erros reais, mostrar normalmente
-          originalConsoleError.apply(this, args);
-        };
+      const { error, paymentIntent } = await stripe.confirmPayment(confirmParams);
 
-        // Confirmar pagamento
-        result = await stripe.confirmPayment(confirmParams);
-
-        // Restaurar console.error
-        console.error = originalConsoleError;
-
-      } catch (confirmError) {
-        // Restaurar console.error em caso de erro
-        console.error = originalConsoleError;
-        throw confirmError;
-      }
-
-      const { error, paymentIntent } = result;
-
+      // Se há erro, verificar o tipo
       if (error) {
-        console.error('❌ Erro na confirmação do Stripe:', error);
-        throw new Error(error.message || 'Erro ao processar pagamento');
+        console.log('⚠️ Erro no Stripe:', error);
+
+        // Verificar se é erro de campo em branco/incompleto
+        const isBlankFieldError =
+          error.code === 'incomplete_number' ||
+          error.code === 'incomplete_cvc' ||
+          error.code === 'incomplete_expiry' ||
+          error.code === 'incomplete_zip' ||
+          error.code === 'validation_error' ||
+          error.message?.includes('incomplete') ||
+          error.message?.includes('complete') ||
+          error.message?.includes('em branco') ||
+          error.message?.includes('preenchido') ||
+          error.message?.includes('required') ||
+          error.message?.includes('missing');
+
+        if (isBlankFieldError) {
+          console.log('❌ Campos em branco detectados - informando usuário');
+          throw new Error('Preencha todos os campos do cartão: número, data de expiração e CVV.');
+        } else {
+          // Erro diferente (cartão recusado, etc.)
+          throw new Error(error.message || 'Erro ao processar pagamento');
+        }
       }
 
       console.log('✅ Pagamento confirmado pelo Stripe:', paymentIntent?.status);
+
+      // MARCAR pagamento como confirmado com sucesso ANTES de continuar
+      paymentConfirmedSuccessfully = true;
+
+      // Limpar QUALQUER erro que possa ter aparecido - reutilizando errorElement
+      errorElement = document.getElementById('payment-errors');
+      if (errorElement) {
+        errorElement.textContent = '';
+        errorElement.style.display = 'none';
+      }
+
+      // Iniciar limpeza contínua para garantir que nenhuma validação apareça após sucesso
+      const successCleanupInterval = setInterval(() => {
+        const errorElementCleanup = document.getElementById('payment-errors');
+        if (errorElementCleanup && errorElementCleanup.textContent) {
+          errorElementCleanup.textContent = '';
+          errorElementCleanup.style.display = 'none';
+        }
+      }, 50);
+
+      // Parar limpeza após redirecionamento
+      setTimeout(() => {
+        clearInterval(successCleanupInterval);
+      }, 3000);
 
       // Se chegou aqui, o pagamento foi processado com sucesso
       // Confirma o pagamento no servidor
@@ -622,29 +638,77 @@ const payment = (() => {
     } catch (error) {
       console.error('❌ Erro no processamento de pagamento:', error);
 
-      // Mostrar erro específico baseado no tipo
+      // Tratamento inteligente de erros baseado no tipo e mensagem
       let errorMessage = error.message;
+      let errorType = 'error';
 
-      if (error.message.includes('Your card was declined')) {
+      // Erros de validação de campos
+      if (error.message.includes('incomplete') ||
+        error.message.includes('dados do cartão') ||
+        error.message.includes('preenchidos corretamente') ||
+        error.message.includes('Preencha todos os campos')) {
+        errorMessage = 'Preencha todos os campos do cartão: número, data de expiração e CVV.';
+        errorType = 'warning';
+
+        // Erros de cartão recusado
+      } else if (error.message.includes('Your card was declined') ||
+        error.message.includes('declined')) {
         errorMessage = 'Cartão recusado. Verifique os dados ou tente outro cartão.';
-      } else if (error.message.includes('network')) {
+
+        // Erros de rede
+      } else if (error.message.includes('network') ||
+        error.message.includes('conexão')) {
         errorMessage = 'Erro de conexão. Verifique sua internet e tente novamente.';
-      } else if (error.message.includes('authentication')) {
+
+        // Erros de autenticação
+      } else if (error.message.includes('authentication') ||
+        error.message.includes('token') ||
+        error.message.includes('login')) {
         errorMessage = 'Sessão expirada. Faça login novamente.';
+
+        // Erros relacionados ao formulário não estar pronto
+      } else if (error.message.includes('formulário') ||
+        error.message.includes('não encontrado') ||
+        error.message.includes('carregou')) {
+        errorMessage = 'Formulário de pagamento não carregou completamente. Tente recarregar a página.';
+
+        // Erros de CVV ou dados de segurança
+      } else if (error.message.includes('cvc') ||
+        error.message.includes('security') ||
+        error.message.includes('cvv')) {
+        errorMessage = 'Código de segurança (CVV) inválido. Verifique o código no verso do cartão.';
+
+        // Erros de data de expiração
+      } else if (error.message.includes('expiry') ||
+        error.message.includes('expiration') ||
+        error.message.includes('expiração')) {
+        errorMessage = 'Data de expiração inválida. Verifique o mês e ano do cartão.';
+
+        // Outros erros do Stripe
+      } else if (error.message.includes('stripe') ||
+        error.message.includes('payment')) {
+        errorMessage = 'Erro no processamento do pagamento. Tente novamente em alguns minutos.';
       }
 
       safeUpdateElement('paymentMessage', (el) => {
         el.innerHTML = `
           <div class="payment-error-message">
-            <h4>❌ Erro no pagamento</h4>
+            <h4>❌ ${errorType === 'warning' ? 'Atenção' : 'Erro no pagamento'}</h4>
             <p>${errorMessage}</p>
-            <p><small>Se o problema persistir, tente outro método de pagamento.</small></p>
+            ${errorType === 'warning' ?
+            '<p><small><strong>Dica:</strong> Certifique-se de preencher número do cartão, data de expiração e CVV completamente.</small></p>' :
+            '<p><small>Se o problema persistir, tente outro método de pagamento ou entre em contato conosco.</small></p>'
+          }
           </div>
         `;
-        el.className = 'message error';
+        el.className = `message ${errorType}`;
         el.style.display = 'block';
       });
     } finally {
+      // IMPORTANTE: Resetar estados de processamento
+      isProcessingPayment = false;
+      // NÃO resetar hasUserAttemptedSubmit - deixar ativo para próximas validações
+
       // Re-habilita o botão independentemente do resultado
       setTimeout(() => {
         const submitButton = document.getElementById('submit-payment');
@@ -783,7 +847,10 @@ const payment = (() => {
     checkPaymentStatus,
     initStripe,
     createPaymentIntent,
-    processPayment
+    processPayment,
+    // Expor variável de controle para proteção global
+    get isPaymentConfirmed() { return paymentConfirmedSuccessfully; },
+    get isProcessing() { return isProcessingPayment; }
   };
 })();
 

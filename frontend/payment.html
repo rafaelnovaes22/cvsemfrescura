@@ -1047,11 +1047,11 @@
                 <div class="guest-checkout-fields">
                     <div class="form-group">
                         <label for="guest-name">Nome Completo *</label>
-                        <input type="text" id="guest-name" name="guest-name" placeholder="Seu nome completo" required>
+                        <input type="text" id="guest-name" name="guest-name" placeholder="Seu nome completo">
                     </div>
                     <div class="form-group">
                         <label for="guest-email">E-mail *</label>
-                        <input type="email" id="guest-email" name="guest-email" placeholder="seu@email.com" required>
+                        <input type="email" id="guest-email" name="guest-email" placeholder="seu@email.com">
                     </div>
                     <div class="form-group">
                         <label for="guest-phone">Telefone (opcional)</label>
@@ -1071,13 +1071,14 @@
             <!-- O Stripe Elements gerencia automaticamente os métodos de pagamento disponíveis -->
 
             <!-- Formulário de Pagamento (Stripe Elements) -->
-            <form id="stripe-payment-form" style="display: none;">
+            <form id="stripe-payment-form" style="display: none;" novalidate>
                 <div id="payment-element">
-                    <!-- Stripe Elements renderiza automaticamente: Cartão, Boleto e outras opções -->
+                    <!-- Stripe Elements será inserido aqui -->
                 </div>
                 <div id="payment-errors" style="color: var(--error); margin-top: var(--space-2);"></div>
-                <button id="submit-payment" type="submit" class="btn btn-primary"
-                    style="width: 100%; margin-top: var(--space-4);">
+                <button type="submit" id="submit-payment"
+                    style="width: 100%; padding: var(--space-4); background: var(--primary); color: white; border: none; border-radius: var(--radius-md); font-size: 1rem; font-weight: 600; margin-top: var(--space-4); cursor: pointer;"
+                    disabled>
                     Confirmar Pagamento
                 </button>
             </form>
@@ -1362,6 +1363,36 @@
             // Expor funções globalmente para payment.js
             window.validateGuestCheckout = validateGuestCheckout;
             window.getGuestCheckoutData = getGuestCheckoutData;
+
+            // SUPRESSÃO ESPECÍFICA APENAS PARA VALIDAÇÕES PREMATURAS DOS CAMPOS
+            function suppressPrematureValidation() {
+                console.log('🔇 Suprimindo APENAS validações prematuras de campos');
+
+                // APENAS para formulários de pagamento - preservar tudo mais
+                const paymentForm = document.getElementById('stripe-payment-form');
+                if (paymentForm) {
+                    paymentForm.setAttribute('novalidate', 'true');
+                    paymentForm.noValidate = true;
+                }
+
+                // Interceptar APENAS eventos invalid em campos do Stripe
+                document.addEventListener('invalid', function (e) {
+                    // APENAS suprimir se for do formulário de pagamento
+                    if (e.target.closest('#stripe-payment-form') ||
+                        e.target.closest('#payment-element')) {
+                        console.log('🔇 Suprimindo validação prematura do campo de pagamento:', e.target);
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        return false;
+                    }
+                    // Permitir validações de outros elementos
+                }, true);
+
+                console.log('✅ Supressão específica ativada apenas para campos de pagamento');
+            }
+
+            // Aplicar supressão específica apenas uma vez
+            suppressPrematureValidation();
         });
     </script>
 </body>
