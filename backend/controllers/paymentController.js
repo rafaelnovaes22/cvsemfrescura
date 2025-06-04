@@ -1,14 +1,21 @@
-// Integração real com Stripe para produção
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+// Integração com Stripe para pagamentos
+let stripe = null;
 
-// Verificar se a chave do Stripe está configurada
-if (!process.env.STRIPE_SECRET_KEY) {
-  console.error('ERRO: STRIPE_SECRET_KEY não configurada. Configure a variável de ambiente.');
-  process.exit(1);
+try {
+  // Verificar se a chave do Stripe está configurada
+  if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY.startsWith('sk_')) {
+    const Stripe = require('stripe');
+    stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+    console.log('[STRIPE] ✅ Integração configurada com Stripe');
+    console.log('[STRIPE] 🔑 Chave:', process.env.STRIPE_SECRET_KEY.substring(0, 20) + '...');
+  } else {
+    console.log('[STRIPE] ⚠️ STRIPE_SECRET_KEY não configurada. Funcionalidades de pagamento desabilitadas.');
+  }
+} catch (stripeError) {
+  console.log('[STRIPE] ❌ Erro ao inicializar Stripe:', stripeError.message);
+  console.log('[STRIPE] ⚠️ Funcionalidades de pagamento desabilitadas.');
+  stripe = null;
 }
-
-console.log('[STRIPE] ✅ Integração configurada com Stripe');
-console.log('[STRIPE] 🔑 Chave:', process.env.STRIPE_SECRET_KEY.substring(0, 20) + '...');
 
 const Transaction = require('../models/Transaction');
 const User = require('../models/user');
@@ -16,6 +23,14 @@ const User = require('../models/user');
 // Cria uma intenção de pagamento no Stripe
 exports.createPaymentIntent = async (req, res) => {
   try {
+    // Verificar se Stripe está configurado
+    if (!stripe) {
+      return res.status(503).json({
+        error: 'Serviço de pagamento indisponível',
+        details: 'Stripe não configurado no servidor'
+      });
+    }
+
     const { amount, planName, credits, paymentMethod, guestUser } = req.body;
 
     if (!amount || !planName || !credits || !paymentMethod) {
@@ -155,6 +170,14 @@ exports.createPaymentIntent = async (req, res) => {
 // Confirma um pagamento e atualiza os créditos do usuário
 exports.confirmPayment = async (req, res) => {
   try {
+    // Verificar se Stripe está configurado
+    if (!stripe) {
+      return res.status(503).json({
+        error: 'Serviço de pagamento indisponível',
+        details: 'Stripe não configurado no servidor'
+      });
+    }
+
     const { paymentIntentId } = req.body;
 
     if (!paymentIntentId) {

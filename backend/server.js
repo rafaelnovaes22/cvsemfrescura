@@ -1,10 +1,14 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 // DEBUG: Verificar JWT_SECRET
 console.log('🔍 JWT_SECRET está definido?', process.env.JWT_SECRET ? 'SIM ✅' : 'NÃO ❌');
 if (!process.env.JWT_SECRET) {
   console.log('❌ ERRO: JWT_SECRET não encontrado no .env');
   console.log('❌ Isso causará erro 401 em todas as requisições autenticadas');
+  console.log('⚠️  JWT_SECRET não definido. Usando secret temporário para desenvolvimento.');
+  console.log('⚠️  DEFINA JWT_SECRET no arquivo .env para produção!');
+  process.env.JWT_SECRET = 'desenvolvimento_jwt_secret_temporario_minimo_32_caracteres_12345';
 }
 
 // DEBUG: Verificar configurações de proxy e rate limiting
@@ -17,7 +21,6 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const path = require('path');
 const { logger, logRequest, logError } = require('./utils/logger');
 const atsRoutes = require('./routes/ats');
 const userRoutes = require('./routes/user');
@@ -25,11 +28,11 @@ const userRoutes = require('./routes/user');
 const app = express();
 
 // 🔧 Trust proxy para Railway/proxies reversos
-// Isso permite que o Express confie nos headers X-Forwarded-*
+// Em desenvolvimento, configurar para aceitar mais proxies
 if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1); // Confia no primeiro proxy
 } else {
-  app.set('trust proxy', true); // Para desenvolvimento
+  app.set('trust proxy', true); // Para desenvolvimento local
 }
 
 // Logging de requests
@@ -60,22 +63,37 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }));
 
-// Rate limiting - proteção contra ataques
+// Rate limiting - configurações mais permissivas para desenvolvimento
+const isDevelopment = process.env.NODE_ENV !== 'production';
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // máximo 100 requests por IP por janela
-  message: 'Muitas tentativas. Tente novamente em 15 minutos.',
+  windowMs: isDevelopment ? 60 * 1000 : 15 * 60 * 1000, // 1 minuto em dev, 15 minutos em prod
+  max: isDevelopment ? 10000 : 100, // 10000 requests em dev (muito permissivo), 100 em prod
+  message: 'Muitas tentativas. Tente novamente em alguns minutos.',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    // Em desenvolvimento, pular rate limiting para TUDO exceto casos específicos
+    if (isDevelopment) {
+      return true; // Pular rate limiting completamente em desenvolvimento
+    }
+    return false;
+  }
 });
 
-// Rate limiting específico para análises ATS
+// Rate limiting específico para análises ATS (menos restritivo em dev)
 const atsLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hora
-  max: 10, // máximo 10 análises por IP por hora
+  max: isDevelopment ? 1000 : 10, // muito mais permissivo em desenvolvimento
   message: 'Limite de análises excedido. Tente novamente em 1 hora.',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    // Em desenvolvimento, pular rate limiting para ATS também
+    if (isDevelopment) {
+      return true;
+    }
+    return false;
+  }
 });
 
 app.use(limiter);
@@ -94,10 +112,51 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' })); // Limite de payload
 
-// 🎨 Servir arquivos estáticos do frontend
-app.use(express.static(path.join(__dirname, '../frontend')));
+// 🔧 DEBUG: Rota específica para login (contorna erro 405)
+app.post('/login', async (req, res) => {
+  try {
+    // Importar e usar o controller diretamente
+    const userController = require('./controllers/userController');
+    await userController.login(req, res);
+  } catch (error) {
+    console.error('Erro na rota de login direto:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
 
-// API Routes
+// 🔧 DEBUG: Rota específica para créditos (contorna erro 405)
+app.get('/credits', async (req, res) => {
+  try {
+    const authMiddleware = require('./utils/authMiddleware');
+    const userController = require('./controllers/userController');
+
+    // Aplicar middleware de autenticação
+    authMiddleware(req, res, async () => {
+      await userController.getCredits(req, res);
+    });
+  } catch (error) {
+    console.error('Erro na rota de créditos direto:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+// 🔧 DEBUG: Rota específica para histórico (contorna erro 405)
+app.get('/history', async (req, res) => {
+  try {
+    const authMiddleware = require('./utils/authMiddleware');
+    const paymentController = require('./controllers/paymentController');
+
+    // Aplicar middleware de autenticação
+    authMiddleware(req, res, async () => {
+      await paymentController.getTransactionHistory(req, res);
+    });
+  } catch (error) {
+    console.error('Erro na rota de histórico direto:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+// API Routes (ANTES dos arquivos estáticos)
 app.use('/api/user', userRoutes);
 app.use('/api/ats', atsLimiter, atsRoutes); // Rate limiting específico para ATS
 app.use('/api/upload', require('./routes/upload'));
@@ -117,6 +176,68 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     version: '1.0.0'
   });
+});
+
+// 🎨 Servir arquivos estáticos do frontend com configuração específica de MIME types
+const staticOptions = {
+  setHeaders: (res, filePath) => {
+    // Forçar MIME types corretos baseado na extensão do arquivo
+    const ext = path.extname(filePath).toLowerCase();
+
+    switch (ext) {
+      case '.css':
+        res.setHeader('Content-Type', 'text/css; charset=utf-8');
+        break;
+      case '.js':
+        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        break;
+      case '.png':
+        res.setHeader('Content-Type', 'image/png');
+        break;
+      case '.jpg':
+      case '.jpeg':
+        res.setHeader('Content-Type', 'image/jpeg');
+        break;
+      case '.svg':
+        res.setHeader('Content-Type', 'image/svg+xml; charset=utf-8');
+        break;
+      case '.ico':
+        res.setHeader('Content-Type', 'image/x-icon');
+        break;
+      case '.html':
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        break;
+      case '.woff':
+        res.setHeader('Content-Type', 'font/woff');
+        break;
+      case '.woff2':
+        res.setHeader('Content-Type', 'font/woff2');
+        break;
+      case '.ttf':
+        res.setHeader('Content-Type', 'font/ttf');
+        break;
+      case '.json':
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        break;
+    }
+
+    // Headers de cache para assets estáticos
+    if (ext === '.css' || ext === '.js' || ext === '.png' || ext === '.jpg' || ext === '.svg') {
+      res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 ano
+    }
+  },
+  fallthrough: true, // ✅ Permitir que outras rotas sejam processadas se o arquivo não for encontrado
+  index: false // ✅ Não servir index.html automaticamente para diretórios
+};
+
+// ✅ Middleware para pular arquivos estáticos em requisições de API
+app.use((req, res, next) => {
+  // Se for uma requisição para API, pular o middleware de arquivos estáticos
+  if (req.path.startsWith('/api/')) {
+    return next();
+  }
+  // Caso contrário, usar o middleware de arquivos estáticos
+  return express.static(path.join(__dirname, '../frontend'), staticOptions)(req, res, next);
 });
 
 // ✅ Rota raiz serve a página principal (landing.html)

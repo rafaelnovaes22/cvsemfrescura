@@ -127,7 +127,7 @@ class OnboardingTester {
             console.log('🧪 Resetando status de onboarding...');
 
             // Simular chamada para facilitar testes - em produção, crie um endpoint específico
-            const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3001';
+            const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3000';
             await fetch(`${apiBaseUrl}/api/user/reset-onboarding`, {
                 method: 'POST',
                 headers: {

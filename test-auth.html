@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Auth.js</title>
+</head>
+
+<body>
+    <h1>Teste Auth.js - Verificação de Carregamento</h1>
+    <div id="results"></div>
+
+    <button onclick="testAuth()">Testar Auth</button>
+
+    <script src="frontend/assets/js/config.js"></script>
+    <script src="frontend/assets/js/auth.js"></script>
+
+    <script>
+        function testAuth() {
+            const results = document.getElementById('results');
+            results.innerHTML = '';
+
+            console.log('🧪 Testando objeto auth...');
+
+            // Teste 1: Verificar se auth existe
+            if (window.auth) {
+                results.innerHTML += `<p>✅ <strong>window.auth existe</strong></p>`;
+
+                // Teste 2: Verificar funções disponíveis
+                const expectedFunctions = ['loginUser', 'getToken', 'getUser', 'isAuthenticated', 'logout'];
+                let allFunctionsExist = true;
+
+                expectedFunctions.forEach(func => {
+                    if (typeof window.auth[func] === 'function') {
+                        results.innerHTML += `<p>✅ auth.${func} disponível</p>`;
+                    } else {
+                        results.innerHTML += `<p>❌ auth.${func} não encontrado</p>`;
+                        allFunctionsExist = false;
+                    }
+                });
+
+                if (allFunctionsExist) {
+                    results.innerHTML += `<p>🎉 <strong>Todas as funções do auth estão disponíveis!</strong></p>`;
+                }
+
+                // Teste 3: Verificar CONFIG
+                if (window.CONFIG) {
+                    results.innerHTML += `<p>✅ CONFIG disponível: ${window.CONFIG.api.baseUrl}</p>`;
+                } else {
+                    results.innerHTML += `<p>⚠️ CONFIG não disponível</p>`;
+                }
+
+            } else {
+                results.innerHTML += `<p>❌ <strong>window.auth não existe - erro no carregamento!</strong></p>`;
+            }
+        }
+
+        // Executar teste automaticamente quando página carregar
+        window.onload = () => {
+            setTimeout(testAuth, 1000); // Aguardar 1 segundo para garantir carregamento
+        };
+    </script>
+</body>
+
+</html>

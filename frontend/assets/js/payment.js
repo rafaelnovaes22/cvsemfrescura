@@ -287,7 +287,7 @@ const payment = (() => {
 
     try {
       // Verificar se CONFIG está definido
-      const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3001';
+      const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3000';
 
       const paymentData = {
         amount: parseFloat(planData.price),
@@ -505,7 +505,7 @@ const payment = (() => {
       }
 
       // Verificar se CONFIG está definido
-      const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3001';
+      const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3000';
 
       const response = await fetch(`${apiBaseUrl}/api/payment/confirm`, {
         method: 'POST',
@@ -667,7 +667,7 @@ const payment = (() => {
           const transactionId = sessionStorage.getItem('currentTransactionId');
 
           // Verificar se CONFIG está definido
-          const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3001';
+          const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3000';
 
           const confirmResponse = await fetch(`${apiBaseUrl}/api/payment/confirm`, {
             method: 'POST',

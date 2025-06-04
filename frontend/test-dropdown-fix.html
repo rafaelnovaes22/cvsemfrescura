@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Dropdown Fix - CV Sem Frescura</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(250, 249, 247, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #e8ddd0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin-bottom: 20px;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 80px;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            gap: 2rem;
+        }
+
+        #userMenuWrapper {
+            position: relative;
+        }
+
+        #authButton {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: #f4f0ea;
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-decoration: none;
+            color: inherit;
+            border: none;
+            font-family: inherit;
+        }
+
+        #authButton:hover {
+            background: #e8ddd0;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: #583819;
+        }
+
+        .credits-badge {
+            background: #583819;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .dropdown-icon {
+            font-size: 0.7rem;
+            color: #583819;
+            transition: transform 0.15s;
+        }
+
+        #userDropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            min-width: 200px;
+            z-index: 999;
+            display: none;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: #3f3f46;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: background 0.15s;
+            border: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            background: none;
+        }
+
+        .dropdown-item:hover {
+            background: #f4f4f5;
+        }
+
+        .dropdown-item.logout-btn {
+            color: #dc3545;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .dropdown-item.logout-btn:hover {
+            background: #fef2f2;
+        }
+
+        .debug-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid #007bff;
+        }
+
+        .status {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .test-buttons {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="test-container">
+        <h1>🧪 Teste do Dropdown Fix</h1>
+        <p>Esta página testa se o dropdown do menu do usuário está funcionando corretamente com o toggle.</p>
+
+        <!-- Simular header com dropdown -->
+        <div class="header">
+            <div class="header-content">
+                <div>
+                    <strong>CV Sem Frescura</strong>
+                </div>
+                <div id="userMenuWrapper">
+                    <a href="#" id="authButton">
+                        <span class="user-name" id="userName">Rafael Teste</span>
+                        <span class="credits-badge" id="userCredits">5 análises</span>
+                        <span class="dropdown-icon">▼</span>
+                    </a>
+                    <div id="userDropdown">
+                        <a href="#" class="dropdown-item">📊 Analisar Currículo</a>
+                        <a href="#" class="dropdown-item">📋 Histórico</a>
+                        <a href="#" class="dropdown-item">💳 Comprar análises</a>
+                        <a href="#" class="dropdown-item logout-btn" id="logoutButton">🚪 Sair</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="debug-info">
+            <div class="status" id="statusDisplay">Status: Dropdown fechado</div>
+            <div>Cliques no botão: <span id="clickCount">0</span></div>
+            <div>Estado interno: <span id="internalState">false</span></div>
+            <div>Display do dropdown: <span id="dropdownDisplay">none</span></div>
+        </div>
+
+        <div class="test-buttons">
+            <button class="btn btn-primary" onclick="manualToggle()">Toggle Manual</button>
+            <button class="btn btn-secondary" onclick="forceClose()">Forçar Fechar</button>
+            <button class="btn btn-secondary" onclick="resetState()">Reset Estado</button>
+            <button class="btn btn-primary" onclick="simulateLoggedIn()">Simular Usuário Logado</button>
+            <button class="btn btn-secondary" onclick="simulateLoggedOut()">Simular Usuário Não Logado</button>
+        </div>
+
+        <div>
+            <h3>📋 Instruções de Teste:</h3>
+            <ol>
+                <li><strong>Clique no botão do usuário</strong> (Rafael Teste) - deve abrir o dropdown</li>
+                <li><strong>Clique novamente no botão</strong> - deve FECHAR o dropdown</li>
+                <li><strong>Teste múltiplos cliques</strong> - deve alternar entre abrir/fechar</li>
+                <li><strong>Clique fora do dropdown</strong> - deve fechar automaticamente</li>
+                <li><strong>Verifique os logs no console</strong> - pressione F12</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Incluir o auth.js simulado -->
+    <script>
+        // Simular window.auth COMPLETO para evitar erros
+        window.auth = {
+            isAuthenticated: function () {
+                console.log('🔒 Auth simulado: verificando autenticação');
+                return false; // Simular usuário não logado para o teste
+            },
+            getUser: function () {
+                console.log('👤 Auth simulado: obtendo usuário');
+                return null; // Usuário não logado
+            },
+            getToken: function () {
+                console.log('🎫 Auth simulado: obtendo token');
+                return null; // Sem token
+            },
+            logout: function () {
+                console.log('🚪 Logout simulado');
+                alert('Logout simulado!');
+            }
+        };
+
+        // Simular CONFIG básico
+        window.CONFIG = {
+            api: {
+                url: 'http://localhost:3000'
+            }
+        };
+
+        console.log('✅ Auth e CONFIG simulados carregados para teste');
+    </script>
+
+    <!-- Incluir o header-new.js corrigido -->
+    <script src="assets/js/header-new.js"></script>
+
+    <script>
+        let clickCount = 0;
+
+        function updateDebugInfo() {
+            const statusDisplay = document.getElementById('statusDisplay');
+            const clickCountDisplay = document.getElementById('clickCount');
+            const internalStateDisplay = document.getElementById('internalState');
+            const dropdownDisplayElement = document.getElementById('dropdownDisplay');
+            const userDropdown = document.getElementById('userDropdown');
+
+            if (window.headerManager) {
+                const isOpen = window.headerManager.dropdownOpen;
+                statusDisplay.textContent = `Status: Dropdown ${isOpen ? 'aberto' : 'fechado'}`;
+                internalStateDisplay.textContent = isOpen;
+            }
+
+            clickCountDisplay.textContent = clickCount;
+
+            if (userDropdown) {
+                const computedStyle = window.getComputedStyle(userDropdown);
+                dropdownDisplayElement.textContent = computedStyle.display;
+            }
+        }
+
+        function manualToggle() {
+            if (window.headerManager) {
+                window.headerManager.toggleDropdownInstant();
+                updateDebugInfo();
+            }
+        }
+
+        function forceClose() {
+            if (window.headerManager) {
+                window.headerManager.closeDropdown();
+                updateDebugInfo();
+            }
+        }
+
+        function resetState() {
+            clickCount = 0;
+            if (window.headerManager) {
+                window.headerManager.dropdownOpen = false;
+                window.headerManager.closeDropdown();
+            }
+            updateDebugInfo();
+        }
+
+        function simulateLoggedIn() {
+            console.log('👤 Simulando usuário logado');
+
+            // Atualizar mock do auth para retornar dados de usuário logado
+            window.auth.isAuthenticated = function () {
+                return true;
+            };
+            window.auth.getUser = function () {
+                return {
+                    name: 'Rafael Teste Logado',
+                    credits: 15
+                };
+            };
+            window.auth.getToken = function () {
+                return 'mock_token_123';
+            };
+
+            // Forçar atualização da interface
+            if (window.headerManager) {
+                window.headerManager.refreshUserInterface();
+            }
+
+            updateDebugInfo();
+        }
+
+        function simulateLoggedOut() {
+            console.log('🔒 Simulando usuário não logado');
+
+            // Atualizar mock do auth para retornar usuário não logado
+            window.auth.isAuthenticated = function () {
+                return false;
+            };
+            window.auth.getUser = function () {
+                return null;
+            };
+            window.auth.getToken = function () {
+                return null;
+            };
+
+            // Forçar atualização da interface
+            if (window.headerManager) {
+                window.headerManager.refreshUserInterface();
+            }
+
+            updateDebugInfo();
+        }
+
+        // Observar cliques no authButton
+        document.addEventListener('click', function (e) {
+            if (e.target.closest('#authButton')) {
+                clickCount++;
+                setTimeout(updateDebugInfo, 50); // Pequeno delay para capturar a mudança
+            }
+        });
+
+        // Atualizar debug info periodicamente
+        setInterval(updateDebugInfo, 1000);
+
+        // Atualizar debug info quando a página carregar
+        setTimeout(updateDebugInfo, 500);
+
+        console.log('🧪 Página de teste do dropdown carregada');
+        console.log('👆 Clique no botão "Rafael Teste" para testar o dropdown');
+    </script>
+</body>
+
+</html>

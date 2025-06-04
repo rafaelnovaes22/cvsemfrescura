@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Dropdown Simples</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #F3EADA;
+        }
+
+        .test-info {
+            background: #e0f2fe;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #0288d1;
+        }
+
+        .success {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        /* Simular o header exato do projeto */
+        .header {
+            background: rgba(250, 249, 247, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #e8ddd0;
+            padding: 1rem;
+            margin: 20px 0;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #userMenuWrapper {
+            position: relative;
+        }
+
+        #authButton {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: #f4f0ea;
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            text-decoration: none;
+            color: inherit;
+            border: none;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        #authButton:hover {
+            background: #e8ddd0;
+        }
+
+        #userName {
+            font-weight: 500;
+            color: #583819;
+        }
+
+        #userCredits {
+            background: #583819;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .arrow-icon {
+            font-size: 0.7rem;
+            color: #583819;
+            transition: transform 0.15s ease;
+        }
+
+        #userDropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: white;
+            border-radius: 0.5rem;
+            min-width: 200px;
+            z-index: 999;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            display: none;
+        }
+
+        #userDropdown a {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: #3f3f46;
+            text-decoration: none;
+            font-size: 0.875rem;
+            border: none;
+            width: 100%;
+            text-align: left;
+            transition: background-color 0.2s ease;
+        }
+
+        #userDropdown a:hover {
+            background-color: #f4f4f5;
+        }
+
+        #logoutButton {
+            color: #dc3545 !important;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        #logoutButton:hover {
+            background-color: #fef2f2 !important;
+        }
+
+        .debug-panel {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .status-indicator {
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+
+        .open {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .closed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🧪 Teste Simples do Dropdown</h1>
+
+    <div class="test-info">
+        <h3>🎯 Comportamento Esperado:</h3>
+        <ol>
+            <li><strong>1º clique:</strong> Dropdown abre, seta vira para cima ▲</li>
+            <li><strong>2º clique:</strong> Dropdown fecha, seta volta para baixo ▼</li>
+            <li><strong>Clique fora:</strong> Dropdown fecha automaticamente</li>
+        </ol>
+    </div>
+
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <strong>CV Sem Frescura</strong>
+            </div>
+            <div id="userMenuWrapper">
+                <button id="authButton">
+                    <span id="userName">Rafael</span>
+                    <span id="userCredits">3 análises</span>
+                    <span class="arrow-icon" id="arrowIcon">▼</span>
+                </button>
+                <div id="userDropdown">
+                    <a href="#">📊 Analisar Currículo</a>
+                    <a href="#">📋 Histórico</a>
+                    <a href="#">💳 Comprar análises</a>
+                    <a href="#" id="logoutButton">🚪 Sair</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="debug-panel">
+        <h4>📊 Debug Info:</h4>
+        <div class="status-indicator closed" id="statusIndicator">Dropdown: FECHADO</div>
+        <div>Total de cliques: <span id="clickCounter">0</span></div>
+        <div>Último evento: <span id="lastEvent">Nenhum</span></div>
+        <div>Estado da seta: <span id="arrowState">▼</span></div>
+    </div>
+
+    <div class="test-info">
+        <h4>✅ Resultados do Teste:</h4>
+        <div id="testResults">
+            <p>Clique no botão acima para testar...</p>
+        </div>
+    </div>
+
+    <script>
+        console.log('🚀 Iniciando teste simples do dropdown');
+
+        let dropdownOpen = false;
+        let clickCount = 0;
+        const testResults = [];
+
+        // Elementos
+        const authButton = document.getElementById('authButton');
+        const userDropdown = document.getElementById('userDropdown');
+        const arrowIcon = document.getElementById('arrowIcon');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const clickCounter = document.getElementById('clickCounter');
+        const lastEvent = document.getElementById('lastEvent');
+        const arrowState = document.getElementById('arrowState');
+        const testResultsDiv = document.getElementById('testResults');
+
+        function updateDebugInfo(event) {
+            // Atualizar contador
+            clickCounter.textContent = clickCount;
+
+            // Atualizar último evento
+            lastEvent.textContent = event;
+
+            // Atualizar status
+            if (dropdownOpen) {
+                statusIndicator.textContent = 'Dropdown: ABERTO';
+                statusIndicator.className = 'status-indicator open';
+            } else {
+                statusIndicator.textContent = 'Dropdown: FECHADO';
+                statusIndicator.className = 'status-indicator closed';
+            }
+
+            // Atualizar estado da seta
+            arrowState.textContent = arrowIcon.textContent;
+
+            console.log(`📊 Debug - Dropdown: ${dropdownOpen ? 'ABERTO' : 'FECHADO'}, Seta: ${arrowIcon.textContent}, Evento: ${event}`);
+        }
+
+        function toggleDropdown() {
+            clickCount++;
+            dropdownOpen = !dropdownOpen;
+
+            if (dropdownOpen) {
+                userDropdown.style.display = 'block';
+                arrowIcon.textContent = '▲';
+                arrowIcon.style.transform = 'rotate(180deg)';
+
+                testResults.push(`✅ Clique ${clickCount}: Dropdown ABERTO corretamente`);
+                updateDebugInfo(`Clique ${clickCount} - ABRIR`);
+                console.log(`✅ Clique ${clickCount}: Dropdown ABERTO`);
+            } else {
+                userDropdown.style.display = 'none';
+                arrowIcon.textContent = '▼';
+                arrowIcon.style.transform = 'rotate(0deg)';
+
+                testResults.push(`✅ Clique ${clickCount}: Dropdown FECHADO corretamente`);
+                updateDebugInfo(`Clique ${clickCount} - FECHAR`);
+                console.log(`✅ Clique ${clickCount}: Dropdown FECHADO`);
+            }
+
+            // Atualizar resultados na tela
+            testResultsDiv.innerHTML = testResults.map(result => `<p>${result}</p>`).join('');
+        }
+
+        function closeDropdown() {
+            if (dropdownOpen) {
+                dropdownOpen = false;
+                userDropdown.style.display = 'none';
+                arrowIcon.textContent = '▼';
+                arrowIcon.style.transform = 'rotate(0deg)';
+
+                testResults.push(`🔄 Dropdown fechado automaticamente (clique fora)`);
+                updateDebugInfo('Clique fora - FECHAR AUTO');
+                console.log('🔄 Dropdown fechado automaticamente');
+
+                // Atualizar resultados na tela
+                testResultsDiv.innerHTML = testResults.map(result => `<p>${result}</p>`).join('');
+            }
+        }
+
+        // Event listeners
+        authButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🖱️ Clique detectado no authButton');
+            toggleDropdown();
+        });
+
+        // Fechar quando clicar fora
+        document.addEventListener('click', function (e) {
+            if (!document.getElementById('userMenuWrapper').contains(e.target)) {
+                closeDropdown();
+            }
+        });
+
+        // Inicializar
+        updateDebugInfo('Inicialização');
+
+        console.log('✅ Teste simples configurado');
+        console.log('🎯 Clique no botão "Rafael" para testar o dropdown');
+    </script>
+</body>
+
+</html>

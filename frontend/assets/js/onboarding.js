@@ -29,7 +29,7 @@ async function initOnboarding() {
     // Verificar o status do onboarding com o servidor
     try {
         const token = window.auth.getToken();
-        const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3001';
+        const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3000';
         const res = await fetch(`${apiBaseUrl}/api/user/onboarding-status`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -200,7 +200,7 @@ async function completeOnboarding(isSkipped = false) {
 
         // Enviar dados para o servidor
         const token = window.auth.getToken();
-        const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3001';
+        const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3000';
         const res = await fetch(`${apiBaseUrl}/api/user/onboarding`, {
             method: 'POST',
             headers: {

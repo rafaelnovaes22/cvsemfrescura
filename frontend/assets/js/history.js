@@ -20,7 +20,7 @@ const transactionHistory = (() => {
       // Exibir mensagem de carregamento
       historyContainer.innerHTML = '<p class="loading">Carregando histórico de transações...</p>';
 
-      const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3001';
+      const apiBaseUrl = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3000';
       const response = await fetch(`${apiBaseUrl}/api/payment/history`, {
         headers: {
           'Authorization': `Bearer ${auth.getToken()}`
