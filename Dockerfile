@@ -11,8 +11,14 @@ WORKDIR /app
 COPY backend/package*.json ./backend/
 RUN cd backend && npm install
 
-# Copiar todo o projeto
+# Copiar todo o projeto mantendo a estrutura
 COPY . .
+
+# Verificar se os arquivos estão na estrutura correta
+RUN ls -la /app/
+RUN ls -la /app/backend/
+RUN ls -la /app/backend/config/
+RUN ls -la /app/backend/controllers/
 
 # Configurar variáveis de ambiente
 ENV NODE_ENV=production
@@ -21,10 +27,10 @@ ENV PORT=3000
 # Expor porta
 EXPOSE $PORT
 
-# Healthcheck
+# Healthcheck - ajustar para o contexto correto
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:$PORT/health || exit 1
 
-# Mudar para diretório do backend e iniciar
-WORKDIR /app/backend
-CMD ["node", "server.js"] 
+# MANTER workdir em /app e executar o backend com caminho completo
+WORKDIR /app
+CMD ["node", "backend/server.js"] 
