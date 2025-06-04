@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Stripe - Diagnóstico</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .log {
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #007cba;
+        }
+
+        .error {
+            border-left-color: #d63638;
+        }
+
+        .success {
+            border-left-color: #46b450;
+        }
+
+        .warning {
+            border-left-color: #ffb900;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+        }
+
+        #payment-element {
+            margin: 20px 0;
+            min-height: 40px;
+            border: 1px dashed #ccc;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔧 Diagnóstico Stripe - CV Sem Frescura</h1>
+
+        <div class="log">
+            <strong>Status:</strong> <span id="status">Inicializando...</span>
+        </div>
+
+        <button onclick="testBackend()">1. Testar Backend</button>
+        <button onclick="testStripeKey()">2. Testar Chave Stripe</button>
+        <button onclick="testCreateIntent()">3. Criar PaymentIntent</button>
+        <button onclick="testStripeElements()">4. Testar Stripe Elements</button>
+
+        <div id="payment-element"></div>
+
+        <div id="logs"></div>
+    </div>
+
+    <script>
+        let stripe = null;
+        let elements = null;
+        let clientSecret = null;
+
+        function addLog(message, type = 'log') {
+            const logs = document.getElementById('logs');
+            const logDiv = document.createElement('div');
+            logDiv.className = `log ${type}`;
+            logDiv.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            logs.appendChild(logDiv);
+            console.log(message);
+        }
+
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+        }
+
+        async function testBackend() {
+            addLog('🔍 Testando conexão com backend...');
+            try {
+                const response = await fetch('/api/health');
+                if (response.ok) {
+                    addLog('✅ Backend funcionando', 'success');
+                } else {
+                    addLog(`❌ Backend erro: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                addLog(`❌ Erro de conexão: ${error.message}`, 'error');
+            }
+        }
+
+        async function testStripeKey() {
+            addLog('🔑 Obtendo chave do Stripe...');
+            try {
+                const response = await fetch('/api/config/stripe-key');
+                const data = await response.json();
+
+                if (data.publishableKey) {
+                    addLog(`✅ Chave obtida: ${data.publishableKey.substring(0, 20)}...`, 'success');
+
+                    // Inicializar Stripe
+                    stripe = Stripe(data.publishableKey);
+                    addLog('✅ Stripe inicializado', 'success');
+                    return true;
+                } else {
+                    addLog('❌ Chave não encontrada', 'error');
+                    return false;
+                }
+            } catch (error) {
+                addLog(`❌ Erro ao obter chave: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function testCreateIntent() {
+            addLog('💳 Criando PaymentIntent...');
+
+            if (!stripe) {
+                addLog('⚠️ Stripe não inicializado. Execute teste 2 primeiro.', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/payment/create-intent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        amount: 39.97,
+                        planName: 'teste',
+                        credits: 1,
+                        paymentMethod: 'card'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    clientSecret = data.clientSecret;
+                    addLog(`✅ PaymentIntent criado: ${clientSecret.substring(0, 30)}...`, 'success');
+                    return true;
+                } else {
+                    const errorData = await response.json();
+                    addLog(`❌ Erro ao criar PaymentIntent: ${errorData.error}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                addLog(`❌ Erro na requisição: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function testStripeElements() {
+            addLog('🎨 Testando Stripe Elements...');
+
+            if (!stripe || !clientSecret) {
+                addLog('⚠️ Execute os testes 2 e 3 primeiro.', 'warning');
+                return;
+            }
+
+            try {
+                // Criar Elements
+                elements = stripe.elements({
+                    clientSecret: clientSecret,
+                    appearance: {
+                        theme: 'stripe'
+                    }
+                });
+
+                addLog('✅ Elements criado', 'success');
+
+                // Criar Payment Element
+                const paymentElement = elements.create('payment');
+                addLog('✅ Payment Element criado', 'success');
+
+                // Montar elemento
+                paymentElement.mount('#payment-element');
+                addLog('✅ Payment Element montado', 'success');
+
+                // Event listeners
+                paymentElement.on('ready', () => {
+                    addLog('✅ Payment Element pronto!', 'success');
+                    updateStatus('Tudo funcionando!');
+                });
+
+                paymentElement.on('change', (event) => {
+                    if (event.error) {
+                        addLog(`⚠️ Erro no Payment Element: ${event.error.message}`, 'warning');
+                    }
+                });
+
+            } catch (error) {
+                addLog(`❌ Erro no Stripe Elements: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto inicializar
+        window.addEventListener('load', () => {
+            updateStatus('Carregado - Execute os testes sequencialmente');
+            addLog('🚀 Página de diagnóstico carregada');
+        });
+    </script>
+</body>
+
+</html>

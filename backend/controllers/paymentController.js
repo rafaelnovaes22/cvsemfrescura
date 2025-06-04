@@ -107,12 +107,28 @@ exports.createPaymentIntent = async (req, res) => {
       }
     };
 
+    console.log(`[PAYMENT] 🔧 PaymentIntent options:`, {
+      amount: paymentIntentOptions.amount,
+      currency: paymentIntentOptions.currency,
+      paymentMethod,
+      environment: config.environment.name
+    });
+
     // Configura opções específicas baseadas no método de pagamento
     if (paymentMethod === 'card') {
-      // Para cartão de crédito
+      // Para cartão de crédito - configuração mais compatível
       paymentIntentOptions.automatic_payment_methods = {
         enabled: true,
+        allow_redirects: 'never' // Evitar redirecionamentos problemáticos
       };
+
+      // Em produção, adicionar configurações específicas
+      if (config.environment.name === 'production') {
+        console.log('[PAYMENT] 🚀 Configuração específica para produção');
+        paymentIntentOptions.confirm = false;
+        paymentIntentOptions.capture_method = 'automatic';
+      }
+
       console.log('[PAYMENT] 💳 Configurando pagamento por cartão');
     } else if (paymentMethod === 'boleto') {
       // Para boleto
