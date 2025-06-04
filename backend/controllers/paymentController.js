@@ -3,26 +3,46 @@ const config = require('../config/environment');
 
 let stripe = null;
 
-try {
-  // Usar configuração de ambiente para determinar as chaves
-  const stripeConfig = config.stripe;
+// Função para inicializar o Stripe
+function initializeStripe() {
+  try {
+    // Usar configuração de ambiente para determinar as chaves  
+    const stripeConfig = config.stripe;
 
-  if (stripeConfig.secretKey && stripeConfig.secretKey.startsWith('sk_')) {
-    const Stripe = require('stripe');
-    stripe = Stripe(stripeConfig.secretKey);
+    if (stripeConfig.secretKey && stripeConfig.secretKey.startsWith('sk_')) {
+      const Stripe = require('stripe');
+      stripe = Stripe(stripeConfig.secretKey);
 
-    console.log('[STRIPE] ✅ Integração configurada com Stripe');
-    console.log('[STRIPE] 🌍 Ambiente:', config.environment.name);
-    console.log('[STRIPE] 🔑 Tipo de chave:', stripeConfig.environment);
-    console.log('[STRIPE] 🔑 Chave:', stripeConfig.secretKey.substring(0, 20) + '...');
-  } else {
-    console.log('[STRIPE] ⚠️ STRIPE_SECRET_KEY não configurada. Funcionalidades de pagamento desabilitadas.');
+      console.log('[STRIPE] ✅ Integração configurada com Stripe');
+      console.log('[STRIPE] 🌍 Ambiente:', config.environment.name);
+      console.log('[STRIPE] 🔑 Tipo de chave:', stripeConfig.environment);
+      console.log('[STRIPE] 🔑 Chave:', stripeConfig.secretKey.substring(0, 20) + '...');
+      return true;
+    } else {
+      console.log('[STRIPE] ⚠️ STRIPE_SECRET_KEY não configurada.');
+      console.log('[STRIPE] 🔍 Debug - secretKey:', stripeConfig.secretKey ? 'EXISTS' : 'NULL');
+      console.log('[STRIPE] 🔍 Debug - startsWith sk_:', stripeConfig.secretKey ? stripeConfig.secretKey.startsWith('sk_') : 'N/A');
+      return false;
+    }
+  } catch (stripeError) {
+    console.log('[STRIPE] ❌ Erro ao inicializar Stripe:', stripeError.message);
+    console.log('[STRIPE] ⚠️ Funcionalidades de pagamento desabilitadas.');
+    stripe = null;
+    return false;
   }
-} catch (stripeError) {
-  console.log('[STRIPE] ❌ Erro ao inicializar Stripe:', stripeError.message);
-  console.log('[STRIPE] ⚠️ Funcionalidades de pagamento desabilitadas.');
-  stripe = null;
 }
+
+// Função para garantir que o Stripe está inicializado
+function ensureStripeInitialized() {
+  if (!stripe) {
+    console.log('[STRIPE] 🔄 Tentando re-inicializar Stripe...');
+    return initializeStripe();
+  }
+  return true;
+}
+
+// Inicialização inicial
+initializeStripe();
 
 const Transaction = require('../models/Transaction');
 const User = require('../models/user');
@@ -30,12 +50,15 @@ const User = require('../models/user');
 // Cria uma intenção de pagamento no Stripe
 exports.createPaymentIntent = async (req, res) => {
   try {
-    // Verificar se Stripe está configurado
+    // Verificar se Stripe está configurado e tentar re-inicializar se necessário
     if (!stripe) {
-      return res.status(503).json({
-        error: 'Serviço de pagamento indisponível',
-        details: 'Stripe não configurado no servidor'
-      });
+      console.log('[PAYMENT] ⚠️ Stripe não inicializado, tentando re-inicializar...');
+      if (!ensureStripeInitialized()) {
+        return res.status(503).json({
+          error: 'Serviço de pagamento indisponível',
+          details: 'Stripe não configurado no servidor'
+        });
+      }
     }
 
     const { amount, planName, credits, paymentMethod, guestUser } = req.body;
@@ -177,12 +200,15 @@ exports.createPaymentIntent = async (req, res) => {
 // Confirma um pagamento e atualiza os créditos do usuário
 exports.confirmPayment = async (req, res) => {
   try {
-    // Verificar se Stripe está configurado
+    // Verificar se Stripe está configurado e tentar re-inicializar se necessário
     if (!stripe) {
-      return res.status(503).json({
-        error: 'Serviço de pagamento indisponível',
-        details: 'Stripe não configurado no servidor'
-      });
+      console.log('[PAYMENT] ⚠️ Stripe não inicializado, tentando re-inicializar...');
+      if (!ensureStripeInitialized()) {
+        return res.status(503).json({
+          error: 'Serviço de pagamento indisponível',
+          details: 'Stripe não configurado no servidor'
+        });
+      }
     }
 
     const { paymentIntentId } = req.body;
