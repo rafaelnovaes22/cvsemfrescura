@@ -568,6 +568,319 @@
             font-size: 0.95rem;
         }
 
+        /* Estratégias ATS Section */
+        .estrategias-ats {
+            background: linear-gradient(135deg, var(--primary-50), var(--accent-50));
+            padding: var(--space-20) 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .estrategias-ats::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%23d4d4d8" opacity="0.3"/></svg>') repeat;
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
+
+        .estrategias-hero {
+            text-align: center;
+            margin-bottom: var(--space-16);
+            position: relative;
+            z-index: 1;
+        }
+
+        .estrategias-icon {
+            font-size: 4rem;
+            margin-bottom: var(--space-6);
+            display: block;
+        }
+
+        .estrategias-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: var(--space-6);
+            line-height: 1.2;
+        }
+
+        .estrategias-subtitle {
+            font-size: 1.2rem;
+            color: var(--gray-600);
+            max-width: 600px;
+            margin: 0 auto var(--space-8);
+        }
+
+        .comparacao-title {
+            text-align: center;
+            margin-bottom: var(--space-12);
+            position: relative;
+            z-index: 1;
+        }
+
+        .comparacao-title h3 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: var(--space-4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-3);
+        }
+
+        .comparacao-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-8);
+            margin-bottom: var(--space-16);
+            position: relative;
+            z-index: 1;
+        }
+
+        .estrategia-card {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--shadow-lg);
+            transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .estrategia-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--error-500), var(--warning-500));
+        }
+
+        .estrategia-card.nossa::before {
+            background: linear-gradient(90deg, var(--success-500), var(--accent-500));
+        }
+
+        .estrategia-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .estrategia-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+
+        .estrategia-icon {
+            font-size: 2rem;
+        }
+
+        .estrategia-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .estrategia-subtitle {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            margin-top: var(--space-1);
+        }
+
+        .estrategia-content {
+            margin-bottom: var(--space-6);
+        }
+
+        .estrategia-stats {
+            background: var(--gray-50);
+            padding: var(--space-4);
+            border-radius: var(--radius-lg);
+            text-align: center;
+            margin-bottom: var(--space-6);
+        }
+
+        .estrategia-stats.nossa {
+            background: linear-gradient(135deg, rgba(88, 56, 25, 0.1), rgba(232, 173, 53, 0.1));
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--error-500);
+            margin-bottom: var(--space-1);
+        }
+
+        .stat-value.nossa {
+            color: var(--success-500);
+        }
+
+        .stat-description {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        .estrategia-highlight {
+            background: var(--primary-100);
+            padding: var(--space-4);
+            border-radius: var(--radius-lg);
+            border-left: 4px solid var(--primary-600);
+            margin-bottom: var(--space-6);
+        }
+
+        .estrategia-highlight.nossa {
+            background: var(--accent-100);
+            border-left-color: var(--accent-600);
+        }
+
+        .highlight-text {
+            font-size: 0.9rem;
+            color: var(--gray-700);
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .resultado-final {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            color: white;
+            padding: var(--space-12) var(--space-8);
+            border-radius: var(--radius-3xl);
+            text-align: center;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .resultado-final::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            50% {
+                transform: translate(-50%, -50%) rotate(180deg);
+            }
+        }
+
+        .resultado-icon {
+            font-size: 3rem;
+            margin-bottom: var(--space-4);
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+
+        .resultado-valor {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: var(--space-4);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .resultado-texto {
+            font-size: 1.2rem;
+            font-weight: 600;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        .realidade-ats {
+            text-align: center;
+            margin-bottom: var(--space-12);
+            position: relative;
+            z-index: 1;
+        }
+
+        .realidade-icon {
+            font-size: 3rem;
+            margin-bottom: var(--space-4);
+            display: inline-block;
+        }
+
+        .realidade-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: var(--space-6);
+        }
+
+        .realidade-description {
+            font-size: 1rem;
+            color: var(--gray-600);
+            max-width: 500px;
+            margin: 0 auto var(--space-8);
+            line-height: 1.6;
+        }
+
+        .realidade-destaque {
+            background: var(--accent-100);
+            padding: var(--space-6);
+            border-radius: var(--radius-xl);
+            border-left: 4px solid var(--accent-600);
+            text-align: left;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .destaque-header {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent-700);
+            margin-bottom: var(--space-3);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .destaque-content {
+            font-size: 0.95rem;
+            color: var(--gray-700);
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .comparacao-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-6);
+            }
+
+            .estrategias-title {
+                font-size: 2rem;
+            }
+
+            .resultado-valor {
+                font-size: 3rem;
+            }
+
+            .comparacao-title h3 {
+                font-size: 1.5rem;
+            }
+        }
+
         /* Idealizadores Section */
         .idealizadores {
             padding: var(--space-20) 0;
@@ -1429,6 +1742,87 @@
                         chances.
                     </p>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Estratégias ATS Section -->
+    <section class="estrategias-ats" id="estrategias-ats">
+        <div class="container">
+            <div class="estrategias-hero fade-in">
+                <span class="estrategias-icon">🎯</span>
+                <h2 class="estrategias-title">Por que exigimos exatamente 7 vagas?</h2>
+                <p class="estrategias-subtitle">
+                    Entenda nossa estratégia baseada em dados para maximizar suas oportunidades de carreira
+                </p>
+            </div>
+
+            <div class="realidade-ats fade-in">
+                <span class="realidade-icon">🔍</span>
+                <h3 class="realidade-title">A Realidade dos Sistemas ATS</h3>
+                <p class="realidade-description">
+                    Sistemas como Gupy limitam candidaturas a no máximo 7 vagas por ciclo de 7-10 dias. Se você analisar
+                    menos vagas, ainda terá que aguardar o período completo para se candidatar novamente.
+                </p>
+
+                <div class="realidade-destaque">
+                    <div class="destaque-header">
+                        <span>💡</span>
+                        <span>Nossa Estratégia:</span>
+                    </div>
+                    <div class="destaque-content">
+                        Maximizar cada ciclo de candidaturas analisando todas as 7 vagas possíveis, aumentando suas
+                        chances de sucesso e aproveitando 100% da eficiência do sistema.
+                    </div>
+                </div>
+            </div>
+
+            <div class="comparacao-title fade-in">
+                <h3>📊 Compare as Estratégias</h3>
+            </div>
+
+            <div class="comparacao-grid">
+                <div class="estrategia-card fade-in">
+                    <div class="estrategia-header">
+                        <div class="estrategia-icon">❌</div>
+                        <div class="estrategia-info">
+                            <h3 class="estrategia-title">Estratégia Ineficiente</h3>
+                        </div>
+                    </div>
+
+                    <div class="estrategia-stats">
+                        <div class="stat-value">1 vaga analisada</div>
+                        <div class="stat-description">Aguardar 7-10 dias → Repetir</div>
+                    </div>
+
+                    <div class="estrategia-highlight">
+                        <p class="highlight-text">= 1 chance a cada ciclo 😔</p>
+                    </div>
+                </div>
+
+                <div class="estrategia-card nossa fade-in">
+                    <div class="estrategia-header">
+                        <div class="estrategia-icon">✅</div>
+                        <div class="estrategia-info">
+                            <h3 class="estrategia-title">Nossa Estratégia</h3>
+                        </div>
+                    </div>
+
+                    <div class="estrategia-stats nossa">
+                        <div class="stat-value nossa">7 vagas analisadas</div>
+                        <div class="stat-description">Candidatar-se todas → Aguardar próximo ciclo</div>
+                    </div>
+
+                    <div class="estrategia-highlight nossa">
+                        <p class="highlight-text">= 7 chances por ciclo 🚀</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="resultado-final fade-in">
+                <span class="resultado-icon">✅</span>
+                <div class="resultado-valor">700%</div>
+                <div class="resultado-texto">mais oportunidades com nossa estratégia</div>
             </div>
         </div>
     </section>

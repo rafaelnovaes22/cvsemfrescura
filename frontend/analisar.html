@@ -491,6 +491,194 @@
                 padding: 5px;
             }
         }
+
+        /* Novos estilos para a seção de 7 vagas obrigatórias */
+        .vagas-header {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .vagas-counter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--selected-file-bg);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--primary);
+        }
+
+        .counter-icon {
+            font-size: 16px;
+        }
+
+        .counter-text {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 14px;
+        }
+
+        .counter-status {
+            font-size: 12px;
+            color: var(--text-gray);
+            font-style: italic;
+        }
+
+        .strategy-explanation {
+            background: linear-gradient(135deg, rgba(88, 56, 25, 0.05), rgba(236, 217, 181, 0.3));
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .strategy-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .strategy-content p {
+            margin-bottom: 8px;
+            line-height: 1.5;
+            color: var(--text-dark);
+        }
+
+        .strategy-content p:first-child {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .strategy-content p:last-child {
+            margin-bottom: 0;
+            font-size: 14px;
+        }
+
+        .job-link-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 8px;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .job-link-item:hover {
+            background: rgba(88, 56, 25, 0.02);
+        }
+
+        .job-link-item.filled {
+            background: rgba(88, 56, 25, 0.05);
+            border: 1px solid rgba(88, 56, 25, 0.2);
+        }
+
+        .job-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: var(--border-color);
+            color: var(--text-gray);
+            border-radius: 50%;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+
+        .job-link-item.filled .job-number {
+            background: var(--primary);
+            color: white;
+        }
+
+        .job-link-item .job-link-input {
+            margin: 0;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .job-link-item.filled .job-link-input {
+            border-color: var(--primary);
+            background: rgba(88, 56, 25, 0.02);
+        }
+
+        .vagas-progress {
+            margin-top: 20px;
+            padding: 16px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--selected-file-bg));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-gray);
+            margin: 0;
+        }
+
+        .progress-text.completed {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .vagas-header {
+                gap: 8px;
+            }
+
+            .vagas-counter {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+                padding: 10px 12px;
+            }
+
+            .strategy-explanation {
+                padding: 12px;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .strategy-icon {
+                align-self: flex-start;
+            }
+
+            .job-link-item {
+                gap: 8px;
+                padding: 6px;
+            }
+
+            .job-number {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+        }
     </style>
     <script src="/assets/js/config.js?v=1748114546"></script>
     <script src="/assets/js/auth.js?v=1748114547"></script>
@@ -677,7 +865,7 @@
                                 </h3>
                                 <ul style="margin: 0; padding-left: 1.5rem; color: #666; line-height: 1.8;">
                                     <li><strong>Análise completa</strong> do seu currículo</li>
-                                    <li><strong>Até 7 vagas</strong> por análise</li>
+                                    <li><strong>Exatamente 7 vagas</strong> por análise</li>
                                     <li><strong>Feedback personalizado</strong> com IA</li>
                                     <li><strong>Otimização profissional</strong> para cada vaga</li>
                                 </ul>
@@ -1090,7 +1278,11 @@
 
             console.log('🔄 Chamando updateAnalyzeButton IMEDIATAMENTE após authSuccess...');
             // Garantir que updateAnalyzeButton seja chamada IMEDIATAMENTE
-            updateAnalyzeButton();
+            setTimeout(() => {
+                if (window.updateAnalyzeButton) {
+                    window.updateAnalyzeButton();
+                }
+            }, 100);
 
             console.log('✅ authSuccess() finalizada');
         };
@@ -1495,14 +1687,70 @@
                 </div>
 
                 <div class="links-section">
-                    <h2>Link das Vagas Desejadas</h2>
-                    <div class="job-links-container" id="jobLinksContainer">
-                        <div class="job-link-item" style="display:flex;align-items:center;">
-                            <input type="url" class="job-link-input" placeholder="https://linkdavaga.com"
-                                id="mainJobLink" autocomplete="off">
+                    <div class="vagas-header">
+                        <h2>Link das Vagas Desejadas</h2>
+                        <div class="vagas-counter" id="vagasCounter">
+                            <span class="counter-icon">📋</span>
+                            <span class="counter-text">Vagas preenchidas: <span id="currentCount">0</span>/7</span>
+                            <span class="counter-status" id="counterStatus">(Obrigatório: 7 vagas)</span>
                         </div>
                     </div>
-                    <button type="button" id="addJobLinkBtn" class="add-job-link-btn">+ Adicionar Mais Uma Vaga</button>
+
+                    <div class="strategy-explanation">
+                        <div class="strategy-icon">💡</div>
+                        <div class="strategy-content">
+                            <p><strong>Por que exigimos exatamente 7 vagas?</strong></p>
+                            <p>Sistemas como Gupy limitam candidaturas a no máximo 7 vagas por ciclo de 7-10 dias. Nossa
+                                estratégia maximiza cada ciclo analisando todas as 7 vagas possíveis, aumentando suas
+                                chances de sucesso em <strong>700%</strong>.</p>
+                        </div>
+                    </div>
+
+                    <div class="job-links-container" id="jobLinksContainer">
+                        <div class="job-link-item">
+                            <span class="job-number">1</span>
+                            <input type="url" class="job-link-input" placeholder="https://linkdavaga1.com" id="jobLink1"
+                                autocomplete="off" required>
+                        </div>
+                        <div class="job-link-item">
+                            <span class="job-number">2</span>
+                            <input type="url" class="job-link-input" placeholder="https://linkdavaga2.com" id="jobLink2"
+                                autocomplete="off" required>
+                        </div>
+                        <div class="job-link-item">
+                            <span class="job-number">3</span>
+                            <input type="url" class="job-link-input" placeholder="https://linkdavaga3.com" id="jobLink3"
+                                autocomplete="off" required>
+                        </div>
+                        <div class="job-link-item">
+                            <span class="job-number">4</span>
+                            <input type="url" class="job-link-input" placeholder="https://linkdavaga4.com" id="jobLink4"
+                                autocomplete="off" required>
+                        </div>
+                        <div class="job-link-item">
+                            <span class="job-number">5</span>
+                            <input type="url" class="job-link-input" placeholder="https://linkdavaga5.com" id="jobLink5"
+                                autocomplete="off" required>
+                        </div>
+                        <div class="job-link-item">
+                            <span class="job-number">6</span>
+                            <input type="url" class="job-link-input" placeholder="https://linkdavaga6.com" id="jobLink6"
+                                autocomplete="off" required>
+                        </div>
+                        <div class="job-link-item">
+                            <span class="job-number">7</span>
+                            <input type="url" class="job-link-input" placeholder="https://linkdavaga7.com" id="jobLink7"
+                                autocomplete="off" required>
+                        </div>
+                    </div>
+
+                    <div class="vagas-progress" id="vagasProgress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <p class="progress-text" id="progressText">Preencha todas as 7 vagas para maximizar suas
+                            oportunidades</p>
+                    </div>
                 </div>
             </section>
 
@@ -1557,6 +1805,159 @@
 
     <!-- Scripts -->
     <script>
+        // Função para validar URL
+        function isValidUrl(string) {
+            try {
+                const url = new URL(string);
+                return url.protocol === 'http:' || url.protocol === 'https:';
+            } catch (_) {
+                return false;
+            }
+        }
+
+        // Função para atualizar progresso das vagas
+        window.updateVagasProgress = function () {
+            const jobInputs = document.querySelectorAll('.job-link-input');
+            const currentCountSpan = document.getElementById('currentCount');
+            const counterStatus = document.getElementById('counterStatus');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+
+            if (!currentCountSpan || !progressFill || !progressText) return;
+
+            let filledCount = 0;
+
+            // Contar campos preenchidos e atualizar visual
+            jobInputs.forEach((input, index) => {
+                const item = input.closest('.job-link-item');
+                const isValid = input.value.trim() !== '' && isValidUrl(input.value.trim());
+
+                if (isValid) {
+                    filledCount++;
+                    item.classList.add('filled');
+                } else {
+                    item.classList.remove('filled');
+                }
+            });
+
+            // Atualizar contador
+            currentCountSpan.textContent = filledCount;
+
+            // Atualizar status
+            if (filledCount === 7) {
+                counterStatus.textContent = '(✅ Completo!)';
+                counterStatus.style.color = 'var(--primary)';
+                counterStatus.style.fontWeight = '600';
+            } else {
+                counterStatus.textContent = `(Faltam ${7 - filledCount} vagas)`;
+                counterStatus.style.color = 'var(--text-gray)';
+                counterStatus.style.fontWeight = 'normal';
+            }
+
+            // Atualizar barra de progresso
+            const progressPercentage = (filledCount / 7) * 100;
+            progressFill.style.width = progressPercentage + '%';
+
+            // Atualizar texto do progresso
+            if (filledCount === 7) {
+                progressText.textContent = '🎉 Perfeito! Todas as 7 vagas preenchidas - Máxima eficiência alcançada!';
+                progressText.classList.add('completed');
+            } else if (filledCount > 0) {
+                progressText.textContent = `${filledCount}/7 vagas preenchidas - Continue para maximizar suas oportunidades`;
+                progressText.classList.remove('completed');
+            } else {
+                progressText.textContent = 'Preencha todas as 7 vagas para maximizar suas oportunidades';
+                progressText.classList.remove('completed');
+            }
+
+            // Atualizar estado do botão de análise
+            if (window.updateAnalyzeButton) {
+                window.updateAnalyzeButton();
+            }
+        };
+
+        // Função para atualizar estado do botão de análise
+        window.updateAnalyzeButton = function () {
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const fileInput = document.getElementById('fileInput');
+
+            if (!analyzeBtn) return;
+
+            const user = auth && auth.getUser ? auth.getUser() : null;
+            const fileSelected = fileInput && fileInput.files && fileInput.files.length > 0;
+            const jobInputs = document.querySelectorAll('.job-link-input');
+
+            // Contar vagas válidas preenchidas
+            let validJobsCount = 0;
+            jobInputs.forEach(input => {
+                if (input.value.trim() !== '' && isValidUrl(input.value.trim())) {
+                    validJobsCount++;
+                }
+            });
+
+            const allJobsFilled = validJobsCount === 7;
+            const allRequirementsMet = fileSelected && allJobsFilled;
+
+            // Estados do botão baseados nas condições
+            if (!user) {
+                // Usuário não logado
+                analyzeBtn.disabled = true;
+                analyzeBtn.textContent = 'Faça login para analisar';
+                analyzeBtn.style.opacity = '0.6';
+                analyzeBtn.style.cursor = 'not-allowed';
+                analyzeBtn.style.background = '#ccc';
+            } else if (!allRequirementsMet) {
+                // Usuário logado mas requisitos não atendidos
+                analyzeBtn.disabled = true;
+
+                if (!fileSelected && !allJobsFilled) {
+                    analyzeBtn.textContent = 'Anexe currículo e preencha todas as 7 vagas';
+                } else if (!fileSelected) {
+                    analyzeBtn.textContent = 'Anexe seu currículo para continuar';
+                } else if (!allJobsFilled) {
+                    analyzeBtn.textContent = `Preencha as 7 vagas (${validJobsCount}/7 completas)`;
+                }
+
+                analyzeBtn.style.opacity = '0.6';
+                analyzeBtn.style.cursor = 'not-allowed';
+                analyzeBtn.style.background = '#ccc';
+            } else if (user.credits <= 0) {
+                // Usuário sem créditos mas requisitos atendidos
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = 'Comprar Análises para Continuar';
+                analyzeBtn.style.opacity = '1';
+                analyzeBtn.style.cursor = 'pointer';
+                analyzeBtn.style.background = '#FF9800';
+
+                // Remover event listeners antigos e adicionar novo para redirecionar
+                const newBtn = analyzeBtn.cloneNode(true);
+                analyzeBtn.parentNode.replaceChild(newBtn, analyzeBtn);
+                newBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    window.location.href = 'payment.html';
+                });
+            } else {
+                // Tudo OK - pode analisar
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = 'Analisar Currículo';
+                analyzeBtn.style.opacity = '1';
+                analyzeBtn.style.cursor = 'pointer';
+                analyzeBtn.style.background = 'var(--primary-dark)';
+
+                // Remover event listeners antigos e adicionar novo para análise
+                const newBtn = analyzeBtn.cloneNode(true);
+                analyzeBtn.parentNode.replaceChild(newBtn, analyzeBtn);
+                newBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    if (window.performAnalysis) {
+                        window.performAnalysis();
+                    } else {
+                        console.error('Função performAnalysis não encontrada');
+                    }
+                });
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', function () {
             // Funcionalidade para upload de arquivo
             const selectFileBtn = document.getElementById('selectFileBtn');
@@ -1603,6 +2004,10 @@
                 } else {
                     selectedFileDiv.style.display = 'none';
                 }
+                // Atualizar estado do botão quando arquivo é selecionado/removido
+                if (window.updateAnalyzeButton) {
+                    window.updateAnalyzeButton();
+                }
             });
 
             function displaySelectedFile(file) {
@@ -1615,352 +2020,41 @@
             removeFileBtn.addEventListener('click', function () {
                 fileInput.value = '';
                 selectedFileDiv.style.display = 'none';
+                if (window.updateAnalyzeButton) {
+                    window.updateAnalyzeButton();
+                }
             });
 
-            // Funcionalidade para adicionar mais campos de links de vagas
+            // Ocultar botão de adicionar vaga (não é mais necessário com 7 vagas fixas)
             const addJobLinkBtn = document.getElementById('addJobLinkBtn');
-            const jobLinksContainer = document.getElementById('jobLinksContainer');
-
-            // Função para adicionar um novo campo de vaga
-            function addJobLinkField() {
-                const currentCount = jobLinksContainer.querySelectorAll('input.job-link-input').length;
-
-                // Verificar tipo de usuário e aplicar limites
-                const maxVagas = getMaxVagasPermitidas();
-
-                if (currentCount >= maxVagas) {
-                    showJobLimitModal(maxVagas);
-                    return;
-                }
-
-                // Criar novo campo de input padronizado
-                const newLinkItem = document.createElement('div');
-                newLinkItem.className = 'job-link-item';
-                newLinkItem.style.display = 'flex';
-                newLinkItem.style.alignItems = 'center';
-                const newInput = document.createElement('input');
-                newInput.type = 'url';
-                newInput.className = 'job-link-input';
-                newInput.placeholder = `https://linkdavaga.com`;
-                // Adiciona apenas o input, sem estilos inline extras
-                newLinkItem.appendChild(newInput);
-                jobLinksContainer.appendChild(newLinkItem);
-                // Dar foco ao novo campo
-                newInput.focus();
-
-                // Atualizar contador de vagas
-                updateJobCounter();
+            if (addJobLinkBtn) {
+                addJobLinkBtn.style.display = 'none';
             }
 
-            // Função para determinar máximo de vagas permitidas
-            function getMaxVagasPermitidas() {
-                const user = auth.getUser();
-                const isGiftCodeUser = localStorage.getItem('isGiftCodeUser') === 'true';
-
-                // Todos os usuários (incluindo códigos gratuitos) têm o mesmo limite
-                return 7; // Até 7 vagas para todos os usuários
+            // Atualizar créditos na interface do header se necessário
+            const user = auth.getUser();
+            if (user && window.headerManager) {
+                window.headerManager.refreshUserInterface();
             }
 
-            // Função para mostrar modal quando atinge limite
-            function showJobLimitModal(maxVagas) {
-                const modalHTML = `
-                    <div id="jobLimitModal" style="
-                        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                        background: rgba(0,0,0,0.6); display: flex; align-items: center; 
-                        justify-content: center; z-index: 9999;
-                    ">
-                        <div style="
-                            background: white; padding: 2rem; border-radius: 12px;
-                            max-width: 500px; margin: 1rem; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-                        ">
-                            <h3 style="color: #583819; margin-bottom: 1rem;">
-                                ✅ Limite Máximo Atingido (7 vagas)
-                            </h3>
-                            <p style="margin-bottom: 1.5rem; line-height: 1.6;">
-                                Você está usando <strong>100% da eficiência máxima do Gupy</strong>!<br><br>
-                                Sistemas como Gupy permitem no máximo 7 candidaturas por ciclo de 7-10 dias.
-                            </p>
-                            <div style="text-align: center;">
-                                <button onclick="closeJobLimitModal()" style="
-                                    padding: 0.75rem 2rem; background: #583819; color: white;
-                                    border: none; border-radius: 6px; cursor: pointer; font-weight: 600;
-                                ">Entendi, vamos analisar!</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                document.body.insertAdjacentHTML('beforeend', modalHTML);
-            }
-
-            // Função para fechar modal
-            window.closeJobLimitModal = function () {
-                const modal = document.getElementById('jobLimitModal');
-                if (modal) modal.remove();
-            };
-
-            // Função para mostrar modal de sem créditos
-            function showNoCreditModal() {
-                const modalHTML = `
-                    <div id="noCreditModal" style="
-                        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                        background: rgba(0,0,0,0.6); display: flex; align-items: center; 
-                        justify-content: center; z-index: 9999;
-                    ">
-                        <div style="
-                            background: white; padding: 2rem; border-radius: 12px;
-                            max-width: 500px; margin: 1rem; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-                            text-align: center;
-                        ">
-                            <div style="
-                                width: 60px; height: 60px; background: linear-gradient(135deg, #ef4444, #dc2626);
-                                border-radius: 50%; display: flex; align-items: center; justify-content: center;
-                                margin: 0 auto 1.5rem; font-size: 24px;
-                            ">⚠️</div>
-                            
-                            <h3 style="color: #583819; margin-bottom: 1rem; font-size: 1.4rem;">
-                                Sem Análises Disponíveis
-                            </h3>
-                            
-                            <p style="margin-bottom: 1.5rem; line-height: 1.6; color: #666;">
-                                Você não possui análises disponíveis em sua conta.<br><br>
-                                <strong>Para continuar:</strong><br>
-                                • Adquira um plano de análises<br>
-                                • Use um código promocional válido
-                            </p>
-                            
-                            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                                <button onclick="closeNoCreditModal()" style="
-                                    padding: 0.75rem 1.5rem; border: 2px solid #583819; 
-                                    background: transparent; color: #583819; border-radius: 6px;
-                                    cursor: pointer; font-weight: 600; min-width: 120px;
-                                ">Fechar</button>
-                                <button onclick="window.location.href='payment.html'" style="
-                                    padding: 0.75rem 1.5rem; background: #583819; color: white;
-                                    border: none; border-radius: 6px; cursor: pointer; font-weight: 600;
-                                    min-width: 120px;
-                                ">Comprar Análises 🚀</button>
-                            </div>
-                            
-                            <p style="margin-top: 1rem; font-size: 0.85rem; color: #888;">
-                                💡 <strong>Dica:</strong> Com código de presente RH Super Sincero, você ganha 1 análise completa gratuita!
-                            </p>
-                        </div>
-                    </div>
-                `;
-
-                document.body.insertAdjacentHTML('beforeend', modalHTML);
-            }
-
-            // Função para fechar modal de sem créditos
-            window.closeNoCreditModal = function () {
-                const modal = document.getElementById('noCreditModal');
-                if (modal) modal.remove();
-            };
-
-            // Função para atualizar contador de vagas
-            function updateJobCounter() {
-                const currentCount = jobLinksContainer.querySelectorAll('input.job-link-input').length;
-                const maxVagas = getMaxVagasPermitidas();
-
-                // Atualizar texto do botão
-                const addBtn = document.getElementById('addJobLinkBtn');
-                if (addBtn) {
-                    if (currentCount >= maxVagas) {
-                        addBtn.style.display = 'none';
-                    } else {
-                        addBtn.style.display = 'block';
-                        const remaining = maxVagas - currentCount;
-                        addBtn.textContent = `+ Adicionar Mais Uma Vaga (${remaining} restantes)`;
-                    }
-                }
-            }
-
-            // Adicionar event listener para o botão de adicionar vaga
-            addJobLinkBtn.addEventListener('click', addJobLinkField);
-
-            // Configurar botão de análise
-            const analyzeBtn = document.getElementById('analyzeBtn');
-            if (analyzeBtn) {
-                analyzeBtn.addEventListener('click', function () {
-                    const fileInput = document.getElementById('fileInput');
-                    const jobLinkInputs = document.querySelectorAll('.job-link-input');
-                    const selectedFile = fileInput && fileInput.files.length > 0 ? fileInput.files[0] : null;
-                    const jobLinks = Array.from(jobLinkInputs).map(input => input.value.trim()).filter(Boolean);
-
-                    // Limpar mensagens de erro anteriores
-                    let msgDiv = document.getElementById('stepFeedback');
-                    if (!msgDiv) {
-                        msgDiv = document.createElement('div');
-                        msgDiv.id = 'stepFeedback';
-                        msgDiv.style.color = '#c62828';
-                        msgDiv.style.fontWeight = 'bold';
-                        msgDiv.style.margin = '10px 0 0 0';
-                        analyzeBtn.parentNode.insertBefore(msgDiv, analyzeBtn.nextSibling);
-                    }
-                    msgDiv.textContent = '';
-
-                    // VALIDAÇÃO CRÍTICA: Verificar créditos antes de qualquer coisa
-                    const user = auth.getUser();
-                    const isGiftCodeUser = localStorage.getItem('isGiftCodeUser') === 'true';
-
-                    if (!user && !isGiftCodeUser) {
-                        msgDiv.textContent = 'Você precisa fazer login para analisar currículos.';
-                        setTimeout(() => {
-                            window.location.href = 'analisar.html?login=true';
-                        }, 2000);
-                        return;
-                    }
-
-                    // Verificar se usuário tem créditos (códigos gratuitos também precisam de créditos)
-                    if (user && user.credits <= 0) {
-                        // Redirecionar para compra de créditos
-                        window.location.href = 'payment.html';
-                        return;
-                    }
-
-                    // Validação de URL
-                    const urlRegex = /^(https?:\/\/)[\w\-]+(\.[\w\-]+)+([\w.,@?^=%&:/~+#\-]*[\w@?^=%&/~+#\-])?$/i;
-                    const invalidLink = jobLinks.find(link => !urlRegex.test(link));
-                    if (invalidLink) {
-                        msgDiv.textContent = 'O link informado não é válido: ' + invalidLink;
-                        return;
-                    }
-
-                    // Validação
-                    if (!selectedFile) {
-                        msgDiv.textContent = 'Selecione um currículo para análise.';
-                        return;
-                    }
-                    if (jobLinks.length === 0) {
-                        msgDiv.textContent = 'Informe pelo menos um link de vaga para análise.';
-                        return;
-                    }
-
-                    // Inicia processamento do arquivo
-                    msgDiv.style.color = '#2e7d32';
-                    msgDiv.textContent = 'Processando seu currículo e vagas...';
-
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        try {
-                            const fileContentBase64 = e.target.result;
-                            sessionStorage.setItem('atsFile', selectedFile.name);
-                            sessionStorage.setItem('atsFileContent', fileContentBase64);
-                            sessionStorage.setItem('atsJobLinks', JSON.stringify(jobLinks));
-                            msgDiv.textContent = 'Dados salvos. Redirecionando para análise...';
-                            setTimeout(() => {
-                                window.location.href = 'loading.html';
-                            }, 400);
-                        } catch (err) {
-                            msgDiv.style.color = '#c62828';
-                            msgDiv.textContent = 'Erro ao salvar dados para análise. Tente novamente.';
-                        }
-                    };
-                    reader.onerror = function () {
-                        msgDiv.style.color = '#c62828';
-                        msgDiv.textContent = 'Erro ao ler o arquivo. Tente outro formato.';
-                    };
-                    reader.readAsDataURL(selectedFile);
+            // Adicionar listeners para todos os inputs de vagas
+            document.querySelectorAll('.job-link-input').forEach(input => {
+                input.addEventListener('input', window.updateVagasProgress);
+                input.addEventListener('blur', window.updateVagasProgress);
+                input.addEventListener('paste', () => {
+                    setTimeout(window.updateVagasProgress, 100);
                 });
+            });
+
+            // Inicializar progresso das vagas
+            if (window.updateVagasProgress) {
+                window.updateVagasProgress();
             }
 
-            // Inicializar contador ao carregar
-            updateJobCounter();
-            // Chamar updateAnalyzeButton IMEDIATAMENTE
-            updateAnalyzeButton();
-
-            // Escutar quando o header for totalmente carregado
-            document.addEventListener('headerLoaded', () => {
-                console.log('🎯 Header carregado, atualizando botão de análise...');
-                updateAnalyzeButton();
-            });
-
-            // Escutar mudanças de autenticação
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'user' || e.key === 'token') {
-                    console.log('👤 Mudança de autenticação detectada, atualizando botão...');
-                    updateAnalyzeButton(); // SEM DELAY
-                }
-            });
-
-            // Escutar evento customizado de mudança de autenticação
-            window.addEventListener('authChanged', (e) => {
-                console.log('🔄 Evento authChanged recebido:', e.detail);
-                updateAnalyzeButton(); // SEM DELAY
-            });
-
-            // Escutar quando CONFIG for carregado (se necessário)
-            function waitForConfig() {
-                if (window.CONFIG) {
-                    console.log('⚡ CONFIG disponível, atualizando botão de análise...');
-                    updateAnalyzeButton();
-                } else {
-                    setTimeout(waitForConfig, 50); // Intervalo reduzido
-                }
+            // Atualizar estado inicial do botão
+            if (window.updateAnalyzeButton) {
+                window.updateAnalyzeButton();
             }
-            waitForConfig();
-
-            // Escutar mudanças no header (quando créditos são atualizados)
-            document.addEventListener('userCreditsUpdated', () => {
-                console.log('💰 Créditos atualizados, refrescando botão de análise...');
-                updateAnalyzeButton(); // SEM DELAY
-            });
-
-            // Função para atualizar estado do botão de análise baseado nos créditos
-            function updateAnalyzeButton() {
-                const analyzeBtn = document.getElementById('analyzeBtn');
-                if (!analyzeBtn) return;
-
-                // Leitura DIRETA e RÁPIDA dos dados (sem delays)
-                const user = auth.getUser();
-                const isGiftCodeUser = localStorage.getItem('isGiftCodeUser') === 'true';
-                const isAuthenticated = auth.isAuthenticated();
-
-                console.log('🔄 updateAnalyzeButton OTIMIZADO:', {
-                    isAuthenticated,
-                    hasUser: !!user,
-                    credits: user?.credits,
-                    isGiftCodeUser
-                });
-
-                // LÓGICA SIMPLIFICADA - SEM DELAYS OU VERIFICAÇÕES COMPLEXAS
-
-                // 1. Se não está logado e não é usuário de código de presente
-                if (!isAuthenticated && !isGiftCodeUser) {
-                    analyzeBtn.disabled = true;
-                    analyzeBtn.textContent = 'Faça login para analisar';
-                    analyzeBtn.style.opacity = '0.6';
-                    analyzeBtn.style.cursor = 'not-allowed';
-                    analyzeBtn.onclick = null;
-                    return;
-                }
-
-                // 2. Se está logado mas não tem créditos
-                if (user && user.credits <= 0) {
-                    analyzeBtn.disabled = false;
-                    analyzeBtn.textContent = 'Comprar Créditos';
-                    analyzeBtn.style.opacity = '1';
-                    analyzeBtn.style.cursor = 'pointer';
-                    analyzeBtn.onclick = function (e) {
-                        e.preventDefault();
-                        window.location.href = 'payment.html';
-                    };
-                    return;
-                }
-
-                // 3. USUÁRIO PODE ANALISAR (tem créditos)
-                analyzeBtn.disabled = false;
-                analyzeBtn.textContent = 'Analisar Currículo';
-                analyzeBtn.style.opacity = '1';
-                analyzeBtn.style.cursor = 'pointer';
-                analyzeBtn.onclick = null; // Volta ao comportamento padrão
-            }
-
-            // Atualizar botão quando créditos mudarem
-            window.updateAnalyzeButton = updateAnalyzeButton;
-
-            // Código gratuito agora oferece análise completa - sem restrições de interface
         });
     </script>
 </body>
