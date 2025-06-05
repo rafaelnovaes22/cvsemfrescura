@@ -26,6 +26,7 @@ router.post('/confirm', optionalAuthMiddleware, paymentController.confirmPayment
 // Rotas de pagamento protegidas (requerem login)
 router.get('/history', authMiddleware, paymentController.getTransactionHistory);
 router.post('/verify-pending', authMiddleware, paymentController.verifyPendingPayments);
+router.post('/cleanup-pending', authMiddleware, paymentController.cleanupOldPendingTransactions);
 router.get('/user-info', authMiddleware, paymentController.getUserPaymentInfo);
 
 // Rota de webhook (não requer autenticação, mas usa middleware para rawBody)

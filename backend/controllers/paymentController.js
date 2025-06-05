@@ -566,10 +566,17 @@ async function handleFailedPayment(paymentIntent) {
 }
 
 // Obtém histórico de transações do usuário
+// Filtra apenas transações efetivadas (completed), recusadas (failed) ou reembolsadas (refunded)
+// Transações pendentes são ocultadas do histórico do usuário
 exports.getTransactionHistory = async (req, res) => {
   try {
     const transactions = await Transaction.findAll({
-      where: { userId: req.user.id },
+      where: {
+        userId: req.user.id,
+        status: {
+          [require('sequelize').Op.in]: ['completed', 'failed', 'refunded']
+        }
+      },
       order: [['createdAt', 'DESC']]
     });
 
@@ -693,7 +700,12 @@ exports.getUserPaymentInfo = async (req, res) => {
     });
 
     const recentTransactions = await Transaction.findAll({
-      where: { userId: req.user.id },
+      where: {
+        userId: req.user.id,
+        status: {
+          [require('sequelize').Op.in]: ['completed', 'failed', 'refunded']
+        }
+      },
       order: [['createdAt', 'DESC']],
       limit: 5,
       attributes: ['id', 'amount', 'credits', 'status', 'paymentMethod', 'createdAt', 'metadata']
@@ -732,6 +744,71 @@ exports.getUserPaymentInfo = async (req, res) => {
     console.error('[USER_INFO] ❌ Erro ao obter informações do usuário:', error);
     res.status(500).json({
       error: 'Erro ao obter informações do usuário',
+      details: error.message
+    });
+  }
+};
+
+// Função para limpeza de transações pendentes antigas (mais de 24 horas)
+exports.cleanupOldPendingTransactions = async (req, res) => {
+  try {
+    console.log('[CLEANUP] 🧹 Iniciando limpeza de transações pendentes antigas...');
+
+    // Buscar transações pendentes de mais de 24 horas
+    const twentyFourHoursAgo = new Date();
+    twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+
+    const oldPendingTransactions = await Transaction.findAll({
+      where: {
+        status: 'pending',
+        createdAt: {
+          [require('sequelize').Op.lt]: twentyFourHoursAgo
+        }
+      }
+    });
+
+    console.log(`[CLEANUP] 📋 Encontradas ${oldPendingTransactions.length} transações pendentes antigas`);
+
+    let cleanedCount = 0;
+    let failedCount = 0;
+
+    for (const transaction of oldPendingTransactions) {
+      try {
+        // Marcar como expirada
+        await transaction.update({
+          status: 'failed',
+          metadata: {
+            ...transaction.metadata,
+            failureReason: 'Transação expirada após 24 horas',
+            cleanupDate: new Date(),
+            cleanupSource: 'automatic_cleanup'
+          }
+        });
+
+        cleanedCount++;
+        console.log(`[CLEANUP] ✅ Transação ${transaction.id} marcada como expirada`);
+      } catch (error) {
+        failedCount++;
+        console.error(`[CLEANUP] ❌ Erro ao limpar transação ${transaction.id}:`, error.message);
+      }
+    }
+
+    console.log(`[CLEANUP] 📊 Limpeza concluída: ${cleanedCount} marcadas como expiradas, ${failedCount} erros`);
+
+    res.json({
+      success: true,
+      message: 'Limpeza de transações pendentes concluída',
+      results: {
+        found: oldPendingTransactions.length,
+        cleaned: cleanedCount,
+        failed: failedCount
+      }
+    });
+
+  } catch (error) {
+    console.error('[CLEANUP] ❌ Erro na limpeza de transações:', error);
+    res.status(500).json({
+      error: 'Erro ao limpar transações pendentes',
       details: error.message
     });
   }

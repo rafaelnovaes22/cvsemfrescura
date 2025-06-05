@@ -97,33 +97,35 @@ const transactionHistory = (() => {
       `;
 
       // Adicionar cada transação à tabela
-      transactions.forEach(transaction => {
-        const statusClass = {
-          'pending': 'status-pending',
-          'completed': 'status-completed',
-          'failed': 'status-failed',
-          'refunded': 'status-refunded'
-        }[transaction.status] || '';
+      // Filtra transações pendentes no frontend como medida de segurança adicional
+      // O backend já filtra, mas mantemos esta verificação para consistência
+      transactions
+        .filter(transaction => transaction.status !== 'pending') // Filtrar transações pendentes
+        .forEach(transaction => {
+          const statusClass = {
+            'completed': 'status-completed',
+            'failed': 'status-failed',
+            'refunded': 'status-refunded'
+          }[transaction.status] || '';
 
-        const statusLabel = {
-          'pending': 'Pendente',
-          'completed': 'Concluído',
-          'failed': 'Falhou',
-          'refunded': 'Reembolsado'
-        }[transaction.status] || transaction.status;
+          const statusLabel = {
+            'completed': 'Concluído',
+            'failed': 'Recusado', // Alterado de "Falhou" para "Recusado" para melhor UX
+            'refunded': 'Reembolsado'
+          }[transaction.status] || transaction.status;
 
-        const planName = transaction.metadata?.planName || 'Não especificado';
+          const planName = transaction.metadata?.planName || 'Não especificado';
 
-        tableHtml += `
-          <tr>
-            <td>${formatDate(transaction.createdAt)}</td>
-            <td>${planName}</td>
-            <td>${formatCurrency(transaction.amount)}</td>
-            <td>${transaction.credits}</td>
-            <td class="${statusClass}">${statusLabel}</td>
-          </tr>
-        `;
-      });
+          tableHtml += `
+            <tr>
+              <td>${formatDate(transaction.createdAt)}</td>
+              <td>${planName}</td>
+              <td>${formatCurrency(transaction.amount)}</td>
+              <td>${transaction.credits}</td>
+              <td class="${statusClass}">${statusLabel}</td>
+            </tr>
+          `;
+        });
 
       tableHtml += `
           </tbody>
