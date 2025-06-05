@@ -1,5 +1,6 @@
 // 🌍 Configuração Automática de Ambiente - CV Sem Frescura
 require('dotenv').config();
+const { maskKey } = require('../utils/encryption');
 
 const isProduction = process.env.NODE_ENV === 'production';
 const isRailway = !!process.env.RAILWAY_ENVIRONMENT;
@@ -20,17 +21,14 @@ const getStripeConfig = () => {
 
     // 🧹 LIMPEZA FORÇADA DAS VARIÁVEIS (correção para problemas de encoding)
     if (secretKey) {
-        console.log('🔍 [DEBUG] Raw secretKey length:', secretKey.length);
-        console.log('🔍 [DEBUG] Raw secretKey first 10 chars:', JSON.stringify(secretKey.substring(0, 10)));
-
         // Limpar espaços, quebras de linha e caracteres especiais
         secretKey = secretKey.trim().replace(/[\r\n\t]/g, '');
 
-        console.log('🔍 [DEBUG] Cleaned secretKey length:', secretKey.length);
-        console.log('🔍 [DEBUG] Cleaned secretKey first 10 chars:', JSON.stringify(secretKey.substring(0, 10)));
-        console.log('🔍 [DEBUG] Starts with sk_:', secretKey.startsWith('sk_'));
-        console.log('🔍 [DEBUG] Starts with rk_:', secretKey.startsWith('rk_'));
-        console.log('🔍 [DEBUG] Valid Stripe key:', secretKey.startsWith('sk_') || secretKey.startsWith('rk_'));
+        if (!isProduction) {
+            console.log('🔍 [DEBUG] SecretKey length:', secretKey.length);
+            console.log('🔍 [DEBUG] SecretKey masked:', maskKey(secretKey));
+            console.log('🔍 [DEBUG] Valid Stripe key:', secretKey.startsWith('sk_') || secretKey.startsWith('rk_'));
+        }
     }
 
     if (publishableKey) {
@@ -61,9 +59,8 @@ const getStripeConfig = () => {
             console.error('❌ [PRODUÇÃO] Chaves do Stripe não configuradas no Railway');
             console.error('💡 [PRODUÇÃO] Configure as variáveis no Railway Dashboard');
         } else {
-            console.log('✅ [PRODUÇÃO] Chaves encontradas e limpas');
+            console.log('✅ [PRODUÇÃO] Chaves do Stripe configuradas');
             console.log('🔑 [PRODUÇÃO] SecretKey válida:', secretKey.startsWith('sk_') || secretKey.startsWith('rk_'));
-            console.log('🔑 [PRODUÇÃO] Tipo da chave:', secretKey.startsWith('sk_') ? 'Completa (sk_)' : 'Restrita (rk_) - Mais Segura');
             console.log('🔑 [PRODUÇÃO] PublishableKey válida:', publishableKey.startsWith('pk_'));
         }
 
@@ -138,7 +135,9 @@ console.log('✅ Configuração carregada:');
 console.log('🔑 Stripe environment:', config.stripe.environment);
 console.log('🔑 Stripe keys configured:', !!config.stripe.secretKey && !!config.stripe.publishableKey);
 console.log('🗄️ Database type:', config.database.type);
-console.log('🌐 CORS origins:', config.cors.origin);
+if (!isProduction) {
+    console.log('🌐 CORS origins:', config.cors.origin);
+}
 
 // Validações de segurança
 if (isProduction && (!config.stripe.secretKey || !config.stripe.publishableKey)) {

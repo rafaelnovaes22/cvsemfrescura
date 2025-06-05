@@ -681,6 +681,8 @@
         }
     </style>
     <script src="/assets/js/config.js?v=1748114546"></script>
+    <!-- Logger Seguro -->
+    <script src="/assets/js/lib/secure-logger.js"></script>
     <script src="/assets/js/auth.js?v=1748114547"></script>
     <script src="/assets/js/header-new.js?v=1748114561"></script>
 
@@ -1504,7 +1506,8 @@
                             <span id="creditsStatusText">Você não tem análises disponíveis</span>
                         </div>
                         <div style="font-size: 0.95em; opacity: 0.9;">
-                            <span id="creditsStatusDescription">Compre créditos para analisar seu currículo com nossa IA</span>
+                            <span id="creditsStatusDescription">Compre créditos para analisar seu currículo com nossa
+                                IA</span>
                         </div>
                     </div>
                 </div>
@@ -1513,8 +1516,8 @@
                     border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 1em;
                     transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
                     white-space: nowrap;
-                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'" 
-                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'">
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'">
                     💳 Comprar Análises
                 </button>
             </div>
@@ -1601,41 +1604,42 @@
                             oportunidades</p>
                     </div>
                 </div>
+                </section>
+
+                <div class="analyze-button-container">
+                    <button class="analyze-button" id="analyzeBtn">Analise Agora Seu Currículo</button>
+                </div>
+            </div>
+
+            <section class="features-section">
+                <div class="container features-container">
+                    <div class="feature-item">
+                        <div class="feature-icon icon-ai"></div>
+                        <div>
+                            <h3 class="feature-title">Análise de Currículo com IA</h3>
+                            <p class="feature-desc">Aproveite a inteligência artificial para identificar melhorias e
+                                alinhar
+                                seu perfil às exigências das vagas.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon icon-feedback"></div>
+                        <div>
+                            <h3 class="feature-title">Feedback Personalizado</h3>
+                            <p class="feature-desc">Descubra em segundos os pontos que podem destacar seu currículo no
+                                mercado.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon icon-optimization"></div>
+                        <div>
+                            <h3 class="feature-title">Otimização Para Cada Vaga</h3>
+                            <p class="feature-desc">Adapte seu currículo às expectativas dos recrutadores e aumente suas
+                                chances de sucesso.</p>
+                        </div>
+                    </div>
+                </div>
             </section>
-
-            <div class="analyze-button-container">
-                <button class="analyze-button" id="analyzeBtn">Analise Agora Seu Currículo</button>
-            </div>
-        </div>
-
-        <section class="features-section">
-            <div class="container features-container">
-                <div class="feature-item">
-                    <div class="feature-icon icon-ai"></div>
-                    <div>
-                        <h3 class="feature-title">Análise de Currículo com IA</h3>
-                        <p class="feature-desc">Aproveite a inteligência artificial para identificar melhorias e alinhar
-                            seu perfil às exigências das vagas.</p>
-                    </div>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon icon-feedback"></div>
-                    <div>
-                        <h3 class="feature-title">Feedback Personalizado</h3>
-                        <p class="feature-desc">Descubra em segundos os pontos que podem destacar seu currículo no
-                            mercado.</p>
-                    </div>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon icon-optimization"></div>
-                    <div>
-                        <h3 class="feature-title">Otimização Para Cada Vaga</h3>
-                        <p class="feature-desc">Adapte seu currículo às expectativas dos recrutadores e aumente suas
-                            chances de sucesso.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
     </main>
 
     <footer>
@@ -1694,7 +1698,7 @@
                 progressText.textContent = '🎉 Perfeito! Todas as 7 vagas preenchidas - Pronto para analisar!';
                 progressText.classList.add('completed');
                 progressText.style.color = '#28a745';
-                
+
                 // Micro-feedback no banner quando tudo estiver preenchido
                 if (creditsStatusDescription) {
                     const user = auth && auth.getUser ? auth.getUser() : null;
@@ -1746,7 +1750,7 @@
             // Controlar visibilidade e conteúdo do banner de créditos
             if (user) {
                 const credits = user.credits || 0;
-                
+
                 if (credits <= 0) {
                     // Mostrar banner para usuários sem créditos
                     creditsStatusBanner.style.display = 'flex';
