@@ -1478,12 +1478,48 @@
     <main class="main-content">
         <div class="container">
             <section class="header-section">
-                <h1 class="main-title">CV Sem Frescura</h1>
-                <p class="main-description">IA a serviço do que importa: você, seu talento, sua carreira. Tecnologia a
-                    serviço de PESSOAS.</p>
+                <h1 class="main-title">Analisar Currículo com IA</h1>
+                <p class="main-description">
+                    Nossa inteligência artificial analisa seu currículo e otimiza para 7 vagas específicas
+                </p>
             </section>
 
-            <section class="upload-section">
+            <!-- Banner de Status de Créditos -->
+            <div id="creditsStatusBanner" style="
+                background: linear-gradient(135deg, #ff9800, #ff6b35);
+                color: white; padding: 16px 24px; margin-bottom: 25px;
+                border-radius: 12px; display: none; align-items: center; justify-content: space-between;
+                box-shadow: 0 4px 16px rgba(255, 152, 0, 0.25);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            ">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div style="
+                        background: rgba(255, 255, 255, 0.2); 
+                        border-radius: 50%; width: 48px; height: 48px;
+                        display: flex; align-items: center; justify-content: center;
+                        font-size: 1.5em;
+                    ">⚡</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 1.1em; margin-bottom: 4px;">
+                            <span id="creditsStatusText">Você não tem análises disponíveis</span>
+                        </div>
+                        <div style="font-size: 0.95em; opacity: 0.9;">
+                            <span id="creditsStatusDescription">Compre créditos para analisar seu currículo com nossa IA</span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="window.location.href='payment.html'" style="
+                    background: white; color: #ff6b35; border: none; padding: 12px 24px;
+                    border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 1em;
+                    transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                    white-space: nowrap;
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'">
+                    💳 Comprar Análises
+                </button>
+            </div>
+
+            <div class="upload-section">
                 <div class="dropzone" id="dropzone">
                     <div class="upload-icon"></div>
                     <button class="upload-button" id="selectFileBtn" type="button">Selecione Seu Currículo</button>
@@ -1628,59 +1664,52 @@
             }
         }
 
-        // Função para atualizar progresso das vagas
+        // Função para atualizar progresso das vagas com micro-feedback
         window.updateVagasProgress = function () {
             const jobInputs = document.querySelectorAll('.job-link-input');
-            const currentCountSpan = document.getElementById('currentCount');
-            const counterStatus = document.getElementById('counterStatus');
-            const progressFill = document.getElementById('progressFill');
-            const progressText = document.getElementById('progressText');
-
-            if (!currentCountSpan || !progressFill || !progressText) return;
+            const progressText = document.getElementById('vagasProgress');
+            const creditsStatusBanner = document.getElementById('creditsStatusBanner');
+            const creditsStatusDescription = document.getElementById('creditsStatusDescription');
 
             let filledCount = 0;
-
-            // Contar campos preenchidos e atualizar visual
-            jobInputs.forEach((input, index) => {
-                const item = input.closest('.job-link-item');
-                const isValid = input.value.trim() !== '' && isValidUrl(input.value.trim());
-
-                if (isValid) {
+            jobInputs.forEach(input => {
+                if (input.value.trim() !== '' && isValidUrl(input.value.trim())) {
                     filledCount++;
-                    item.classList.add('filled');
+                    // Micro-feedback: borda verde para vagas válidas
+                    input.style.borderColor = '#28a745';
+                    input.style.borderWidth = '2px';
+                } else if (input.value.trim() !== '') {
+                    // URL inválida: borda vermelha
+                    input.style.borderColor = '#dc3545';
+                    input.style.borderWidth = '2px';
                 } else {
-                    item.classList.remove('filled');
+                    // Vazio: borda padrão
+                    input.style.borderColor = 'var(--border-color)';
+                    input.style.borderWidth = '1px';
                 }
             });
 
-            // Atualizar contador
-            currentCountSpan.textContent = filledCount;
-
-            // Atualizar status
+            // Atualizar texto do progresso com emojis motivacionais
             if (filledCount === 7) {
-                counterStatus.textContent = '(✅ Completo!)';
-                counterStatus.style.color = 'var(--primary)';
-                counterStatus.style.fontWeight = '600';
-            } else {
-                counterStatus.textContent = `(Faltam ${7 - filledCount} vagas)`;
-                counterStatus.style.color = 'var(--text-gray)';
-                counterStatus.style.fontWeight = 'normal';
-            }
-
-            // Atualizar barra de progresso
-            const progressPercentage = (filledCount / 7) * 100;
-            progressFill.style.width = progressPercentage + '%';
-
-            // Atualizar texto do progresso
-            if (filledCount === 7) {
-                progressText.textContent = '🎉 Perfeito! Todas as 7 vagas preenchidas - Máxima eficiência alcançada!';
+                progressText.textContent = '🎉 Perfeito! Todas as 7 vagas preenchidas - Pronto para analisar!';
                 progressText.classList.add('completed');
+                progressText.style.color = '#28a745';
+                
+                // Micro-feedback no banner quando tudo estiver preenchido
+                if (creditsStatusDescription) {
+                    const user = auth && auth.getUser ? auth.getUser() : null;
+                    if (user && user.credits <= 0) {
+                        creditsStatusDescription.textContent = '� Tudo preenchido! Agora você só precisa de créditos para analisar';
+                    }
+                }
             } else if (filledCount > 0) {
-                progressText.textContent = `${filledCount}/7 vagas preenchidas - Continue para maximizar suas oportunidades`;
+                progressText.textContent = `⏳ ${filledCount}/7 vagas preenchidas - Continue para maximizar suas oportunidades`;
                 progressText.classList.remove('completed');
+                progressText.style.color = '#ff9800';
             } else {
-                progressText.textContent = 'Preencha todas as 7 vagas para maximizar suas oportunidades';
+                progressText.textContent = '📝 Preencha todas as 7 vagas para maximizar suas oportunidades';
                 progressText.classList.remove('completed');
+                progressText.style.color = '#6c757d';
             }
 
             // Atualizar estado do botão de análise
@@ -1693,6 +1722,9 @@
         window.updateAnalyzeButton = function () {
             const analyzeBtn = document.getElementById('analyzeBtn');
             const fileInput = document.getElementById('fileInput');
+            const creditsStatusBanner = document.getElementById('creditsStatusBanner');
+            const creditsStatusText = document.getElementById('creditsStatusText');
+            const creditsStatusDescription = document.getElementById('creditsStatusDescription');
 
             if (!analyzeBtn) return;
 
@@ -1711,33 +1743,53 @@
             const allJobsFilled = validJobsCount === 7;
             const allRequirementsMet = fileSelected && allJobsFilled;
 
+            // Controlar visibilidade e conteúdo do banner de créditos
+            if (user) {
+                const credits = user.credits || 0;
+                
+                if (credits <= 0) {
+                    // Mostrar banner para usuários sem créditos
+                    creditsStatusBanner.style.display = 'flex';
+                    creditsStatusText.textContent = 'Você não tem análises disponíveis';
+                    creditsStatusDescription.textContent = 'Você pode preencher tudo, mas precisará comprar créditos para analisar';
+                } else {
+                    // Esconder banner para usuários com créditos
+                    creditsStatusBanner.style.display = 'none';
+                }
+            } else {
+                // Mostrar banner para usuários não logados
+                creditsStatusBanner.style.display = 'flex';
+                creditsStatusText.textContent = 'Faça login para começar';
+                creditsStatusDescription.textContent = 'Entre na sua conta ou crie uma para analisar seu currículo';
+            }
+
             // Estados do botão baseados nas condições
             if (!user) {
                 // Usuário não logado
                 analyzeBtn.disabled = true;
-                analyzeBtn.textContent = 'Faça login para analisar';
-                analyzeBtn.style.opacity = '0.6';
+                analyzeBtn.textContent = '🔐 Faça Login Para Continuar';
+                analyzeBtn.style.opacity = '0.7';
                 analyzeBtn.style.cursor = 'not-allowed';
-                analyzeBtn.style.background = '#ccc';
+                analyzeBtn.style.background = '#6c757d';
             } else if (!allRequirementsMet) {
                 // Usuário logado mas requisitos não atendidos
                 analyzeBtn.disabled = true;
 
                 if (!fileSelected && !allJobsFilled) {
-                    analyzeBtn.textContent = 'Anexe currículo e preencha todas as 7 vagas';
+                    analyzeBtn.textContent = '📎 Anexe currículo e preencha as 7 vagas';
                 } else if (!fileSelected) {
-                    analyzeBtn.textContent = 'Anexe seu currículo para continuar';
+                    analyzeBtn.textContent = '📎 Anexe seu currículo para continuar';
                 } else if (!allJobsFilled) {
-                    analyzeBtn.textContent = `Preencha as 7 vagas (${validJobsCount}/7 completas)`;
+                    analyzeBtn.textContent = `📝 Preencha todas as vagas (${validJobsCount}/7)`;
                 }
 
-                analyzeBtn.style.opacity = '0.6';
+                analyzeBtn.style.opacity = '0.7';
                 analyzeBtn.style.cursor = 'not-allowed';
-                analyzeBtn.style.background = '#ccc';
+                analyzeBtn.style.background = '#6c757d';
             } else if (user.credits <= 0) {
                 // Usuário sem créditos mas requisitos atendidos
                 analyzeBtn.disabled = false;
-                analyzeBtn.textContent = 'Comprar Análises para Continuar';
+                analyzeBtn.textContent = '💳 Comprar Análises Para Continuar';
                 analyzeBtn.style.opacity = '1';
                 analyzeBtn.style.cursor = 'pointer';
                 analyzeBtn.style.background = '#FF9800';
@@ -1747,12 +1799,15 @@
                 analyzeBtn.parentNode.replaceChild(newBtn, analyzeBtn);
                 newBtn.addEventListener('click', function (e) {
                     e.preventDefault();
-                    window.location.href = 'payment.html';
+                    // Mostrar modal de confirmação antes de redirecionar
+                    if (confirm('Você preencheu tudo! 🎉\n\nPara analisar seu currículo, você precisa comprar créditos.\n\nDeseja ir para a página de pagamento agora?')) {
+                        window.location.href = 'payment.html';
+                    }
                 });
             } else {
                 // Tudo OK - pode analisar
                 analyzeBtn.disabled = false;
-                analyzeBtn.textContent = 'Analisar Currículo';
+                analyzeBtn.textContent = '🚀 Analisar Currículo';
                 analyzeBtn.style.opacity = '1';
                 analyzeBtn.style.cursor = 'pointer';
                 analyzeBtn.style.background = 'var(--primary-dark)';
