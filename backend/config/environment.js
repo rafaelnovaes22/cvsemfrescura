@@ -1,6 +1,6 @@
 // 🌍 Configuração Automática de Ambiente - CV Sem Frescura
 require('dotenv').config();
-const { maskKey } = require('../utils/encryption');
+const { maskKey, decrypt } = require('../utils/encryption');
 
 const isProduction = process.env.NODE_ENV === 'production';
 const isRailway = !!process.env.RAILWAY_ENVIRONMENT;
@@ -12,12 +12,38 @@ console.log('🚂 RAILWAY_ENVIRONMENT:', process.env.RAILWAY_ENVIRONMENT);
 console.log('🏠 Local:', isLocal);
 console.log('🚀 Produção:', isProduction);
 
+// 🔐 Função para descriptografar chaves se necessário
+const decryptIfNeeded = (value) => {
+    if (!value) return value;
+
+    // Se a chave parece estar criptografada (não começa com sk_, pk_, etc. e é longa)
+    if (!value.match(/^(sk_|pk_|whsec_|rk_)/) && value.length > 50) {
+        const decrypted = decrypt(value);
+        if (decrypted) {
+            console.log('🔓 Chave descriptografada com sucesso');
+            return decrypted;
+        } else {
+            console.error('❌ Erro ao descriptografar chave');
+            return value; // Retorna original se falhar
+        }
+    }
+
+    return value; // Retorna original se não precisar descriptografar
+};
+
 // 🔑 Configuração de Chaves Stripe baseada no ambiente
 const getStripeConfig = () => {
     // Sempre usar variáveis de ambiente - NUNCA hardcode!
     let secretKey = process.env.STRIPE_SECRET_KEY;
     let publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    let webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    // 🔐 Descriptografar chaves se necessário (apenas em produção)
+    if (isProduction && process.env.ENCRYPTION_KEY) {
+        secretKey = decryptIfNeeded(secretKey);
+        publishableKey = decryptIfNeeded(publishableKey);
+        webhookSecret = decryptIfNeeded(webhookSecret);
+    }
 
     // 🧹 LIMPEZA FORÇADA DAS VARIÁVEIS (correção para problemas de encoding)
     if (secretKey) {
@@ -110,10 +136,17 @@ const getCorsConfig = () => {
 
 // 📡 Configuração da API
 const getApiConfig = () => {
+    let jwtSecret = process.env.JWT_SECRET || 'cv_sem_frescura_jwt_local_development_CHANGE_IN_PRODUCTION';
+
+    // 🔐 Descriptografar JWT_SECRET se necessário
+    if (isProduction && process.env.ENCRYPTION_KEY) {
+        jwtSecret = decryptIfNeeded(jwtSecret);
+    }
+
     return {
         port: process.env.PORT || 3000,
         nodeEnv: process.env.NODE_ENV || 'development',
-        jwtSecret: process.env.JWT_SECRET || 'cv_sem_frescura_jwt_local_development_CHANGE_IN_PRODUCTION',
+        jwtSecret: jwtSecret,
         jwtExpiry: process.env.JWT_EXPIRY || '7d'
     };
 };
