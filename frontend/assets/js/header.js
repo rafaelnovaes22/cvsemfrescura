@@ -8,6 +8,7 @@ class HeaderManager {
         this.isLoggedIn = false;
         this.userInfo = null;
         this.configRetryCount = 0;
+        this.lastUserState = null;
         this.init();
     }
 
@@ -493,9 +494,18 @@ class HeaderManager {
         const userName = document.getElementById('userName');
         const userCredits = document.getElementById('userCredits');
 
-        console.log('🔄 Atualizando interface do usuário:', {
+        // Verificar se houve mudança real no estado do usuário
+        const currentUserState = user ? `${user.email}-${user.credits}` : 'guest';
+        if (this.lastUserState === currentUserState) {
+            // Estado não mudou, não precisa atualizar
+            return;
+        }
+        this.lastUserState = currentUserState;
+
+        console.log('🔄 Atualizando interface do usuário (mudança detectada):', {
             isLoggedIn: !!user,
             userName: user?.name,
+            credits: user?.credits,
             guestActionsFound: !!guestActions,
             userMenuWrapperFound: !!userMenuWrapper
         });
@@ -509,13 +519,14 @@ class HeaderManager {
             }
             if (userName) userName.textContent = user.name.split(' ')[0];
 
-            // Exibir créditos do localStorage primeiro (resposta rápida)
+            // Exibir créditos do localStorage (resposta rápida)
             if (userCredits && user.credits !== undefined) {
-                userCredits.textContent = `${user.credits} análises`;
+                const creditsText = `${user.credits} análise${user.credits !== 1 ? 's' : ''}`;
+                userCredits.textContent = creditsText;
             }
 
-            // Buscar créditos atualizados apenas se necessário
-            this.fetchUserCredits();
+            // Buscar créditos atualizados apenas se necessário (throttling já implementado)
+            // Não chamar automaticamente - será chamado apenas quando houver ações específicas
         } else {
             // Usuário não logado
             if (guestActions) {
@@ -702,7 +713,7 @@ window.addEventListener('storage', (e) => {
     }
 });
 
-// Verificar mudanças de autenticação apenas quando necessário (não em loop)
+// Função para verificar mudanças de autenticação (agora apenas sob demanda)
 let lastAuthState = null;
 function checkAuthChange() {
     if (!window.headerManager || !window.headerManager.isLoaded) return;
@@ -714,20 +725,38 @@ function checkAuthChange() {
     if (lastAuthState !== currentAuthState) {
         lastAuthState = currentAuthState;
         window.headerManager.updateUserInterface();
+        console.log('🔄 Estado de autenticação mudou, atualizando header');
     }
 }
 
-// Verificar mudanças apenas quando há foco na página (reduz requisições)
+// Verificar mudanças apenas quando a página volta do background (uma vez por sessão de foco)
+let hasCheckedOnVisibility = false;
 document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
-        setTimeout(checkAuthChange, 500);
+    if (!document.hidden && !hasCheckedOnVisibility) {
+        hasCheckedOnVisibility = true;
+        setTimeout(() => {
+            checkAuthChange();
+            // Reset do flag após 30 segundos para permitir nova verificação se necessário
+            setTimeout(() => { hasCheckedOnVisibility = false; }, 30000);
+        }, 500);
     }
 });
 
-// Verificar apenas quando há interação do usuário
-document.addEventListener('click', () => {
-    setTimeout(checkAuthChange, 100);
-});
+// Função global para atualizar créditos quando houver ações específicas
+window.updateHeaderCredits = function () {
+    if (window.headerManager) {
+        console.log('📊 Atualizando créditos por ação do usuário');
+        window.headerManager.refreshCredits();
+    }
+};
+
+// Função global para refresh completo do header (usar apenas quando necessário)
+window.refreshHeader = function () {
+    if (window.headerManager) {
+        console.log('🔄 Refresh completo do header por ação do usuário');
+        window.headerManager.forceRefresh();
+    }
+};
 
 // Expor globalmente para outras páginas
 window.HeaderManager = HeaderManager; 

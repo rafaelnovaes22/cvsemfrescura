@@ -1272,8 +1272,8 @@
 
             console.log('🔄 Forçando refresh do header...');
             // Forçar atualização do header após login bem-sucedido
-            if (window.headerManager) {
-                window.headerManager.forceRefresh();
+            if (window.refreshHeader) {
+                window.refreshHeader();
             }
 
             console.log('🔄 Chamando updateAnalyzeButton IMEDIATAMENTE após authSuccess...');
@@ -1299,6 +1299,32 @@
                 document.getElementById('registerEmail').value = loginEmail;
             }
         }
+
+        // Função global para atualizar créditos após ações que consomem créditos
+        window.onAnalysisComplete = function () {
+            // Atualizar créditos no header após análise
+            if (window.updateHeaderCredits) {
+                console.log('📊 Atualizando créditos após análise completada');
+                window.updateHeaderCredits();
+            }
+            // Atualizar botão de análise
+            if (window.updateAnalyzeButton) {
+                setTimeout(window.updateAnalyzeButton, 500);
+            }
+        };
+
+        // Função global para atualizar após pagamento
+        window.onPaymentComplete = function () {
+            // Atualizar créditos no header após compra
+            if (window.updateHeaderCredits) {
+                console.log('💳 Atualizando créditos após pagamento');
+                window.updateHeaderCredits();
+            }
+            // Atualizar botão de análise
+            if (window.updateAnalyzeButton) {
+                setTimeout(window.updateAnalyzeButton, 500);
+            }
+        };
     </script>
 </head>
 
@@ -1445,219 +1471,6 @@
             <p id="authError" style="color:#b22; font-size:14px; text-align:center; margin-top:10px; display:none;"></p>
         </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('registerForm');
-            const showRegisterLink = document.getElementById('showRegister');
-            const showLoginLink = document.getElementById('showLogin');
-            const authError = document.getElementById('authError');
-
-            // Event listener para o botão de fechar do modal de login
-            document.getElementById('closeAuthModal').addEventListener('click', function () {
-                // Redirecionar para a landing ao fechar
-                window.location.href = 'landing.html';
-            });
-
-            // Event listener para fechar modal clicando no fundo
-            document.getElementById('authModal').addEventListener('click', function (e) {
-                if (e.target === this) {
-                    // Redirecionar para a landing ao fechar
-                    window.location.href = 'landing.html';
-                }
-            });
-
-            // Event listener global para tecla ESC fechar modais
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') {
-                    // Fechar modal de login se estiver aberto
-                    const authModal = document.getElementById('authModal');
-                    if (authModal && authModal.style.display === 'flex') {
-                        window.location.href = 'landing.html';
-                        return;
-                    }
-
-                    // Fechar modal de erro do código de presente se estiver aberto
-                    const errorModal = document.getElementById('giftCodeErrorModal');
-                    if (errorModal) {
-                        window.location.href = 'landing.html';
-                        return;
-                    }
-
-                    // Fechar modal de boas-vindas do código de presente se estiver aberto
-                    const welcomeModal = document.getElementById('giftCodeWelcomeModal');
-                    if (welcomeModal) {
-                        window.location.href = 'landing.html';
-                        return;
-                    }
-                }
-            });
-
-            // Função para alternar para o formulário de cadastro
-            window.switchToRegister = function () {
-                loginForm.style.display = 'none';
-                registerForm.style.display = 'block';
-                document.getElementById('authModalTitle').textContent = 'Cadastrar';
-                authError.style.display = 'none';
-                // Preencher o email se foi digitado no formulário de login
-                const loginEmail = document.getElementById('loginEmail').value;
-                if (loginEmail) {
-                    document.getElementById('registerEmail').value = loginEmail;
-                }
-            };
-
-            showRegisterLink.addEventListener('click', function (e) {
-                e.preventDefault();
-                loginForm.style.display = 'none';
-                registerForm.style.display = 'block';
-                document.getElementById('authModalTitle').textContent = 'Cadastrar';
-                authError.style.display = 'none';
-            });
-
-            showLoginLink.addEventListener('click', function (e) {
-                e.preventDefault();
-                registerForm.style.display = 'none';
-                loginForm.style.display = 'block';
-                document.getElementById('authModalTitle').textContent = 'Entrar';
-                authError.style.display = 'none';
-            });
-
-            loginForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
-                auth.loginUser(email, password)
-                    .then(function () {
-                        // Verificar se realmente há um código pendente válido da URL atual
-                        const urlParams = new URLSearchParams(window.location.search);
-                        const giftCodeFromUrl = urlParams.get('giftCode');
-                        const pendingCode = localStorage.getItem('giftCode') || localStorage.getItem('pendingGiftCode');
-
-                        // Só aplicar código se:
-                        // 1. Há um código na URL atual OU
-                        // 2. Há um código pendente e o usuário veio de uma página com código
-                        if (giftCodeFromUrl && giftCodeFromUrl.trim() !== '') {
-                            // Aplicar código que veio da URL
-                            applyGiftCodeAfterAuth(giftCodeFromUrl);
-                        } else if (pendingCode && pendingCode.trim() !== '' && document.referrer.includes('giftCode=')) {
-                            // Só aplicar código pendente se o usuário veio de uma página com código
-                            applyGiftCodeAfterAuth(pendingCode);
-                        } else {
-                            // Limpar códigos antigos se não há código válido
-                            localStorage.removeItem('giftCode');
-                            localStorage.removeItem('pendingGiftCode');
-                        }
-                        window.authSuccess();
-                    })
-                    .catch(function (error) {
-                        // Verificar se é erro de usuário não encontrado/precisa se cadastrar
-                        if (error.message && error.message.includes('ainda não está cadastrado')) {
-                            // Mostrar mensagem específica e alternar para tela de cadastro
-                            authError.innerHTML = `
-                                <div style="margin-bottom: 15px;">
-                                    <strong>Este email ainda não está cadastrado!</strong><br>
-                                    <span style="font-size: 14px;">Clique no botão abaixo para criar sua conta primeiro.</span>
-                                </div>
-                                <button onclick="switchToRegister()" style="background: #2a7a2a; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
-                                    ✨ Criar Minha Conta Agora
-                                </button>
-                            `;
-                            authError.style.display = 'block';
-                            authError.style.color = '#2a7a2a';
-                            authError.style.background = '#f0f9f0';
-                            authError.style.padding = '15px';
-                            authError.style.borderRadius = '8px';
-                            authError.style.border = '1px solid #2a7a2a';
-                        } else {
-                            // Outros tipos de erro (senha incorreta, etc.)
-                            authError.textContent = error.message || 'Erro ao fazer login';
-                            authError.style.display = 'block';
-                            authError.style.color = '#b22';
-                            authError.style.background = 'transparent';
-                            authError.style.padding = '0';
-                            authError.style.borderRadius = '0';
-                            authError.style.border = 'none';
-                        }
-                    });
-            });
-
-            registerForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-                const name = document.getElementById('registerName').value;
-                const email = document.getElementById('registerEmail').value;
-                const password = document.getElementById('registerPassword').value;
-                auth.registerUser(name, email, password)
-                    .then(function () {
-                        // Após cadastro bem-sucedido, fazer login automaticamente
-                        return auth.loginUser(email, password);
-                    })
-                    .then(function () {
-                        // Verificar se realmente há um código pendente válido da URL atual
-                        const urlParams = new URLSearchParams(window.location.search);
-                        const giftCodeFromUrl = urlParams.get('giftCode');
-                        const pendingCode = localStorage.getItem('giftCode') || localStorage.getItem('pendingGiftCode');
-
-                        // Só aplicar código se:
-                        // 1. Há um código na URL atual OU
-                        // 2. Há um código pendente e o usuário veio de uma página com código
-                        if (giftCodeFromUrl && giftCodeFromUrl.trim() !== '') {
-                            // Aplicar código que veio da URL
-                            applyGiftCodeAfterAuth(giftCodeFromUrl);
-                        } else if (pendingCode && pendingCode.trim() !== '' && document.referrer.includes('giftCode=')) {
-                            // Só aplicar código pendente se o usuário veio de uma página com código
-                            applyGiftCodeAfterAuth(pendingCode);
-                        } else {
-                            // Limpar códigos antigos se não há código válido
-                            localStorage.removeItem('giftCode');
-                            localStorage.removeItem('pendingGiftCode');
-                        }
-                        window.authSuccess();
-                    })
-                    .catch(function (error) {
-                        // Se falhou no cadastro, mostrar erro de cadastro
-                        // Se falhou no login automático, mostrar formulário de login
-                        if (error.message && error.message.includes('já existe')) {
-                            authError.textContent = error.message;
-                            authError.style.color = '#b22';
-                            authError.style.display = 'block';
-                        } else {
-                            registerForm.reset();
-                            loginForm.style.display = 'block';
-                            registerForm.style.display = 'none';
-                            document.getElementById('authModalTitle').textContent = 'Entrar';
-                            authError.textContent = 'Cadastro realizado! Faça login para continuar.';
-                            authError.style.color = '#2a7a2a';
-                            authError.style.display = 'block';
-                        }
-                    });
-            });
-
-            // Verificar se há código de presente na URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const giftCodeFromUrl = urlParams.get('giftCode');
-
-            if (giftCodeFromUrl && giftCodeFromUrl.trim() !== '') {
-                // Se há código na URL, validar primeiro ANTES de pedir login
-                console.log('🎁 Código detectado na URL:', giftCodeFromUrl);
-                validateGiftCodeBeforeAuth(giftCodeFromUrl.trim());
-                return; // Não mostrar modal de login ainda
-            }
-
-            // Exibe o modal e bloqueia tudo se não autenticado E não há código
-            if (!auth.getToken()) {
-                document.getElementById('authModal').style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-                const mainContent = document.querySelector('.main-content');
-                if (mainContent) mainContent.style.display = 'none';
-                const footer = document.querySelector('footer');
-                if (footer) footer.style.display = 'none';
-                const logoContainer = document.querySelector('.logo-container');
-                if (logoContainer) logoContainer.style.opacity = 0.3;
-            } else {
-                window.authSuccess();
-            }
-        });
-    </script>
 
     <!-- Header será carregado dinamicamente pelo header.js -->
 
@@ -2033,8 +1846,8 @@
 
             // Atualizar créditos na interface do header se necessário
             const user = auth.getUser();
-            if (user && window.headerManager) {
-                window.headerManager.refreshUserInterface();
+            if (user && window.updateHeaderCredits) {
+                window.updateHeaderCredits();
             }
 
             // Adicionar listeners para todos os inputs de vagas
@@ -2054,6 +1867,219 @@
             // Atualizar estado inicial do botão
             if (window.updateAnalyzeButton) {
                 window.updateAnalyzeButton();
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const showRegisterLink = document.getElementById('showRegister');
+            const showLoginLink = document.getElementById('showLogin');
+            const authError = document.getElementById('authError');
+
+            // Event listener para o botão de fechar do modal de login
+            document.getElementById('closeAuthModal').addEventListener('click', function () {
+                // Redirecionar para a landing ao fechar
+                window.location.href = 'landing.html';
+            });
+
+            // Event listener para fechar modal clicando no fundo
+            document.getElementById('authModal').addEventListener('click', function (e) {
+                if (e.target === this) {
+                    // Redirecionar para a landing ao fechar
+                    window.location.href = 'landing.html';
+                }
+            });
+
+            // Event listener global para tecla ESC fechar modais
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    // Fechar modal de login se estiver aberto
+                    const authModal = document.getElementById('authModal');
+                    if (authModal && authModal.style.display === 'flex') {
+                        window.location.href = 'landing.html';
+                        return;
+                    }
+
+                    // Fechar modal de erro do código de presente se estiver aberto
+                    const errorModal = document.getElementById('giftCodeErrorModal');
+                    if (errorModal) {
+                        window.location.href = 'landing.html';
+                        return;
+                    }
+
+                    // Fechar modal de boas-vindas do código de presente se estiver aberto
+                    const welcomeModal = document.getElementById('giftCodeWelcomeModal');
+                    if (welcomeModal) {
+                        window.location.href = 'landing.html';
+                        return;
+                    }
+                }
+            });
+
+            // Função para alternar para o formulário de cadastro
+            window.switchToRegister = function () {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                document.getElementById('authModalTitle').textContent = 'Cadastrar';
+                authError.style.display = 'none';
+                // Preencher o email se foi digitado no formulário de login
+                const loginEmail = document.getElementById('loginEmail').value;
+                if (loginEmail) {
+                    document.getElementById('registerEmail').value = loginEmail;
+                }
+            };
+
+            showRegisterLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                document.getElementById('authModalTitle').textContent = 'Cadastrar';
+                authError.style.display = 'none';
+            });
+
+            showLoginLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                registerForm.style.display = 'none';
+                loginForm.style.display = 'block';
+                document.getElementById('authModalTitle').textContent = 'Entrar';
+                authError.style.display = 'none';
+            });
+
+            loginForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                auth.loginUser(email, password)
+                    .then(function () {
+                        // Verificar se realmente há um código pendente válido da URL atual
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const giftCodeFromUrl = urlParams.get('giftCode');
+                        const pendingCode = localStorage.getItem('giftCode') || localStorage.getItem('pendingGiftCode');
+
+                        // Só aplicar código se:
+                        // 1. Há um código na URL atual OU
+                        // 2. Há um código pendente e o usuário veio de uma página com código
+                        if (giftCodeFromUrl && giftCodeFromUrl.trim() !== '') {
+                            // Aplicar código que veio da URL
+                            applyGiftCodeAfterAuth(giftCodeFromUrl);
+                        } else if (pendingCode && pendingCode.trim() !== '' && document.referrer.includes('giftCode=')) {
+                            // Só aplicar código pendente se o usuário veio de uma página com código
+                            applyGiftCodeAfterAuth(pendingCode);
+                        } else {
+                            // Limpar códigos antigos se não há código válido
+                            localStorage.removeItem('giftCode');
+                            localStorage.removeItem('pendingGiftCode');
+                        }
+                        window.authSuccess();
+                    })
+                    .catch(function (error) {
+                        // Verificar se é erro de usuário não encontrado/precisa se cadastrar
+                        if (error.message && error.message.includes('ainda não está cadastrado')) {
+                            // Mostrar mensagem específica e alternar para tela de cadastro
+                            authError.innerHTML = `
+                                <div style="margin-bottom: 15px;">
+                                    <strong>Este email ainda não está cadastrado!</strong><br>
+                                    <span style="font-size: 14px;">Clique no botão abaixo para criar sua conta primeiro.</span>
+                                </div>
+                                <button onclick="switchToRegister()" style="background: #2a7a2a; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                                    ✨ Criar Minha Conta Agora
+                                </button>
+                            `;
+                            authError.style.display = 'block';
+                            authError.style.color = '#2a7a2a';
+                            authError.style.background = '#f0f9f0';
+                            authError.style.padding = '15px';
+                            authError.style.borderRadius = '8px';
+                            authError.style.border = '1px solid #2a7a2a';
+                        } else {
+                            // Outros tipos de erro (senha incorreta, etc.)
+                            authError.textContent = error.message || 'Erro ao fazer login';
+                            authError.style.display = 'block';
+                            authError.style.color = '#b22';
+                            authError.style.background = 'transparent';
+                            authError.style.padding = '0';
+                            authError.style.borderRadius = '0';
+                            authError.style.border = 'none';
+                        }
+                    });
+            });
+
+            registerForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const name = document.getElementById('registerName').value;
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                auth.registerUser(name, email, password)
+                    .then(function () {
+                        // Após cadastro bem-sucedido, fazer login automaticamente
+                        return auth.loginUser(email, password);
+                    })
+                    .then(function () {
+                        // Verificar se realmente há um código pendente válido da URL atual
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const giftCodeFromUrl = urlParams.get('giftCode');
+                        const pendingCode = localStorage.getItem('giftCode') || localStorage.getItem('pendingGiftCode');
+
+                        // Só aplicar código se:
+                        // 1. Há um código na URL atual OU
+                        // 2. Há um código pendente e o usuário veio de uma página com código
+                        if (giftCodeFromUrl && giftCodeFromUrl.trim() !== '') {
+                            // Aplicar código que veio da URL
+                            applyGiftCodeAfterAuth(giftCodeFromUrl);
+                        } else if (pendingCode && pendingCode.trim() !== '' && document.referrer.includes('giftCode=')) {
+                            // Só aplicar código pendente se o usuário veio de uma página com código
+                            applyGiftCodeAfterAuth(pendingCode);
+                        } else {
+                            // Limpar códigos antigos se não há código válido
+                            localStorage.removeItem('giftCode');
+                            localStorage.removeItem('pendingGiftCode');
+                        }
+                        window.authSuccess();
+                    })
+                    .catch(function (error) {
+                        // Se falhou no cadastro, mostrar erro de cadastro
+                        // Se falhou no login automático, mostrar formulário de login
+                        if (error.message && error.message.includes('já existe')) {
+                            authError.textContent = error.message;
+                            authError.style.color = '#b22';
+                            authError.style.display = 'block';
+                        } else {
+                            registerForm.reset();
+                            loginForm.style.display = 'block';
+                            registerForm.style.display = 'none';
+                            document.getElementById('authModalTitle').textContent = 'Entrar';
+                            authError.textContent = 'Cadastro realizado! Faça login para continuar.';
+                            authError.style.color = '#2a7a2a';
+                            authError.style.display = 'block';
+                        }
+                    });
+            });
+
+            // Verificar se há código de presente na URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const giftCodeFromUrl = urlParams.get('giftCode');
+
+            if (giftCodeFromUrl && giftCodeFromUrl.trim() !== '') {
+                // Se há código na URL, validar primeiro ANTES de pedir login
+                console.log('🎁 Código detectado na URL:', giftCodeFromUrl);
+                validateGiftCodeBeforeAuth(giftCodeFromUrl.trim());
+                return; // Não mostrar modal de login ainda
+            }
+
+            // Exibe o modal e bloqueia tudo se não autenticado E não há código
+            if (!auth.getToken()) {
+                document.getElementById('authModal').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                const mainContent = document.querySelector('.main-content');
+                if (mainContent) mainContent.style.display = 'none';
+                const footer = document.querySelector('footer');
+                if (footer) footer.style.display = 'none';
+                const logoContainer = document.querySelector('.logo-container');
+                if (logoContainer) logoContainer.style.opacity = 0.3;
+            } else {
+                window.authSuccess();
             }
         });
     </script>
