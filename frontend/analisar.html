@@ -635,16 +635,23 @@
         // Função para mostrar modal de boas-vindas com código válido
         function showGiftCodeWelcomeModal(code, credits) {
             const modalHTML = `
-                <div id="giftCodeWelcomeModal" style="
+                <div id="giftCodeWelcomeModal" onclick="if(event.target === this) window.location.href='landing.html'" style="
                     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
                     background: rgba(0,0,0,0.7); display: flex; align-items: center; 
-                    justify-content: center; z-index: 10000;
+                    justify-content: center; z-index: 10000; cursor: pointer;
                 ">
                     <div style="
                         background: white; border-radius: 20px; max-width: 550px; width: 90%;
                         box-shadow: 0 25px 50px rgba(0,0,0,0.4); animation: modalSlideIn 0.4s ease;
-                        overflow: hidden;
+                        overflow: hidden; position: relative; cursor: default;
                     ">
+                        <button onclick="closeGiftCodeWelcomeModal()" style="
+                            position: absolute; top: 16px; right: 20px; background: rgba(255,255,255,0.2); 
+                            border: none; font-size: 24px; color: white; cursor: pointer; 
+                            width: 36px; height: 36px; display: flex; align-items: center; 
+                            justify-content: center; border-radius: 50%; transition: all 0.2s; z-index: 1;
+                        " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
+                           onmouseout="this.style.background='rgba(255,255,255,0.2)'">×</button>
                         <!-- Header com gradiente -->
                         <div style="
                             background: linear-gradient(135deg, #583819, #8B4513);
@@ -791,6 +798,8 @@
         window.closeGiftCodeWelcomeModal = function () {
             const modal = document.getElementById('giftCodeWelcomeModal');
             if (modal) modal.remove();
+            // Redirecionar para a landing
+            window.location.href = 'landing.html';
         };
 
         // Função para aplicar código de presente após autenticação
@@ -1022,15 +1031,23 @@
 
             // Criar e mostrar modal
             const modalHTML = `
-                <div id="giftCodeErrorModal" style="
+                <div id="giftCodeErrorModal" onclick="if(event.target === this) window.location.href='landing.html'" style="
                     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
                     background: rgba(0,0,0,0.6); display: flex; align-items: center; 
-                    justify-content: center; z-index: 10000;
+                    justify-content: center; z-index: 10000; cursor: pointer;
                 ">
                     <div style="
                         background: white; border-radius: 16px; max-width: 500px; width: 90%;
                         box-shadow: 0 20px 40px rgba(0,0,0,0.3); animation: modalSlideIn 0.3s ease;
+                        position: relative; cursor: default;
                     ">
+                        <button onclick="closeGiftCodeModal()" style="
+                            position: absolute; top: 12px; right: 16px; background: none; 
+                            border: none; font-size: 24px; color: #999; cursor: pointer; 
+                            width: 32px; height: 32px; display: flex; align-items: center; 
+                            justify-content: center; border-radius: 50%; transition: all 0.2s;
+                        " onmouseover="this.style.background='#f5f5f5'; this.style.color='#666';" 
+                           onmouseout="this.style.background='none'; this.style.color='#999';">×</button>
                         ${message}
                         ${actions}
                     </div>
@@ -1050,6 +1067,8 @@
         window.closeGiftCodeModal = function () {
             const modal = document.getElementById('giftCodeErrorModal');
             if (modal) modal.remove();
+            // Redirecionar para a landing
+            window.location.href = 'landing.html';
         };
 
         // Função global para liberar a página após login
@@ -1202,7 +1221,7 @@
             <img src="assets/img/logo.png" alt="Logo CV Sem Frescura"
                 style="width:110px; margin-bottom:18px; display:block;">
             <button id="closeAuthModal"
-                style="position:absolute; right:18px; top:14px; background:none; border:none; font-size:22px; color:#583819; cursor:pointer; display:none;">×</button>
+                style="position:absolute; right:18px; top:14px; background:none; border:none; font-size:22px; color:#583819; cursor:pointer;">×</button>
             <h2 id="authModalTitle"
                 style="font-family:'IBM Plex Sans',sans-serif; color:#583819; font-size:1.4em; font-weight:700; margin-bottom:18px;">
                 Entrar</h2>
@@ -1241,6 +1260,46 @@
             const showRegisterLink = document.getElementById('showRegister');
             const showLoginLink = document.getElementById('showLogin');
             const authError = document.getElementById('authError');
+
+            // Event listener para o botão de fechar do modal de login
+            document.getElementById('closeAuthModal').addEventListener('click', function () {
+                // Redirecionar para a landing ao fechar
+                window.location.href = 'landing.html';
+            });
+
+            // Event listener para fechar modal clicando no fundo
+            document.getElementById('authModal').addEventListener('click', function (e) {
+                if (e.target === this) {
+                    // Redirecionar para a landing ao fechar
+                    window.location.href = 'landing.html';
+                }
+            });
+
+            // Event listener global para tecla ESC fechar modais
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    // Fechar modal de login se estiver aberto
+                    const authModal = document.getElementById('authModal');
+                    if (authModal && authModal.style.display === 'flex') {
+                        window.location.href = 'landing.html';
+                        return;
+                    }
+
+                    // Fechar modal de erro do código de presente se estiver aberto
+                    const errorModal = document.getElementById('giftCodeErrorModal');
+                    if (errorModal) {
+                        window.location.href = 'landing.html';
+                        return;
+                    }
+
+                    // Fechar modal de boas-vindas do código de presente se estiver aberto
+                    const welcomeModal = document.getElementById('giftCodeWelcomeModal');
+                    if (welcomeModal) {
+                        window.location.href = 'landing.html';
+                        return;
+                    }
+                }
+            });
 
             // Função para alternar para o formulário de cadastro
             window.switchToRegister = function () {
