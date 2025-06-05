@@ -37,23 +37,20 @@ const transactionHistory = (() => {
       historyContainer.innerHTML = '<p class="loading">Carregando histórico de transações...</p>';
 
       const apiBaseUrl = (() => {
-        // Primeira verificação: CONFIG definido e válido
+        // Usar CONFIG se disponível (mais confiável)
         if (window.CONFIG && window.CONFIG.api && typeof window.CONFIG.api.baseUrl === 'string') {
+          console.log('🔧 Usando CONFIG.api.baseUrl:', window.CONFIG.api.baseUrl || 'URL relativa');
           return window.CONFIG.api.baseUrl;
         }
 
-        // Segunda verificação: ambiente baseado no hostname atual
+        // Fallback apenas se CONFIG não estiver disponível
         const hostname = window.location.hostname;
-        console.log('🌐 Detectando ambiente em history.js:', { hostname, protocol: window.location.protocol });
+        console.log('⚠️ CONFIG não disponível, usando fallback para hostname:', hostname);
 
-        // SOMENTE localhost e 127.0.0.1 usam URL completa
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
-          console.log('🏠 Ambiente LOCAL detectado - usando http://localhost:3000');
           return 'http://localhost:3000';
         }
 
-        // QUALQUER outro hostname (produção) usa URL relativa
-        console.log('🚀 Ambiente PRODUÇÃO detectado - usando URL relativa');
         return '';
       })();
       const response = await fetch(`${apiBaseUrl}/api/payment/history`, {
@@ -157,23 +154,20 @@ const transactionHistory = (() => {
       analysisContainer.innerHTML = '<p class="loading">Carregando histórico de análises...</p>';
 
       const apiBaseUrl = (() => {
-        // Primeira verificação: CONFIG definido e válido
+        // Usar CONFIG se disponível (mais confiável)
         if (window.CONFIG && window.CONFIG.api && typeof window.CONFIG.api.baseUrl === 'string') {
+          console.log('🔧 Usando CONFIG.api.baseUrl:', window.CONFIG.api.baseUrl || 'URL relativa');
           return window.CONFIG.api.baseUrl;
         }
 
-        // Segunda verificação: ambiente baseado no hostname atual
+        // Fallback apenas se CONFIG não estiver disponível
         const hostname = window.location.hostname;
-        console.log('🌐 Detectando ambiente em history.js (análises):', { hostname, protocol: window.location.protocol });
+        console.log('⚠️ CONFIG não disponível, usando fallback para hostname:', hostname);
 
-        // SOMENTE localhost e 127.0.0.1 usam URL completa
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
-          console.log('🏠 Ambiente LOCAL detectado - usando http://localhost:3000');
           return 'http://localhost:3000';
         }
 
-        // QUALQUER outro hostname (produção) usa URL relativa
-        console.log('🚀 Ambiente PRODUÇÃO detectado - usando URL relativa');
         return '';
       })();
       const response = await fetch(`${apiBaseUrl}/api/ats/history`, {

@@ -568,6 +568,163 @@
             font-size: 0.95rem;
         }
 
+        /* Idealizadores Section */
+        .idealizadores {
+            padding: var(--space-20) 0;
+            background: white;
+        }
+
+        .idealizadores-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: var(--space-10);
+            margin-top: var(--space-16);
+        }
+
+        .idealizador-card {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--gray-200);
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .idealizador-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .idealizador-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-600), var(--accent-600));
+        }
+
+        .idealizador-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+
+        .idealizador-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-600));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .idealizador-info h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: var(--space-1);
+        }
+
+        .idealizador-info .role {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary-600);
+            margin-bottom: var(--space-2);
+        }
+
+        .idealizador-description {
+            color: var(--gray-600);
+            line-height: 1.7;
+            font-size: 0.95rem;
+            margin-bottom: var(--space-6);
+        }
+
+        .idealizador-description p {
+            margin-bottom: var(--space-4);
+        }
+
+        .idealizador-social {
+            border-top: 1px solid var(--gray-200);
+            padding-top: var(--space-4);
+        }
+
+        .idealizador-social h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: var(--space-3);
+        }
+
+        .social-links-idealizador {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-3);
+        }
+
+        .social-link-idealizador {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2) var(--space-3);
+            background: var(--gray-50);
+            color: var(--gray-700);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+            border: 1px solid var(--gray-200);
+        }
+
+        .social-link-idealizador:hover {
+            background: var(--primary-50);
+            color: var(--primary-700);
+            border-color: var(--primary-300);
+            transform: translateY(-1px);
+        }
+
+        .social-icon {
+            font-size: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .idealizadores-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-8);
+            }
+
+            .idealizador-card {
+                padding: var(--space-6);
+            }
+
+            .idealizador-header {
+                flex-direction: column;
+                text-align: center;
+                gap: var(--space-3);
+            }
+
+            .idealizador-avatar {
+                width: 70px;
+                height: 70px;
+                font-size: 1.75rem;
+            }
+
+            .idealizador-info h3 {
+                font-size: 1.25rem;
+            }
+        }
+
         /* CTA Section */
         .cta {
             padding: var(--space-20) 0;
@@ -1271,6 +1428,102 @@
                         Obtenha feedback detalhado, score de compatibilidade e sugestões específicas para maximizar suas
                         chances.
                     </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Idealizadores Section -->
+    <section class="idealizadores" id="idealizadores">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">Idealizadores</h2>
+                <p class="section-description">
+                    Conheça as mentes por trás desta inovação que está transformando o mercado de RH.
+                </p>
+            </div>
+
+            <div class="idealizadores-grid">
+                <div class="idealizador-card fade-in">
+                    <div class="idealizador-header">
+                        <div class="idealizador-avatar">L</div>
+                        <div class="idealizador-info">
+                            <h3>Luciana Ditter de Azevedo</h3>
+                            <p class="role">RH Super Sincero</p>
+                        </div>
+                    </div>
+                    <div class="idealizador-description">
+                        <p>Atua há mais de 10 anos na área de Recursos Humanos, com foco em Recrutamento e Seleção.
+                            Possui passagens por grandes empresas como Souza Cruz, Midea Carrier, Exxon Mobil, Disys,
+                            Arezzo e SouCloud, desempenhando funções como Business Partner, Analista e Especialista de
+                            R&S.</p>
+
+                        <p>Graduada em Gestão de RH e Pós-Graduada em Inovação e Criatividade, hoje atua como consultora
+                            de RH e é uma das maiores influenciadoras digitais da área, conhecida pelo seu
+                            posicionamento direto e autêntico no perfil @lucianarhsincero.</p>
+
+                        <p>Sua visão prática e sua conexão genuína com os desafios do RH foram fundamentais para
+                            inspirar e validar este projeto, que nasce com o propósito de transformar processos de
+                            seleção e desenvolvimento humano.</p>
+                    </div>
+                    <div class="idealizador-social">
+                        <h4>Siga a Luciana:</h4>
+                        <div class="social-links-idealizador">
+                            <a href="https://www.instagram.com/lucianarhsincero/" class="social-link-idealizador"
+                                target="_blank">
+                                <span class="social-icon">📸</span>Instagram: @lucianarhsincero – 80 mil seguidores
+                            </a>
+                            <a href="https://www.linkedin.com/in/lucianarhsincero/" class="social-link-idealizador"
+                                target="_blank">
+                                <span class="social-icon">💼</span>LinkedIn: Luciana Ditter de Azevedo – 68 mil
+                                seguidores
+                            </a>
+                            <a href="https://www.tiktok.com/@lucianarhsincero" class="social-link-idealizador"
+                                target="_blank">
+                                <span class="social-icon">🎵</span>TikTok: @lucianarhsincero – 49 mil seguidores
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="idealizador-card fade-in">
+                    <div class="idealizador-header">
+                        <div class="idealizador-avatar">R</div>
+                        <div class="idealizador-info">
+                            <h3>Rafael de Novaes</h3>
+                            <p class="role">Especialista em Produtos Digitais e Inteligência Artificial</p>
+                        </div>
+                    </div>
+                    <div class="idealizador-description">
+                        <p>Product Owner com mais de 10 anos de experiência na criação, desenvolvimento e gestão de
+                            produtos digitais, atuando em empresas como Itaú, Deloitte e Smiles. É certificado em PSPO I
+                            e especialista em metodologias ágeis, Design Thinking e transformação digital.</p>
+
+                        <p>Possui formação em Informática para Gestão de Negócios (FATEC-ZL) e certificações em
+                            Inteligência Artificial aplicada a Product Management pela GoPractice. Sua atuação recente
+                            inclui desenvolver plataforma SaaS de otimização de currículos com IA, automatizando a
+                            análise de compatibilidade com sistemas ATS e vagas específicas, desde a concepção do
+                            produto até a estratégia de monetização, arquitetura cloud e desenvolvimento de soluções
+                            escaláveis.</p>
+
+                        <p>Rafael é apaixonado por resolver problemas complexos com tecnologia, sempre focando na
+                            criação de valor para pessoas e negócios. Sua visão estratégica e técnica foi essencial para
+                            transformar este projeto em uma plataforma de impacto real no mercado de RH e tecnologia.
+                        </p>
+                    </div>
+                    <div class="idealizador-social">
+                        <h4>Conecte-se com Rafael:</h4>
+                        <div class="social-links-idealizador">
+                            <a href="https://www.instagram.com/rafael_de_novaes/" class="social-link-idealizador"
+                                target="_blank">
+                                <span class="social-icon">📸</span>Instagram: @rafael_de_novaes
+                            </a>
+                            <a href="https://www.linkedin.com/in/rafaeldenovaes/" class="social-link-idealizador"
+                                target="_blank">
+                                <span class="social-icon">💼</span>LinkedIn: Rafael de Novaes
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

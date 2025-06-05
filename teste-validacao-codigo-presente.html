@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Validação de Código de Presente</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f9f9f9;
+        }
+
+        .test-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .test-form {
+            display: flex;
+            gap: 0;
+            max-width: 400px;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        .test-input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            font-size: 1rem;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .test-button {
+            background: #e8ad35;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .test-button:hover:not(:disabled) {
+            background: #d99b28;
+            transform: translateY(-1px);
+        }
+
+        .test-button:disabled {
+            cursor: not-allowed;
+        }
+
+        .test-input:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+
+        /* Loading overlay */
+        .test-loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(232, 173, 53, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+            backdrop-filter: blur(2px);
+        }
+
+        .test-loading.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .test-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin-smooth 1s linear infinite;
+        }
+
+        @keyframes spin-smooth {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .message {
+            margin-top: 1rem;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #dc2626;
+        }
+
+        .success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #16a34a;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .log-area {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 1rem;
+        }
+
+        .test-codes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .test-code-button {
+            padding: 8px 12px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .test-code-button:hover {
+            background: #e0e0e0;
+            transform: translateY(-1px);
+        }
+
+        .test-code-button.valid {
+            background: #dcfce7;
+            border-color: #16a34a;
+        }
+
+        .test-code-button.invalid {
+            background: #fef2f2;
+            border-color: #dc2626;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🎁 Teste - Validação de Código de Presente</h1>
+    <p>Teste da funcionalidade de validação de códigos de presente implementada na landing page.</p>
+
+    <div class="test-section">
+        <h3>📝 Formulário de Teste</h3>
+        <form id="testForm" class="test-form">
+            <input type="text" id="testInput" placeholder="Digite um código de presente" class="test-input">
+            <button type="submit" class="test-button">Validar</button>
+            <div class="test-loading" id="testLoading">
+                <div class="test-spinner"></div>
+            </div>
+        </form>
+        <div id="messages"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🧪 Códigos de Teste Rápido</h3>
+        <p>Clique nos códigos abaixo para testá-los rapidamente:</p>
+        <div class="test-codes">
+            <div class="test-code-button" onclick="testCode('ADMIN123')">ADMIN123</div>
+            <div class="test-code-button" onclick="testCode('PROMO2024')">PROMO2024</div>
+            <div class="test-code-button" onclick="testCode('WELCOME')">WELCOME</div>
+            <div class="test-code-button" onclick="testCode('STUDENT')">STUDENT</div>
+            <div class="test-code-button" onclick="testCode('INVALIDO123')">INVALIDO123</div>
+            <div class="test-code-button" onclick="testCode('')">Código Vazio</div>
+            <div class="test-code-button" onclick="testCode('AB')">AB (Muito Curto)</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>📊 Log de Testes</h3>
+        <div id="log" class="log-area">Iniciando testes de validação...\n</div>
+        <button onclick="clearLog()"
+            style="margin-top: 1rem; padding: 8px 16px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer;">Limpar
+            Log</button>
+    </div>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
+
+        // Função principal de validação
+        async function validateGiftCode(code) {
+            const submitButton = document.querySelector('#testForm button');
+            const input = document.getElementById('testInput');
+            const loadingOverlay = document.getElementById('testLoading');
+
+            log(`🔍 Iniciando validação do código: "${code}"`);
+
+            if (!code) {
+                showMessage('error', 'Por favor, insira um código válido.');
+                log('❌ Código vazio fornecido');
+                return;
+            }
+
+            if (code.length < 3) {
+                showMessage('error', 'O código deve ter pelo menos 3 caracteres.');
+                log('❌ Código muito curto (menos de 3 caracteres)');
+                return;
+            }
+
+            // Estado de carregamento elegante
+            loadingOverlay.classList.add('active');
+            submitButton.disabled = true;
+            input.disabled = true;
+            clearMessages();
+
+            try {
+                log(`📤 Enviando requisição para: ${API_BASE}/api/gift-code/validate`);
+
+                const response = await fetch(`${API_BASE}/api/gift-code/validate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ code: code })
+                });
+
+                log(`📥 Resposta recebida - Status: ${response.status}`);
+
+                const data = await response.json();
+                log(`📄 Dados da resposta: ${JSON.stringify(data, null, 2)}`);
+
+                if (response.ok && data.valid) {
+                    loadingOverlay.classList.remove('active');
+                    showMessage('success', `Código válido! Créditos: ${data.credits || 1}`);
+                    log(`✅ Código válido confirmado - Créditos: ${data.credits || 1}`);
+
+                    // Efeito visual de sucesso
+                    submitButton.style.background = '#16a34a';
+                    submitButton.style.transform = 'scale(1.05)';
+
+                    // Marcar o botão de teste como válido se existir
+                    markTestButton(code, 'valid');
+                } else {
+                    loadingOverlay.classList.remove('active');
+                    const errorMessage = data.error || 'Código de presente inválido.';
+                    showMessage('error', errorMessage);
+                    log(`❌ Código inválido - Erro: ${errorMessage}`);
+
+                    // Marcar o botão de teste como inválido se existir
+                    markTestButton(code, 'invalid');
+                }
+            } catch (error) {
+                log(`🚨 Erro de rede: ${error.message}`);
+                loadingOverlay.classList.remove('active');
+                showMessage('error', 'Erro ao validar o código. Verifique sua conexão.');
+                console.error('Erro ao validar código:', error);
+            } finally {
+                // Restaurar estado original
+                setTimeout(() => {
+                    submitButton.disabled = false;
+                    input.disabled = false;
+                    submitButton.style.background = '';
+                    submitButton.style.transform = '';
+                }, 1200);
+            }
+        }
+    </script>
+</body>
+
+</html>

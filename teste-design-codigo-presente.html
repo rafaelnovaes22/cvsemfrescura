@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 Teste Visual - Design do Código de Presente</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 2rem;
+            background: linear-gradient(135deg, #faf9f7 0%, #fefcf9 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .demo-section {
+            background: linear-gradient(135deg, #583819 0%, #4a2f15 100%);
+            padding: 3rem;
+            border-radius: 24px;
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .demo-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .demo-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .demo-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #faeacc;
+        }
+
+        .gift-code-form {
+            display: flex;
+            gap: 0;
+            max-width: 400px;
+            margin: 2rem auto;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .gift-code-input {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            font-size: 1rem;
+            background: white;
+            color: #27272a;
+            transition: all 0.2s;
+        }
+
+        .gift-code-input::placeholder {
+            color: #a1a1aa;
+        }
+
+        .gift-code-button {
+            background: #e8ad35;
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gift-code-button:hover:not(:disabled) {
+            background: #d99b28;
+            transform: translateY(-1px);
+        }
+
+        .gift-code-button:disabled {
+            cursor: not-allowed;
+        }
+
+        .gift-code-input:disabled {
+            background: #f4f4f5;
+            cursor: not-allowed;
+        }
+
+        /* Loading overlay */
+        .gift-code-loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(232, 173, 53, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+            backdrop-filter: blur(2px);
+        }
+
+        .gift-code-loading.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .gift-code-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin-smooth 1s linear infinite;
+        }
+
+        @keyframes spin-smooth {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .gift-code-note {
+            text-align: center;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .message {
+            margin-top: 1rem;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #dc2626;
+            backdrop-filter: blur(8px);
+        }
+
+        .success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #16a34a;
+            backdrop-filter: blur(8px);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .controls {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .controls h3 {
+            margin: 0 0 1rem 0;
+            color: #27272a;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .control-btn {
+            padding: 8px 16px;
+            border: 1px solid #d4d4d8;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+
+        .control-btn:hover {
+            background: #f4f4f5;
+            transform: translateY(-1px);
+        }
+
+        .control-btn.primary {
+            background: #583819;
+            color: white;
+            border-color: #583819;
+        }
+
+        .control-btn.primary:hover {
+            background: #4a2f15;
+        }
+
+        .status {
+            padding: 1rem;
+            background: #f9f9f9;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #374151;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 style="text-align: center; color: #27272a; margin-bottom: 2rem;">🎨 Teste Visual - Design do Código de
+            Presente</h1>
+
+        <div class="controls">
+            <h3>🎮 Controles de Teste</h3>
+            <div class="button-group">
+                <button class="control-btn primary" onclick="testValidCode()">✅ Simular Código Válido</button>
+                <button class="control-btn" onclick="testInvalidCode()">❌ Simular Código Inválido</button>
+                <button class="control-btn" onclick="testLoading()">⏳ Testar Loading</button>
+                <button class="control-btn" onclick="testSuccess()">🎉 Testar Sucesso</button>
+                <button class="control-btn" onclick="resetForm()">🔄 Reset</button>
+            </div>
+            <div class="status" id="status">Ready para teste...</div>
+        </div>
+
+        <div class="demo-section">
+            <div class="demo-content">
+                <div class="demo-title">🎓 Código exclusivo do curso RH Super Sincero</div>
+
+                <form id="giftCodeForm" class="gift-code-form" onsubmit="handleSubmit(event)">
+                    <input type="text" id="giftCode" placeholder="Ex: RH-SUPER-SINCERO-2025" class="gift-code-input"
+                        autocomplete="off">
+                    <button type="submit" class="gift-code-button">Aplicar</button>
+                    <div class="gift-code-loading" id="giftCodeLoading">
+                        <div class="gift-code-spinner"></div>
+                    </div>
+                </form>
+
+                <div id="messages"></div>
+
+                <div class="gift-code-note">
+                    <span>🎓</span>
+                    <span>Disponível exclusivamente para alunos do curso RH Super Sincero</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const statusEl = document.getElementById('status');
+        const loadingOverlay = document.getElementById('giftCodeLoading');
+        const submitButton = document.querySelector('.gift-code-button');
+        const input = document.getElementById('giftCode');
+
+        function updateStatus(message) {
+            statusEl.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        }
+
+        function showMessage(type, message) {
+            clearMessages();
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.innerHTML = `<span style="margin-right: 8px;">${type === 'error' ? '❌' : '✅'}</span>${message}`;
+            messagesDiv.appendChild(messageDiv);
+        }
+
+        function clearMessages() {
+            document.getElementById('messages').innerHTML = '';
+        }
+
+        function resetForm() {
+            loadingOverlay.classList.remove('active');
+            submitButton.disabled = false;
+            input.disabled = false;
+            submitButton.style.background = '';
+            submitButton.style.transform = '';
+            clearMessages();
+            input.value = '';
+            updateStatus('Form resetado');
+        }
+
+        function testLoading() {
+            resetForm();
+            loadingOverlay.classList.add('active');
+            submitButton.disabled = true;
+            input.disabled = true;
+            updateStatus('Estado de loading ativo');
+
+            setTimeout(() => {
+                loadingOverlay.classList.remove('active');
+                submitButton.disabled = false;
+                input.disabled = false;
+                updateStatus('Loading terminado');
+            }, 3000);
+        }
+
+        function testSuccess() {
+            resetForm();
+            loadingOverlay.classList.add('active');
+            submitButton.disabled = true;
+            input.disabled = true;
+            updateStatus('Simulando sucesso...');
+
+            setTimeout(() => {
+                loadingOverlay.classList.remove('active');
+                submitButton.style.background = '#16a34a';
+                submitButton.style.transform = 'scale(1.05)';
+                showMessage('success', 'Código válido! Redirecionando...');
+                updateStatus('Estado de sucesso ativo');
+            }, 1000);
+        }
+
+        function testValidCode() {
+            input.value = 'ADMIN123';
+            updateStatus('Código de teste inserido: ADMIN123');
+        }
+
+        function testInvalidCode() {
+            input.value = 'INVALID';
+            updateStatus('Código inválido inserido: INVALID');
+        }
+
+        function handleSubmit(event) {
+            event.preventDefault();
+            const code = input.value.trim();
+
+            if (!code) {
+                showMessage('error', 'Por favor, insira um código válido.');
+                updateStatus('Erro: código vazio');
+                return;
+            }
+
+            if (code.length < 3) {
+                showMessage('error', 'O código deve ter pelo menos 3 caracteres.');
+                updateStatus('Erro: código muito curto');
+                return;
+            }
+
+            // Simular validação
+            loadingOverlay.classList.add('active');
+            submitButton.disabled = true;
+            input.disabled = true;
+            clearMessages();
+            updateStatus(`Validando código: ${code}`);
+
+            setTimeout(() => {
+                const validCodes = ['ADMIN123', 'PROMO2024', 'WELCOME', 'STUDENT', 'RH-SUPER-SINCERO-2025'];
+
+                if (validCodes.includes(code.toUpperCase())) {
+                    loadingOverlay.classList.remove('active');
+                    submitButton.style.background = '#16a34a';
+                    submitButton.style.transform = 'scale(1.05)';
+                    showMessage('success', 'Código válido! (modo demo)');
+                    updateStatus(`✅ Código ${code} é válido!`);
+                } else {
+                    loadingOverlay.classList.remove('active');
+                    showMessage('error', 'Código não encontrado. Teste: ADMIN123, PROMO2024, WELCOME');
+                    updateStatus(`❌ Código ${code} é inválido`);
+                }
+
+                setTimeout(() => {
+                    submitButton.disabled = false;
+                    input.disabled = false;
+                    submitButton.style.background = '';
+                    submitButton.style.transform = '';
+                }, 1200);
+            }, 1500);
+        }
+
+        // Estado inicial
+        updateStatus('Interface carregada e pronta para teste');
+    </script>
+</body>
+
+</html>
