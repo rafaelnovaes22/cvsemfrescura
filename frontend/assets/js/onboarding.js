@@ -34,13 +34,9 @@ async function initOnboarding() {
                 return window.CONFIG.api.baseUrl;
             }
 
-            // Fallback: detectar ambiente
-            const hostname = window.location.hostname;
-            if (hostname === 'localhost' || hostname === '127.0.0.1') {
-                return 'http://localhost:3000'; // Desenvolvimento
-            } else {
-                return ''; // Produção - URL relativa
-            }
+            // Se CONFIG não estiver disponível, falhar explicitamente
+            console.error('❌ CONFIG não disponível em onboarding!');
+            throw new Error('Configuração não disponível');
         })();
         const res = await fetch(`${apiBaseUrl}/api/user/onboarding-status`, {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -217,13 +213,9 @@ async function completeOnboarding(isSkipped = false) {
                 return window.CONFIG.api.baseUrl;
             }
 
-            // Fallback: detectar ambiente
-            const hostname = window.location.hostname;
-            if (hostname === 'localhost' || hostname === '127.0.0.1') {
-                return 'http://localhost:3000'; // Desenvolvimento
-            } else {
-                return ''; // Produção - URL relativa
-            }
+            // Se CONFIG não estiver disponível, falhar explicitamente
+            console.error('❌ CONFIG não disponível em onboarding!');
+            throw new Error('Configuração não disponível');
         })();
         const res = await fetch(`${apiBaseUrl}/api/user/onboarding`, {
             method: 'POST',

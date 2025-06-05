@@ -37,21 +37,15 @@ const transactionHistory = (() => {
       historyContainer.innerHTML = '<p class="loading">Carregando histórico de transações...</p>';
 
       const apiBaseUrl = (() => {
-        // Usar CONFIG se disponível (mais confiável)
+        // CONFIG sempre está disponível - usar sempre
         if (window.CONFIG && window.CONFIG.api && typeof window.CONFIG.api.baseUrl === 'string') {
           console.log('🔧 Usando CONFIG.api.baseUrl:', window.CONFIG.api.baseUrl || 'URL relativa');
           return window.CONFIG.api.baseUrl;
         }
 
-        // Fallback apenas se CONFIG não estiver disponível
-        const hostname = window.location.hostname;
-        console.log('⚠️ CONFIG não disponível, usando fallback para hostname:', hostname);
-
-        if (hostname === 'localhost' || hostname === '127.0.0.1') {
-          return 'http://localhost:3000';
-        }
-
-        return '';
+        // Se por algum motivo CONFIG não estiver disponível, falhar explicitamente
+        console.error('❌ CONFIG não disponível! Isso não deveria acontecer.');
+        throw new Error('Configuração não disponível');
       })();
       const response = await fetch(`${apiBaseUrl}/api/payment/history`, {
         headers: {
@@ -154,21 +148,15 @@ const transactionHistory = (() => {
       analysisContainer.innerHTML = '<p class="loading">Carregando histórico de análises...</p>';
 
       const apiBaseUrl = (() => {
-        // Usar CONFIG se disponível (mais confiável)
+        // CONFIG sempre está disponível - usar sempre
         if (window.CONFIG && window.CONFIG.api && typeof window.CONFIG.api.baseUrl === 'string') {
           console.log('🔧 Usando CONFIG.api.baseUrl:', window.CONFIG.api.baseUrl || 'URL relativa');
           return window.CONFIG.api.baseUrl;
         }
 
-        // Fallback apenas se CONFIG não estiver disponível
-        const hostname = window.location.hostname;
-        console.log('⚠️ CONFIG não disponível, usando fallback para hostname:', hostname);
-
-        if (hostname === 'localhost' || hostname === '127.0.0.1') {
-          return 'http://localhost:3000';
-        }
-
-        return '';
+        // Se por algum motivo CONFIG não estiver disponível, falhar explicitamente
+        console.error('❌ CONFIG não disponível! Isso não deveria acontecer.');
+        throw new Error('Configuração não disponível');
       })();
       const response = await fetch(`${apiBaseUrl}/api/ats/history`, {
         headers: {
@@ -309,13 +297,9 @@ async function viewAnalysis(analysisId) {
         return window.CONFIG.api.baseUrl;
       }
 
-      // Fallback: detectar ambiente
-      const hostname = window.location.hostname;
-      if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        return 'http://localhost:3000'; // Desenvolvimento
-      } else {
-        return ''; // Produção - URL relativa
-      }
+      // Se CONFIG não estiver disponível, falhar explicitamente
+      console.error('❌ CONFIG não disponível em viewAnalysis! Isso não deveria acontecer.');
+      throw new Error('Configuração não disponível');
     })();
     const response = await fetch(`${apiBaseUrl}/api/ats/analysis/${analysisId}`, {
       headers: {

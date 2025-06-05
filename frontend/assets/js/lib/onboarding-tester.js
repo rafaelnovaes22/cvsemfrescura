@@ -132,13 +132,9 @@ class OnboardingTester {
                     return window.CONFIG.api.baseUrl;
                 }
 
-                // Fallback: detectar ambiente
-                const hostname = window.location.hostname;
-                if (hostname === 'localhost' || hostname === '127.0.0.1') {
-                    return 'http://localhost:3000'; // Desenvolvimento
-                } else {
-                    return ''; // Produção - URL relativa
-                }
+                // Se CONFIG não estiver disponível, falhar explicitamente
+                console.error('❌ CONFIG não disponível em onboarding-tester!');
+                throw new Error('Configuração não disponível');
             })();
             await fetch(`${apiBaseUrl}/api/user/reset-onboarding`, {
                 method: 'POST',

@@ -26,15 +26,9 @@ const getAuthApiUrl = async () => {
         return baseUrl + '/api/user';
     }
 
-    // Fallback: detectar ambiente
-    const hostname = window.location.hostname;
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        console.log('🔧 FALLBACK FINAL: Usando localhost:3000');
-        return 'http://localhost:3000/api/user'; // Desenvolvimento
-    } else {
-        console.log('🔧 FALLBACK FINAL: Usando URL relativa para produção');
-        return '/api/user'; // Produção - URL relativa
-    }
+    // Se CONFIG não estiver disponível, falhar explicitamente
+    console.error('❌ CONFIG não disponível em auth!');
+    throw new Error('Configuração não disponível');
 };
 
 // Cache da URL da API

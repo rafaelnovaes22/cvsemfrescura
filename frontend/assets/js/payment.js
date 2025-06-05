@@ -317,19 +317,15 @@ const payment = (() => {
     isCreatingPayment = true;
 
     try {
-      // Verificar se CONFIG está definido
+      // Usar CONFIG - sempre disponível
       const apiBaseUrl = (() => {
         if (window.CONFIG && window.CONFIG.api && typeof window.CONFIG.api.baseUrl === 'string') {
           return window.CONFIG.api.baseUrl;
         }
 
-        // Fallback: detectar ambiente
-        const hostname = window.location.hostname;
-        if (hostname === 'localhost' || hostname === '127.0.0.1') {
-          return 'http://localhost:3000'; // Desenvolvimento
-        } else {
-          return ''; // Produção - URL relativa
-        }
+        // Se CONFIG não estiver disponível, falhar explicitamente
+        console.error('❌ CONFIG não disponível em createPaymentIntent!');
+        throw new Error('Configuração não disponível');
       })();
 
       const paymentData = {
@@ -599,13 +595,9 @@ const payment = (() => {
           return window.CONFIG.api.baseUrl;
         }
 
-        // Fallback: detectar ambiente
-        const hostname = window.location.hostname;
-        if (hostname === 'localhost' || hostname === '127.0.0.1') {
-          return 'http://localhost:3000'; // Desenvolvimento
-        } else {
-          return ''; // Produção - URL relativa
-        }
+        // Se CONFIG não estiver disponível, falhar explicitamente
+        console.error('❌ CONFIG não disponível em processPayment!');
+        throw new Error('Configuração não disponível');
       })();
 
       const response = await fetch(`${apiBaseUrl}/api/payment/confirm`, {
@@ -821,13 +813,9 @@ const payment = (() => {
               return window.CONFIG.api.baseUrl;
             }
 
-            // Fallback: detectar ambiente
-            const hostname = window.location.hostname;
-            if (hostname === 'localhost' || hostname === '127.0.0.1') {
-              return 'http://localhost:3000'; // Desenvolvimento
-            } else {
-              return ''; // Produção - URL relativa
-            }
+            // Se CONFIG não estiver disponível, falhar explicitamente
+            console.error('❌ CONFIG não disponível em processPayment!');
+            throw new Error('Configuração não disponível');
           })();
 
           const confirmResponse = await fetch(`${apiBaseUrl}/api/payment/confirm`, {
