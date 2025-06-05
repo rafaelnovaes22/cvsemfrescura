@@ -2,13 +2,24 @@ const crypto = require('crypto');
 
 // Configuração de criptografia
 const ALGORITHM = 'aes-256-gcm';
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || generateDefaultKey();
 
-function generateDefaultKey() {
-    // Gera uma chave baseada no NODE_ENV e uma string fixa
+function getEncryptionKey() {
+    const envKey = process.env.ENCRYPTION_KEY;
+
+    if (envKey) {
+        // Se a chave está como string hex, converter para Buffer
+        if (typeof envKey === 'string' && envKey.length === 64) {
+            return Buffer.from(envKey, 'hex');
+        }
+        return envKey;
+    }
+
+    // Gera uma chave padrão para desenvolvimento
     const seed = process.env.NODE_ENV + '_cv_sem_frescura_encryption_2024';
     return crypto.createHash('sha256').update(seed).digest();
 }
+
+const ENCRYPTION_KEY = getEncryptionKey();
 
 /**
  * Criptografa uma string sensível

@@ -53,8 +53,13 @@ const getStripeConfig = () => {
     let publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
     let webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-    // 🔐 Descriptografar chaves se necessário (apenas em produção)
-    if (isProduction && process.env.ENCRYPTION_KEY && !process.env.DISABLE_ENCRYPTION) {
+    // 🔐 Descriptografar chaves se necessário (Railway ou produção)
+    if ((isProduction || isRailway) && process.env.ENCRYPTION_KEY && !process.env.DISABLE_ENCRYPTION) {
+        console.log('🔐 Iniciando descriptografia das chaves...');
+        console.log('🔐 isProduction:', isProduction);
+        console.log('🔐 isRailway:', isRailway);
+        console.log('🔐 ENCRYPTION_KEY presente:', !!process.env.ENCRYPTION_KEY);
+
         secretKey = decryptIfNeeded(secretKey);
         publishableKey = decryptIfNeeded(publishableKey);
         webhookSecret = decryptIfNeeded(webhookSecret);
@@ -154,7 +159,7 @@ const getApiConfig = () => {
     let jwtSecret = process.env.JWT_SECRET || 'cv_sem_frescura_jwt_local_development_CHANGE_IN_PRODUCTION';
 
     // 🔐 Descriptografar JWT_SECRET se necessário
-    if (isProduction && process.env.ENCRYPTION_KEY && !process.env.DISABLE_ENCRYPTION) {
+    if ((isProduction || isRailway) && process.env.ENCRYPTION_KEY && !process.env.DISABLE_ENCRYPTION) {
         jwtSecret = decryptIfNeeded(jwtSecret);
     }
 

@@ -1,39 +1,57 @@
-const { encrypt, decrypt } = require('./utils/encryption');
+require('dotenv').config();
 
-// Define a chave de criptografia
-process.env.ENCRYPTION_KEY = 'fb5cfabd6377a7e4761a123320d04221618c951f6b243d0c017c8c938f2c1d61';
+async function testCrypto() {
+    console.log('🔐 Testando sistema de criptografia...\n');
 
-// Testa com chave similar ao Stripe
-const testKey = 'sk_test_51234567890abcdefghijklmnopqrstuvwxyz';
+    try {
+        const { encrypt, decrypt, maskKey } = require('./utils/encryption');
 
-console.log('🔍 Testando sistema de criptografia...');
-console.log('==========================================');
-console.log('Original:', testKey);
-console.log('Tamanho original:', testKey.length);
+        // Teste 1: Criptografia/Descriptografia básica
+        console.log('🧪 Teste 1: Criptografia básica');
+        const testText = 'sk_test_1234567890abcdefghijklmnop';
+        console.log('📝 Texto original:', maskKey(testText));
 
-const encrypted = encrypt(testKey);
-console.log('Criptografado:', encrypted);
-console.log('Tamanho criptografado:', encrypted ? encrypted.length : 'NULL');
+        const encrypted = encrypt(testText);
+        console.log('🔒 Texto criptografado:', encrypted ? 'OK (tamanho: ' + encrypted.length + ')' : 'ERRO');
 
-if (encrypted) {
-    const decrypted = decrypt(encrypted);
-    console.log('Descriptografado:', decrypted);
-    console.log('Tamanho descriptografado:', decrypted ? decrypted.length : 'NULL');
+        const decrypted = decrypt(encrypted);
+        console.log('🔓 Texto descriptografado:', maskKey(decrypted));
+        console.log('✅ Sucesso:', testText === decrypted ? 'SIM' : 'NÃO');
 
-    const isEqual = testKey === decrypted;
-    console.log('==========================================');
-    console.log('✅ Teste passou:', isEqual);
+        // Teste 2: Verificar ENCRYPTION_KEY
+        console.log('\n🧪 Teste 2: ENCRYPTION_KEY');
+        const encKey = process.env.ENCRYPTION_KEY;
+        console.log('🔑 ENCRYPTION_KEY presente:', !!encKey);
+        console.log('🔑 ENCRYPTION_KEY tamanho:', encKey ? encKey.length : 0);
+        console.log('🔑 ENCRYPTION_KEY válida:', encKey && encKey.length === 64);
 
-    if (!isEqual) {
-        console.log('❌ ERRO: Chaves não são iguais!');
-        console.log('Diferença encontrada:');
-        for (let i = 0; i < Math.max(testKey.length, decrypted?.length || 0); i++) {
-            if (testKey[i] !== decrypted?.[i]) {
-                console.log(`   Posição ${i}: "${testKey[i]}" vs "${decrypted?.[i]}"`);
-                break;
+        // Teste 3: Testar com chave Stripe real (se existir)
+        console.log('\n🧪 Teste 3: Chave Stripe do ambiente');
+        const stripeKey = process.env.STRIPE_SECRET_KEY;
+        if (stripeKey) {
+            console.log('💳 Chave Stripe presente:', !!stripeKey);
+            console.log('💳 Chave Stripe mascarada:', maskKey(stripeKey));
+            console.log('💳 Parece criptografada:', !stripeKey.startsWith('sk_') && stripeKey.length > 50);
+
+            if (!stripeKey.startsWith('sk_') && stripeKey.length > 50) {
+                console.log('🔓 Tentando descriptografar chave Stripe...');
+                try {
+                    const decryptedStripe = decrypt(stripeKey);
+                    console.log('✅ Descriptografia bem-sucedida:', !!decryptedStripe);
+                    console.log('💳 Chave descriptografada válida:', decryptedStripe?.startsWith('sk_'));
+                    console.log('💳 Chave descriptografada mascarada:', maskKey(decryptedStripe));
+                } catch (error) {
+                    console.log('❌ Erro na descriptografia:', error.message);
+                }
             }
+        } else {
+            console.log('💳 Nenhuma chave Stripe encontrada');
         }
+
+    } catch (error) {
+        console.error('❌ Erro no teste de criptografia:', error.message);
+        console.error('📋 Stack:', error.stack);
     }
-} else {
-    console.log('❌ ERRO: Falha na criptografia!');
-} 
+}
+
+testCrypto(); 
