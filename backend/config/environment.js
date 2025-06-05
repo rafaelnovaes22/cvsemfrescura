@@ -16,16 +16,31 @@ console.log('🚀 Produção:', isProduction);
 const decryptIfNeeded = (value) => {
     if (!value) return value;
 
+    console.log('🔍 [DEBUG] Verificando chave para descriptografia...');
+    console.log('🔍 [DEBUG] Tamanho da chave:', value.length);
+    console.log('🔍 [DEBUG] Primeiros 10 chars:', value.substring(0, 10));
+
     // Se a chave parece estar criptografada (não começa com sk_, pk_, etc. e é longa)
     if (!value.match(/^(sk_|pk_|whsec_|rk_)/) && value.length > 50) {
-        const decrypted = decrypt(value);
-        if (decrypted) {
-            console.log('🔓 Chave descriptografada com sucesso');
-            return decrypted;
-        } else {
-            console.error('❌ Erro ao descriptografar chave');
+        console.log('🔓 Tentando descriptografar chave...');
+
+        try {
+            const decrypted = decrypt(value);
+            if (decrypted) {
+                console.log('✅ Chave descriptografada com sucesso');
+                console.log('🔍 [DEBUG] Tamanho descriptografado:', decrypted.length);
+                console.log('🔍 [DEBUG] Primeiros 10 chars descriptografados:', decrypted.substring(0, 10));
+                return decrypted;
+            } else {
+                console.error('❌ Erro: decrypt() retornou null/undefined');
+                return value; // Retorna original se falhar
+            }
+        } catch (error) {
+            console.error('❌ Erro na descriptografia:', error.message);
             return value; // Retorna original se falhar
         }
+    } else {
+        console.log('ℹ️ Chave já está em texto plano');
     }
 
     return value; // Retorna original se não precisar descriptografar
@@ -39,7 +54,7 @@ const getStripeConfig = () => {
     let webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
     // 🔐 Descriptografar chaves se necessário (apenas em produção)
-    if (isProduction && process.env.ENCRYPTION_KEY) {
+    if (isProduction && process.env.ENCRYPTION_KEY && !process.env.DISABLE_ENCRYPTION) {
         secretKey = decryptIfNeeded(secretKey);
         publishableKey = decryptIfNeeded(publishableKey);
         webhookSecret = decryptIfNeeded(webhookSecret);
@@ -139,7 +154,7 @@ const getApiConfig = () => {
     let jwtSecret = process.env.JWT_SECRET || 'cv_sem_frescura_jwt_local_development_CHANGE_IN_PRODUCTION';
 
     // 🔐 Descriptografar JWT_SECRET se necessário
-    if (isProduction && process.env.ENCRYPTION_KEY) {
+    if (isProduction && process.env.ENCRYPTION_KEY && !process.env.DISABLE_ENCRYPTION) {
         jwtSecret = decryptIfNeeded(jwtSecret);
     }
 
