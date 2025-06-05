@@ -4,475 +4,653 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Termos de Uso | CV Sem Frescura</title>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
+    <meta name="description" content="Termos de Uso do CV Sem Frescura - Condições para análise de currículo com IA.">
+    <title>Termos de Uso - CV Sem Frescura</title>
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        as="style">
+    <link rel="preload" href="assets/img/logo.png" as="image">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Header CSS -->
+    <link rel="stylesheet" href="assets/css/header.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
 
     <style>
-        :root {
-            --primary: #583819;
-            --primary-dark: #512808;
-            --background: #F3EADA;
-            --card-bg: #FFFCF9;
-            --white: #FFFFFF;
-            --text-dark: #583819;
-            --text-gray: #505050;
-            --border-color: #D1D1D1;
-            --border-radius: 10px;
-            --shadow: 0px 4px 6px rgba(33, 33, 33, 0.04);
-            --transition: all 0.3s ease;
-        }
-
+        /* CSS Reset e Variáveis */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            /* Design System */
+            --primary-50: #faf9f7;
+            --primary-100: #f4f0ea;
+            --primary-200: #e8ddd0;
+            --primary-300: #d6c4a0;
+            --primary-400: #c5a575;
+            --primary-500: #8b6b3d;
+            --primary-600: #583819;
+            --primary-700: #4a2f15;
+            --primary-800: #3d2712;
+            --primary-900: #32200f;
+
+            --gray-50: #fafafa;
+            --gray-100: #f4f4f5;
+            --gray-200: #e4e4e7;
+            --gray-300: #d4d4d8;
+            --gray-400: #a1a1aa;
+            --gray-500: #71717a;
+            --gray-600: #52525b;
+            --gray-700: #3f3f46;
+            --gray-800: #27272a;
+            --gray-900: #18181b;
+
+            /* Spacing */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
+            --space-12: 3rem;
+            --space-16: 4rem;
+            --space-20: 5rem;
+
+            /* Border Radius */
+            --radius-sm: 0.25rem;
+            --radius-md: 0.375rem;
+            --radius-lg: 0.5rem;
+            --radius-xl: 0.75rem;
+            --radius-2xl: 1rem;
+            --radius-3xl: 1.5rem;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+            /* Transitions */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* Typography */
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
         body {
-            font-family: 'IBM Plex Sans', sans-serif;
-            background-color: var(--background);
-            color: var(--text-gray);
+            font-family: var(--font-family);
             line-height: 1.6;
+            color: var(--gray-800);
+            background-color: var(--primary-50);
+            font-size: 16px;
         }
 
         .container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 var(--space-6);
         }
 
-        .header {
-            background-color: var(--white);
-            padding: 20px 0;
-            box-shadow: var(--shadow);
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            height: 60px;
-            width: auto;
-        }
-
-        .back-link {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-            padding: 8px 16px;
-            border: 2px solid var(--primary);
-            border-radius: 6px;
-            transition: var(--transition);
-        }
-
-        .back-link:hover {
-            background-color: var(--primary);
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
             color: white;
+            padding: var(--space-20) 0 var(--space-16);
+            margin-top: 80px;
         }
 
-        .main-content {
-            padding: 40px 0;
-        }
-
-        .content-card {
-            background-color: var(--white);
-            border-radius: var(--border-radius);
-            padding: 40px;
-            box-shadow: var(--shadow);
-            margin-bottom: 30px;
-        }
-
-        h1 {
-            color: var(--primary);
-            font-size: 32px;
+        .page-title {
+            font-size: 3rem;
             font-weight: 700;
-            margin-bottom: 10px;
+            margin-bottom: var(--space-4);
             text-align: center;
+        }
+
+        .page-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         .last-updated {
             text-align: center;
-            color: var(--text-gray);
-            font-size: 14px;
-            margin-bottom: 30px;
-            font-style: italic;
+            opacity: 0.8;
+            font-size: 0.9rem;
+            margin-top: var(--space-3);
         }
 
-        h2 {
-            color: var(--primary);
-            font-size: 24px;
+        /* Content */
+        .content-section {
+            padding: var(--space-16) 0;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: var(--radius-2xl);
+            padding: var(--space-12);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--space-8);
+        }
+
+        .content-card h2 {
+            color: var(--primary-600);
+            font-size: 1.875rem;
             font-weight: 600;
-            margin: 30px 0 15px 0;
-            border-bottom: 2px solid var(--background);
-            padding-bottom: 8px;
+            margin-bottom: var(--space-6);
+            padding-bottom: var(--space-3);
+            border-bottom: 2px solid var(--primary-100);
         }
 
-        h3 {
-            color: var(--text-dark);
-            font-size: 20px;
+        .content-card h3 {
+            color: var(--gray-700);
+            font-size: 1.25rem;
             font-weight: 600;
-            margin: 25px 0 12px 0;
+            margin: var(--space-6) 0 var(--space-3) 0;
         }
 
-        p {
-            margin-bottom: 15px;
+        .content-card p {
+            margin-bottom: var(--space-4);
             line-height: 1.7;
+            color: var(--gray-600);
         }
 
-        ul,
-        ol {
-            margin: 15px 0;
-            padding-left: 25px;
+        .content-card ul,
+        .content-card ol {
+            margin: var(--space-4) 0;
+            padding-left: var(--space-6);
         }
 
-        li {
-            margin-bottom: 8px;
+        .content-card li {
+            margin-bottom: var(--space-2);
             line-height: 1.6;
+            color: var(--gray-600);
         }
 
         .highlight-box {
-            background-color: var(--background);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
+            background: var(--primary-50);
+            border: 1px solid var(--primary-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            margin: var(--space-6) 0;
+        }
+
+        .highlight-box p {
+            margin: 0;
+            color: var(--primary-700);
+            font-weight: 500;
         }
 
         .warning-box {
-            background-color: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            margin: var(--space-6) 0;
         }
 
-        .contact-info {
-            background-color: #f8f9ff;
-            border: 1px solid #e1e8ff;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 25px 0;
+        .warning-box p {
+            margin: 0;
+            color: #92400e;
+            font-weight: 500;
         }
 
-        .contact-info h4 {
-            color: var(--primary);
-            margin-bottom: 10px;
+        .contact-box {
+            background: #eff6ff;
+            border: 1px solid #3b82f6;
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            margin: var(--space-6) 0;
         }
 
-        strong {
-            color: var(--text-dark);
-        }
-
-        .footer {
-            background-color: var(--primary-dark);
-            color: var(--white);
-            padding: 20px 0;
-            margin-top: 40px;
-        }
-
-        .footer-content {
-            text-align: center;
-        }
-
-        .table-box {
-            background-color: #f8f9fa;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 10px 0;
-        }
-
-        th,
-        td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        th {
-            background-color: var(--primary);
-            color: white;
+        .contact-box h4 {
+            color: #1e40af;
+            margin-bottom: var(--space-3);
             font-weight: 600;
         }
 
+        .contact-box p {
+            margin: 0;
+            color: #1e40af;
+        }
+
+        .contact-box a {
+            color: #1e40af;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-box a:hover {
+            text-decoration: underline;
+        }
+
+        strong {
+            color: var(--primary-600);
+            font-weight: 600;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--gray-900);
+            color: var(--gray-300);
+            padding: var(--space-16) 0 var(--space-8);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-8);
+            margin-bottom: var(--space-8);
+        }
+
+        .footer-about {
+            max-width: 300px;
+        }
+
+        .footer-logo {
+            height: 40px;
+            margin-bottom: var(--space-4);
+        }
+
+        .footer-description {
+            color: var(--gray-400);
+            margin-bottom: var(--space-6);
+            line-height: 1.6;
+        }
+
+        .footer-section h4 {
+            color: white;
+            font-weight: 600;
+            margin-bottom: var(--space-4);
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+
+        .footer-link {
+            color: var(--gray-400);
+            text-decoration: none;
+            transition: color var(--transition-fast);
+        }
+
+        .footer-link:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--gray-700);
+            padding-top: var(--space-6);
+            text-align: center;
+            color: var(--gray-500);
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .page-header {
+                padding: var(--space-16) 0 var(--space-12);
+            }
+
+            .content-section {
+                padding: var(--space-12) 0;
+            }
+
             .content-card {
-                padding: 25px 20px;
+                padding: var(--space-8);
             }
 
-            h1 {
-                font-size: 28px;
+            .container {
+                padding: 0 var(--space-4);
             }
 
-            h2 {
-                font-size: 22px;
-            }
-
-            .header-content {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .table-box {
-                font-size: 14px;
-            }
-
-            th,
-            td {
-                padding: 8px;
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: var(--space-6);
             }
         }
     </style>
 </head>
 
 <body>
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <img src="assets/img/logo.png" alt="CV Sem Frescura" class="logo">
-                <a href="/" class="back-link">← Voltar ao Início</a>
-            </div>
-        </div>
-    </header>
+    <!-- Header será carregado via JavaScript -->
+    <header id="header"></header>
 
-    <main class="main-content">
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1 class="page-title">Termos de Uso</h1>
+            <p class="page-subtitle">
+                Condições e termos de uso da plataforma CV Sem Frescura
+            </p>
+            <p class="last-updated">Última atualização: Janeiro de 2025</p>
+        </div>
+    </section>
+
+    <!-- Content -->
+    <section class="content-section">
         <div class="container">
             <div class="content-card">
-                <h1>Termos de Uso</h1>
-                <p class="last-updated">Última atualização: Janeiro de 2025</p>
-
-                <div class="warning-box">
-                    <strong>⚠️ Leia atentamente:</strong> Ao usar o CV Sem Frescura, você concorda com todos os termos
-                    descritos abaixo. Se não concordar com algum termo, não utilize nossos serviços.
-                </div>
-
                 <h2>1. Sobre o Serviço</h2>
-                <p>O <strong>CV Sem Frescura</strong> é uma plataforma online que oferece análise inteligente de
-                    currículos utilizando inteligência artificial. Nosso objetivo é ajudar profissionais a otimizarem
-                    seus perfis para vagas específicas e aumentarem suas chances no mercado de trabalho.</p>
+                <p>O <strong>CV Sem Frescura</strong> é uma plataforma digital que oferece análise automatizada de
+                    currículos utilizando inteligência artificial. Nosso objetivo é otimizar currículos para sistemas
+                    ATS (Applicant Tracking Systems) e melhorar as chances de sucesso em processos seletivos.</p>
 
-                <h3>1.1 Serviços Oferecidos</h3>
+                <h3>1.1 Definições</h3>
                 <ul>
-                    <li>Análise automatizada de currículos por inteligência artificial</li>
-                    <li>Comparação entre perfil profissional e requisitos de vagas</li>
-                    <li>Recomendações personalizadas para melhoria do currículo</li>
-                    <li>Identificação de palavras-chave relevantes</li>
-                    <li>Scores de compatibilidade com vagas específicas</li>
+                    <li><strong>Plataforma:</strong> O site CV Sem Frescura e todos os seus serviços</li>
+                    <li><strong>Usuário:</strong> Pessoa física que utiliza nossos serviços</li>
+                    <li><strong>Análise:</strong> Serviço de avaliação de currículo por IA</li>
+                    <li><strong>ATS:</strong> Applicant Tracking Systems - sistemas de triagem de candidatos</li>
                 </ul>
+            </div>
 
+            <div class="content-card">
                 <h2>2. Aceitação dos Termos</h2>
-                <p>Ao criar uma conta, fazer upload de um currículo ou utilizar qualquer funcionalidade da plataforma,
-                    você:</p>
-                <ul>
-                    <li>Declara ter lido e compreendido estes termos</li>
-                    <li>Concorda em cumprir todas as regras e limitações</li>
-                    <li>Confirma ter idade mínima de 16 anos</li>
-                    <li>Aceita as políticas de privacidade</li>
-                </ul>
+                <p>Ao acessar e utilizar a plataforma CV Sem Frescura, você concorda integralmente com estes Termos de
+                    Uso. Se não concordar com qualquer parte destes termos, não utilize nossos serviços.</p>
 
-                <h2>3. Cadastro e Conta de Usuário</h2>
-                <h3>3.1 Responsabilidades do Usuário</h3>
-                <ul>
-                    <li><strong>Informações precisas:</strong> Fornecer dados verdadeiros e atualizados</li>
-                    <li><strong>Segurança da conta:</strong> Manter senha segura e não compartilhar acesso</li>
-                    <li><strong>Uso pessoal:</strong> Não comercializar ou revender acesso à plataforma</li>
-                    <li><strong>Uma conta por pessoa:</strong> Não criar múltiplas contas para contornar limitações</li>
-                </ul>
-
-                <h3>3.2 Encerramento de Conta</h3>
-                <p>Podemos suspender ou encerrar contas que violem estes termos, incluindo:</p>
-                <ul>
-                    <li>Uso inadequado ou abusivo da plataforma</li>
-                    <li>Tentativas de fraude ou manipulação do sistema</li>
-                    <li>Compartilhamento não autorizado de acesso</li>
-                    <li>Violação de direitos de terceiros</li>
-                </ul>
-
-                <h2>4. Planos e Pagamentos</h2>
-                <div class="table-box">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Tipo</th>
-                                <th>Descrição</th>
-                                <th>Limitações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Código Gratuito</strong></td>
-                                <td>Análise promocional</td>
-                                <td>1 vaga por análise</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Plano Pago</strong></td>
-                                <td>Análise completa</td>
-                                <td>Até 7 vagas por análise</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <h3>4.1 Política de Pagamento</h3>
-                <ul>
-                    <li><strong>Processamento:</strong> Pagamentos via Mercado Pago (terceiro seguro)</li>
-                    <li><strong>Moeda:</strong> Valores em Real Brasileiro (BRL)</li>
-                    <li><strong>Impostos:</strong> Preços já incluem taxas aplicáveis</li>
-                    <li><strong>Faturas:</strong> Recibos enviados por e-mail automaticamente</li>
-                </ul>
-
-                <h3>4.2 Política de Reembolso</h3>
                 <div class="highlight-box">
-                    <strong>💰 Garantia de Satisfação:</strong>
-                    <ul style="margin-top: 10px;">
-                        <li>7 dias para solicitar reembolso após a compra</li>
-                        <li>Reembolso integral se não usar os créditos</li>
-                        <li>Reembolso proporcional se usar parcialmente</li>
-                        <li>Análise de cada caso individualmente</li>
-                    </ul>
+                    <p><strong>Importante:</strong> Estes termos podem ser atualizados periodicamente. É sua
+                        responsabilidade verificar regularmente esta página para estar ciente de mudanças.</p>
                 </div>
+            </div>
 
-                <h2>5. Uso Adequado da Plataforma</h2>
-                <h3>5.1 Condutas Permitidas</h3>
+            <div class="content-card">
+                <h2>3. Serviços Oferecidos</h2>
+                <h3>3.1 Análise de Currículo</h3>
+                <p>Oferecemos análise automatizada de currículos que inclui:</p>
                 <ul>
-                    <li>Fazer upload de currículos próprios ou com autorização</li>
-                    <li>Inserir links de vagas reais e atuais</li>
-                    <li>Usar resultados para melhorar seu perfil profissional</li>
-                    <li>Compartilhar feedback construtivo sobre o serviço</li>
+                    <li>Score de compatibilidade com sistemas ATS</li>
+                    <li>Identificação de palavras-chave ausentes</li>
+                    <li>Sugestões de melhorias de formatação</li>
+                    <li>Feedback sobre estrutura e conteúdo</li>
+                    <li>Relatório detalhado com recomendações</li>
                 </ul>
 
-                <h3>5.2 Condutas Proibidas</h3>
+                <h3>3.2 Preços e Pagamento</h3>
+                <p>O serviço de análise é cobrado por uso individual ao valor de <strong>R$ 15,00</strong> por análise.
+                    O pagamento é processado via Stripe e deve ser realizado antes da análise.</p>
+
+                <h3>3.3 Códigos Promocionais</h3>
+                <p>Oferecemos códigos promocionais para parceiros específicos, como alunos do curso "RH Super Sincero".
+                    Estes códigos permitem acesso gratuito ao serviço.</p>
+            </div>
+
+            <div class="content-card">
+                <h2>4. Responsabilidades do Usuário</h2>
+                <h3>4.1 Uso Adequado</h3>
+                <p>Você se compromete a:</p>
+                <ul>
+                    <li>Utilizar o serviço apenas para fins legítimos</li>
+                    <li>Fornecer informações verdadeiras e precisas</li>
+                    <li>Não compartilhar suas credenciais de acesso</li>
+                    <li>Não tentar burlar nossos sistemas de segurança</li>
+                    <li>Respeitar os direitos de propriedade intelectual</li>
+                </ul>
+
+                <h3>4.2 Conteúdo Enviado</h3>
+                <p>Ao enviar seu currículo para análise, você declara que:</p>
+                <ul>
+                    <li>Possui todos os direitos sobre o conteúdo enviado</li>
+                    <li>O conteúdo não viola direitos de terceiros</li>
+                    <li>As informações são verdadeiras e atualizadas</li>
+                </ul>
+            </div>
+
+            <div class="content-card">
+                <h2>5. Limitações e Responsabilidades</h2>
+                <h3>5.1 Natureza do Serviço</h3>
                 <div class="warning-box">
-                    <strong>🚫 É expressamente proibido:</strong>
-                    <ul style="margin-top: 10px;">
-                        <li>Upload de currículos de terceiros sem autorização</li>
-                        <li>Inserção de links maliciosos ou irrelevantes</li>
-                        <li>Tentativas de quebrar ou contornar limitações do sistema</li>
-                        <li>Uso automatizado (bots, scripts) sem autorização</li>
-                        <li>Revenda ou comercialização do acesso à plataforma</li>
-                        <li>Extração não autorizada de dados da plataforma</li>
-                    </ul>
+                    <p><strong>Aviso Importante:</strong> Nossa análise é baseada em inteligência artificial e deve ser
+                        considerada como orientação. Não garantimos que seguir nossas recomendações resultará em
+                        contratação ou sucesso em processos seletivos.</p>
                 </div>
 
-                <h2>6. Propriedade Intelectual</h2>
-                <h3>6.1 Nossos Direitos</h3>
+                <h3>5.2 Limitações de Responsabilidade</h3>
+                <p>O CV Sem Frescura não se responsabiliza por:</p>
                 <ul>
-                    <li><strong>Marca:</strong> "CV Sem Frescura" é marca registrada</li>
-                    <li><strong>Software:</strong> Códigos e algoritmos são proprietários</li>
-                    <li><strong>Conteúdo:</strong> Textos, imagens e design são protegidos</li>
-                    <li><strong>IA:</strong> Prompts especializados e algoritmos de análise são desenvolvimentos
-                        próprios</li>
+                    <li>Resultados de processos seletivos</li>
+                    <li>Decisões tomadas com base em nossas análises</li>
+                    <li>Perda de oportunidades profissionais</li>
+                    <li>Incompatibilidade com sistemas ATS específicos</li>
+                    <li>Indisponibilidade temporária do serviço</li>
                 </ul>
 
-                <h3>6.2 Seus Direitos</h3>
+                <h3>5.3 Disponibilidade do Serviço</h3>
+                <p>Embora nos esforcemos para manter o serviço disponível 24/7, podem ocorrer interrupções para
+                    manutenção ou por questões técnicas. Não nos responsabilizamos por perdas decorrentes de
+                    indisponibilidade temporária.</p>
+            </div>
+
+            <div class="content-card">
+                <h2>6. Política de Reembolso</h2>
+                <h3>6.1 Condições para Reembolso</h3>
+                <p>Oferecemos reembolso integral nas seguintes situações:</p>
                 <ul>
-                    <li>Você mantém propriedade sobre seus currículos</li>
-                    <li>Resultados da análise pertencem a você</li>
-                    <li>Pode usar insights para fins profissionais</li>
-                    <li>Autoriza processamento temporário para análise</li>
+                    <li>Falha técnica que impeça a geração da análise</li>
+                    <li>Cobrança duplicada comprovada</li>
+                    <li>Erro em nossos sistemas de pagamento</li>
                 </ul>
 
-                <h2>7. Limitações e Garantias</h2>
-                <h3>7.1 Sobre a Análise por IA</h3>
-                <div class="highlight-box">
-                    <strong>🤖 Importante sobre IA:</strong> Nossa análise é baseada em inteligência artificial e deve
-                    ser considerada como sugestão, não como verdade absoluta. Recomendamos sempre usar o bom senso e
-                    validar sugestões com profissionais da área.
-                </div>
-
-                <h3>7.2 Limitações de Responsabilidade</h3>
+                <h3>6.2 Não Reembolsáveis</h3>
+                <p>Não oferecemos reembolso por:</p>
                 <ul>
-                    <li><strong>Análise:</strong> Fornecemos insights, não garantimos resultados em processos seletivos
-                    </li>
-                    <li><strong>Disponibilidade:</strong> O serviço pode ter interrupções para manutenção</li>
-                    <li><strong>Terceiros:</strong> Não controlamos sites de vagas ou plataformas externas</li>
-                    <li><strong>Decisões:</strong> Você é responsável por decisões baseadas em nossa análise</li>
+                    <li>Insatisfação com o resultado da análise</li>
+                    <li>Mudança de opinião após o pagamento</li>
+                    <li>Análises já entregues com sucesso</li>
                 </ul>
 
-                <h2>8. Privacidade e Dados</h2>
-                <p>O tratamento dos seus dados pessoais segue nossa <a href="privacy.html"
-                        style="color: var(--primary); font-weight: 600;">Política de Privacidade</a>, que é parte
-                    integrante destes termos.</p>
+                <h3>6.3 Prazo para Solicitação</h3>
+                <p>Solicitações de reembolso devem ser feitas em até 7 dias após o pagamento e antes da entrega da
+                    análise, exceto em casos de falha técnica.</p>
+            </div>
 
-                <h3>8.1 Resumo de Privacidade</h3>
-                <ul>
-                    <li>Currículos são processados temporariamente e excluídos</li>
-                    <li>Dados pessoais protegidos conforme LGPD</li>
-                    <li>Não compartilhamos informações com terceiros</li>
-                    <li>Você pode solicitar exclusão de dados a qualquer momento</li>
-                </ul>
+            <div class="content-card">
+                <h2>7. Propriedade Intelectual</h2>
+                <p>Todo o conteúdo da plataforma, incluindo textos, imagens, código, design e algoritmos de IA, são
+                    propriedade do CV Sem Frescura e protegidos por leis de direitos autorais.</p>
 
-                <h2>9. Alterações nos Termos</h2>
-                <p>Podemos atualizar estes termos periodicamente para:</p>
-                <ul>
-                    <li>Refletir mudanças na legislação</li>
-                    <li>Melhorar clareza e compreensão</li>
-                    <li>Incluir novos recursos ou serviços</li>
-                    <li>Ajustar políticas comerciais</li>
-                </ul>
+                <h3>7.1 Licença de Uso</h3>
+                <p>Concedemos uma licença limitada, não exclusiva e intransferível para usar nossa plataforma conforme
+                    estes termos.</p>
 
-                <p><strong>Comunicação de mudanças:</strong> Alterações significativas serão comunicadas por e-mail e/ou
-                    aviso na plataforma com 30 dias de antecedência.</p>
+                <h3>7.2 Propriedade dos Dados</h3>
+                <p>Você mantém a propriedade sobre o conteúdo do seu currículo. Concede-nos apenas a licença necessária
+                    para processar e analisar o documento.</p>
+            </div>
 
-                <h2>10. Resolução de Conflitos</h2>
-                <h3>10.1 Tentativa de Acordo</h3>
-                <p>Em caso de conflitos, priorizamos a resolução amigável através de:</p>
-                <ol>
-                    <li>Contato direto com nosso suporte</li>
-                    <li>Mediação online quando possível</li>
-                    <li>Negociação de boa-fé</li>
-                </ol>
-
-                <h3>10.2 Jurisdição</h3>
-                <p>Estes termos são regidos pelas leis brasileiras. Em caso de litígio, fica eleito o foro da comarca de
-                    São Paulo, SP, renunciando a qualquer outro, por mais privilegiado que seja.</p>
-
-                <h2>11. Contato e Suporte</h2>
-                <div class="contact-info">
-                    <h4>Para questões sobre os termos de uso:</h4>
-                    <p><strong>E-mail:</strong> termos@cvsemfrescura.com</p>
-                    <p><strong>Suporte geral:</strong> contato@cvsemfrescura.com</p>
-                    <p><strong>Tempo de resposta:</strong> Até 48 horas úteis</p>
-                    <p><strong>Horário de atendimento:</strong> Segunda a sexta, 9h às 18h</p>
-                </div>
-
-                <h2>12. Disposições Finais</h2>
-                <ul>
-                    <li><strong>Integralidade:</strong> Estes termos constituem o acordo completo entre as partes</li>
-                    <li><strong>Independência:</strong> Se alguma cláusula for inválida, as demais continuam válidas
-                    </li>
-                    <li><strong>Não renúncia:</strong> Tolerância com violações não constitui renúncia de direitos</li>
-                    <li><strong>Idioma:</strong> Em caso de tradução, a versão em português prevalece</li>
-                </ul>
+            <div class="content-card">
+                <h2>8. Privacidade e Proteção de Dados</h2>
+                <p>O tratamento de dados pessoais é regido por nossa <a href="privacy.html"
+                        style="color: var(--primary-600); text-decoration: none; font-weight: 500;">Política de
+                        Privacidade</a>, que faz parte integrante destes Termos de Uso.</p>
 
                 <div class="highlight-box">
-                    <strong>✨ Nosso Compromisso:</strong> Estamos comprometidos em fornecer um serviço de qualidade,
-                    transparente e que realmente ajude profissionais a alcançarem seus objetivos de carreira.
+                    <p><strong>LGPD:</strong> Cumprimos integralmente a Lei Geral de Proteção de Dados (LGPD) e todas as
+                        normas aplicáveis de proteção de dados.</p>
                 </div>
+            </div>
 
+            <div class="content-card">
+                <h2>9. Modificações nos Termos</h2>
+                <p>Reservamo-nos o direito de alterar estes Termos de Uso a qualquer momento. Alterações significativas
+                    serão comunicadas com antecedência de 30 dias.</p>
+
+                <h3>9.1 Notificação de Mudanças</h3>
+                <p>Mudanças serão comunicadas através de:</p>
+                <ul>
+                    <li>Email para usuários cadastrados</li>
+                    <li>Aviso na plataforma</li>
+                    <li>Atualização da data "Última atualização" nesta página</li>
+                </ul>
+            </div>
+
+            <div class="content-card">
+                <h2>10. Rescisão</h2>
+                <h3>10.1 Pelo Usuário</h3>
+                <p>Você pode encerrar sua conta a qualquer momento entrando em contato conosco ou através das
+                    configurações da plataforma.</p>
+
+                <h3>10.2 Por Nossa Parte</h3>
+                <p>Podemos suspender ou encerrar contas em caso de:</p>
+                <ul>
+                    <li>Violação destes Termos de Uso</li>
+                    <li>Uso fraudulento da plataforma</li>
+                    <li>Comportamento prejudicial a outros usuários</li>
+                    <li>Atividade ilegal ou suspeita</li>
+                </ul>
+            </div>
+
+            <div class="content-card">
+                <h2>11. Lei Aplicável e Jurisdição</h2>
+                <p>Estes Termos de Uso são regidos pelas leis brasileiras. Qualquer disputa será resolvida no foro da
+                    comarca de São Paulo, SP, Brasil.</p>
+
+                <h3>11.1 Resolução de Conflitos</h3>
+                <p>Encorajamos a resolução amigável de conflitos. Entre em contato conosco antes de iniciar qualquer
+                    procedimento legal.</p>
+            </div>
+
+            <div class="content-card">
+                <h2>12. Contato</h2>
+                <div class="contact-box">
+                    <h4>Dúvidas sobre estes Termos?</h4>
+                    <p><strong>Email:</strong> <a
+                            href="mailto:contato@cvsemfrescura.com.br">contato@cvsemfrescura.com.br</a></p>
+                    <p><strong>Formulário de contato:</strong> <a href="contact.html">Página de Contato</a></p>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <div class="highlight-box">
+                    <p><strong>Última atualização:</strong> Janeiro de 2025. Ao continuar usando nossos serviços após
+                        esta data, você concorda com estes termos atualizados.</p>
+                </div>
             </div>
         </div>
-    </main>
+    </section>
 
+    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
+                <div class="footer-about">
+                    <img src="assets/img/logo.png" alt="CV Sem Frescura" class="footer-logo">
+                    <p class="footer-description">
+                        Ajudamos profissionais a otimizarem seus currículos para sistemas ATS, maximizando as chances de
+                        contratação através de análise com IA.
+                    </p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Produto</h4>
+                    <div class="footer-links">
+                        <a href="landing.html#features" class="footer-link">Benefícios</a>
+                        <a href="landing.html#how-it-works" class="footer-link">Como Funciona</a>
+                        <a href="payment.html" class="footer-link">Preços</a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Suporte</h4>
+                    <div class="footer-links">
+                        <a href="privacy.html" class="footer-link">Política de Privacidade</a>
+                        <a href="terms.html" class="footer-link">Termos de Uso</a>
+                        <a href="contact.html" class="footer-link">Contato</a>
+                        <a href="faq.html" class="footer-link">FAQ</a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>🤖 Desenvolvimento IA</h4>
+                    <div class="footer-links">
+                        <p class="footer-description"
+                            style="font-size: 0.9rem; margin-bottom: 12px; color: var(--gray-400);">
+                            Precisa de um site com IA como este?
+                        </p>
+                        <a href="mailto:rafaeldenovaes@gmail.com" class="footer-link">
+                            <span style="margin-right: 6px;">📧</span>Email
+                        </a>
+                        <a href="https://wa.me/5511949105033" class="footer-link" target="_blank">
+                            <span style="margin-right: 6px;">📱</span>WhatsApp
+                        </a>
+                        <a href="https://www.linkedin.com/in/rafaeldenovaes/" class="footer-link" target="_blank">
+                            <span style="margin-right: 6px;">💼</span>LinkedIn
+                        </a>
+                        <a href="https://github.com/rafaelnovaes22" class="footer-link" target="_blank">
+                            <span style="margin-right: 6px;">💻</span>Portfólio
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
                 <p>© 2025 CV Sem Frescura. Todos os direitos reservados.</p>
-                <p>Termos claros e justos para uma parceria de sucesso</p>
             </div>
         </div>
     </footer>
+
+    <!-- Scripts -->
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/header-new.js?v=1748114561"></script>
+    <script>
+        // Smooth Scroll for Internal Links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+
+                if (href && href.length > 1) {
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                }
+            });
+        });
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Tab') {
+                document.body.classList.add('keyboard-navigation');
+            }
+        });
+
+        document.addEventListener('mousedown', function () {
+            document.body.classList.remove('keyboard-navigation');
+        });
+
+        // Add focus styles for accessibility
+        document.addEventListener('DOMContentLoaded', function () {
+            const style = document.createElement('style');
+            style.textContent = `
+                .keyboard-navigation *:focus {
+                    outline: 2px solid var(--primary-500) !important;
+                    outline-offset: 2px !important;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
 </body>
 
 </html>

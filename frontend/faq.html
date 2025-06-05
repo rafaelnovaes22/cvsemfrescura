@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Perguntas frequentes sobre o CV Sem Frescura - Tire suas dúvidas sobre análise de currículo com IA.">
+    <meta name="keywords" content="FAQ, perguntas frequentes, currículo, ATS, Gupy, análise IA">
+    <title>FAQ - CV Sem Frescura</title>
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        as="style">
+    <link rel="preload" href="assets/img/logo.png" as="image">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Header CSS -->
+    <link rel="stylesheet" href="assets/css/header.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+
+    <style>
+        /* CSS Reset e Variáveis */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Design System */
+            --primary-50: #faf9f7;
+            --primary-100: #f4f0ea;
+            --primary-200: #e8ddd0;
+            --primary-300: #d6c4a0;
+            --primary-400: #c5a575;
+            --primary-500: #8b6b3d;
+            --primary-600: #583819;
+            --primary-700: #4a2f15;
+            --primary-800: #3d2712;
+            --primary-900: #32200f;
+
+            --accent-50: #fefcf9;
+            --accent-100: #fdf6ed;
+            --accent-200: #faeacc;
+            --accent-300: #f5d5a0;
+            --accent-400: #eec165;
+            --accent-500: #e8ad35;
+            --accent-600: #d99b28;
+            --accent-700: #b67d1f;
+            --accent-800: #926420;
+            --accent-900: #79521d;
+
+            --gray-50: #fafafa;
+            --gray-100: #f4f4f5;
+            --gray-200: #e4e4e7;
+            --gray-300: #d4d4d8;
+            --gray-400: #a1a1aa;
+            --gray-500: #71717a;
+            --gray-600: #52525b;
+            --gray-700: #3f3f46;
+            --gray-800: #27272a;
+            --gray-900: #18181b;
+
+            --success-500: #583819;
+            --warning-500: #f59e0b;
+            --error-500: #ef4444;
+
+            /* Spacing */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
+            --space-12: 3rem;
+            --space-16: 4rem;
+            --space-20: 5rem;
+
+            /* Border Radius */
+            --radius-sm: 0.25rem;
+            --radius-md: 0.375rem;
+            --radius-lg: 0.5rem;
+            --radius-xl: 0.75rem;
+            --radius-2xl: 1rem;
+            --radius-3xl: 1.5rem;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+            /* Transitions */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* Typography */
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            line-height: 1.6;
+            color: var(--gray-800);
+            background-color: var(--primary-50);
+            font-size: 16px;
+            overflow-x: hidden;
+        }
+
+        /* Utility Classes */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 var(--space-6);
+        }
+
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity var(--transition-slow), transform var(--transition-slow);
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Button System */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            font-weight: 600;
+            font-size: 0.875rem;
+            line-height: 1;
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-fast);
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+            color: white;
+            padding: var(--space-3) var(--space-6);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-700), var(--primary-600));
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Page Styles */
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+            color: white;
+            padding: var(--space-20) 0 var(--space-16);
+            margin-top: 80px;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: var(--space-4);
+            text-align: center;
+        }
+
+        .page-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .faq-section {
+            padding: var(--space-20) 0;
+        }
+
+        .faq-grid {
+            display: grid;
+            gap: var(--space-6);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            transition: all var(--transition-normal);
+        }
+
+        .faq-item:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .faq-question {
+            background: none;
+            border: none;
+            width: 100%;
+            padding: var(--space-6);
+            text-align: left;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all var(--transition-fast);
+        }
+
+        .faq-question:hover {
+            background: var(--gray-50);
+        }
+
+        .faq-icon {
+            font-size: 1.5rem;
+            transition: transform var(--transition-normal);
+            flex-shrink: 0;
+            margin-left: var(--space-4);
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height var(--transition-normal) ease-out;
+        }
+
+        .faq-answer.active {
+            max-height: 500px;
+        }
+
+        .faq-answer-content {
+            padding: 0 var(--space-6) var(--space-6);
+            color: var(--gray-600);
+            line-height: 1.7;
+        }
+
+        .faq-answer-content p {
+            margin-bottom: var(--space-4);
+        }
+
+        .faq-answer-content ul {
+            margin-left: var(--space-5);
+            margin-bottom: var(--space-4);
+        }
+
+        .faq-answer-content li {
+            margin-bottom: var(--space-2);
+        }
+
+        .faq-answer-content strong {
+            color: var(--primary-600);
+        }
+
+        /* CTA Section */
+        .faq-cta {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+            color: white;
+            padding: var(--space-16) 0;
+            text-align: center;
+        }
+
+        .faq-cta h2 {
+            font-size: 2rem;
+            margin-bottom: var(--space-4);
+        }
+
+        .faq-cta p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+            margin-bottom: var(--space-8);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn-white {
+            background: white;
+            color: var(--primary-600);
+            padding: var(--space-4) var(--space-8);
+            font-size: 1rem;
+        }
+
+        .btn-white:hover {
+            background: var(--gray-100);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--gray-900);
+            color: var(--gray-300);
+            padding: var(--space-16) 0 var(--space-8);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-8);
+            margin-bottom: var(--space-8);
+        }
+
+        .footer-about {
+            max-width: 300px;
+        }
+
+        .footer-logo {
+            height: 40px;
+            margin-bottom: var(--space-4);
+        }
+
+        .footer-description {
+            color: var(--gray-400);
+            margin-bottom: var(--space-6);
+            line-height: 1.6;
+        }
+
+        .footer-section h4 {
+            color: white;
+            font-weight: 600;
+            margin-bottom: var(--space-4);
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+
+        .footer-link {
+            color: var(--gray-400);
+            text-decoration: none;
+            transition: color var(--transition-fast);
+        }
+
+        .footer-link:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--gray-700);
+            padding-top: var(--space-6);
+            text-align: center;
+            color: var(--gray-500);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .page-header {
+                padding: var(--space-16) 0 var(--space-12);
+            }
+
+            .faq-section {
+                padding: var(--space-12) 0;
+            }
+
+            .container {
+                padding: 0 var(--space-4);
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: var(--space-6);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header será carregado via JavaScript -->
+    <header id="header"></header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <div class="fade-in">
+                <h1 class="page-title">Perguntas Frequentes</h1>
+                <p class="page-subtitle">
+                    Tire suas dúvidas sobre o CV Sem Frescura e nossa análise de currículo com IA
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="container">
+            <div class="faq-grid fade-in">
+                <div class="faq-item">
+                    <button class="faq-question" data-faq="1">
+                        O que é o CV Sem Frescura?
+                        <span class="faq-icon">⬇️</span>
+                    </button>
+                    <div class="faq-answer" id="faq-1">
+                        <div class="faq-answer-content">
+                            <p>O <strong>CV Sem Frescura</strong> é uma plataforma que analisa seu currículo usando
+                                inteligência artificial para otimizá-lo para sistemas ATS (Applicant Tracking Systems)
+                                como Gupy, Workday e outros.</p>
+                            <p>Nossa IA examina seu currículo e fornece:</p>
+                            <ul>
+                                <li>Score de compatibilidade com sistemas ATS</li>
+                                <li>Sugestões específicas de melhorias</li>
+                                <li>Análise detalhada de palavras-chave</li>
+                                <li>Feedback sobre formatação e estrutura</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" data-faq="2">
+                        Como funciona a análise com IA?
+                        <span class="faq-icon">⬇️</span>
+                    </button>
+                    <div class="faq-answer" id="faq-2">
+                        <div class="faq-answer-content">
+                            <p>Nossa inteligência artificial foi treinada para simular como os sistemas ATS leem e
+                                classificam currículos. O processo funciona assim:</p>
+                            <ul>
+                                <li><strong>Upload:</strong> Você envia seu currículo em PDF</li>
+                                <li><strong>Análise:</strong> Nossa IA examina formatação, palavras-chave, estrutura e
+                                    conteúdo</li>
+                                <li><strong>Score:</strong> Geramos um score de 0 a 100 de compatibilidade ATS</li>
+                                <li><strong>Feedback:</strong> Fornecemos sugestões específicas para melhorar seu
+                                    currículo</li>
+                            </ul>
+                            <p>Todo o processo leva apenas alguns segundos e você recebe um relatório detalhado.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" data-faq="3">
+                        Quais formatos de currículo são aceitos?
+                        <span class="faq-icon">⬇️</span>
+                    </button>
+                    <div class="faq-answer" id="faq-3">
+                        <div class="faq-answer-content">
+                            <p>Atualmente aceitamos currículos em <strong>formato PDF</strong>. Este é o formato mais
+                                recomendado pois:</p>
+                            <ul>
+                                <li>Mantém a formatação original</li>
+                                <li>É o formato padrão aceito pela maioria dos sistemas ATS</li>
+                                <li>Garante que nossa análise seja precisa</li>
+                                <li>É amplamente compatível</li>
+                            </ul>
+                            <p>Certifique-se de que seu PDF seja legível e não seja uma imagem escaneada para melhores
+                                resultados.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" data-faq="4">
+                        O que são sistemas ATS e por que são importantes?
+                        <span class="faq-icon">⬇️</span>
+                    </button>
+                    <div class="faq-answer" id="faq-4">
+                        <div class="faq-answer-content">
+                            <p><strong>ATS (Applicant Tracking Systems)</strong> são softwares que empresas usam para
+                                gerenciar processos seletivos. Exemplos incluem:</p>
+                            <ul>
+                                <li>Gupy (muito usado no Brasil)</li>
+                                <li>Workday</li>
+                                <li>SmartRecruiters</li>
+                                <li>Greenhouse</li>
+                                <li>Lever</li>
+                            </ul>
+                            <p>Estes sistemas <strong>filtram automaticamente</strong> currículos antes que um
+                                recrutador humano os veja. Se seu currículo não estiver otimizado, pode ser rejeitado
+                                automaticamente, mesmo que você seja qualificado para a vaga.</p>
+                            <p>É por isso que é crucial ter um currículo otimizado para ATS!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" data-faq="5">
+                        Quanto custa a análise?
+                        <span class="faq-icon">⬇️</span>
+                    </button>
+                    <div class="faq-answer" id="faq-5">
+                        <div class="faq-answer-content">
+                            <p>Oferecemos um modelo de análise única por <strong>R$ 15,00</strong>. Este valor inclui:
+                            </p>
+                            <ul>
+                                <li>Análise completa do seu currículo</li>
+                                <li>Score de compatibilidade ATS</li>
+                                <li>Relatório detalhado com sugestões</li>
+                                <li>Acesso ao resultado por tempo ilimitado</li>
+                                <li>Suporte via WhatsApp se tiver dúvidas</li>
+                            </ul>
+                            <p>Não temos assinaturas ou mensalidades. Você paga apenas quando quiser fazer uma análise.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" data-faq="6">
+                        Meus dados ficam seguros?
+                        <span class="faq-icon">⬇️</span>
+                    </button>
+                    <div class="faq-answer" id="faq-6">
+                        <div class="faq-answer-content">
+                            <p><strong>Sim, seus dados estão 100% seguros.</strong> Seguimos rigorosos protocolos de
+                                segurança:</p>
+                            <ul>
+                                <li>Todos os dados são criptografados</li>
+                                <li>Não compartilhamos suas informações com terceiros</li>
+                                <li>Você pode excluir seus dados a qualquer momento</li>
+                                <li>Servidores seguros com certificado SSL</li>
+                                <li>Conformidade com a LGPD</li>
+                            </ul>
+                            <p>Seu currículo é processado apenas para gerar a análise e não é usado para outros fins.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" data-faq="7">
+                        Posso analisar o mesmo currículo múltiplas vezes?
+                        <span class="faq-icon">⬇️</span>
+                    </button>
+                    <div class="faq-answer" id="faq-7">
+                        <div class="faq-answer-content">
+                            <p><strong>Sim!</strong> Recomendamos que você:</p>
+                            <ul>
+                                <li>Faça a primeira análise do seu currículo atual</li>
+                                <li>Implemente as sugestões que receber</li>
+                                <li>Faça uma nova análise para verificar a melhoria</li>
+                                <li>Repita o processo até atingir um score satisfatório</li>
+                            </ul>
+                            <p>Cada análise custa R$ 15,00, mas muitos usuários conseguem otimizar seus currículos com
+                                apenas 1-2 análises.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" data-faq="8">
+                        Quanto tempo demora para receber o resultado?
+                        <span class="faq-icon">⬇️</span>
+                    </button>
+                    <div class="faq-answer" id="faq-8">
+                        <div class="faq-answer-content">
+                            <p>O resultado é <strong>instantâneo!</strong> Assim que você:</p>
+                            <ul>
+                                <li>Fizer o upload do seu currículo</li>
+                                <li>Completar o pagamento</li>
+                                <li>Nossa IA processar o arquivo (15-30 segundos)</li>
+                            </ul>
+                            <p>Você receberá imediatamente o relatório completo com score e sugestões de melhoria.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" data-faq="9">
+                        Que tipo de sugestões vou receber?
+                        <span class="faq-icon">⬇️</span>
+                    </button>
+                    <div class="faq-answer" id="faq-9">
+                        <div class="faq-answer-content">
+                            <p>Nossas sugestões são específicas e acionáveis, incluindo:</p>
+                            <ul>
+                                <li><strong>Palavras-chave:</strong> Quais termos adicionar ou remover</li>
+                                <li><strong>Formatação:</strong> Como melhorar a estrutura do documento</li>
+                                <li><strong>Seções:</strong> Que informações incluir ou reorganizar</li>
+                                <li><strong>Linguagem:</strong> Como tornar o texto mais efetivo</li>
+                                <li><strong>Comprimento:</strong> Se precisa encurtar ou expandir seções</li>
+                            </ul>
+                            <p>Cada sugestão vem com explicação do por que é importante para sistemas ATS.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" data-faq="10">
+                        Tenho código promocional do curso RH Super Sincero. Como usar?
+                        <span class="faq-icon">⬇️</span>
+                    </button>
+                    <div class="faq-answer" id="faq-10">
+                        <div class="faq-answer-content">
+                            <p>Se você é aluno do curso <strong>RH Super Sincero</strong>, pode usar seu código
+                                promocional:</p>
+                            <ul>
+                                <li>Na página inicial, procure a seção "Código exclusivo do curso RH Super Sincero"</li>
+                                <li>Digite seu código promocional</li>
+                                <li>O sistema validará automaticamente</li>
+                                <li>Você será redirecionado direto para a análise gratuita</li>
+                            </ul>
+                            <p>Se tiver problemas com seu código, entre em contato conosco via WhatsApp.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" data-faq="11">
+                        Como posso entrar em contato se tiver problemas?
+                        <span class="faq-icon">⬇️</span>
+                    </button>
+                    <div class="faq-answer" id="faq-11">
+                        <div class="faq-answer-content">
+                            <p>Oferecemos várias formas de suporte:</p>
+                            <ul>
+                                <li><strong>WhatsApp:</strong> +55 11 94910-5033 (mais rápido)</li>
+                                <li><strong>Email:</strong> rafaeldenovaes@gmail.com</li>
+                                <li><strong>Página de contato:</strong> Através do nosso formulário</li>
+                            </ul>
+                            <p>Nosso time responde rapidamente e está pronto para ajudar com qualquer dúvida técnica ou
+                                sobre o uso da plataforma.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="faq-cta">
+        <div class="container">
+            <div class="fade-in">
+                <h2>Ainda tem dúvidas?</h2>
+                <p>Nossa equipe está pronta para ajudar! Entre em contato conosco ou comece sua análise agora mesmo.</p>
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <a href="contact.html" class="btn btn-white">
+                        📞 Entrar em Contato
+                    </a>
+                    <a href="payment.html" class="btn btn-white">
+                        🚀 Começar Análise
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <img src="assets/img/logo.png" alt="CV Sem Frescura" class="footer-logo">
+                    <p class="footer-description">
+                        Ajudamos profissionais a otimizarem seus currículos para sistemas ATS, maximizando as chances de
+                        contratação através de análise com IA.
+                    </p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Produto</h4>
+                    <div class="footer-links">
+                        <a href="landing.html#features" class="footer-link">Benefícios</a>
+                        <a href="landing.html#how-it-works" class="footer-link">Como Funciona</a>
+                        <a href="payment.html" class="footer-link">Preços</a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Suporte</h4>
+                    <div class="footer-links">
+                        <a href="privacy.html" class="footer-link">Política de Privacidade</a>
+                        <a href="terms.html" class="footer-link">Termos de Uso</a>
+                        <a href="contact.html" class="footer-link">Contato</a>
+                        <a href="faq.html" class="footer-link">FAQ</a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>🤖 Desenvolvimento IA</h4>
+                    <div class="footer-links">
+                        <p class="footer-description"
+                            style="font-size: 0.9rem; margin-bottom: 12px; color: var(--gray-400);">
+                            Precisa de um site com IA como este?
+                        </p>
+                        <a href="mailto:rafaeldenovaes@gmail.com" class="footer-link">
+                            <span style="margin-right: 6px;">📧</span>Email
+                        </a>
+                        <a href="https://wa.me/5511949105033" class="footer-link" target="_blank">
+                            <span style="margin-right: 6px;">📱</span>WhatsApp
+                        </a>
+                        <a href="https://www.linkedin.com/in/rafaeldenovaes/" class="footer-link" target="_blank">
+                            <span style="margin-right: 6px;">💼</span>LinkedIn
+                        </a>
+                        <a href="https://github.com/rafaelnovaes22" class="footer-link" target="_blank">
+                            <span style="margin-right: 6px;">💻</span>Portfólio
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© 2025 CV Sem Frescura. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/header-new.js?v=1748114561"></script>
+    <script>
+        // Loading Animation
+        window.addEventListener('load', function () {
+            // Scroll Animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function (entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+        });
+
+        // FAQ Accordion
+        document.querySelectorAll('.faq-question').forEach(button => {
+            button.addEventListener('click', function () {
+                const faqItem = this.parentElement;
+                const faqId = this.getAttribute('data-faq');
+                const faqAnswer = document.getElementById(`faq-${faqId}`);
+
+                // Toggle active state
+                const isActive = faqItem.classList.contains('active');
+
+                // Close all other FAQs
+                document.querySelectorAll('.faq-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelectorAll('.faq-answer').forEach(answer => {
+                    answer.classList.remove('active');
+                });
+
+                // If this FAQ wasn't active, open it
+                if (!isActive) {
+                    faqItem.classList.add('active');
+                    faqAnswer.classList.add('active');
+                }
+            });
+        });
+
+        // Smooth Scroll for Internal Links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+
+                if (href && href.length > 1) {
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                }
+            });
+        });
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Tab') {
+                document.body.classList.add('keyboard-navigation');
+            }
+        });
+
+        document.addEventListener('mousedown', function () {
+            document.body.classList.remove('keyboard-navigation');
+        });
+
+        // Add focus styles for accessibility
+        document.addEventListener('DOMContentLoaded', function () {
+            const style = document.createElement('style');
+            style.textContent = `
+                .keyboard-navigation *:focus {
+                    outline: 2px solid var(--primary-500) !important;
+                    outline-offset: 2px !important;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+
+</html>

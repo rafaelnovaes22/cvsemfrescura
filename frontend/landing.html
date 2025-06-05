@@ -568,8 +568,6 @@
             font-size: 0.95rem;
         }
 
-
-
         /* CTA Section */
         .cta {
             padding: var(--space-20) 0;
@@ -665,6 +663,7 @@
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             margin-top: var(--space-8);
+            position: relative;
         }
 
         .gift-code-title {
@@ -683,6 +682,7 @@
             overflow: hidden;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-md);
+            position: relative;
         }
 
         .gift-code-input {
@@ -692,10 +692,23 @@
             font-size: 1rem;
             background: white;
             color: var(--gray-800);
+            transition: all var(--transition-fast);
         }
 
         .gift-code-input::placeholder {
             color: var(--gray-400);
+        }
+
+        .gift-code-input.validating {
+            border-left: 3px solid #f59e0b;
+        }
+
+        .gift-code-input.valid {
+            border-left: 3px solid #10b981;
+        }
+
+        .gift-code-input.invalid {
+            border-left: 3px solid #ef4444;
         }
 
         .gift-code-button {
@@ -705,11 +718,61 @@
             padding: var(--space-4) var(--space-6);
             font-weight: 600;
             cursor: pointer;
-            transition: background var(--transition-fast);
+            transition: all var(--transition-fast);
+            position: relative;
+            overflow: hidden;
+            min-width: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
-        .gift-code-button:hover {
+        .gift-code-button:hover:not(:disabled) {
             background: var(--accent-600);
+            transform: translateY(-1px);
+        }
+
+        .gift-code-button.validating {
+            background: #f59e0b;
+        }
+
+        .gift-code-button.valid {
+            background: #10b981;
+            cursor: pointer;
+        }
+
+        .gift-code-button.invalid {
+            background: #ef4444;
+            cursor: not-allowed;
+        }
+
+        .gift-code-button:disabled {
+            cursor: not-allowed;
+        }
+
+        .gift-code-input:disabled {
+            background: var(--gray-100);
+            cursor: not-allowed;
+        }
+
+        .gift-code-spinner-inline {
+            width: 14px;
+            height: 14px;
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            border-top: 1.5px solid white;
+            border-radius: 50%;
+            animation: spin-inline 1s linear infinite;
+        }
+
+        @keyframes spin-inline {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .gift-code-note {
@@ -1213,8 +1276,6 @@
         </div>
     </section>
 
-
-
     <!-- CTA Section -->
     <section class="cta" id="cta">
         <div class="container">
@@ -1266,9 +1327,10 @@
                         contratação através de análise com IA.
                     </p>
                     <div class="social-links">
-                        <a href="#" class="social-link" aria-label="Facebook">FB</a>
-                        <a href="#" class="social-link" aria-label="Instagram">IG</a>
-                        <a href="#" class="social-link" aria-label="LinkedIn">IN</a>
+                        <a href="https://www.instagram.com/lucianarhsincero/" class="social-link" aria-label="Instagram"
+                            target="_blank">IG</a>
+                        <a href="https://www.linkedin.com/in/lucianarhsincero/" class="social-link"
+                            aria-label="LinkedIn" target="_blank">IN</a>
                     </div>
                 </div>
 
@@ -1287,7 +1349,7 @@
                         <a href="privacy.html" class="footer-link">Política de Privacidade</a>
                         <a href="terms.html" class="footer-link">Termos de Uso</a>
                         <a href="contact.html" class="footer-link">Contato</a>
-                        <a href="#" class="footer-link">FAQ</a>
+                        <a href="faq.html" class="footer-link">FAQ</a>
                     </div>
                 </div>
 
@@ -1370,35 +1432,181 @@
             });
         });
 
-        // Gift Code Form
-        document.getElementById('giftCodeForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const giftCode = document.getElementById('giftCode').value.trim();
+        // Gift Code Form - Validação em tempo real
+        let validationTimeout = null;
+        let currentCode = '';
+        let isValidating = false;
 
-            if (giftCode) {
-                // Store code and redirect
-                localStorage.setItem('giftCode', giftCode);
-                window.location.href = 'analisar.html?giftCode=' + encodeURIComponent(giftCode);
+        const giftCodeInput = document.getElementById('giftCode');
+        const giftCodeButton = document.querySelector('.gift-code-button');
+        const giftCodeForm = document.getElementById('giftCodeForm');
+
+        // Estados do botão
+        const buttonStates = {
+            normal: { text: 'Aplicar', class: '', disabled: false },
+            validating: { text: 'Validando...', class: 'validating', disabled: true },
+            valid: { text: 'Válido! Clique aqui', class: 'valid', disabled: false },
+            invalid: { text: 'Código inválido', class: 'invalid', disabled: true },
+            empty: { text: 'Digite um código', class: '', disabled: true }
+        };
+
+        function updateButtonState(state) {
+            const config = buttonStates[state];
+
+            // Remover todas as classes de estado
+            giftCodeButton.classList.remove('validating', 'valid', 'invalid');
+
+            // Adicionar classe específica se houver
+            if (config.class) {
+                giftCodeButton.classList.add(config.class);
+            }
+
+            // Atualizar texto e spinner
+            if (state === 'validating') {
+                giftCodeButton.innerHTML = `
+                    <div class="gift-code-spinner-inline"></div>
+                    <span>${config.text}</span>
+                `;
             } else {
-                // Simple alert for now - could be replaced with a toast notification
-                alert('Por favor, insira um código válido.');
+                giftCodeButton.innerHTML = config.text;
             }
+
+            // Definir estado disabled
+            giftCodeButton.disabled = config.disabled;
+        }
+
+        function updateInputState(state) {
+            // Remover todas as classes de estado do input
+            giftCodeInput.classList.remove('validating', 'valid', 'invalid');
+
+            // Adicionar classe específica se houver
+            if (state !== 'normal' && state !== 'empty') {
+                giftCodeInput.classList.add(state);
+            }
+        }
+
+        async function validateCodeRealTime(code) {
+            if (isValidating) return;
+
+            console.log(`🔍 Validando código em tempo real: "${code}"`);
+
+            isValidating = true;
+            updateButtonState('validating');
+            updateInputState('validating');
+
+            try {
+                // Detectar a URL base correta
+                const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
+
+                const response = await fetch(`${API_BASE}/api/gift-code/validate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ code: code })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (data.valid) {
+                    updateButtonState('valid');
+                    updateInputState('valid');
+                    console.log(`✅ Código válido: ${code}`);
+                } else {
+                    updateButtonState('invalid');
+                    updateInputState('invalid');
+                    console.log(`❌ Código inválido: ${code}`);
+                }
+            } catch (error) {
+                console.error('Erro ao validar código:', error);
+
+                // Modo desenvolvimento - simular validação se API não estiver disponível
+                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    console.log('🔧 Modo desenvolvimento ativo - simulando validação');
+
+                    const validTestCodes = ['ADMIN123', 'PROMO2024', 'WELCOME', 'STUDENT', 'RH-SUPER-SINCERO-2025'];
+
+                    if (validTestCodes.includes(code.toUpperCase())) {
+                        updateButtonState('valid');
+                        updateInputState('valid');
+                        console.log(`✅ Código válido (modo teste): ${code}`);
+                    } else {
+                        updateButtonState('invalid');
+                        updateInputState('invalid');
+                        console.log(`❌ Código inválido (modo teste): ${code}`);
+                    }
+                } else {
+                    updateButtonState('invalid');
+                    updateInputState('invalid');
+                }
+            } finally {
+                isValidating = false;
+            }
+        }
+
+        // Event listener para input em tempo real
+        giftCodeInput.addEventListener('input', function (e) {
+            const code = e.target.value.trim();
+            currentCode = code;
+
+            // Limpar timeout anterior
+            if (validationTimeout) {
+                clearTimeout(validationTimeout);
+            }
+
+            // Se campo estiver vazio
+            if (!code) {
+                updateButtonState('empty');
+                updateInputState('normal');
+                return;
+            }
+
+            // Se código for muito curto
+            if (code.length < 3) {
+                updateButtonState('invalid');
+                updateInputState('invalid');
+                return;
+            }
+
+            // Validar após 500ms de pausa na digitação
+            validationTimeout = setTimeout(() => {
+                validateCodeRealTime(code);
+            }, 500);
         });
 
-        // Gift Code Button Handlers
-        document.addEventListener('click', function (e) {
-            if (e.target.closest('[href="#gift-code"]')) {
-                e.preventDefault();
-                const giftCodeSection = document.getElementById('gift-code');
-                if (giftCodeSection) {
-                    giftCodeSection.scrollIntoView({ behavior: 'smooth' });
-                    setTimeout(() => {
-                        const giftCodeInput = document.getElementById('giftCode');
-                        if (giftCodeInput) giftCodeInput.focus();
-                    }, 500);
-                }
+        // Event listener para submit do form
+        giftCodeForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const code = giftCodeInput.value.trim();
+
+            // Se código não é válido, não fazer nada
+            if (!giftCodeButton.classList.contains('valid')) {
+                return;
             }
+
+            // Se código é válido, redirecionar
+            console.log(`🚀 Redirecionando com código válido: ${code}`);
+            localStorage.setItem('giftCode', code);
+
+            // Mostrar feedback de redirecionamento
+            updateButtonState('validating');
+            giftCodeButton.innerHTML = `
+                <div class="gift-code-spinner-inline"></div>
+                <span>Redirecionando...</span>
+            `;
+
+            setTimeout(() => {
+                window.location.href = 'analisar.html?giftCode=' + encodeURIComponent(code);
+            }, 800);
         });
+
+        // Estado inicial do botão
+        updateButtonState('empty');
 
         // Buy Button Handlers
         document.querySelectorAll('a[href="payment.html"]').forEach(button => {

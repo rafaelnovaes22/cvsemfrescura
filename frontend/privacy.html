@@ -4,344 +4,812 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Políticas de Privacidade | CV Sem Frescura</title>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
+    <meta name="description"
+        content="Política de Privacidade do CV Sem Frescura - Como protegemos seus dados pessoais.">
+    <title>Política de Privacidade - CV Sem Frescura</title>
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        as="style">
+    <link rel="preload" href="assets/img/logo.png" as="image">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Header CSS -->
+    <link rel="stylesheet" href="assets/css/header.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
 
     <style>
-        :root {
-            --primary: #583819;
-            --primary-dark: #512808;
-            --background: #F3EADA;
-            --card-bg: #FFFCF9;
-            --white: #FFFFFF;
-            --text-dark: #583819;
-            --text-gray: #505050;
-            --border-color: #D1D1D1;
-            --border-radius: 10px;
-            --shadow: 0px 4px 6px rgba(33, 33, 33, 0.04);
-            --transition: all 0.3s ease;
-        }
-
+        /* CSS Reset e Variáveis */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            /* Design System */
+            --primary-50: #faf9f7;
+            --primary-100: #f4f0ea;
+            --primary-200: #e8ddd0;
+            --primary-300: #d6c4a0;
+            --primary-400: #c5a575;
+            --primary-500: #8b6b3d;
+            --primary-600: #583819;
+            --primary-700: #4a2f15;
+            --primary-800: #3d2712;
+            --primary-900: #32200f;
+
+            --gray-50: #fafafa;
+            --gray-100: #f4f4f5;
+            --gray-200: #e4e4e7;
+            --gray-300: #d4d4d8;
+            --gray-400: #a1a1aa;
+            --gray-500: #71717a;
+            --gray-600: #52525b;
+            --gray-700: #3f3f46;
+            --gray-800: #27272a;
+            --gray-900: #18181b;
+
+            /* Spacing */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
+            --space-12: 3rem;
+            --space-16: 4rem;
+            --space-20: 5rem;
+
+            /* Border Radius */
+            --radius-sm: 0.25rem;
+            --radius-md: 0.375rem;
+            --radius-lg: 0.5rem;
+            --radius-xl: 0.75rem;
+            --radius-2xl: 1rem;
+            --radius-3xl: 1.5rem;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+            /* Transitions */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* Typography */
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
         body {
-            font-family: 'IBM Plex Sans', sans-serif;
-            background-color: var(--background);
-            color: var(--text-gray);
+            font-family: var(--font-family);
             line-height: 1.6;
+            color: var(--gray-800);
+            background-color: var(--primary-50);
+            font-size: 16px;
         }
 
         .container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 var(--space-6);
         }
 
-        .header {
-            background-color: var(--white);
-            padding: 20px 0;
-            box-shadow: var(--shadow);
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            height: 60px;
-            width: auto;
-        }
-
-        .back-link {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-            padding: 8px 16px;
-            border: 2px solid var(--primary);
-            border-radius: 6px;
-            transition: var(--transition);
-        }
-
-        .back-link:hover {
-            background-color: var(--primary);
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
             color: white;
+            padding: var(--space-20) 0 var(--space-16);
+            margin-top: 80px;
         }
 
-        .main-content {
-            padding: 40px 0;
-        }
-
-        .content-card {
-            background-color: var(--white);
-            border-radius: var(--border-radius);
-            padding: 40px;
-            box-shadow: var(--shadow);
-            margin-bottom: 30px;
-        }
-
-        h1 {
-            color: var(--primary);
-            font-size: 32px;
+        .page-title {
+            font-size: 3rem;
             font-weight: 700;
-            margin-bottom: 10px;
+            margin-bottom: var(--space-4);
             text-align: center;
+        }
+
+        .page-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         .last-updated {
             text-align: center;
-            color: var(--text-gray);
-            font-size: 14px;
-            margin-bottom: 30px;
-            font-style: italic;
+            opacity: 0.8;
+            font-size: 0.9rem;
+            margin-top: var(--space-3);
         }
 
-        h2 {
-            color: var(--primary);
-            font-size: 24px;
+        /* Content */
+        .content-section {
+            padding: var(--space-16) 0;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: var(--radius-2xl);
+            padding: var(--space-12);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--space-8);
+        }
+
+        .content-card h2 {
+            color: var(--primary-600);
+            font-size: 1.875rem;
             font-weight: 600;
-            margin: 30px 0 15px 0;
-            border-bottom: 2px solid var(--background);
-            padding-bottom: 8px;
+            margin-bottom: var(--space-6);
+            padding-bottom: var(--space-3);
+            border-bottom: 2px solid var(--primary-100);
         }
 
-        h3 {
-            color: var(--text-dark);
-            font-size: 20px;
+        .content-card h3 {
+            color: var(--gray-700);
+            font-size: 1.25rem;
             font-weight: 600;
-            margin: 25px 0 12px 0;
+            margin: var(--space-6) 0 var(--space-3) 0;
         }
 
-        p {
-            margin-bottom: 15px;
+        .content-card p {
+            margin-bottom: var(--space-4);
             line-height: 1.7;
+            color: var(--gray-600);
         }
 
-        ul,
-        ol {
-            margin: 15px 0;
-            padding-left: 25px;
+        .content-card ul,
+        .content-card ol {
+            margin: var(--space-4) 0;
+            padding-left: var(--space-6);
         }
 
-        li {
-            margin-bottom: 8px;
+        .content-card li {
+            margin-bottom: var(--space-2);
             line-height: 1.6;
+            color: var(--gray-600);
         }
 
         .highlight-box {
-            background-color: var(--background);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
+            background: var(--primary-50);
+            border: 1px solid var(--primary-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            margin: var(--space-6) 0;
         }
 
-        .contact-info {
-            background-color: #f8f9ff;
-            border: 1px solid #e1e8ff;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 25px 0;
+        .highlight-box p {
+            margin: 0;
+            color: var(--primary-700);
+            font-weight: 500;
         }
 
-        .contact-info h4 {
-            color: var(--primary);
-            margin-bottom: 10px;
+        .warning-box {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            margin: var(--space-6) 0;
+        }
+
+        .warning-box p {
+            margin: 0;
+            color: #92400e;
+            font-weight: 500;
+        }
+
+        .security-box {
+            background: #f0fdf4;
+            border: 1px solid #22c55e;
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            margin: var(--space-6) 0;
+        }
+
+        .security-box h4 {
+            color: #166534;
+            margin-bottom: var(--space-3);
+            font-weight: 600;
+        }
+
+        .security-box p {
+            margin: 0;
+            color: #166534;
+        }
+
+        .contact-box {
+            background: #eff6ff;
+            border: 1px solid #3b82f6;
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            margin: var(--space-6) 0;
+        }
+
+        .contact-box h4 {
+            color: #1e40af;
+            margin-bottom: var(--space-3);
+            font-weight: 600;
+        }
+
+        .contact-box p {
+            margin: 0;
+            color: #1e40af;
+        }
+
+        .contact-box a {
+            color: #1e40af;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-box a:hover {
+            text-decoration: underline;
+        }
+
+        .data-table {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            margin: var(--space-6) 0;
+            overflow-x: auto;
+        }
+
+        .data-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: var(--space-3);
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .data-table th {
+            background: var(--primary-100);
+            color: var(--primary-700);
+            font-weight: 600;
         }
 
         strong {
-            color: var(--text-dark);
+            color: var(--primary-600);
+            font-weight: 600;
         }
 
+        /* Footer */
         .footer {
-            background-color: var(--primary-dark);
-            color: var(--white);
-            padding: 20px 0;
-            margin-top: 40px;
+            background: var(--gray-900);
+            color: var(--gray-300);
+            padding: var(--space-16) 0 var(--space-8);
         }
 
         .footer-content {
-            text-align: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-8);
+            margin-bottom: var(--space-8);
         }
 
+        .footer-about {
+            max-width: 300px;
+        }
+
+        .footer-logo {
+            height: 40px;
+            margin-bottom: var(--space-4);
+        }
+
+        .footer-description {
+            color: var(--gray-400);
+            margin-bottom: var(--space-6);
+            line-height: 1.6;
+        }
+
+        .footer-section h4 {
+            color: white;
+            font-weight: 600;
+            margin-bottom: var(--space-4);
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+
+        .footer-link {
+            color: var(--gray-400);
+            text-decoration: none;
+            transition: color var(--transition-fast);
+        }
+
+        .footer-link:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--gray-700);
+            padding-top: var(--space-6);
+            text-align: center;
+            color: var(--gray-500);
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .page-header {
+                padding: var(--space-16) 0 var(--space-12);
+            }
+
+            .content-section {
+                padding: var(--space-12) 0;
+            }
+
             .content-card {
-                padding: 25px 20px;
+                padding: var(--space-8);
             }
 
-            h1 {
-                font-size: 28px;
+            .container {
+                padding: 0 var(--space-4);
             }
 
-            h2 {
-                font-size: 22px;
-            }
-
-            .header-content {
-                flex-direction: column;
-                gap: 15px;
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: var(--space-6);
             }
         }
     </style>
 </head>
 
 <body>
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <img src="assets/img/logo.png" alt="CV Sem Frescura" class="logo">
-                <a href="/" class="back-link">← Voltar ao Início</a>
-            </div>
-        </div>
-    </header>
+    <!-- Header será carregado via JavaScript -->
+    <header id="header"></header>
 
-    <main class="main-content">
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1 class="page-title">Política de Privacidade</h1>
+            <p class="page-subtitle">
+                Como coletamos, usamos e protegemos seus dados pessoais
+            </p>
+            <p class="last-updated">Última atualização: Janeiro de 2025</p>
+        </div>
+    </section>
+
+    <!-- Content -->
+    <section class="content-section">
         <div class="container">
             <div class="content-card">
-                <h1>Políticas de Privacidade</h1>
-                <p class="last-updated">Última atualização: Janeiro de 2025</p>
-
                 <h2>1. Informações Gerais</h2>
-                <p>O <strong>CV Sem Frescura</strong> é uma plataforma de análise inteligente de currículos que utiliza
-                    inteligência artificial para ajudar profissionais a otimizarem seus perfis para vagas específicas.
-                    Respeitamos sua privacidade e estamos comprometidos em proteger seus dados pessoais.</p>
+                <p>Esta Política de Privacidade descreve como o <strong>CV Sem Frescura</strong> coleta, usa, armazena e
+                    protege suas informações pessoais quando você utiliza nossa plataforma de análise de currículos com
+                    inteligência artificial.</p>
 
                 <div class="highlight-box">
-                    <strong>🔒 Seu compromisso com a privacidade:</strong> Nunca compartilhamos, vendemos ou utilizamos
-                    seus dados pessoais para fins que não sejam diretamente relacionados ao nosso serviço de análise de
-                    currículos.
+                    <p><strong>LGPD:</strong> Esta política está em conformidade com a Lei Geral de Proteção de Dados
+                        (Lei nº 13.709/2018) e demais normas aplicáveis de proteção de dados.</p>
                 </div>
 
+                <h3>1.1 Identificação do Controlador</h3>
+                <ul>
+                    <li><strong>Nome:</strong> CV Sem Frescura</li>
+                    <li><strong>Email:</strong> contato@cvsemfrescura.com.br</li>
+                    <li><strong>Responsável:</strong> Rafael de Novaes</li>
+                </ul>
+            </div>
+
+            <div class="content-card">
                 <h2>2. Dados Coletados</h2>
-                <h3>2.1 Dados de Cadastro</h3>
-                <ul>
-                    <li><strong>Nome completo:</strong> Para personalização e identificação</li>
-                    <li><strong>E-mail:</strong> Para autenticação e comunicação sobre o serviço</li>
-                    <li><strong>Senha:</strong> Armazenada de forma criptografada</li>
-                </ul>
+                <h3>2.1 Dados Fornecidos Diretamente</h3>
+                <p>Coletamos as seguintes informações quando você utiliza nossos serviços:</p>
 
-                <h3>2.2 Dados de Análise</h3>
-                <ul>
-                    <li><strong>Arquivo do currículo:</strong> Processado apenas para análise, não armazenado
-                        permanentemente</li>
-                    <li><strong>Links de vagas:</strong> URLs das vagas de interesse para comparação</li>
-                    <li><strong>Resultados de análise:</strong> Scores, recomendações e insights gerados</li>
-                </ul>
-
-                <h3>2.3 Dados Técnicos</h3>
-                <ul>
-                    <li><strong>Logs de acesso:</strong> Para segurança e melhorias do sistema</li>
-                    <li><strong>Dados de navegação:</strong> Para otimização da experiência do usuário</li>
-                    <li><strong>Informações de pagamento:</strong> Processadas por terceiros seguros (não armazenamos
-                        dados do cartão)</li>
-                </ul>
-
-                <h2>3. Como Utilizamos Seus Dados</h2>
-                <ol>
-                    <li><strong>Análise de Currículos:</strong> Processamento por IA para gerar insights e recomendações
-                    </li>
-                    <li><strong>Personalização:</strong> Adaptação da experiência às suas necessidades</li>
-                    <li><strong>Comunicação:</strong> Envio de resultados, atualizações e suporte</li>
-                    <li><strong>Melhorias:</strong> Aprimoramento contínuo dos algoritmos (dados anonimizados)</li>
-                    <li><strong>Segurança:</strong> Prevenção de fraudes e abusos</li>
-                </ol>
-
-                <h2>4. Compartilhamento de Dados</h2>
-                <p><strong>Não compartilhamos seus dados pessoais</strong> exceto nas seguintes situações específicas:
-                </p>
-
-                <ul>
-                    <li><strong>Processadores de IA:</strong> APIs de inteligência artificial para análise (dados
-                        temporários e seguros)</li>
-                    <li><strong>Processadores de pagamento:</strong> Empresas certificadas para transações financeiras
-                    </li>
-                    <li><strong>Obrigações legais:</strong> Quando exigido por lei ou autoridades competentes</li>
-                    <li><strong>Consentimento explícito:</strong> Quando você autorizar expressamente</li>
-                </ul>
-
-                <div class="highlight-box">
-                    <strong>⚠️ Importante:</strong> Seus currículos são processados temporariamente e excluídos após a
-                    análise. Não mantemos cópias permanentes dos seus documentos.
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tipo de Dado</th>
+                                <th>Finalidade</th>
+                                <th>Base Legal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Nome e Email</td>
+                                <td>Identificação e comunicação</td>
+                                <td>Execução de contrato</td>
+                            </tr>
+                            <tr>
+                                <td>Conteúdo do Currículo</td>
+                                <td>Análise por IA</td>
+                                <td>Execução de contrato</td>
+                            </tr>
+                            <tr>
+                                <td>Links de Vagas</td>
+                                <td>Comparação e análise</td>
+                                <td>Execução de contrato</td>
+                            </tr>
+                            <tr>
+                                <td>Dados de Pagamento</td>
+                                <td>Processamento de pagamento</td>
+                                <td>Execução de contrato</td>
+                            </tr>
+                            <tr>
+                                <td>Histórico de Uso</td>
+                                <td>Melhoria do serviço</td>
+                                <td>Interesse legítimo</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
-                <h2>5. Segurança dos Dados</h2>
-                <h3>5.1 Medidas de Proteção</h3>
+                <h3>2.2 Dados Coletados Automaticamente</h3>
+                <ul>
+                    <li>Endereço IP e localização aproximada</li>
+                    <li>Tipo de dispositivo e navegador</li>
+                    <li>Data e horário de acesso</li>
+                    <li>Páginas visitadas e ações realizadas</li>
+                    <li>Dados de desempenho da plataforma</li>
+                </ul>
+            </div>
+
+            <div class="content-card">
+                <h2>3. Como Usamos Seus Dados</h2>
+                <h3>3.1 Finalidades Principais</h3>
+                <ul>
+                    <li><strong>Análise de Currículo:</strong> Processar seu CV através de nossa IA para gerar insights
+                        e recomendações</li>
+                    <li><strong>Comparação com Vagas:</strong> Analisar compatibilidade entre seu perfil e requisitos
+                        das vagas</li>
+                    <li><strong>Geração de Relatórios:</strong> Criar relatórios detalhados com feedback personalizado
+                    </li>
+                    <li><strong>Comunicação:</strong> Enviar resultados da análise e atualizações importantes</li>
+                    <li><strong>Suporte:</strong> Fornecer atendimento e resolver questões técnicas</li>
+                </ul>
+
+                <h3>3.2 Finalidades Secundárias</h3>
+                <ul>
+                    <li>Melhoria dos algoritmos de IA</li>
+                    <li>Análise estatística de uso da plataforma</li>
+                    <li>Prevenção de fraudes e abusos</li>
+                    <li>Cumprimento de obrigações legais</li>
+                </ul>
+
+                <div class="warning-box">
+                    <p><strong>Importante:</strong> Seus dados nunca são compartilhados com terceiros para fins
+                        comerciais ou publicitários. Não vendemos, alugamos ou cedemos informações pessoais.</p>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h2>4. Armazenamento e Retenção</h2>
+                <h3>4.1 Localização dos Dados</h3>
+                <p>Seus dados são armazenados em servidores seguros localizados no Brasil e/ou em outros países que
+                    oferecem nível adequado de proteção de dados conforme reconhecido pela ANPD.</p>
+
+                <h3>4.2 Períodos de Retenção</h3>
+                <ul>
+                    <li><strong>Conteúdo do Currículo:</strong> Excluído automaticamente após 30 dias da análise</li>
+                    <li><strong>Resultados da Análise:</strong> Mantidos por tempo ilimitado (ou até solicitação de
+                        exclusão)</li>
+                    <li><strong>Dados de Conta:</strong> Mantidos enquanto a conta estiver ativa</li>
+                    <li><strong>Dados de Pagamento:</strong> Mantidos por 5 anos para fins fiscais</li>
+                    <li><strong>Logs de Sistema:</strong> Mantidos por 6 meses para segurança</li>
+                </ul>
+
+                <div class="security-box">
+                    <h4>🔒 Medidas de Segurança</h4>
+                    <p>Utilizamos criptografia SSL/TLS, controle de acesso, monitoramento 24/7 e backups seguros para
+                        proteger suas informações.</p>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h2>5. Compartilhamento de Dados</h2>
+                <h3>5.1 Terceiros Autorizados</h3>
+                <p>Compartilhamos dados apenas com parceiros essenciais para o funcionamento do serviço:</p>
+
+                <ul>
+                    <li><strong>Stripe:</strong> Processamento de pagamentos (dados de pagamento)</li>
+                    <li><strong>OpenAI:</strong> Análise de currículo via IA (conteúdo do CV temporariamente)</li>
+                    <li><strong>Vercel/Railway:</strong> Hospedagem da plataforma (dados técnicos)</li>
+                    <li><strong>Zoho Mail:</strong> Envio de emails transacionais (nome e email)</li>
+                </ul>
+
+                <h3>5.2 Situações Legais</h3>
+                <p>Podemos divulgar informações quando exigido por:</p>
+                <ul>
+                    <li>Ordem judicial ou requisição de autoridade competente</li>
+                    <li>Cumprimento de obrigação legal ou regulatória</li>
+                    <li>Proteção de direitos, propriedade ou segurança</li>
+                    <li>Investigação de fraudes ou violações de termos</li>
+                </ul>
+            </div>
+
+            <div class="content-card">
+                <h2>6. Seus Direitos</h2>
+                <p>Conforme a LGPD, você possui os seguintes direitos sobre seus dados pessoais:</p>
+
+                <h3>6.1 Direitos Básicos</h3>
+                <ul>
+                    <li><strong>Acesso:</strong> Confirmar a existência e acessar seus dados</li>
+                    <li><strong>Correção:</strong> Solicitar correção de dados incompletos ou incorretos</li>
+                    <li><strong>Exclusão:</strong> Solicitar exclusão de dados desnecessários ou excessivos</li>
+                    <li><strong>Portabilidade:</strong> Solicitar transferência de dados para outro fornecedor</li>
+                    <li><strong>Informação:</strong> Obter informações sobre compartilhamento de dados</li>
+                </ul>
+
+                <h3>6.2 Direitos Especiais</h3>
+                <ul>
+                    <li><strong>Oposição:</strong> Opor-se ao tratamento baseado em interesse legítimo</li>
+                    <li><strong>Revisão:</strong> Solicitar revisão de decisões automatizadas</li>
+                    <li><strong>Anonimização:</strong> Solicitar anonimização de dados quando possível</li>
+                </ul>
+
+                <h3>6.3 Como Exercer Seus Direitos</h3>
+                <div class="contact-box">
+                    <h4>Solicitações de Direitos LGPD</h4>
+                    <p><strong>Email:</strong> <a
+                            href="mailto:contato@cvsemfrescura.com.br">contato@cvsemfrescura.com.br</a></p>
+                    <p><strong>Prazo de resposta:</strong> Até 15 dias úteis</p>
+                    <p><strong>Documentação:</strong> Pode ser necessário comprovar identidade</p>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h2>7. Cookies e Tecnologias Similares</h2>
+                <h3>7.1 Tipos de Cookies</h3>
+                <ul>
+                    <li><strong>Essenciais:</strong> Necessários para funcionamento da plataforma (autenticação, sessão)
+                    </li>
+                    <li><strong>Funcionais:</strong> Melhoram a experiência do usuário (preferências, idioma)</li>
+                    <li><strong>Analíticos:</strong> Coletam estatísticas de uso (Google Analytics - dados anonimizados)
+                    </li>
+                </ul>
+
+                <h3>7.2 Controle de Cookies</h3>
+                <p>Você pode:</p>
+                <ul>
+                    <li>Configurar seu navegador para bloquear ou alertar sobre cookies</li>
+                    <li>Excluir cookies existentes através das configurações do navegador</li>
+                    <li>Optar por não participar do Google Analytics (Google Ads Settings)</li>
+                </ul>
+
+                <div class="warning-box">
+                    <p><strong>Atenção:</strong> Bloquear cookies essenciais pode afetar o funcionamento da plataforma.
+                    </p>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h2>8. Menores de Idade</h2>
+                <p>Nossa plataforma é destinada a usuários com 16 anos ou mais. Não coletamos intencionalmente dados de
+                    menores de 16 anos.</p>
+
+                <p>Se você é menor de 18 anos, recomendamos que utilize nossos serviços com supervisão de pais ou
+                    responsáveis.</p>
+
+                <div class="highlight-box">
+                    <p>Se descobrirmos que coletamos dados de menor de 16 anos sem consentimento adequado, tomaremos
+                        medidas para excluir essas informações imediatamente.</p>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h2>9. Transferência Internacional</h2>
+                <p>Alguns de nossos parceiros de serviço podem estar localizados fora do Brasil, incluindo:</p>
+
+                <ul>
+                    <li><strong>OpenAI (EUA):</strong> Para processamento de IA - dados criptografados e temporários
+                    </li>
+                    <li><strong>Stripe (EUA):</strong> Para processamento de pagamentos - em conformidade com PCI DSS
+                    </li>
+                </ul>
+
+                <p>Garantimos que essas transferências ocorram apenas para países com nível adequado de proteção ou
+                    mediante garantias apropriadas conforme a LGPD.</p>
+            </div>
+
+            <div class="content-card">
+                <h2>10. Segurança de Dados</h2>
+                <h3>10.1 Medidas Técnicas</h3>
                 <ul>
                     <li>Criptografia SSL/TLS para transmissão de dados</li>
-                    <li>Senhas criptografadas com algoritmos seguros</li>
-                    <li>Acesso restrito aos dados por nossa equipe</li>
+                    <li>Criptografia de dados em repouso</li>
+                    <li>Controle de acesso com autenticação multifator</li>
                     <li>Monitoramento contínuo de segurança</li>
-                    <li>Backup seguro e recuperação de dados</li>
+                    <li>Backups seguros e automatizados</li>
+                    <li>Atualizações regulares de segurança</li>
                 </ul>
 
-                <h3>5.2 Retenção de Dados</h3>
+                <h3>10.2 Medidas Organizacionais</h3>
                 <ul>
-                    <li><strong>Arquivos de currículo:</strong> Processados e excluídos imediatamente</li>
-                    <li><strong>Resultados de análise:</strong> Mantidos enquanto sua conta estiver ativa</li>
-                    <li><strong>Dados de conta:</strong> Mantidos até a solicitação de exclusão</li>
+                    <li>Treinamento de equipe em proteção de dados</li>
+                    <li>Políticas internas de segurança</li>
+                    <li>Controle de acesso baseado em função</li>
+                    <li>Auditoria regular de sistemas</li>
+                    <li>Plano de resposta a incidentes</li>
                 </ul>
 
-                <h2>6. Seus Direitos</h2>
-                <p>Conforme a Lei Geral de Proteção de Dados (LGPD), você tem os seguintes direitos:</p>
-
+                <h3>10.3 Notificação de Incidentes</h3>
+                <p>Em caso de violação de dados que possa acarretar risco aos seus direitos e liberdades, notificaremos:
+                </p>
                 <ul>
-                    <li><strong>Acesso:</strong> Saber quais dados possuímos sobre você</li>
-                    <li><strong>Correção:</strong> Atualizar informações incorretas</li>
-                    <li><strong>Exclusão:</strong> Solicitar a remoção dos seus dados</li>
-                    <li><strong>Portabilidade:</strong> Receber seus dados em formato estruturado</li>
-                    <li><strong>Oposição:</strong> Discordar do tratamento de determinados dados</li>
-                    <li><strong>Limitação:</strong> Restringir o processamento em certas situações</li>
+                    <li>A ANPD em até 72 horas</li>
+                    <li>Os titulares afetados sem demora desnecessária</li>
+                    <li>Medidas tomadas para mitigar os danos</li>
                 </ul>
+            </div>
 
-                <h2>7. Cookies e Tecnologias Similares</h2>
-                <p>Utilizamos cookies essenciais para:</p>
+            <div class="content-card">
+                <h2>11. Alterações na Política</h2>
+                <p>Esta Política de Privacidade pode ser atualizada periodicamente para refletir:</p>
                 <ul>
-                    <li>Manter você logado na plataforma</li>
-                    <li>Lembrar suas preferências</li>
-                    <li>Melhorar a performance do site</li>
-                    <li>Analisar o uso da plataforma (dados anonimizados)</li>
+                    <li>Mudanças na legislação aplicável</li>
+                    <li>Melhorias em nossos serviços</li>
+                    <li>Adoção de novas tecnologias</li>
+                    <li>Melhores práticas de privacidade</li>
                 </ul>
 
-                <h2>8. Menores de Idade</h2>
-                <p>Nosso serviço é destinado a pessoas com 16 anos ou mais. Não coletamos intencionalmente dados de
-                    menores de 16 anos. Se identificarmos tais dados, eles serão excluídos imediatamente.</p>
-
-                <h2>9. Alterações nesta Política</h2>
-                <p>Podemos atualizar esta política periodicamente. Alterações significativas serão comunicadas por
-                    e-mail e/ou através de aviso na plataforma. O uso continuado do serviço após as alterações constitui
-                    aceitação da nova política.</p>
-
-                <h2>10. Contato</h2>
-                <div class="contact-info">
-                    <h4>Para questões sobre privacidade, entre em contato:</h4>
-                    <p><strong>E-mail:</strong> privacidade@cvsemfrescura.com</p>
-                    <p><strong>Responsável pela Proteção de Dados:</strong> Equipe CV Sem Frescura</p>
-                    <p><strong>Tempo de resposta:</strong> Até 48 horas úteis</p>
-                </div>
+                <h3>11.1 Notificação de Mudanças</h3>
+                <p>Alterações significativas serão comunicadas através de:</p>
+                <ul>
+                    <li>Email para usuários registrados</li>
+                    <li>Aviso destacado na plataforma</li>
+                    <li>Atualização da data nesta página</li>
+                </ul>
 
                 <div class="highlight-box">
-                    <strong>🌟 Nosso Compromisso:</strong> Estamos comprometidos em manter a transparência total sobre
-                    como tratamos seus dados. Sua confiança é fundamental para nós.
+                    <p>Recomendamos verificar esta página periodicamente para estar ciente de atualizações.</p>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h2>12. Contato e DPO</h2>
+                <div class="contact-box">
+                    <h4>Dúvidas sobre Privacidade?</h4>
+                    <p><strong>Responsável pela Proteção de Dados:</strong> Rafael de Novaes</p>
+                    <p><strong>Email:</strong> <a
+                            href="mailto:contato@cvsemfrescura.com.br">contato@cvsemfrescura.com.br</a></p>
+                    <p><strong>Formulário:</strong> <a href="contact.html">Página de Contato</a></p>
                 </div>
 
+                <h3>12.1 Canal de Comunicação ANPD</h3>
+                <p>Se não estivermos conseguindo resolver sua questão, você pode contatar a Autoridade Nacional de
+                    Proteção de Dados (ANPD):</p>
+                <ul>
+                    <li><strong>Site:</strong> gov.br/anpd</li>
+                    <li><strong>Email:</strong> comunicacao@anpd.gov.br</li>
+                </ul>
+            </div>
+
+            <div class="content-card">
+                <div class="highlight-box">
+                    <p><strong>Compromisso de Privacidade:</strong> Estamos comprometidos em proteger sua privacidade e
+                        cumprir integralmente a legislação de proteção de dados. Esta política é revisada regularmente
+                        para garantir conformidade e transparência.</p>
+                </div>
             </div>
         </div>
-    </main>
+    </section>
 
+    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
+                <div class="footer-about">
+                    <img src="assets/img/logo.png" alt="CV Sem Frescura" class="footer-logo">
+                    <p class="footer-description">
+                        Ajudamos profissionais a otimizarem seus currículos para sistemas ATS, maximizando as chances de
+                        contratação através de análise com IA.
+                    </p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Produto</h4>
+                    <div class="footer-links">
+                        <a href="landing.html#features" class="footer-link">Benefícios</a>
+                        <a href="landing.html#how-it-works" class="footer-link">Como Funciona</a>
+                        <a href="payment.html" class="footer-link">Preços</a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Suporte</h4>
+                    <div class="footer-links">
+                        <a href="privacy.html" class="footer-link">Política de Privacidade</a>
+                        <a href="terms.html" class="footer-link">Termos de Uso</a>
+                        <a href="contact.html" class="footer-link">Contato</a>
+                        <a href="faq.html" class="footer-link">FAQ</a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>🤖 Desenvolvimento IA</h4>
+                    <div class="footer-links">
+                        <p class="footer-description"
+                            style="font-size: 0.9rem; margin-bottom: 12px; color: var(--gray-400);">
+                            Precisa de um site com IA como este?
+                        </p>
+                        <a href="mailto:rafaeldenovaes@gmail.com" class="footer-link">
+                            <span style="margin-right: 6px;">📧</span>Email
+                        </a>
+                        <a href="https://wa.me/5511949105033" class="footer-link" target="_blank">
+                            <span style="margin-right: 6px;">📱</span>WhatsApp
+                        </a>
+                        <a href="https://www.linkedin.com/in/rafaeldenovaes/" class="footer-link" target="_blank">
+                            <span style="margin-right: 6px;">💼</span>LinkedIn
+                        </a>
+                        <a href="https://github.com/rafaelnovaes22" class="footer-link" target="_blank">
+                            <span style="margin-right: 6px;">💻</span>Portfólio
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
                 <p>© 2025 CV Sem Frescura. Todos os direitos reservados.</p>
-                <p>Desenvolvido com cuidado para proteger sua privacidade</p>
             </div>
         </div>
     </footer>
+
+    <!-- Scripts -->
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/header-new.js?v=1748114561"></script>
+    <script>
+        // Smooth Scroll for Internal Links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+
+                if (href && href.length > 1) {
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                }
+            });
+        });
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Tab') {
+                document.body.classList.add('keyboard-navigation');
+            }
+        });
+
+        document.addEventListener('mousedown', function () {
+            document.body.classList.remove('keyboard-navigation');
+        });
+
+        // Add focus styles for accessibility
+        document.addEventListener('DOMContentLoaded', function () {
+            const style = document.createElement('style');
+            style.textContent = `
+                .keyboard-navigation *:focus {
+                    outline: 2px solid var(--primary-500) !important;
+                    outline-offset: 2px !important;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
 </body>
 
 </html>
