@@ -10,6 +10,7 @@ class HeaderManager {
         this.userInfo = null;
         this.lastCreditsRequest = null;
         this.creditsRequestThrottle = 5000; // 5 segundos
+        this.lastUserState = null;
 
         // Aplicar CSS INSTANTANEAMENTE antes de qualquer coisa
         this.applyCSSInstantaneously();
@@ -623,14 +624,6 @@ class HeaderManager {
 
         if (!guestActions || !userMenuWrapper) return;
 
-        // **PRESERVAR ESTADO DO DROPDOWN** - Salvar antes de qualquer modificação
-        const userDropdown = document.getElementById('userDropdown');
-        let dropdownWasVisible = false;
-        if (userDropdown && this.dropdownOpen) {
-            dropdownWasVisible = true;
-            console.log('💾 Salvando estado do dropdown (estava aberto)');
-        }
-
         // Verificação defensiva mais robusta do estado de autenticação
         try {
             this.isLoggedIn = window.auth &&
@@ -643,6 +636,24 @@ class HeaderManager {
             console.log('ℹ️ Auth não disponível ou incompleto, assumindo usuário não logado');
             this.isLoggedIn = false;
             this.userInfo = null;
+        }
+
+        // OTIMIZAÇÃO: Verificar se houve mudança real no estado do usuário
+        const currentUserState = this.userInfo ? `${this.userInfo.email}-${this.userInfo.credits}` : 'guest';
+        if (this.lastUserState === currentUserState) {
+            // Estado não mudou, não precisa atualizar
+            console.log('⚡ Estado não mudou, pulando atualização desnecessária');
+            return;
+        }
+        this.lastUserState = currentUserState;
+        console.log('🔄 Estado mudou, atualizando interface:', { currentUserState });
+
+        // **PRESERVAR ESTADO DO DROPDOWN** - Salvar antes de qualquer modificação
+        const userDropdown = document.getElementById('userDropdown');
+        let dropdownWasVisible = false;
+        if (userDropdown && this.dropdownOpen) {
+            dropdownWasVisible = true;
+            console.log('💾 Salvando estado do dropdown (estava aberto)');
         }
 
         if (this.isLoggedIn && this.userInfo) {
@@ -678,10 +689,8 @@ class HeaderManager {
                 }, 10);
             }
 
-            // Buscar créditos atualizados (throttled) - apenas se auth está completo
-            if (window.auth && typeof window.auth.getToken === 'function') {
-                this.fetchUserCredits();
-            }
+            // OTIMIZAÇÃO: Não buscar créditos automaticamente aqui
+            // Será feito apenas quando necessário via funções específicas
         } else {
             // Usuário não logado
             guestActions.style.display = 'flex';
@@ -822,19 +831,57 @@ if (document.readyState === 'loading') {
 // Escutar mudanças de autenticação
 window.addEventListener('storage', (e) => {
     if ((e.key === 'user' || e.key === 'token') && window.headerManager) {
+        console.log('📦 Storage mudou, atualizando header:', e.key);
         window.headerManager.refreshUserInterface();
     }
 });
 
-// Função para verificar mudanças periódicas na autenticação
+// OTIMIZAÇÃO: Função para verificar mudanças de autenticação (agora apenas sob demanda)
+let lastAuthState = null;
 function checkAuthChange() {
-    if (window.headerManager) {
+    if (!window.headerManager) return;
+
+    const currentUser = window.auth && typeof window.auth.getUser === 'function' ? window.auth.getUser() : null;
+    const currentAuthState = currentUser ? currentUser.email : null;
+
+    // Só atualizar se o estado de autenticação realmente mudou
+    if (lastAuthState !== currentAuthState) {
+        lastAuthState = currentAuthState;
+        console.log('🔄 Estado de autenticação mudou, atualizando header');
         window.headerManager.checkAuthStatus();
     }
 }
 
-// Verificar mudanças na autenticação a cada 2 segundos
-setInterval(checkAuthChange, 2000);
+// OTIMIZAÇÃO: Verificações apenas quando necessário
+// Verificar mudanças apenas quando a página volta do background (uma vez por sessão de foco)
+let hasCheckedOnVisibility = false;
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && !hasCheckedOnVisibility) {
+        hasCheckedOnVisibility = true;
+        setTimeout(() => {
+            console.log('👁️ Página voltou do background, verificando auth uma vez');
+            checkAuthChange();
+            // Reset do flag após 30 segundos para permitir nova verificação se necessário
+            setTimeout(() => { hasCheckedOnVisibility = false; }, 30000);
+        }, 500);
+    }
+});
+
+// Função global para atualizar créditos quando houver ações específicas
+window.updateHeaderCredits = function () {
+    if (window.headerManager) {
+        console.log('📊 Atualizando créditos por ação do usuário');
+        window.headerManager.refreshCredits();
+    }
+};
+
+// Função global para refresh completo do header (usar apenas quando necessário)
+window.refreshHeader = function () {
+    if (window.headerManager) {
+        console.log('🔄 Refresh completo do header por ação do usuário');
+        window.headerManager.forceRefresh();
+    }
+};
 
 // Expor globalmente
 window.HeaderManager = HeaderManager;
