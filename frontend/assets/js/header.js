@@ -706,9 +706,11 @@ window.addEventListener('storage', (e) => {
         if (window.headerManager) {
             window.headerManager.refreshUserInterface();
         }
-        // Atualizar botão de análise quando créditos mudarem
+        // Atualizar botão de análise quando créditos mudarem (com throttling)
         if (e.key === 'user' && window.updateAnalyzeButton) {
-            setTimeout(window.updateAnalyzeButton, 100);
+            // Adicionar throttling para evitar updates muito rápidos
+            clearTimeout(window.updateAnalyzeButtonTimeout);
+            window.updateAnalyzeButtonTimeout = setTimeout(window.updateAnalyzeButton, 500);
         }
     }
 });

@@ -1278,13 +1278,13 @@
                 window.refreshHeader();
             }
 
-            console.log('🔄 Chamando updateAnalyzeButton IMEDIATAMENTE após authSuccess...');
-            // Garantir que updateAnalyzeButton seja chamada IMEDIATAMENTE
+            console.log('🔄 Agendando updateAnalyzeButton após authSuccess...');
+            // Garantir que updateAnalyzeButton seja chamada com delay adequado para evitar banner prematuramente
             setTimeout(() => {
                 if (window.updateAnalyzeButton) {
                     window.updateAnalyzeButton();
                 }
-            }, 100);
+            }, 800);
 
             console.log('✅ authSuccess() finalizada');
         };
@@ -1724,6 +1724,14 @@
 
         // Função para atualizar estado do botão de análise
         window.updateAnalyzeButton = function () {
+            // THROTTLING: Evitar chamadas muito rápidas consecutivas
+            const now = Date.now();
+            if (window.lastUpdateButtonCall && (now - window.lastUpdateButtonCall) < 300) {
+                console.log('⏳ Throttling updateAnalyzeButton - muito rápido');
+                return;
+            }
+            window.lastUpdateButtonCall = now;
+
             const analyzeBtn = document.getElementById('analyzeBtn');
             const fileInput = document.getElementById('fileInput');
             const creditsStatusBanner = document.getElementById('creditsStatusBanner');
@@ -1733,6 +1741,9 @@
             if (!analyzeBtn) return;
 
             const user = auth && auth.getUser ? auth.getUser() : null;
+
+            // PROTEÇÃO: Se não há elementos do banner, não prosseguir
+            if (!creditsStatusBanner) return;
             const fileSelected = fileInput && fileInput.files && fileInput.files.length > 0;
             const jobInputs = document.querySelectorAll('.job-link-input');
 
@@ -1751,18 +1762,27 @@
             if (user) {
                 const credits = user.credits || 0;
 
+                // CORREÇÃO: Verificação mais rigorosa para evitar banner aparecer quando há créditos
+                console.log('🔍 Verificando créditos do usuário:', credits);
+
                 if (credits <= 0) {
                     // Mostrar banner para usuários sem créditos
+                    console.log('⚠️ Usuário sem créditos, mostrando banner');
                     creditsStatusBanner.style.display = 'flex';
+                    creditsStatusBanner.style.visibility = 'visible';
                     creditsStatusText.textContent = 'Você não tem análises disponíveis';
                     creditsStatusDescription.textContent = 'Você pode preencher tudo, mas precisará comprar créditos para analisar';
                 } else {
-                    // Esconder banner para usuários com créditos
+                    // GARANTIR que banner nunca apareça quando há créditos
+                    console.log('✅ Usuário com créditos, ocultando banner');
                     creditsStatusBanner.style.display = 'none';
+                    creditsStatusBanner.style.visibility = 'hidden';
                 }
             } else {
                 // Mostrar banner para usuários não logados
+                console.log('👤 Usuário não logado, mostrando banner de login');
                 creditsStatusBanner.style.display = 'flex';
+                creditsStatusBanner.style.visibility = 'visible';
                 creditsStatusText.textContent = 'Faça login para começar';
                 creditsStatusDescription.textContent = 'Entre na sua conta ou crie uma para analisar seu currículo';
             }
@@ -1923,9 +1943,9 @@
                 window.updateVagasProgress();
             }
 
-            // Atualizar estado inicial do botão
+            // Atualizar estado inicial do botão (com delay para evitar conflitos)
             if (window.updateAnalyzeButton) {
-                window.updateAnalyzeButton();
+                setTimeout(window.updateAnalyzeButton, 200);
             }
         });
     </script>
