@@ -1,10 +1,18 @@
 const crypto = require('crypto');
 
-// Configuração de criptografia
+// 🔐 Versão Segura do Módulo de Criptografia
+// Corrige vulnerabilidades identificadas na avaliação
+
+// Configuração de criptografia - AES-256-GCM com autenticação
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 16;
 const TAG_LENGTH = 16;
+const SALT_LENGTH = 32;
 
+/**
+ * Obtém a chave de criptografia do ambiente
+ * Sem fallback inseguro!
+ */
 function getEncryptionKey() {
     const envKey = process.env.ENCRYPTION_KEY;
 
@@ -12,31 +20,49 @@ function getEncryptionKey() {
         if (process.env.NODE_ENV === 'production') {
             throw new Error('ERRO CRÍTICO: ENCRYPTION_KEY não configurada em produção!');
         }
-        // Em desenvolvimento, avisa mas permite continuar
-        console.warn('⚠️ ENCRYPTION_KEY não configurada. Usando chave temporária para desenvolvimento.');
-        // Gera chave temporária APENAS para desenvolvimento
-        return crypto.createHash('sha256')
-            .update('dev_temp_key_' + Date.now())
-            .digest();
+        // Apenas em desenvolvimento, avisa mas não falha
+        console.warn('⚠️ ENCRYPTION_KEY não configurada. Criptografia desabilitada em desenvolvimento.');
+        return null;
     }
 
     // Validar formato da chave
-    if (typeof envKey === 'string' && envKey.length === 64) {
-        return Buffer.from(envKey, 'hex');
-    } else {
-        throw new Error('ENCRYPTION_KEY deve ter 64 caracteres hexadecimais');
+    if (typeof envKey !== 'string' || envKey.length !== 64) {
+        throw new Error('ENCRYPTION_KEY deve ter exatamente 64 caracteres hexadecimais');
     }
+
+    // Validar se é hexadecimal válido
+    if (!/^[0-9a-fA-F]{64}$/.test(envKey)) {
+        throw new Error('ENCRYPTION_KEY deve conter apenas caracteres hexadecimais');
+    }
+
+    return Buffer.from(envKey, 'hex');
 }
 
-const ENCRYPTION_KEY = getEncryptionKey();
+// Carrega a chave uma vez na inicialização
+let ENCRYPTION_KEY;
+try {
+    ENCRYPTION_KEY = getEncryptionKey();
+} catch (error) {
+    console.error('❌ Erro ao carregar ENCRYPTION_KEY:', error.message);
+    if (process.env.NODE_ENV === 'production') {
+        process.exit(1); // Falha fatal em produção
+    }
+}
 
 /**
  * Criptografa uma string sensível usando AES-256-GCM
  * @param {string} text - Texto a ser criptografado
- * @returns {string} - Texto criptografado em formato base64 com IV e tag
+ * @returns {string|null} - Texto criptografado em formato base64 com IV e tag
  */
 function encrypt(text) {
     if (!text) return null;
+
+    if (!ENCRYPTION_KEY) {
+        if (process.env.NODE_ENV === 'production') {
+            throw new Error('Tentativa de criptografar sem ENCRYPTION_KEY em produção');
+        }
+        return null; // Em desenvolvimento, retorna null
+    }
 
     try {
         // Gerar IV aleatório
@@ -51,17 +77,16 @@ function encrypt(text) {
             cipher.final()
         ]);
 
-        // Obter tag de autenticação (IMPORTANTE para GCM)
+        // Obter tag de autenticação
         const tag = cipher.getAuthTag();
 
-        // Combinar IV + tag + encrypted em base64
+        // Combinar IV + tag + encrypted
         const combined = Buffer.concat([iv, tag, encrypted]);
 
+        // Retornar em base64
         return combined.toString('base64');
     } catch (error) {
-        if (process.env.NODE_ENV !== 'production') {
-            console.error('Erro ao criptografar:', error.message);
-        }
+        console.error('Erro ao criptografar:', error.message);
         return null;
     }
 }
@@ -69,20 +94,21 @@ function encrypt(text) {
 /**
  * Descriptografa uma string criptografada com verificação de autenticidade
  * @param {string} encryptedData - Dados criptografados em base64
- * @returns {string} - Texto original ou null se falhar
+ * @returns {string|null} - Texto original ou null se falhar
  */
 function decrypt(encryptedData) {
     if (!encryptedData) return null;
 
+    if (!ENCRYPTION_KEY) {
+        if (process.env.NODE_ENV === 'production') {
+            throw new Error('Tentativa de descriptografar sem ENCRYPTION_KEY em produção');
+        }
+        return null;
+    }
+
     try {
         // Decodificar de base64
         const combined = Buffer.from(encryptedData, 'base64');
-
-        // Verificar tamanho mínimo (IV + TAG)
-        if (combined.length < IV_LENGTH + TAG_LENGTH) {
-            // Pode ser dado antigo em CBC, tentar fallback
-            return decryptLegacy(encryptedData);
-        }
 
         // Extrair componentes
         const iv = combined.slice(0, IV_LENGTH);
@@ -101,36 +127,13 @@ function decrypt(encryptedData) {
 
         return decrypted.toString('utf8');
     } catch (error) {
-        // Tentar descriptografar com método antigo (fallback)
-        try {
-            return decryptLegacy(encryptedData);
-        } catch (legacyError) {
-            if (process.env.NODE_ENV !== 'production') {
-                console.error('Erro ao descriptografar:', error.message);
-            }
-            return null;
+        // Em produção, log sem detalhes sensíveis
+        if (process.env.NODE_ENV === 'production') {
+            console.error('Falha na descriptografia');
+        } else {
+            console.error('Erro ao descriptografar:', error.message);
         }
-    }
-}
-
-/**
- * Descriptografa dados usando o método antigo (CBC) - apenas para compatibilidade
- * @param {string} encryptedData - Dados criptografados em base64
- * @returns {string} - Texto original
- */
-function decryptLegacy(encryptedData) {
-    try {
-        const combined = Buffer.from(encryptedData, 'base64');
-        const iv = combined.slice(0, 16);
-        const encrypted = combined.slice(16);
-
-        const decipher = crypto.createDecipheriv('aes-256-cbc', ENCRYPTION_KEY, iv);
-        let decrypted = decipher.update(encrypted, null, 'utf8');
-        decrypted += decipher.final('utf8');
-
-        return decrypted;
-    } catch (error) {
-        throw error;
+        return null;
     }
 }
 
@@ -146,8 +149,7 @@ function maskKey(key) {
         return '*'.repeat(key.length);
     }
 
-    // Em produção, mostrar menos caracteres
-    const visibleChars = process.env.NODE_ENV === 'production' ? 3 : 4;
+    const visibleChars = process.env.NODE_ENV === 'production' ? 4 : 6;
     const start = key.substring(0, visibleChars);
     const end = key.substring(key.length - visibleChars);
     const middle = '*'.repeat(Math.max(0, key.length - (visibleChars * 2)));
@@ -170,11 +172,11 @@ function containsSensitiveData(text) {
         /rk_[a-zA-Z0-9_]{20,}/,     // Stripe restricted keys
         /sk-[a-zA-Z0-9]{48,}/,      // OpenAI API keys
         /Bearer\s+[a-zA-Z0-9._-]+/, // Bearer tokens
-        /password/i,                // Passwords
-        /token/i,                   // Tokens
-        /secret/i,                  // Secrets
-        /key/i,                     // Keys
-        /auth/i                     // Auth tokens
+        /password[:=]/i,            // Passwords com delimitadores
+        /api[_-]?key[:=]/i,         // API keys
+        /secret[:=]/i,              // Secrets
+        /token[:=]/i,               // Tokens
+        /[0-9]{4}[\s-]?[0-9]{4}[\s-]?[0-9]{4}[\s-]?[0-9]{4}/, // Credit cards
     ];
 
     return sensitivePatterns.some(pattern => pattern.test(text));
@@ -201,13 +203,18 @@ function sanitizeForLog(data) {
         for (const [key, value] of Object.entries(data)) {
             const keyLower = key.toLowerCase();
 
-            // Chaves que devem ser sempre mascaradas
-            if (keyLower.includes('key') ||
-                keyLower.includes('secret') ||
-                keyLower.includes('token') ||
-                keyLower.includes('password') ||
-                keyLower.includes('auth')) {
+            // Lista expandida de chaves sensíveis
+            const sensitiveKeys = [
+                'key', 'secret', 'token', 'password', 'auth',
+                'credential', 'private', 'api', 'access', 'refresh',
+                'bearer', 'session', 'cookie', 'jwt', 'oauth'
+            ];
 
+            const isSensitiveKey = sensitiveKeys.some(sensitive =>
+                keyLower.includes(sensitive)
+            );
+
+            if (isSensitiveKey) {
                 if (typeof value === 'string') {
                     sanitized[key] = maskKey(value);
                 } else {
@@ -224,10 +231,30 @@ function sanitizeForLog(data) {
     return data;
 }
 
+/**
+ * Cria hash seguro de uma string (para comparações)
+ * @param {string} text - Texto para hash
+ * @returns {string} - Hash SHA-256 em hex
+ */
+function secureHash(text) {
+    if (!text) return null;
+    return crypto.createHash('sha256').update(text).digest('hex');
+}
+
+/**
+ * Verifica se o módulo está configurado corretamente
+ * @returns {boolean} - True se configurado
+ */
+function isConfigured() {
+    return !!ENCRYPTION_KEY;
+}
+
 module.exports = {
     encrypt,
     decrypt,
     maskKey,
     containsSensitiveData,
-    sanitizeForLog
+    sanitizeForLog,
+    secureHash,
+    isConfigured
 }; 

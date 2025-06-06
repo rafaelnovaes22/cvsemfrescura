@@ -2,135 +2,72 @@ const crypto = require('crypto');
 
 // Configuração de criptografia
 const ALGORITHM = 'aes-256-gcm';
-const IV_LENGTH = 16;
-const TAG_LENGTH = 16;
 
 function getEncryptionKey() {
     const envKey = process.env.ENCRYPTION_KEY;
 
-    if (!envKey) {
-        if (process.env.NODE_ENV === 'production') {
-            throw new Error('ERRO CRÍTICO: ENCRYPTION_KEY não configurada em produção!');
+    if (envKey) {
+        // Se a chave está como string hex, converter para Buffer
+        if (typeof envKey === 'string' && envKey.length === 64) {
+            return Buffer.from(envKey, 'hex');
         }
-        // Em desenvolvimento, avisa mas permite continuar
-        console.warn('⚠️ ENCRYPTION_KEY não configurada. Usando chave temporária para desenvolvimento.');
-        // Gera chave temporária APENAS para desenvolvimento
-        return crypto.createHash('sha256')
-            .update('dev_temp_key_' + Date.now())
-            .digest();
+        return envKey;
     }
 
-    // Validar formato da chave
-    if (typeof envKey === 'string' && envKey.length === 64) {
-        return Buffer.from(envKey, 'hex');
-    } else {
-        throw new Error('ENCRYPTION_KEY deve ter 64 caracteres hexadecimais');
-    }
+    // Gera uma chave padrão para desenvolvimento
+    const seed = process.env.NODE_ENV + '_cv_sem_frescura_encryption_2024';
+    return crypto.createHash('sha256').update(seed).digest();
 }
 
 const ENCRYPTION_KEY = getEncryptionKey();
 
 /**
- * Criptografa uma string sensível usando AES-256-GCM
+ * Criptografa uma string sensível
  * @param {string} text - Texto a ser criptografado
- * @returns {string} - Texto criptografado em formato base64 com IV e tag
+ * @returns {string} - Texto criptografado em formato base64
  */
 function encrypt(text) {
     if (!text) return null;
 
     try {
-        // Gerar IV aleatório
-        const iv = crypto.randomBytes(IV_LENGTH);
+        const iv = crypto.randomBytes(16); // IV para AES-256-CBC
+        const cipher = crypto.createCipheriv('aes-256-cbc', ENCRYPTION_KEY, iv);
 
-        // Criar cipher com GCM
-        const cipher = crypto.createCipheriv(ALGORITHM, ENCRYPTION_KEY, iv);
+        let encrypted = cipher.update(text, 'utf8', 'hex');
+        encrypted += cipher.final('hex');
 
-        // Criptografar dados
-        const encrypted = Buffer.concat([
-            cipher.update(text, 'utf8'),
-            cipher.final()
-        ]);
-
-        // Obter tag de autenticação (IMPORTANTE para GCM)
-        const tag = cipher.getAuthTag();
-
-        // Combinar IV + tag + encrypted em base64
-        const combined = Buffer.concat([iv, tag, encrypted]);
-
+        // Combina IV + encrypted em base64
+        const combined = Buffer.concat([iv, Buffer.from(encrypted, 'hex')]);
         return combined.toString('base64');
     } catch (error) {
-        if (process.env.NODE_ENV !== 'production') {
-            console.error('Erro ao criptografar:', error.message);
-        }
+        console.error('Erro ao criptografar:', error.message);
         return null;
     }
 }
 
 /**
- * Descriptografa uma string criptografada com verificação de autenticidade
+ * Descriptografa uma string criptografada
  * @param {string} encryptedData - Dados criptografados em base64
- * @returns {string} - Texto original ou null se falhar
+ * @returns {string} - Texto original
  */
 function decrypt(encryptedData) {
     if (!encryptedData) return null;
 
     try {
-        // Decodificar de base64
         const combined = Buffer.from(encryptedData, 'base64');
 
-        // Verificar tamanho mínimo (IV + TAG)
-        if (combined.length < IV_LENGTH + TAG_LENGTH) {
-            // Pode ser dado antigo em CBC, tentar fallback
-            return decryptLegacy(encryptedData);
-        }
-
-        // Extrair componentes
-        const iv = combined.slice(0, IV_LENGTH);
-        const tag = combined.slice(IV_LENGTH, IV_LENGTH + TAG_LENGTH);
-        const encrypted = combined.slice(IV_LENGTH + TAG_LENGTH);
-
-        // Criar decipher
-        const decipher = crypto.createDecipheriv(ALGORITHM, ENCRYPTION_KEY, iv);
-        decipher.setAuthTag(tag);
-
-        // Descriptografar e verificar autenticidade
-        const decrypted = Buffer.concat([
-            decipher.update(encrypted),
-            decipher.final()
-        ]);
-
-        return decrypted.toString('utf8');
-    } catch (error) {
-        // Tentar descriptografar com método antigo (fallback)
-        try {
-            return decryptLegacy(encryptedData);
-        } catch (legacyError) {
-            if (process.env.NODE_ENV !== 'production') {
-                console.error('Erro ao descriptografar:', error.message);
-            }
-            return null;
-        }
-    }
-}
-
-/**
- * Descriptografa dados usando o método antigo (CBC) - apenas para compatibilidade
- * @param {string} encryptedData - Dados criptografados em base64
- * @returns {string} - Texto original
- */
-function decryptLegacy(encryptedData) {
-    try {
-        const combined = Buffer.from(encryptedData, 'base64');
         const iv = combined.slice(0, 16);
         const encrypted = combined.slice(16);
 
         const decipher = crypto.createDecipheriv('aes-256-cbc', ENCRYPTION_KEY, iv);
+
         let decrypted = decipher.update(encrypted, null, 'utf8');
         decrypted += decipher.final('utf8');
 
         return decrypted;
     } catch (error) {
-        throw error;
+        console.error('Erro ao descriptografar:', error.message);
+        return null;
     }
 }
 
@@ -146,11 +83,9 @@ function maskKey(key) {
         return '*'.repeat(key.length);
     }
 
-    // Em produção, mostrar menos caracteres
-    const visibleChars = process.env.NODE_ENV === 'production' ? 3 : 4;
-    const start = key.substring(0, visibleChars);
-    const end = key.substring(key.length - visibleChars);
-    const middle = '*'.repeat(Math.max(0, key.length - (visibleChars * 2)));
+    const start = key.substring(0, 4);
+    const end = key.substring(key.length - 4);
+    const middle = '*'.repeat(Math.max(0, key.length - 8));
 
     return `${start}${middle}${end}`;
 }

@@ -16,34 +16,46 @@ console.log('🚀 Produção:', isProduction);
 const decryptIfNeeded = (value) => {
     if (!value) return value;
 
-    console.log('🔍 [DEBUG] Verificando chave para descriptografia...');
-    console.log('🔍 [DEBUG] Tamanho da chave:', value.length);
-    console.log('🔍 [DEBUG] Primeiros 10 chars:', value.substring(0, 10));
+    // Logs de debug apenas em desenvolvimento
+    if (process.env.NODE_ENV !== 'production') {
+        console.log('🔍 [DEBUG] Verificando chave para descriptografia...');
+        console.log('🔍 [DEBUG] Tamanho da chave:', value.length);
+        console.log('🔍 [DEBUG] Primeiros 10 chars:', value.substring(0, 10));
+    }
 
-    // Se a chave parece estar criptografada (não começa com sk_, pk_, etc. e é longa)
-    if (!value.match(/^(sk_|pk_|whsec_|rk_)/) && value.length > 50) {
+    // 🚨 PRIMEIRA VERIFICAÇÃO: Se já é uma chave válida do Stripe, usar diretamente
+    if (value.match(/^(sk_|pk_|whsec_|rk_)/)) {
+        console.log('✅ Chave já está em texto plano e é válida');
+        return value;
+    }
+
+    // 🔐 SEGUNDA VERIFICAÇÃO: Se parece estar criptografada (não começa com sk_, pk_, etc. e é longa)
+    if (value.length > 50) {
         console.log('🔓 Tentando descriptografar chave...');
 
         try {
             const decrypted = decrypt(value);
-            if (decrypted) {
+            if (decrypted && decrypted.match(/^(sk_|pk_|whsec_|rk_)/)) {
                 console.log('✅ Chave descriptografada com sucesso');
-                console.log('🔍 [DEBUG] Tamanho descriptografado:', decrypted.length);
-                console.log('🔍 [DEBUG] Primeiros 10 chars descriptografados:', decrypted.substring(0, 10));
+                if (process.env.NODE_ENV !== 'production') {
+                    console.log('🔍 [DEBUG] Tamanho descriptografado:', decrypted.length);
+                    console.log('🔍 [DEBUG] Primeiros 10 chars descriptografados:', decrypted.substring(0, 10));
+                }
                 return decrypted;
             } else {
-                console.error('❌ Erro: decrypt() retornou null/undefined');
-                return value; // Retorna original se falhar
+                console.warn('⚠️ Descriptografia não resultou em chave válida, usando original');
+                return value; // Retorna original se a descriptografia não resultar em chave válida
             }
         } catch (error) {
             console.error('❌ Erro na descriptografia:', error.message);
+            console.warn('⚠️ Usando chave original devido ao erro de descriptografia');
             return value; // Retorna original se falhar
         }
     } else {
-        console.log('ℹ️ Chave já está em texto plano');
+        console.warn('⚠️ Chave não parece ser válida nem criptografada');
     }
 
-    return value; // Retorna original se não precisar descriptografar
+    return value; // Retorna original se não conseguir processar
 };
 
 // 🔑 Configuração de Chaves Stripe baseada no ambiente
@@ -54,15 +66,28 @@ const getStripeConfig = () => {
     let webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
     // 🔐 Descriptografar chaves se necessário (Railway ou produção)
-    if ((isProduction || isRailway) && process.env.ENCRYPTION_KEY && !process.env.DISABLE_ENCRYPTION) {
+    // Só tentar descriptografar se:
+    // 1. Está em produção OU Railway
+    // 2. Tem ENCRYPTION_KEY configurada
+    // 3. NÃO tem DISABLE_ENCRYPTION=true
+    const shouldDecrypt = (isProduction || isRailway) &&
+        process.env.ENCRYPTION_KEY &&
+        !process.env.DISABLE_ENCRYPTION &&
+        process.env.DISABLE_ENCRYPTION !== 'true';
+
+    if (shouldDecrypt) {
         console.log('🔐 Iniciando descriptografia das chaves...');
         console.log('🔐 isProduction:', isProduction);
         console.log('🔐 isRailway:', isRailway);
         console.log('🔐 ENCRYPTION_KEY presente:', !!process.env.ENCRYPTION_KEY);
+        console.log('🔐 DISABLE_ENCRYPTION:', process.env.DISABLE_ENCRYPTION);
 
         secretKey = decryptIfNeeded(secretKey);
         publishableKey = decryptIfNeeded(publishableKey);
         webhookSecret = decryptIfNeeded(webhookSecret);
+    } else {
+        console.log('ℹ️ Descriptografia desabilitada ou não necessária');
+        console.log('ℹ️ Usando chaves diretamente do ambiente');
     }
 
     // 🧹 LIMPEZA FORÇADA DAS VARIÁVEIS (correção para problemas de encoding)
