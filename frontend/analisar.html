@@ -1544,17 +1544,18 @@
                         <div class="vagas-counter" id="vagasCounter">
                             <span class="counter-icon">📋</span>
                             <span class="counter-text">Vagas preenchidas: <span id="currentCount">0</span>/7</span>
-                            <span class="counter-status" id="counterStatus">(Obrigatório: 7 vagas)</span>
+                            <span class="counter-status" id="counterStatus">(Recomendado: até 7 vagas)</span>
                         </div>
                     </div>
 
                     <div class="strategy-explanation">
                         <div class="strategy-icon">💡</div>
                         <div class="strategy-content">
-                            <p><strong>Por que exigimos exatamente 7 vagas?</strong></p>
-                            <p>Sistemas como Gupy limitam candidaturas a no máximo 7 vagas por ciclo de 7-10 dias. Nossa
-                                estratégia maximiza cada ciclo analisando todas as 7 vagas possíveis, aumentando suas
-                                chances de sucesso em <strong>700%</strong>.</p>
+                            <p><strong>Por que recomendamos até 7 vagas?</strong></p>
+                            <p>Sistemas como Gupy limitam candidaturas a no máximo 7 vagas por ciclo de 7-10 dias. Você
+                                pode
+                                enviar menos vagas, mas para análises mais precisas e estratégicas, recomendamos usar o
+                                limite máximo de <strong>7 vagas</strong> por análise.</p>
                         </div>
                     </div>
 
@@ -1562,37 +1563,37 @@
                         <div class="job-link-item">
                             <span class="job-number">1</span>
                             <input type="url" class="job-link-input" placeholder="https://linkdavaga1.com" id="jobLink1"
-                                autocomplete="off" required>
+                                autocomplete="off">
                         </div>
                         <div class="job-link-item">
                             <span class="job-number">2</span>
                             <input type="url" class="job-link-input" placeholder="https://linkdavaga2.com" id="jobLink2"
-                                autocomplete="off" required>
+                                autocomplete="off">
                         </div>
                         <div class="job-link-item">
                             <span class="job-number">3</span>
                             <input type="url" class="job-link-input" placeholder="https://linkdavaga3.com" id="jobLink3"
-                                autocomplete="off" required>
+                                autocomplete="off">
                         </div>
                         <div class="job-link-item">
                             <span class="job-number">4</span>
                             <input type="url" class="job-link-input" placeholder="https://linkdavaga4.com" id="jobLink4"
-                                autocomplete="off" required>
+                                autocomplete="off">
                         </div>
                         <div class="job-link-item">
                             <span class="job-number">5</span>
                             <input type="url" class="job-link-input" placeholder="https://linkdavaga5.com" id="jobLink5"
-                                autocomplete="off" required>
+                                autocomplete="off">
                         </div>
                         <div class="job-link-item">
                             <span class="job-number">6</span>
                             <input type="url" class="job-link-input" placeholder="https://linkdavaga6.com" id="jobLink6"
-                                autocomplete="off" required>
+                                autocomplete="off">
                         </div>
                         <div class="job-link-item">
                             <span class="job-number">7</span>
                             <input type="url" class="job-link-input" placeholder="https://linkdavaga7.com" id="jobLink7"
-                                autocomplete="off" required>
+                                autocomplete="off">
                         </div>
                     </div>
 
@@ -1600,8 +1601,7 @@
                         <div class="progress-bar">
                             <div class="progress-fill" id="progressFill"></div>
                         </div>
-                        <p class="progress-text" id="progressText">Preencha todas as 7 vagas para maximizar suas
-                            oportunidades</p>
+                        <p class="progress-text" id="progressText">Preencha pelo menos 1 vaga para começar a análise</p>
                     </div>
                 </div>
                 </section>
@@ -1674,6 +1674,7 @@
             const progressText = document.getElementById('vagasProgress');
             const creditsStatusBanner = document.getElementById('creditsStatusBanner');
             const creditsStatusDescription = document.getElementById('creditsStatusDescription');
+            const currentCountElement = document.getElementById('currentCount');
 
             let filledCount = 0;
             jobInputs.forEach(input => {
@@ -1693,9 +1694,14 @@
                 }
             });
 
+            // Atualizar contador visual
+            if (currentCountElement) {
+                currentCountElement.textContent = filledCount;
+            }
+
             // Atualizar texto do progresso com emojis motivacionais
             if (filledCount === 7) {
-                progressText.textContent = '🎉 Perfeito! Todas as 7 vagas preenchidas - Pronto para analisar!';
+                progressText.textContent = '🎉 Excelente! Todas as 7 vagas preenchidas - Análise completa garantida!';
                 progressText.classList.add('completed');
                 progressText.style.color = '#28a745';
 
@@ -1703,15 +1709,23 @@
                 if (creditsStatusDescription) {
                     const user = auth && auth.getUser ? auth.getUser() : null;
                     if (user && user.credits <= 0) {
-                        creditsStatusDescription.textContent = '� Tudo preenchido! Agora você só precisa de créditos para analisar';
+                        creditsStatusDescription.textContent = '✨ Tudo preenchido! Agora você só precisa de créditos para analisar';
                     }
                 }
-            } else if (filledCount > 0) {
-                progressText.textContent = `⏳ ${filledCount}/7 vagas preenchidas - Continue para maximizar suas oportunidades`;
+            } else if (filledCount >= 1) {
+                if (filledCount < 3) {
+                    progressText.textContent = `✅ ${filledCount} vaga${filledCount > 1 ? 's' : ''} preenchida${filledCount > 1 ? 's' : ''} - Já pode analisar! Adicione mais para melhor resultado`;
+                    progressText.style.color = '#2e7d32';
+                } else if (filledCount < 7) {
+                    progressText.textContent = `🚀 ${filledCount}/7 vagas preenchidas - Ótimo! Continue para maximizar a análise`;
+                    progressText.style.color = '#ff9800';
+                } else {
+                    progressText.textContent = `⭐ ${filledCount}/7 vagas preenchidas - Excelente progresso!`;
+                    progressText.style.color = '#ff9800';
+                }
                 progressText.classList.remove('completed');
-                progressText.style.color = '#ff9800';
             } else {
-                progressText.textContent = '📝 Preencha todas as 7 vagas para maximizar suas oportunidades';
+                progressText.textContent = '📝 Preencha pelo menos 1 vaga para começar a análise';
                 progressText.classList.remove('completed');
                 progressText.style.color = '#6c757d';
             }
@@ -1755,15 +1769,20 @@
                 }
             });
 
-            const allJobsFilled = validJobsCount === 7;
-            const allRequirementsMet = fileSelected && allJobsFilled;
+            const hasMinimumJobs = validJobsCount >= 1;
+            const allRequirementsMet = fileSelected && hasMinimumJobs;
 
             // Controlar visibilidade e conteúdo do banner de créditos
             if (user) {
-                const credits = user.credits || 0;
+                // Verificação mais rigorosa para créditos
+                const credits = typeof user.credits === 'number' ? user.credits : 0;
 
-                // CORREÇÃO: Verificação mais rigorosa para evitar banner aparecer quando há créditos
-                console.log('🔍 Verificando créditos do usuário:', credits);
+                console.log('🔍 Verificando créditos do usuário:', {
+                    credits: credits,
+                    rawCredits: user.credits,
+                    type: typeof user.credits,
+                    user: user
+                });
 
                 if (credits <= 0) {
                     // Mostrar banner para usuários sem créditos
@@ -1779,12 +1798,10 @@
                     creditsStatusBanner.style.visibility = 'hidden';
                 }
             } else {
-                // Mostrar banner para usuários não logados
-                console.log('👤 Usuário não logado, mostrando banner de login');
-                creditsStatusBanner.style.display = 'flex';
-                creditsStatusBanner.style.visibility = 'visible';
-                creditsStatusText.textContent = 'Faça login para começar';
-                creditsStatusDescription.textContent = 'Entre na sua conta ou crie uma para analisar seu currículo';
+                // Usuário não logado - ocultar banner
+                console.log('👤 Usuário não logado, ocultando banner');
+                creditsStatusBanner.style.display = 'none';
+                creditsStatusBanner.style.visibility = 'hidden';
             }
 
             // Estados do botão baseados nas condições
@@ -1799,18 +1816,18 @@
                 // Usuário logado mas requisitos não atendidos
                 analyzeBtn.disabled = true;
 
-                if (!fileSelected && !allJobsFilled) {
-                    analyzeBtn.textContent = '📎 Anexe currículo e preencha as 7 vagas';
+                if (!fileSelected && !hasMinimumJobs) {
+                    analyzeBtn.textContent = '📎 Anexe currículo e preencha pelo menos 1 vaga';
                 } else if (!fileSelected) {
                     analyzeBtn.textContent = '📎 Anexe seu currículo para continuar';
-                } else if (!allJobsFilled) {
-                    analyzeBtn.textContent = `📝 Preencha todas as vagas (${validJobsCount}/7)`;
+                } else if (!hasMinimumJobs) {
+                    analyzeBtn.textContent = '📝 Preencha pelo menos 1 vaga para analisar';
                 }
 
                 analyzeBtn.style.opacity = '0.7';
                 analyzeBtn.style.cursor = 'not-allowed';
                 analyzeBtn.style.background = '#6c757d';
-            } else if (user.credits <= 0) {
+            } else if ((typeof user.credits === 'number' ? user.credits : 0) <= 0) {
                 // Usuário sem créditos mas requisitos atendidos
                 analyzeBtn.disabled = false;
                 analyzeBtn.textContent = '💳 Comprar Análises Para Continuar';
@@ -1929,6 +1946,20 @@
                 window.updateHeaderCredits();
             }
 
+            // Forçar atualização dos créditos do servidor quando a página carrega
+            if (user && typeof window.auth.fetchUserCredits === 'function') {
+                console.log('🔄 Forçando atualização de créditos do servidor...');
+                window.auth.fetchUserCredits(true).then(() => {
+                    console.log('✅ Créditos atualizados do servidor');
+                    // Atualizar botão após buscar créditos
+                    if (window.updateAnalyzeButton) {
+                        setTimeout(window.updateAnalyzeButton, 100);
+                    }
+                }).catch(err => {
+                    console.log('⚠️ Erro ao atualizar créditos:', err);
+                });
+            }
+
             // Adicionar listeners para todos os inputs de vagas
             document.querySelectorAll('.job-link-input').forEach(input => {
                 input.addEventListener('input', window.updateVagasProgress);
@@ -1947,6 +1978,14 @@
             if (window.updateAnalyzeButton) {
                 setTimeout(window.updateAnalyzeButton, 200);
             }
+
+            // Listener para eventos de atualização de créditos
+            window.addEventListener('userCreditsUpdated', function (event) {
+                console.log('💳 Evento de créditos atualizado detectado:', event.detail);
+                if (window.updateAnalyzeButton) {
+                    setTimeout(window.updateAnalyzeButton, 50);
+                }
+            });
         });
     </script>
     <script>
@@ -2163,5 +2202,7 @@
         });
     </script>
 </body>
+
+</html>
 
 </html>
