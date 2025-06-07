@@ -25,7 +25,6 @@ function singularPluralForms(word) {
   }
 }
 
-
 /**
  * Verifica se a palavra-chave está presente no texto do currículo
  * Usa stemmer para aceitar variações simples
@@ -40,6 +39,43 @@ function keywordInResume(keyword, resumeText) {
     if (regex.test(normResume)) return true;
   }
   return false;
+}
+
+/**
+ * Conta quantas vezes cada palavra-chave aparece no texto das vagas
+ * @param {string[]} keywords - Array de palavras-chave
+ * @param {string} jobsText - Texto de todas as vagas concatenadas
+ * @returns {Object[]} Array de objetos com keyword e count, ordenado por relevância (count descendente)
+ */
+function countKeywordOccurrences(keywords, jobsText) {
+  const normJobsText = normalize(jobsText);
+  const keywordCounts = [];
+
+  keywords.forEach(keyword => {
+    const forms = singularPluralForms(normalize(keyword));
+    let totalCount = 0;
+
+    forms.forEach(form => {
+      const regex = new RegExp(`\\b${form}\\b`, 'gi');
+      const matches = normJobsText.match(regex);
+      if (matches) {
+        totalCount += matches.length;
+      }
+    });
+
+    keywordCounts.push({
+      keyword: keyword,
+      count: totalCount
+    });
+  });
+
+  // Ordenar por relevância (count descendente), depois alfabeticamente para empates
+  return keywordCounts.sort((a, b) => {
+    if (b.count !== a.count) {
+      return b.count - a.count;
+    }
+    return a.keyword.localeCompare(b.keyword, 'pt-BR');
+  });
 }
 
 /**
@@ -67,4 +103,5 @@ module.exports = {
   filterPresentKeywords,
   keywordInResume,
   deduplicateKeywords,
+  countKeywordOccurrences,
 };

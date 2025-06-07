@@ -38,4 +38,19 @@ const GiftCodeUsage = sequelize.define('GiftCodeUsage', {
     ]
 });
 
+// Definir associações
+GiftCodeUsage.associate = (models) => {
+    // Um uso pertence a um código de presente
+    GiftCodeUsage.belongsTo(models.GiftCode, {
+        foreignKey: 'giftCodeId',
+        as: 'giftCode'
+    });
+
+    // Um uso pertence a um usuário
+    GiftCodeUsage.belongsTo(models.User, {
+        foreignKey: 'userId',
+        as: 'user'
+    });
+};
+
 module.exports = GiftCodeUsage; 

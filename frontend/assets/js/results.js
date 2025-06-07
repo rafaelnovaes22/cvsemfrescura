@@ -92,16 +92,33 @@ document.addEventListener('DOMContentLoaded', function () {
     // NOVA SEÇÃO: Scores de Compatibilidade por Vaga
     displayCompatibilityScores(atsResult);
 
-    // Palavras-chave das vagas
+    // Palavras-chave das vagas (com contagem e ordenação por relevância)
     const jobKeywordsList = document.getElementById('vaga-keywords');
-    if (jobKeywordsList && atsResult.job_keywords) {
+    if (jobKeywordsList) {
         jobKeywordsList.innerHTML = '';
-        atsResult.job_keywords.forEach(keyword => {
-            const div = document.createElement('div');
-            div.className = 'keyword-tag';
-            div.innerText = keyword;
-            jobKeywordsList.appendChild(div);
-        });
+
+        // Verificar se temos dados com contagem
+        if (atsResult.job_keywords_with_count && atsResult.job_keywords_with_count.length > 0) {
+            atsResult.job_keywords_with_count.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'keyword-tag';
+                div.innerHTML = `${item.keyword} <span class="keyword-count">${item.count}x</span>`;
+                jobKeywordsList.appendChild(div);
+            });
+
+            // Exibir estatísticas de relevância
+            displayRelevanceStatistics(atsResult);
+        } else if (atsResult.job_keywords && atsResult.job_keywords.length > 0) {
+            // Fallback para formato antigo
+            atsResult.job_keywords.forEach(keyword => {
+                const div = document.createElement('div');
+                div.className = 'keyword-tag';
+                div.innerText = keyword;
+                jobKeywordsList.appendChild(div);
+            });
+        } else {
+            jobKeywordsList.innerHTML = '<div style="color: #666; font-style: italic;">Nenhuma palavra-chave identificada nas vagas.</div>';
+        }
     }
 
     // Palavras-chave presentes no currículo (comparação direta com texto do currículo)
@@ -537,4 +554,25 @@ function formatarNota(nota) {
             <span style="color: ${cor}; font-size: 13px; font-weight: 600; background: ${cor}15; padding: 4px 8px; border-radius: 12px;">${texto}</span>
         </div>
     `;
+}
+
+// Função para exibir estatísticas de relevância
+function displayRelevanceStatistics(atsResult) {
+    const relevanceStatsContainer = document.getElementById('relevance-stats');
+
+    if (atsResult.keyword_statistics && relevanceStatsContainer) {
+        const stats = atsResult.keyword_statistics;
+
+        // Atualizar elementos da estatística
+        const statTotal = document.getElementById('stat-total');
+        const statTotalKeywords = document.getElementById('stat-total-keywords');
+        const statOccurrences = document.getElementById('stat-occurrences');
+
+        if (statTotal) statTotal.textContent = stats.present_in_resume || '0';
+        if (statTotalKeywords) statTotalKeywords.textContent = stats.total_identified || '0';
+        if (statOccurrences) statOccurrences.textContent = stats.total_occurrences || '0';
+
+        // Mostrar o container
+        relevanceStatsContainer.style.display = 'block';
+    }
 }

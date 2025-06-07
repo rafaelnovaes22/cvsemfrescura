@@ -10,6 +10,7 @@
     <!-- Header CSS -->
     <link rel="stylesheet" href="assets/css/header.css">
 
+    <script src="/assets/js/config.js"></script>
     <script src="/assets/js/auth.js"></script>
     <script src="/assets/js/header-new.js?v=1748114546"></script>
     <style>
@@ -356,6 +357,14 @@
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', function () {
+            // Verificar se o usuário está autenticado
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.log('🔐 Usuário não autenticado, redirecionando para login...');
+                window.location.href = 'analisar.html?login=true&returnTo=admin.html';
+                return;
+            }
+
             loadDashboard();
             loadCodes();
 
@@ -383,9 +392,19 @@
             try {
                 const response = await fetch('/api/admin/dashboard', {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
+
+                if (response.status === 401) {
+                    showAccessDeniedMessage('Token inválido ou expirado. Faça login novamente.');
+                    return;
+                }
+
+                if (response.status === 403) {
+                    showAccessDeniedMessage('Acesso negado. Apenas administradores podem acessar esta página.');
+                    return;
+                }
 
                 if (!response.ok) {
                     throw new Error('Erro ao carregar dashboard');
@@ -421,9 +440,13 @@
 
                 const response = await fetch(`/api/admin/codes?${params}`, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
+
+                if (response.status === 401 || response.status === 403) {
+                    return; // Já tratado no dashboard
+                }
 
                 if (!response.ok) {
                     throw new Error('Erro ao carregar códigos');
@@ -544,7 +567,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     },
                     body: JSON.stringify(data)
                 });
@@ -573,7 +596,7 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     },
                     body: JSON.stringify({ isActive })
                 });
@@ -602,7 +625,7 @@
                 const response = await fetch(`/api/admin/codes/${id}`, {
                     method: 'DELETE',
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
 
@@ -630,7 +653,7 @@
 
                 const response = await fetch(`/api/admin/export/codes${params}`, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
 
@@ -666,6 +689,66 @@
             setTimeout(() => {
                 container.innerHTML = '';
             }, 5000);
+        }
+
+        // Mostrar mensagem de acesso negado
+        function showAccessDeniedMessage(message) {
+            document.body.innerHTML = `
+                <div style="
+                    min-height: 100vh; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    font-family: 'Inter', sans-serif;
+                ">
+                    <div style="
+                        background: white;
+                        border-radius: 12px;
+                        padding: 40px;
+                        text-align: center;
+                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                        max-width: 500px;
+                        margin: 20px;
+                    ">
+                        <div style="font-size: 64px; margin-bottom: 20px;">🔒</div>
+                        <h1 style="color: #333; margin-bottom: 16px;">Acesso Restrito</h1>
+                        <p style="color: #666; margin-bottom: 24px; line-height: 1.6;">
+                            ${message}
+                        </p>
+                        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                            <button onclick="window.location.href='analisar.html?login=true&returnTo=admin.html'" style="
+                                background: #667eea; 
+                                color: white; 
+                                border: none; 
+                                padding: 12px 24px; 
+                                border-radius: 8px; 
+                                cursor: pointer;
+                                font-weight: 600;
+                            ">
+                                🔐 Fazer Login
+                            </button>
+                            <button onclick="window.location.href='landing.html'" style="
+                                background: transparent; 
+                                color: #667eea; 
+                                border: 2px solid #667eea; 
+                                padding: 12px 24px; 
+                                border-radius: 8px; 
+                                cursor: pointer;
+                                font-weight: 600;
+                            ">
+                                🏠 Página Inicial
+                            </button>
+                        </div>
+                        <div style="margin-top: 20px; padding: 16px; background: #f8f9fa; border-radius: 8px;">
+                            <p style="color: #666; font-size: 14px; margin: 0;">
+                                💡 <strong>Para administradores:</strong> Entre em contato com o suporte técnico 
+                                para obter permissões administrativas.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
     </script>
 </body>

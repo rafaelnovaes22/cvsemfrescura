@@ -211,10 +211,73 @@
             text-align: center;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
         .keyword-tag:hover {
             transform: translateY(-1px);
+        }
+
+        .keyword-count {
+            background: #583819;
+            color: #ecd9b5;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .relevance-stats {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f5f0 0%, #f0f0f0 100%);
+            border-radius: 12px;
+            border: 2px solid #ecd9b5;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 24px;
+            font-weight: 700;
+            color: #583819;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.4;
         }
 
         /* Cards */
@@ -550,9 +613,27 @@
         <section class="content-section">
             <div class="section-header">
                 <h2 class="section-title">🔍 Palavras-chave Identificadas na Vaga</h2>
+                <p class="section-subtitle">Palavras-chave extraídas das vagas analisadas. <strong>Análises novas
+                        mostram relevância</strong> (quantas vezes aparecem nas vagas).</p>
                 <div class="section-divider"></div>
             </div>
             <div class="keywords-grid" id="vaga-keywords"></div>
+
+            <!-- Estatísticas de Relevância -->
+            <div class="relevance-stats" id="relevance-stats" style="display: none;">
+                <h3 style="color: #583819; margin-bottom: 16px; font-size: 18px;">📊 Estatísticas de Relevância:</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-number" id="stat-total">-</span>
+                        <span class="stat-label">de <span id="stat-total-keywords">-</span> palavras-chave encontradas
+                            no seu currículo</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="stat-occurrences">-</span>
+                        <span class="stat-label">ocorrências totais nas vagas analisadas</span>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- Palavras-chaves Presentes em seu Currículo -->

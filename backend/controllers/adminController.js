@@ -2,6 +2,7 @@ const GiftCode = require('../models/giftCode');
 const GiftCodeUsage = require('../models/giftCodeUsage');
 const User = require('../models/user');
 const { Op } = require('sequelize');
+const sequelize = require('../db');
 
 // Dashboard com estatísticas gerais
 exports.getDashboard = async (req, res) => {
@@ -16,7 +17,9 @@ exports.getDashboard = async (req, res) => {
             // Códigos usados completamente
             GiftCode.count({
                 where: {
-                    usedCount: { [Op.gte]: GiftCode.literal('max_uses') }
+                    [Op.and]: [
+                        sequelize.literal('usedCount >= maxUses')
+                    ]
                 }
             }),
 
@@ -73,11 +76,11 @@ exports.listCodes = async (req, res) => {
 
         if (status === 'active') {
             where.isActive = true;
-            where.usedCount = { [Op.lt]: GiftCode.literal('max_uses') };
+            where[Op.and] = [sequelize.literal('usedCount < maxUses')];
         } else if (status === 'inactive') {
             where.isActive = false;
         } else if (status === 'exhausted') {
-            where.usedCount = { [Op.gte]: GiftCode.literal('max_uses') };
+            where[Op.and] = [sequelize.literal('usedCount >= maxUses')];
         } else if (status === 'expired') {
             where.expiresAt = { [Op.lt]: new Date() };
         }
@@ -95,7 +98,12 @@ exports.listCodes = async (req, res) => {
                 {
                     model: GiftCodeUsage,
                     as: 'usages',
-                    include: [{ model: User, attributes: ['id', 'email'] }]
+                    required: false,
+                    include: [{
+                        model: User,
+                        as: 'user',
+                        attributes: ['id', 'email']
+                    }]
                 }
             ]
         });
@@ -267,10 +275,12 @@ exports.getUsageReport = async (req, res) => {
             include: [
                 {
                     model: GiftCode,
+                    as: 'giftCode',
                     attributes: ['code', 'description']
                 },
                 {
                     model: User,
+                    as: 'user',
                     attributes: ['email', 'name']
                 }
             ],

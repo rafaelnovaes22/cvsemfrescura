@@ -1265,6 +1265,17 @@
         window.authSuccess = function () {
             console.log('🎉 authSuccess() chamada - início');
 
+            // Verificar se há um parâmetro returnTo na URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const returnTo = urlParams.get('returnTo');
+
+            if (returnTo) {
+                console.log('🔄 Redirecionando para:', returnTo);
+                // Redirecionar para a página solicitada
+                window.location.href = returnTo;
+                return;
+            }
+
             const mainContent = document.querySelector('.main-content');
             if (mainContent) mainContent.style.display = '';
             const footer = document.querySelector('footer');

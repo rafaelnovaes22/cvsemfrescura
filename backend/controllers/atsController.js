@@ -135,15 +135,32 @@ exports.analyze = async (req, res) => {
     }
 
     // Cruzamento real: só palavras da vaga encontradas no currículo
-    const { filterPresentKeywords, deduplicateKeywords } = require('../services/atsKeywordVerifier');
+    const { filterPresentKeywords, deduplicateKeywords, countKeywordOccurrences } = require('../services/atsKeywordVerifier');
     if (result.job_keywords && Array.isArray(result.job_keywords)) {
       // Extrai as palavras-chave da vaga e remove duplicidades
       let jobKeywords = result.job_keywords;
       jobKeywords = deduplicateKeywords(jobKeywords);
+
+      // Contar ocorrências das palavras-chave nas vagas
+      const keywordCounts = countKeywordOccurrences(jobKeywords, jobsText);
+      result.job_keywords_with_count = keywordCounts;
+
+      // Atualizar job_keywords com ordem de relevância (apenas as palavras-chave, sem contagem)
+      result.job_keywords = keywordCounts.map(item => item.keyword);
+
       const presentes = filterPresentKeywords(jobKeywords, resumeText);
       const ausentes = jobKeywords.filter(k => !presentes.includes(k));
       result.job_keywords_present = presentes;
       result.job_keywords_missing = ausentes;
+
+      // Criar estatísticas de relevância
+      result.keyword_statistics = {
+        total_identified: keywordCounts.length,
+        total_occurrences: keywordCounts.reduce((sum, item) => sum + item.count, 0),
+        present_in_resume: presentes.length,
+        missing_in_resume: ausentes.length,
+        match_percentage: keywordCounts.length > 0 ? Math.round((presentes.length / keywordCounts.length) * 100) : 0
+      };
     }
 
     // Decrementar créditos do usuário após análise bem-sucedida

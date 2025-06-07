@@ -3,18 +3,18 @@ const router = express.Router();
 const adminController = require('../controllers/adminController');
 const authMiddleware = require('../utils/authMiddleware');
 
-// Middleware para verificar se é admin (você pode implementar conforme sua lógica)
+// Middleware para verificar se é admin
 const adminMiddleware = (req, res, next) => {
-    // Por enquanto, qualquer usuário autenticado pode acessar
-    // Você pode implementar uma verificação de role/permission aqui
     if (!req.user) {
-        return res.status(401).json({ error: 'Acesso negado.' });
+        return res.status(401).json({ error: 'Acesso negado. Token inválido.' });
     }
 
-    // TODO: Implementar verificação de admin
-    // if (req.user.role !== 'admin') {
-    //   return res.status(403).json({ error: 'Apenas administradores podem acessar.' });
-    // }
+    // Verificar se o usuário é admin
+    if (!req.user.isAdmin) {
+        return res.status(403).json({
+            error: 'Acesso negado. Apenas administradores podem acessar esta funcionalidade.'
+        });
+    }
 
     next();
 };

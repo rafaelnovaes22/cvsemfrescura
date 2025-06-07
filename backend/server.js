@@ -265,6 +265,21 @@ const Transaction = require('./models/Transaction');
 
 console.log('Modelo User importado:', User ? 'OK' : 'ERRO');
 
+// Configurar associações entre modelos
+const models = {
+  User,
+  GiftCode,
+  GiftCodeUsage,
+  Transaction
+};
+
+// Configurar as associações
+Object.keys(models).forEach(modelName => {
+  if (models[modelName].associate) {
+    models[modelName].associate(models);
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 
 // ✅ Sincronização segura - apenas criar tabelas que não existem

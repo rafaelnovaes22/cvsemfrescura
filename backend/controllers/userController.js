@@ -46,7 +46,12 @@ exports.login = async (req, res) => {
     // Atualizar a data do último login
     await user.update({ last_login: new Date() });
 
-    const token = jwt.sign({ id: user.id, email: user.email, name: user.name }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      isAdmin: user.isAdmin || false
+    }, JWT_SECRET, { expiresIn: '7d' });
     res.json({
       token,
       user: {
