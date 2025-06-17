@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analisar Currículo - CV Sem Frescura</title>
+    <title>CV Sem Frescura</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Header CSS -->
@@ -926,6 +926,19 @@
                 if (authModal) {
                     authModal.style.display = 'flex';
                     document.body.style.overflow = 'hidden';
+
+                    // 🎨 UX: Aplicar blur suave no conteúdo da página com transição
+                    const mainContent = document.querySelector('.main-content');
+                    const header = document.querySelector('header');
+                    if (mainContent) {
+                        mainContent.style.transition = 'filter 0.3s ease';
+                        mainContent.style.filter = 'blur(3px)';
+                    }
+                    if (header) {
+                        header.style.transition = 'filter 0.3s ease';
+                        header.style.filter = 'blur(3px)';
+                    }
+
                     // Mostrar formulário de cadastro
                     document.getElementById('loginForm').style.display = 'none';
                     document.getElementById('registerForm').style.display = 'block';
@@ -971,6 +984,19 @@
                 if (authModal) {
                     authModal.style.display = 'flex';
                     document.body.style.overflow = 'hidden';
+
+                    // 🎨 UX: Aplicar blur suave no conteúdo da página com transição
+                    const mainContent = document.querySelector('.main-content');
+                    const header = document.querySelector('header');
+                    if (mainContent) {
+                        mainContent.style.transition = 'filter 0.3s ease';
+                        mainContent.style.filter = 'blur(3px)';
+                    }
+                    if (header) {
+                        header.style.transition = 'filter 0.3s ease';
+                        header.style.filter = 'blur(3px)';
+                    }
+
                     // Mostrar formulário de login
                     document.getElementById('loginForm').style.display = 'block';
                     document.getElementById('registerForm').style.display = 'none';
@@ -1306,9 +1332,16 @@
             }
 
             const mainContent = document.querySelector('.main-content');
-            if (mainContent) mainContent.style.display = '';
+            if (mainContent) {
+                mainContent.style.display = '';
+                // 🎨 UX: Remover blur do conteúdo
+                mainContent.style.filter = '';
+            }
             const footer = document.querySelector('footer');
             if (footer) footer.style.display = '';
+            const header = document.querySelector('header');
+            if (header) header.style.filter = ''; // Remover blur do header
+
             document.getElementById('authModal').style.display = 'none';
             document.body.style.overflow = '';
 
@@ -1473,9 +1506,10 @@
         </div>
     </header>
 
-    <!-- Modal de Login/Cadastro -->
-    <div id="authModal" class="modal"
-        style="display:flex; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.45); align-items:center; justify-content:center;">
+    <!-- Modal de Login/Cadastro - UX Aprimorada -->
+    <div id="authModal" class="modal" style="display:flex; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; 
+               background:rgba(0,0,0,0.6); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+               align-items:center; justify-content:center; transition:all 0.3s ease;">
         <div
             style="background:#fff; border-radius:18px; max-width:380px; width:92vw; padding:32px 22px 24px 22px; box-shadow:0 8px 32px #0003; position:relative; display:flex; flex-direction:column; align-items:center;">
             <img src="assets/img/logo.png" alt="Logo CV Sem Frescura"
@@ -2041,6 +2075,12 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const loginParam = urlParams.get('login');
                 const giftCodeParam = urlParams.get('giftCode');
+
+                // 🎨 UX: Sempre remover blur antes de qualquer ação
+                const mainContent = document.querySelector('.main-content');
+                const header = document.querySelector('header');
+                if (mainContent) mainContent.style.filter = '';
+                if (header) header.style.filter = '';
 
                 // Se veio de login=true, voltar para landing
                 // Se veio com giftCode, voltar para landing
