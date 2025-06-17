@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Sistema de Login Local</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .test-section h3 {
+            color: #583819;
+            margin-top: 0;
+        }
+
+        .test-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #583819;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 10px 10px 10px 0;
+            font-weight: 600;
+        }
+
+        .test-button:hover {
+            background: #4a2f15;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .status.pending {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+
+        .status.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="test-container">
+        <h1>🧪 Teste do Sistema de Login - Desenvolvimento</h1>
+
+        <div class="status pending">
+            <strong>📋 Status:</strong> Servidor deve estar rodando em <code>http://localhost:3000</code>
+        </div>
+
+        <div class="test-section">
+            <h3>🔗 Teste 1: Links da Landing Page</h3>
+            <p>Simular cliques dos botões da landing page:</p>
+
+            <a href="http://localhost:3000/analisar.html?login=true" class="test-button" target="_blank">
+                🔐 Já tenho conta (landing)
+            </a>
+
+            <a href="http://localhost:3000/analisar.html" class="test-button" target="_blank">
+                📊 Analisar (direto)
+            </a>
+
+            <div class="status pending">
+                <strong>Esperado:</strong>
+                <ul>
+                    <li>✅ "Já tenho conta" → Modal de login aparece automaticamente</li>
+                    <li>✅ "Analisar direto" → Modal padrão (bloqueia conteúdo)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🎁 Teste 2: Com Código de Presente</h3>
+            <p>Testar fluxo com código de presente:</p>
+
+            <a href="http://localhost:3000/analisar.html?giftCode=TESTE-2025" class="test-button" target="_blank">
+                🎁 Com código de teste
+            </a>
+
+            <div class="status pending">
+                <strong>Esperado:</strong>
+                <ul>
+                    <li>✅ Modal de código inválido (se código não existe)</li>
+                    <li>✅ Modal de boas-vindas (se código existe)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔄 Teste 3: Fluxo Completo</h3>
+            <p>Testar sequência completa:</p>
+
+            <ol>
+                <li>Ir para <a href="http://localhost:3000/landing.html" target="_blank">Landing Page</a></li>
+                <li>Clicar em "Já tenho acesso"</li>
+                <li>Verificar se modal aparece</li>
+                <li>Tentar fazer login</li>
+                <li>Verificar se página funciona após login</li>
+            </ol>
+
+            <div class="status pending">
+                <strong>Checklist de Teste:</strong>
+                <ul>
+                    <li>⬜ Modal aparece quando clica "Já tenho acesso"</li>
+                    <li>⬜ Formulário de login está visível</li>
+                    <li>⬜ Login funciona corretamente</li>
+                    <li>⬜ Página analisar.html funciona após login</li>
+                    <li>⬜ URL fica limpa (sem login=true)</li>
+                    <li>⬜ Fechar modal volta para landing</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🐛 Debug Log</h3>
+            <p>Console logs para debug:</p>
+            <div class="log" id="debugLog">
+                Abra o DevTools (F12) e veja os logs no Console:<br>
+                • "🔐 Redirecionamento para login detectado - mostrando modal"<br>
+                • "🧹 Limpando parâmetro login=true da URL"<br>
+                • "🎉 authSuccess() chamada - início"<br>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 Credenciais de Teste</h3>
+            <p>Use estas credenciais para testar:</p>
+            <div class="status pending">
+                <strong>Email:</strong> teste@exemplo.com<br>
+                <strong>Senha:</strong> 123456<br>
+                <small>(Ou crie uma conta nova se não existe)</small>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🚀 Status do Servidor</h3>
+            <div id="serverStatus" class="status pending">
+                Verificando servidor... <span id="serverCheck">⏳</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Verificar se servidor está rodando
+        fetch('http://localhost:3000/api/health')
+            .then(response => response.json())
+            .then(data => {
+                const statusDiv = document.getElementById('serverStatus');
+                statusDiv.className = 'status success';
+                statusDiv.innerHTML = '✅ Servidor rodando corretamente! ' +
+                    '<strong>Status:</strong> ' + (data.status || 'OK');
+            })
+            .catch(error => {
+                const statusDiv = document.getElementById('serverStatus');
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = '❌ Servidor não está rodando. Execute: <code>npm start</code> na pasta backend';
+            });
+
+        // Log simples no navegador
+        console.log('🧪 Página de teste carregada');
+        console.log('📍 Use F12 para ver logs de debug durante os testes');
+    </script>
+</body>
+
+</html>

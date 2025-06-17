@@ -1,0 +1,126 @@
+{
+    "name": "RH Super Sincero - Análise de CV com IA",
+    "short_name": "RH Super Sincero",
+    "description": "Análise inteligente de currículos com feedback personalizado e otimizações para ATS",
+    "version": "3.0.0",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "theme_color": "#583819",
+    "background_color": "#faf9f7",
+    "lang": "pt-BR",
+    "dir": "ltr",
+    "icons": [
+        {
+            "src": "/assets/img/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/assets/img/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/assets/img/logo-optimized.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "/assets/img/screenshot-desktop.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Análise de CV - Desktop"
+        },
+        {
+            "src": "/assets/img/screenshot-mobile.png",
+            "sizes": "390x844",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Análise de CV - Mobile"
+        }
+    ],
+    "categories": [
+        "productivity",
+        "business",
+        "education"
+    ],
+    "shortcuts": [
+        {
+            "name": "Analisar CV",
+            "short_name": "Analisar",
+            "description": "Fazer upload e análise de currículo",
+            "url": "/analisar.html",
+            "icons": [
+                {
+                    "src": "/assets/img/icon-analysis.png",
+                    "sizes": "96x96"
+                }
+            ]
+        },
+        {
+            "name": "Histórico",
+            "short_name": "Histórico",
+            "description": "Ver análises anteriores",
+            "url": "/history.html",
+            "icons": [
+                {
+                    "src": "/assets/img/icon-history.png",
+                    "sizes": "96x96"
+                }
+            ]
+        },
+        {
+            "name": "Comprar Créditos",
+            "short_name": "Comprar",
+            "description": "Adquirir créditos para análise",
+            "url": "/payment.html",
+            "icons": [
+                {
+                    "src": "/assets/img/icon-payment.png",
+                    "sizes": "96x96"
+                }
+            ]
+        }
+    ],
+    "edge_side_panel": {
+        "preferred_width": 400
+    },
+    "launch_handler": {
+        "client_mode": "focus-existing"
+    },
+    "file_handlers": [
+        {
+            "action": "/analisar.html",
+            "accept": {
+                "application/pdf": [
+                    ".pdf"
+                ],
+                "application/msword": [
+                    ".doc"
+                ],
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [
+                    ".docx"
+                ]
+            }
+        }
+    ],
+    "protocol_handlers": [
+        {
+            "protocol": "web+rhsupersincero",
+            "url": "/?handler=%s"
+        }
+    ],
+    "prefer_related_applications": false,
+    "related_applications": [],
+    "iarc_rating_id": "",
+    "handle_links": "preferred",
+    "capture_links": "existing-client-navigate"
+}
