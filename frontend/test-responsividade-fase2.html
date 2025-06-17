@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 Teste Responsividade Fase 2 - CV Sem Frescura</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/responsive-critical.css">
+    <style>
+        /* Estilos específicos para demonstração */
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .demo-section {
+            margin-bottom: 4rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .demo-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #583819;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .demo-description {
+            color: #6b7280;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .breakpoint-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #583819;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(88, 56, 25, 0.3);
+        }
+
+        .device-info {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .grid-demo {
+            margin-bottom: 2rem;
+        }
+
+        .grid-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .component-demo {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-demo {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card-demo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .form-demo {
+            background: #f9fafb;
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .typography-demo h1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .typography-demo h2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .typography-demo h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .typography-demo p {
+            margin-bottom: 1rem;
+        }
+
+        .animation-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .animation-item {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .animation-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .performance-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .metric-card {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0ea5e9;
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 767px) {
+            .demo-container {
+                padding: 1rem 0.5rem;
+            }
+
+            .demo-section {
+                padding: 1rem;
+                margin-bottom: 2rem;
+            }
+
+            .breakpoint-indicator {
+                top: 10px;
+                right: 10px;
+                font-size: 0.75rem;
+                padding: 0.25rem 0.5rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+
+        /* Touch optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .card-demo:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Indicador de Breakpoint -->
+    <div class="breakpoint-indicator" id="breakpointIndicator">
+        Desktop
+    </div>
+
+    <div class="demo-container">
+        <!-- Header Demo -->
+        <header class="header-responsive">
+            <div class="header-logo">
+                <img src="assets/img/logo.png" alt="RH Super Sincero" class="header-logo">
+            </div>
+            <nav class="header-nav">
+                <a href="#" class="btn-responsive btn-secondary">Início</a>
+                <a href="#" class="btn-responsive btn-secondary">Analisar</a>
+                <a href="#" class="btn-responsive btn-secondary">Preços</a>
+            </nav>
+            <div class="header-actions">
+                <a href="#" class="btn-responsive btn-secondary hidden-mobile">
+                    <span>🔐</span>
+                    <span class="btn-text">Entrar</span>
+                </a>
+                <a href="#" class="btn-responsive btn-primary">
+                    <span>💳</span>
+                    <span class="btn-text">Comprar</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- Informações do Dispositivo -->
+        <section class="demo-section">
+            <h2 class="demo-title">
+                <span>📱</span>
+                Detecção Inteligente de Dispositivo
+            </h2>
+            <p class="demo-description">
+                O sistema detecta automaticamente o dispositivo, conexão e preferências do usuário para otimizar a
+                experiência.
+            </p>
+            <div class="device-info" id="deviceInfo">
+                Carregando informações do dispositivo...
+            </div>
+        </section>
+
+        <!-- Grid System Demo -->
+        <section class="demo-section">
+            <h2 class="demo-title">
+                <span>🏗️</span>
+                Sistema de Grid Inteligente
+            </h2>
+            <p class="demo-description">
+                Grid responsivo que se adapta automaticamente baseado no breakpoint atual. Mobile-first com 12 colunas.
+            </p>
+
+            <div class="grid-demo">
+                <h3>Grid 12 Colunas</h3>
+                <div class="grid">
+                    <div class="col-12 grid-item">col-12</div>
+                </div>
+            </div>
+
+            <div class="grid-demo">
+                <h3>Grid 6-6</h3>
+                <div class="grid">
+                    <div class="col-6 grid-item">col-6</div>
+                    <div class="col-6 grid-item">col-6</div>
+                </div>
+            </div>
+
+            <div class="grid-demo">
+                <h3>Grid 4-4-4</h3>
+                <div class="grid">
+                    <div class="col-4 grid-item">col-4</div>
+                    <div class="col-4 grid-item">col-4</div>
+                    <div class="col-4 grid-item">col-4</div>
+                </div>
+            </div>
+
+            <div class="grid-demo">
+                <h3>Grid 3-3-3-3</h3>
+                <div class="grid">
+                    <div class="col-3 grid-item">col-3</div>
+                    <div class="col-3 grid-item">col-3</div>
+                    <div class="col-3 grid-item">col-3</div>
+                    <div class="col-3 grid-item">col-3</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Typography Demo -->
+        <section class="demo-section">
+            <h2 class="demo-title">
+                <span>📝</span>
+                Tipografia Responsiva
+            </h2>
+            <p class="demo-description">
+                Escala tipográfica fluida usando clamp() para se adaptar perfeitamente a qualquer tela.
+            </p>
+
+            <div class="typography-demo">
+                <h1 class="text-4xl font-bold">Heading 1 - text-4xl</h1>
+                <h2 class="text-3xl font-semibold">Heading 2 - text-3xl</h2>
+                <h3 class="text-2xl font-medium">Heading 3 - text-2xl</h3>
+                <h4 class="text-xl font-medium">Heading 4 - text-xl</h4>
+                <p class="text-lg">Parágrafo grande - text-lg</p>
+                <p class="text-base">Parágrafo normal - text-base</p>
+                <p class="text-sm">Texto pequeno - text-sm</p>
+                <p class="text-xs">Texto extra pequeno - text-xs</p>
+            </div>
+        </section>
+
+        <!-- Components Demo -->
+        <section class="demo-section">
+            <h2 class="demo-title">
+                <span>🧩</span>
+                Componentes Responsivos
+            </h2>
+            <p class="demo-description">
+                Botões, cards e forms que se adaptam automaticamente ao dispositivo e contexto.
+            </p>
+
+            <h3>Botões Adaptativos</h3>
+            <div class="button-group">
+                <button class="btn-responsive btn-primary">
+                    <span>✨</span>
+                    <span class="btn-text">Primário</span>
+                </button>
+                <button class="btn-responsive btn-secondary">
+                    <span>🔧</span>
+                    <span class="btn-text">Secundário</span>
+                </button>
+                <button class="btn-responsive btn-primary btn-mobile-compact">
+                    <span>📱</span>
+                    <span class="btn-text">Compacto Mobile</span>
+                </button>
+                <button class="btn-responsive btn-secondary btn-mobile-full">
+                    <span>📏</span>
+                    <span class="btn-text">Full Width Mobile</span>
+                </button>
+            </div>
+
+            <h3>Cards Responsivos</h3>
+            <div class="component-demo">
+                <div class="card-demo">
+                    <h4 class="text-lg font-semibold mb-2">Card Adaptativo</h4>
+                    <p class="text-sm text-gray-600">Este card se adapta automaticamente ao tamanho da tela e otimiza
+                        suas interações para touch ou mouse.</p>
+                </div>
+                <div class="card-demo">
+                    <h4 class="text-lg font-semibold mb-2">Hover Inteligente</h4>
+                    <p class="text-sm text-gray-600">Efeitos hover são automaticamente desabilitados em dispositivos
+                        touch para melhor performance.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Form Demo -->
+        <section class="demo-section">
+            <h2 class="demo-title">
+                <span>📋</span>
+                Formulários Otimizados
+            </h2>
+            <p class="demo-description">
+                Forms com altura mínima para touch, prevenção de zoom no iOS, e validação responsiva.
+            </p>
+
+            <div class="form-demo">
+                <div class="form-group">
+                    <label class="form-label" for="email">E-mail</label>
+                    <input type="email" id="email" class="form-input" placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="message">Mensagem</label>
+                    <textarea id="message" class="form-input" rows="4" placeholder="Sua mensagem aqui..."
+                        style="height: auto; min-height: 100px;"></textarea>
+                </div>
+                <button class="btn-responsive btn-primary btn-mobile-full">
+                    <span>📤</span>
+                    <span>Enviar Mensagem</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Animation Demo -->
+        <section class="demo-section">
+            <h2 class="demo-title">
+                <span>🎭</span>
+                Animações Inteligentes
+            </h2>
+            <p class="demo-description">
+                Animações que respeitam as preferências do usuário e são otimizadas para performance.
+            </p>
+
+            <div class="animation-demo">
+                <div class="animation-item animate-fade-in">
+                    <div>Fade In</div>
+                </div>
+                <div class="animation-item animate-slide-up">
+                    <div>Slide Up</div>
+                </div>
+                <div class="animation-item animate-fade-in">
+                    <div>Performance</div>
+                </div>
+                <div class="animation-item animate-slide-up">
+                    <div>Optimized</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Performance Metrics -->
+        <section class="demo-section">
+            <h2 class="demo-title">
+                <span>⚡</span>
+                Métricas de Performance
+            </h2>
+            <p class="demo-description">
+                Monitoramento em tempo real da responsividade e performance do sistema.
+            </p>
+
+            <div class="performance-metrics">
+                <div class="metric-card">
+                    <div class="metric-value" id="viewportWidth">-</div>
+                    <div class="metric-label">Largura (px)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="viewportHeight">-</div>
+                    <div class="metric-label">Altura (px)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="pixelRatio">-</div>
+                    <div class="metric-label">Pixel Ratio</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="orientation">-</div>
+                    <div class="metric-label">Orientação</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="connectionSpeed">-</div>
+                    <div class="metric-label">Conexão</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="touchSupport">-</div>
+                    <div class="metric-label">Touch</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Debug Console -->
+        <section class="demo-section">
+            <h2 class="demo-title">
+                <span>🔍</span>
+                Console de Debug
+            </h2>
+            <p class="demo-description">
+                Informações detalhadas sobre o estado atual do sistema de responsividade.
+            </p>
+            <div class="device-info" id="debugConsole">
+                Aguardando dados de debug...
+            </div>
+        </section>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/responsive-manager.js"></script>
+    <script>
+        // Aguardar carregamento do ResponsiveManager
+        document.addEventListener('DOMContentLoaded', function () {
+            const rm = window.ResponsiveManager;
+
+            // Atualizar indicador de breakpoint
+            function updateBreakpointIndicator() {
+                const indicator = document.getElementById('breakpointIndicator');
+                const breakpoint = rm.currentBreakpoint;
+                const width = window.innerWidth;
+
+                indicator.textContent = `${breakpoint.toUpperCase()} (${width}px)`;
+                indicator.className = `breakpoint-indicator bp-${breakpoint}`;
+            }
+
+            // Atualizar informações do dispositivo
+            function updateDeviceInfo() {
+                const deviceInfo = document.getElementById('deviceInfo');
+                const info = rm.getDebugInfo();
+
+                deviceInfo.innerHTML = `
+<strong>Dispositivo:</strong> ${info.device.mobile ? 'Mobile' : info.device.tablet ? 'Tablet' : 'Desktop'}
+<strong>Touch:</strong> ${info.touch ? 'Sim' : 'Não'}
+<strong>Breakpoint:</strong> ${info.breakpoint}
+<strong>Viewport:</strong> ${info.viewport.width}x${info.viewport.height}
+<strong>Orientação:</strong> ${info.device.orientation}
+<strong>Pixel Ratio:</strong> ${info.device.pixelRatio}
+<strong>Conexão:</strong> ${info.connection}
+<strong>Browser:</strong> ${info.device.chrome ? 'Chrome' : info.device.firefox ? 'Firefox' : info.device.safari ? 'Safari' : 'Outro'}
+<strong>OS:</strong> ${info.device.ios ? 'iOS' : info.device.android ? 'Android' : 'Outro'}
+                `.trim();
+            }
+
+            // Atualizar métricas de performance
+            function updateMetrics() {
+                const info = rm.getDebugInfo();
+
+                document.getElementById('viewportWidth').textContent = info.viewport.width;
+                document.getElementById('viewportHeight').textContent = info.viewport.height;
+                document.getElementById('pixelRatio').textContent = info.device.pixelRatio;
+                document.getElementById('orientation').textContent = info.device.orientation;
+                document.getElementById('connectionSpeed').textContent = info.connection;
+                document.getElementById('touchSupport').textContent = info.touch ? 'Sim' : 'Não';
+            }
+
+            // Atualizar console de debug
+            function updateDebugConsole() {
+                const debugConsole = document.getElementById('debugConsole');
+                const info = rm.getDebugInfo();
+
+                debugConsole.innerHTML = `
+<strong>Estado Completo do ResponsiveManager:</strong>
+
+${JSON.stringify(info, null, 2)}
+                `.trim();
+            }
+
+            // Configurar observers
+            rm.on('breakpoint', function (data) {
+                console.log('🔄 Breakpoint alterado:', data);
+                updateBreakpointIndicator();
+                updateDeviceInfo();
+                updateMetrics();
+                updateDebugConsole();
+            });
+
+            rm.on('resize', function (data) {
+                updateMetrics();
+            });
+
+            rm.on('orientation', function (data) {
+                console.log('🔄 Orientação alterada:', data);
+                updateMetrics();
+                updateDeviceInfo();
+            });
+
+            // Inicializar
+            updateBreakpointIndicator();
+            updateDeviceInfo();
+            updateMetrics();
+            updateDebugConsole();
+
+            // Configurar lazy loading inteligente
+            rm.setupIntelligentLazyLoading();
+
+            // Animações de entrada
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const animationObserver = new IntersectionObserver(function (entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        animationObserver.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.animate-fade-in, .animate-slide-up').forEach(el => {
+                animationObserver.observe(el);
+            });
+
+            // Log de inicialização
+            console.log('🚀 Demo Fase 2 inicializada');
+            console.log('📱 ResponsiveManager:', rm.getDebugInfo());
+        });
+    </script>
+</body>
+
+</html>
