@@ -1292,6 +1292,15 @@
                 return;
             }
 
+            // 🔧 CORREÇÃO: Limpar parâmetro login=true da URL após login bem-sucedido
+            const loginParam = urlParams.get('login');
+            if (loginParam === 'true') {
+                console.log('🧹 Limpando parâmetro login=true da URL');
+                urlParams.delete('login');
+                const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+                window.history.replaceState({}, document.title, newUrl);
+            }
+
             const mainContent = document.querySelector('.main-content');
             if (mainContent) mainContent.style.display = '';
             const footer = document.querySelector('footer');
@@ -2250,9 +2259,10 @@
                     });
             });
 
-            // Verificar se há código de presente na URL
+            // Verificar parâmetros da URL
             const urlParams = new URLSearchParams(window.location.search);
             const giftCodeFromUrl = urlParams.get('giftCode');
+            const loginParam = urlParams.get('login'); // Verificar parâmetro login=true
 
             if (giftCodeFromUrl && giftCodeFromUrl.trim() !== '') {
                 // Se há código na URL, validar primeiro ANTES de pedir login
@@ -2261,8 +2271,23 @@
                 return; // Não mostrar modal de login ainda
             }
 
-            // Exibe o modal e bloqueia tudo se não autenticado E não há código
+            // Verificar se usuário está autenticado
             if (!auth.getToken()) {
+                // 🔧 CORREÇÃO: Verificar se foi redirecionado para fazer login (login=true)
+                if (loginParam === 'true') {
+                    console.log('🔐 Redirecionamento para login detectado - mostrando modal');
+                    // Mostrar modal de login imediatamente sem bloquear o conteúdo
+                    document.getElementById('authModal').style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                    // Garantir que o formulário de login esteja visível
+                    document.getElementById('loginForm').style.display = 'block';
+                    document.getElementById('registerForm').style.display = 'none';
+                    document.getElementById('authModalTitle').textContent = 'Entrar';
+                    // NÃO esconder o conteúdo principal quando vem de login=true
+                    return;
+                }
+
+                // Casos normais: exibir modal e bloquear tudo se não autenticado E não há código
                 document.getElementById('authModal').style.display = 'flex';
                 document.body.style.overflow = 'hidden';
                 const mainContent = document.querySelector('.main-content');
