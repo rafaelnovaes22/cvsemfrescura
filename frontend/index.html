@@ -9,16 +9,25 @@
     <meta name="keywords" content="currículo, ATS, Gupy, análise IA, otimização cv">
     <title>CV Sem Frescura - Otimize seu currículo para sistemas ATS</title>
 
+    <!-- Critical CSS inline para melhor FCP -->
+    <link rel="stylesheet" href="assets/css/critical.css">
+
+    <!-- Performance Optimizer - carrega primeiro -->
+    <script src="assets/js/performance-optimizer.js"></script>
+
     <!-- Preload critical resources -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-        as="style">
-    <link rel="preload" href="assets/img/logo.png" as="image">
+    <link rel="preload" href="assets/img/logo-optimized.svg" as="image">
+    <link rel="preload" href="assets/js/config.js" as="script">
 
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Fonts otimizadas -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <!-- Header CSS -->
-    <link rel="stylesheet" href="assets/css/header.css">
+    <!-- Header CSS - carregamento não bloqueante -->
+    <link rel="preload" href="assets/css/header.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="assets/css/header.css">
+    </noscript>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -969,7 +978,7 @@
         ">
             <div>
                 <a href="landing.html">
-                    <img src="assets/img/logo.png" alt="CV Sem Frescura" style="height: 48px; width: auto;">
+                    <img src="assets/img/logo.png" alt="RH Super Sincero" style="height: 48px; width: auto;">
                 </a>
             </div>
             <nav style="display: flex; gap: 2rem;" id="headerNav"></nav>
@@ -1259,7 +1268,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-about">
-                    <img src="assets/img/logo.png" alt="CV Sem Frescura" class="footer-logo">
+                    <img src="assets/img/logo.png" alt="RH Super Sincero" class="footer-logo">
                     <p class="footer-description">
                         Ajudamos profissionais a otimizarem seus currículos para sistemas ATS, maximizando as chances de
                         contratação através de análise com IA.
@@ -1315,7 +1324,7 @@
             </div>
 
             <div class="footer-bottom">
-                <p>© 2025 CV Sem Frescura. Todos os direitos reservados.</p>
+                <p>© 2025 RH Super Sincero. Todos os direitos reservados.</p>
             </div>
         </div>
     </footer>

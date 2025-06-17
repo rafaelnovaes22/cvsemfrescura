@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#583819;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#512808;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="100" cy="60" r="50" fill="#F3EADA" stroke="#ECD9B5" stroke-width="2"/>
+  
+  <!-- CV icon -->
+  <rect x="80" y="40" width="40" height="40" rx="4" fill="url(#gradient)"/>
+  <rect x="85" y="45" width="30" height="2" fill="white" opacity="0.9"/>
+  <rect x="85" y="50" width="25" height="2" fill="white" opacity="0.7"/>
+  <rect x="85" y="55" width="30" height="2" fill="white" opacity="0.9"/>
+  <rect x="85" y="60" width="20" height="2" fill="white" opacity="0.7"/>
+  <rect x="85" y="65" width="28" height="2" fill="white" opacity="0.9"/>
+  <rect x="85" y="70" width="22" height="2" fill="white" opacity="0.7"/>
+  
+  <!-- Text -->
+  <text x="100" y="100" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" font-weight="700" fill="#583819">CV Sem Frescura</text>
+</svg> 
