@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Teste Login + Crédito - Problema Real</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 20px;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 15px;
+        }
+
+        .test-section h3 {
+            color: #ffd700;
+            margin-top: 0;
+            font-size: 1.4rem;
+        }
+
+        .log-area {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        button.danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        }
+
+        button.success {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        }
+
+        button.warning {
+            background: linear-gradient(135deg, #feca57, #ff9ff3);
+        }
+
+        input {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+            width: 200px;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .status-card {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            font-weight: 600;
+            border-left: 5px solid;
+        }
+
+        .status-card.success {
+            background: rgba(46, 204, 113, 0.2);
+            border-color: #2ecc71;
+            color: #a9ffcb;
+        }
+
+        .status-card.error {
+            background: rgba(231, 76, 60, 0.2);
+            border-color: #e74c3c;
+            color: #ffb3b3;
+        }
+
+        .status-card.warning {
+            background: rgba(243, 156, 18, 0.2);
+            border-color: #f39c12;
+            color: #ffe066;
+        }
+
+        .status-card.info {
+            background: rgba(52, 152, 219, 0.2);
+            border-color: #3498db;
+            color: #a8d8ff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧪 Teste Login + Crédito - Diagnóstico Completo</h1>
+
+        <div class="test-section">
+            <h3>🎯 Problema Relatado</h3>
+            <div class="status-card error">
+                <strong>❌ Login não efetiva:</strong> Usuário não fica logado após inserir credenciais<br>
+                <strong>❌ Crédito não é aplicado:</strong> Código válido mas créditos não aparecem na conta
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔬 Teste Completo</h3>
+            <div>
+                <input type="text" id="testCode" placeholder="Código" value="TESTE123">
+                <input type="email" id="testEmail" placeholder="Email" value="teste@exemplo.com">
+                <input type="password" id="testPassword" placeholder="Senha" value="123456">
+            </div>
+
+            <div style="margin: 15px 0;">
+                <button onclick="criarUsuarioTeste()" class="success">1️⃣ Criar Usuário Teste</button>
+                <button onclick="testarLoginComCodigo()" class="warning">2️⃣ Login + Código</button>
+                <button onclick="verificarStatusUsuario()" class="info">3️⃣ Verificar Status</button>
+                <button onclick="limparTudo()" class="danger">🗑️ Limpar</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Status Atual</h3>
+            <div id="statusAtual" class="status-card info">🔄 Execute os testes para ver o status...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Log Detalhado</h3>
+            <div id="logDetalhado" class="log-area">🔄 Aguardando execução dos testes...\n</div>
+        </div>
+
+        <div class="test-section">
+            <h3>🌐 Diagnóstico Backend</h3>
+            <div id="diagnosticoBackend" class="log-area">Nenhum diagnóstico executado ainda.\n</div>
+            <button onclick="diagnosticarBackend()" class="info">🔍 Diagnosticar Backend</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.protocol + '//' + window.location.host.replace(':8080', ':3000');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logDiv = document.getElementById('logDetalhado');
+            const colors = {
+                'info': '#74b9ff',
+                'success': '#00cec9',
+                'error': '#ff7675',
+                'warning': '#fdcb6e'
+            };
+
+            logDiv.innerHTML += `<span style="color: ${colors[type] || '#fff'}">[${timestamp}] ${message}</span>\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(`[TEST] ${message}`);
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('statusAtual');
+            statusDiv.innerHTML = message;
+            statusDiv.className = `status-card ${type}`;
+        }
+
+        function limparTudo() {
+            document.getElementById('logDetalhado').innerHTML = 'Log limpo.\n';
+            document.getElementById('diagnosticoBackend').innerHTML = 'Diagnóstico limpo.\n';
+            updateStatus('🔄 Tudo limpo. Pronto para novos testes.', 'info');
+            localStorage.clear();
+            sessionStorage.clear();
+            log('🧹 Todos os dados limpos', 'info');
+        }
+
+        async function criarUsuarioTeste() {
+            log('🆕 INICIANDO: Criação de usuário teste', 'warning');
+            log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'warning');
+
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            const name = 'Usuário Teste';
+
+            try {
+                log(`📝 Tentando criar usuário: ${name} <${email}>`, 'info');
+
+                const response = await fetch(`${API_BASE}/api/user/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    log('✅ Usuário criado com sucesso!', 'success');
+                    log(`📋 Dados: ${JSON.stringify(data, null, 2)}`, 'info');
+                    updateStatus('✅ Usuário teste criado com sucesso!', 'success');
+                } else {
+                    if (data.error && data.error.includes('já existe')) {
+                        log('⚠️ Usuário já existe (tudo bem, vamos usar o existente)', 'warning');
+                        updateStatus('⚠️ Usuário já existia. Pronto para teste.', 'warning');
+                    } else {
+                        log(`❌ Erro ao criar usuário: ${data.error}`, 'error');
+                        updateStatus(`❌ Erro: ${data.error}`, 'error');
+                    }
+                }
+
+            } catch (error) {
+                log(`❌ Erro de rede: ${error.message}`, 'error');
+                updateStatus(`❌ Erro de conexão: ${error.message}`, 'error');
+            }
+        }
+
+        async function testarLoginComCodigo() {
+            log('🔐 INICIANDO: Teste de login com código de presente', 'warning');
+            log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'warning');
+
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            const code = document.getElementById('testCode').value;
+
+            // Passo 1: Validar código ANTES do login
+            log('1️⃣ Validando código de presente...', 'info');
+            try {
+                const validateResponse = await fetch(`${API_BASE}/api/gift-code/validate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code })
+                });
+                const validateData = await validateResponse.json();
+
+                if (validateData.valid) {
+                    log(`✅ Código válido! ${validateData.credits} crédito(s), ${validateData.remainingUses} usos restantes`, 'success');
+                } else {
+                    log(`❌ Código inválido: ${validateData.error}`, 'error');
+                    updateStatus('❌ Código inválido! Teste interrompido.', 'error');
+                    return;
+                }
+            } catch (error) {
+                log(`❌ Erro na validação: ${error.message}`, 'error');
+                updateStatus('❌ Erro na validação do código!', 'error');
+                return;
+            }
+
+            // Passo 2: Fazer login
+            log('2️⃣ Fazendo login...', 'info');
+            try {
+                const loginResponse = await fetch(`${API_BASE}/api/user/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const loginData = await loginResponse.json();
+
+                if (loginResponse.ok) {
+                    log('✅ Login bem-sucedido!', 'success');
+                    log(`📋 Token recebido: ${loginData.token.substring(0, 20)}...`, 'info');
+                    log(`👤 Usuário: ${loginData.user.name}`, 'info');
+                    log(`💰 Créditos antes: ${loginData.user.credits || 0}`, 'info');
+
+                    // Salvar token para próxima etapa
+                    localStorage.setItem('token', loginData.token);
+                    localStorage.setItem('user', JSON.stringify(loginData.user));
+
+                    // Passo 3: Aplicar código de presente
+                    log('3️⃣ Aplicando código de presente...', 'info');
+
+                    const applyResponse = await fetch(`${API_BASE}/api/gift-code/apply`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${loginData.token}`
+                        },
+                        body: JSON.stringify({ code })
+                    });
+                    const applyData = await applyResponse.json();
+
+                    if (applyData.success) {
+                        log('✅ Código aplicado com sucesso!', 'success');
+                        log(`💰 Créditos depois: ${applyData.credits}`, 'success');
+                        log(`📝 Mensagem: ${applyData.message}`, 'info');
+
+                        // Atualizar dados do usuário
+                        const updatedUser = { ...loginData.user, credits: applyData.credits };
+                        localStorage.setItem('user', JSON.stringify(updatedUser));
+
+                        updateStatus(`✅ SUCESSO TOTAL! Login efetuado e ${applyData.credits} créditos na conta!`, 'success');
+
+                    } else {
+                        log(`❌ Erro ao aplicar código: ${applyData.error}`, 'error');
+                        updateStatus(`❌ Login OK, mas código falhou: ${applyData.error}`, 'warning');
+                    }
+
+                } else {
+                    log(`❌ Erro no login: ${loginData.error}`, 'error');
+                    updateStatus(`❌ Falha no login: ${loginData.error}`, 'error');
+                }
+
+            } catch (error) {
+                log(`❌ Erro durante login: ${error.message}`, 'error');
+                updateStatus(`❌ Erro de conexão no login: ${error.message}`, 'error');
+            }
+        }
+
+        async function verificarStatusUsuario() {
+            log('🔍 VERIFICANDO: Status atual do usuário', 'info');
+            log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'info');
+
+            // Verificar localStorage
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+
+            log('📱 Verificando localStorage:', 'info');
+            log(`🔑 Token: ${token ? `${token.substring(0, 20)}...` : 'NENHUM'}`, token ? 'success' : 'error');
+
+            if (user) {
+                try {
+                    const userData = JSON.parse(user);
+                    log(`👤 Usuário: ${userData.name}`, 'success');
+                    log(`📧 Email: ${userData.email}`, 'info');
+                    log(`💰 Créditos: ${userData.credits || 0}`, userData.credits > 0 ? 'success' : 'warning');
+                } catch (e) {
+                    log('❌ Erro ao parsear dados do usuário', 'error');
+                }
+            } else {
+                log('❌ Nenhum dados de usuário encontrados', 'error');
+            }
+
+            // Se há token, verificar no servidor
+            if (token) {
+                log('🌐 Verificando no servidor...', 'info');
+                try {
+                    const response = await fetch(`${API_BASE}/api/user/profile`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (response.ok) {
+                        const serverData = await response.json();
+                        log('✅ Dados do servidor obtidos:', 'success');
+                        log(`👤 Nome: ${serverData.user.name}`, 'info');
+                        log(`💰 Créditos no servidor: ${serverData.user.credits || 0}`, 'info');
+
+                        updateStatus(`✅ Usuário logado: ${serverData.user.name} com ${serverData.user.credits || 0} créditos`, 'success');
+                    } else {
+                        log('❌ Token inválido ou expirado', 'error');
+                        updateStatus('❌ Token inválido - usuário não está logado', 'error');
+                    }
+                } catch (error) {
+                    log(`❌ Erro ao verificar servidor: ${error.message}`, 'error');
+                }
+            } else {
+                updateStatus('❌ Usuário não está logado (sem token)', 'error');
+            }
+        }
+
+        async function diagnosticarBackend() {
+            const diagDiv = document.getElementById('diagnosticoBackend');
+            diagDiv.innerHTML = '🔍 Executando diagnóstico...\n';
+
+            const diag = (msg) => {
+                const timestamp = new Date().toLocaleTimeString();
+                diagDiv.innerHTML += `[${timestamp}] ${msg}\n`;
+                diagDiv.scrollTop = diagDiv.scrollHeight;
+            };
+
+            diag('🚀 DIAGNÓSTICO DO BACKEND');
+            diag('═══════════════════════════════════════════════════════════════');
+
+            // Teste 1: Health check
+            try {
+                const health = await fetch(`${API_BASE}/api/health`);
+                diag(`✅ Health Check: ${health.status} ${health.ok ? 'OK' : 'FAIL'}`);
+            } catch (error) {
+                diag(`❌ Health Check falhou: ${error.message}`);
+            }
+
+            // Teste 2: Validação de código
+            try {
+                const validate = await fetch(`${API_BASE}/api/gift-code/validate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: 'TESTE123' })
+                });
+                const validateData = await validate.json();
+                diag(`🎁 Validação: ${JSON.stringify(validateData)}`);
+            } catch (error) {
+                diag(`❌ Erro na validação: ${error.message}`);
+            }
+
+            // Teste 3: Teste de autenticação (com token fake)
+            try {
+                const auth = await fetch(`${API_BASE}/api/gift-code/apply`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer fake_token'
+                    },
+                    body: JSON.stringify({ code: 'TESTE123' })
+                });
+                const authData = await auth.json();
+                diag(`🔐 Auth Test (fake token): ${JSON.stringify(authData)}`);
+            } catch (error) {
+                diag(`❌ Erro no teste de auth: ${error.message}`);
+            }
+
+            diag('═══════════════════════════════════════════════════════════════');
+            diag('✅ Diagnóstico concluído');
+        }
+
+        // Inicialização
+        log('🔄 Teste carregado e pronto para uso', 'info');
+        log('💡 Execute os passos em ordem: 1️⃣ Criar → 2️⃣ Login → 3️⃣ Verificar', 'info');
+    </script>
+</body>
+
+</html>

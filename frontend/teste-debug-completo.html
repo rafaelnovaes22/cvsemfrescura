@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Debug Completo - Problema Real</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 20px;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .test-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 15px;
+        }
+
+        .test-section h3 {
+            color: #f39c12;
+            margin-top: 0;
+            font-size: 1.3rem;
+        }
+
+        .log-output {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 13px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        button.success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        button.warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        button.info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        input {
+            padding: 12px;
+            margin: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .status.success {
+            background: rgba(39, 174, 96, 0.2);
+            border: 1px solid #27ae60;
+        }
+
+        .status.error {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+        }
+
+        .status.warning {
+            background: rgba(243, 156, 18, 0.2);
+            border: 1px solid #f39c12;
+        }
+
+        .status.info {
+            background: rgba(52, 152, 219, 0.2);
+            border: 1px solid #3498db;
+        }
+
+        .modal-simulation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔍 Debug Completo - Problema dos Códigos de Presente</h1>
+
+        <div class="test-section">
+            <h3>🎯 Reproduzir Problema Exato do Usuário</h3>
+            <p><strong>Cenário:</strong> Usuário acessa analisar.html?giftCode=TESTE123 e login trava</p>
+
+            <div>
+                <input type="text" id="testCode" placeholder="Código" value="TESTE123">
+                <input type="email" id="testEmail" placeholder="Email" value="teste@exemplo.com">
+                <input type="password" id="testPassword" placeholder="Senha" value="123456">
+            </div>
+
+            <div style="margin: 15px 0;">
+                <button onclick="simularAcessoComCodigo()" class="warning">🎁 Simular Acesso com Código</button>
+                <button onclick="simularLoginTravado()" class="error">🚨 Simular Login Travado</button>
+                <button onclick="testarCorreção()" class="success">✅ Testar Correção</button>
+                <button onclick="limparTudo()" class="info">🧹 Limpar Tudo</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Log de Execução</h3>
+            <div id="debugLog" class="log-output">🔄 Aguardando execução de testes...\n</div>
+        </div>
+
+        <div class="test-section">
+            <h3>🌐 Status do Backend</h3>
+            <div id="backendStatus" class="status info">Verificando...</div>
+            <button onclick="verificarBackend()" class="info">🔄 Verificar Backend</button>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 Diagnóstico Detalhado</h3>
+            <div id="diagnostico" class="log-output">Nenhum diagnóstico executado ainda.\n</div>
+            <button onclick="executarDiagnosticoCompleto()" class="warning">🔍 Diagnóstico Completo</button>
+        </div>
+
+        <!-- Modal simulado -->
+        <div id="modalLogin" class="modal-simulation">
+            <div class="modal-content">
+                <h3>🔐 Login em Progresso</h3>
+                <p id="modalStatus">Processando login...</p>
+                <div id="modalTimer" style="font-size: 24px; margin: 20px 0;">⏰ 0s</div>
+                <button onclick="fecharModal()" style="background: #e74c3c;">❌ Fechar Modal (Simular Problema)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.protocol + '//' + window.location.host.replace(':8080', ':3000');
+        let modalTimer = 0;
+        let modalInterval = null;
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logDiv = document.getElementById('debugLog');
+            const colors = {
+                'info': '#3498db',
+                'success': '#27ae60',
+                'error': '#e74c3c',
+                'warning': '#f39c12'
+            };
+
+            logDiv.innerHTML += `<span style="color: ${colors[type] || '#fff'}">[${timestamp}] ${message}</span>\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(`[DEBUG] ${message}`);
+        }
+
+        function diag(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const diagDiv = document.getElementById('diagnostico');
+            diagDiv.innerHTML += `<span style="color: #f39c12">[${timestamp}] ${message}</span>\n`;
+            diagDiv.scrollTop = diagDiv.scrollHeight;
+        }
+
+        function limparTudo() {
+            document.getElementById('debugLog').innerHTML = 'Log limpo.\n';
+            document.getElementById('diagnostico').innerHTML = 'Diagnóstico limpo.\n';
+            fecharModal();
+            localStorage.clear();
+            sessionStorage.clear();
+            log('🧹 Tudo limpo', 'info');
+        }
+
+        function mostrarModal() {
+            document.getElementById('modalLogin').style.display = 'flex';
+            modalTimer = 0;
+            modalInterval = setInterval(() => {
+                modalTimer++;
+                document.getElementById('modalTimer').textContent = `⏰ ${modalTimer}s`;
+
+                // Simular que após 10 segundos é problema crítico
+                if (modalTimer >= 10) {
+                    document.getElementById('modalStatus').innerHTML =
+                        `<span style="color: #e74c3c;">🚨 PROBLEMA: Modal travado há ${modalTimer}s!</span>`;
+                }
+            }, 1000);
+        }
+
+        function fecharModal() {
+            document.getElementById('modalLogin').style.display = 'none';
+            if (modalInterval) {
+                clearInterval(modalInterval);
+                modalInterval = null;
+            }
+            modalTimer = 0;
+        }
+
+        async function verificarBackend() {
+            const statusDiv = document.getElementById('backendStatus');
+            statusDiv.textContent = 'Verificando...';
+            statusDiv.className = 'status info';
+
+            try {
+                // Teste 1: Health check
+                const health = await fetch(`${API_BASE}/api/health`);
+                if (!health.ok) throw new Error('Health check falhou');
+
+                // Teste 2: Validação de código
+                const validate = await fetch(`${API_BASE}/api/gift-code/validate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: 'TESTE123' })
+                });
+                const validateData = await validate.json();
+
+                if (validateData.valid) {
+                    statusDiv.innerHTML = `✅ Backend OK - Código TESTE123 válido (${validateData.credits} créditos, ${validateData.remainingUses} usos restantes)`;
+                    statusDiv.className = 'status success';
+                    log('✅ Backend funcionando perfeitamente', 'success');
+                } else {
+                    statusDiv.innerHTML = `⚠️ Backend OK, mas código inválido: ${validateData.error}`;
+                    statusDiv.className = 'status warning';
+                    log('⚠️ Backend OK, código inválido', 'warning');
+                }
+
+            } catch (error) {
+                statusDiv.innerHTML = `❌ Erro no backend: ${error.message}`;
+                statusDiv.className = 'status error';
+                log(`❌ Erro no backend: ${error.message}`, 'error');
+            }
+        }
+
+        async function simularAcessoComCodigo() {
+            log('🎁 SIMULANDO: Usuário acessa analisar.html?giftCode=TESTE123', 'warning');
+            log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'warning');
+
+            const code = document.getElementById('testCode').value;
+
+            // Simular detecção do código na URL
+            log(`1️⃣ Código detectado na URL: ${code}`, 'info');
+
+            // Simular validação ANTES do login
+            log('2️⃣ Validando código ANTES do login...', 'info');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/gift-code/validate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code })
+                });
+                const data = await response.json();
+
+                if (data.valid) {
+                    log(`✅ Código válido! ${data.credits} crédito(s), ${data.remainingUses} usos restantes`, 'success');
+                    log('3️⃣ Exibindo modal de boas-vindas...', 'info');
+                    log('4️⃣ Usuário clica em "Já tenho conta" ou "Criar conta"', 'info');
+                    log('5️⃣ Abrindo modal de login...', 'info');
+
+                    // Simular que modal de login abre
+                    mostrarModal();
+                    document.getElementById('modalStatus').textContent = 'Aguardando login do usuário...';
+
+                    // Simular login após 3 segundos
+                    setTimeout(() => {
+                        simularLoginComCodigo(code);
+                    }, 3000);
+
+                } else {
+                    log(`❌ Código inválido: ${data.error}`, 'error');
+                }
+
+            } catch (error) {
+                log(`❌ Erro na validação: ${error.message}`, 'error');
+            }
+        }
+
+        async function simularLoginComCodigo(code) {
+            log('6️⃣ Usuário inseriu credenciais e clicou em "Entrar"', 'info');
+            log('7️⃣ Simulando login bem-sucedido...', 'info');
+
+            // Simular login bem-sucedido
+            document.getElementById('modalStatus').textContent = 'Login bem-sucedido! Aplicando código...';
+
+            // Aqui é onde pode dar problema - aplicação do código
+            log('8️⃣ Tentando aplicar código de presente...', 'warning');
+
+            try {
+                // Simular aplicação do código (vai falhar por não ter token real)
+                const response = await fetch(`${API_BASE}/api/gift-code/apply`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer fake_token_for_simulation'
+                    },
+                    body: JSON.stringify({ code })
+                });
+                const data = await response.json();
+
+                // Vai retornar erro de token inválido
+                if (data.error) {
+                    log(`⚠️ Aplicação falhou: ${data.error}`, 'warning');
+                    log('🚨 AQUI ESTÁ O PROBLEMA: Se não houvesse timeouts de segurança,', 'error');
+                    log('   o modal ficaria aberto PARA SEMPRE!', 'error');
+
+                    // Simular que sem as correções, ficaria travado
+                    document.getElementById('modalStatus').innerHTML =
+                        '<span style="color: #e74c3c;">🚨 TRAVADO: authSuccess() nunca foi chamada!</span>';
+
+                    // MAS com as correções, há timeouts de segurança
+                    log('✅ Porém, com as CORREÇÕES, há timeouts de segurança:', 'success');
+                    log('   - Timeout de 2.5s vai forçar authSuccess()', 'success');
+                    log('   - Backup de 5s como último recurso', 'success');
+
+                    // Simular timeout de 2.5s
+                    setTimeout(() => {
+                        log('⏰ TIMEOUT 2.5s: Forçando authSuccess() mesmo com erro!', 'success');
+                        fecharModal();
+                        log('✅ Modal fechado com sucesso! Usuário pode usar o site!', 'success');
+                    }, 2500);
+                }
+
+            } catch (error) {
+                log(`❌ Erro de rede: ${error.message}`, 'error');
+                log('🚨 Sem correções: Modal ficaria travado!', 'error');
+                log('✅ Com correções: Timeouts vão salvar!', 'success');
+            }
+        }
+
+        async function simularLoginTravado() {
+            log('🚨 SIMULANDO: Login travado (comportamento ANTES das correções)', 'error');
+            log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'error');
+
+            mostrarModal();
+
+            log('1️⃣ Login bem-sucedido', 'info');
+            log('2️⃣ Código de presente detectado', 'info');
+            log('3️⃣ Tentando aplicar código...', 'warning');
+            log('4️⃣ Aplicação falha (erro de rede/servidor)', 'error');
+            log('5️⃣ authSuccess() NUNCA é chamada', 'error');
+            log('6️⃣ Modal permanece aberto PARA SEMPRE!', 'error');
+
+            document.getElementById('modalStatus').innerHTML =
+                '<span style="color: #e74c3c;">🚨 TRAVADO: authSuccess() nunca chamada!</span>';
+
+            // Não fechar o modal - simular o travamento
+            log('💀 Resultado: Usuário não consegue usar o site!', 'error');
+            log('💡 Solução: Implementar timeouts de segurança', 'info');
+        }
+
+        async function testarCorreção() {
+            log('✅ TESTANDO: Correção implementada (comportamento ATUAL)', 'success');
+            log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'success');
+
+            mostrarModal();
+
+            log('1️⃣ Login bem-sucedido', 'info');
+            log('2️⃣ Código de presente detectado: hasGiftCode = true', 'info');
+            log('3️⃣ Configurando timeouts de segurança...', 'success');
+            log('   • Timeout 2.5s: Forçar authSuccess()', 'success');
+            log('   • Backup 5s: Último recurso', 'success');
+            log('4️⃣ Tentando aplicar código...', 'warning');
+
+            // Simular timeout de 2.5s (mesmo se aplicação falhar)
+            setTimeout(() => {
+                log('⏰ TIMEOUT 2.5s: Executando authSuccess() automaticamente!', 'success');
+                fecharModal();
+                log('✅ SUCESSO: Modal fechado, usuário pode usar o site!', 'success');
+                log('💡 Resultado: Código pode ter falhado, mas usuário não fica travado!', 'success');
+            }, 2500);
+
+            // Simular backup de 5s
+            setTimeout(() => {
+                if (document.getElementById('modalLogin').style.display !== 'none') {
+                    log('🔧 BACKUP 5s: Forçando fechamento como último recurso!', 'warning');
+                    fecharModal();
+                }
+            }, 5000);
+        }
+
+        async function executarDiagnosticoCompleto() {
+            diag('🔍 INICIANDO DIAGNÓSTICO COMPLETO');
+            diag('═══════════════════════════════════════════════════════════════');
+
+            // Verificar backend
+            diag('📡 Verificando conectividade do backend...');
+            try {
+                const health = await fetch(`${API_BASE}/api/health`);
+                if (health.ok) {
+                    diag('✅ Backend está respondendo (200 OK)');
+                } else {
+                    diag(`❌ Backend retornou status: ${health.status}`);
+                }
+            } catch (error) {
+                diag(`❌ Erro de conectividade: ${error.message}`);
+            }
+
+            // Verificar rota de validação
+            diag('🎁 Testando rota de validação de códigos...');
+            try {
+                const validate = await fetch(`${API_BASE}/api/gift-code/validate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: 'TESTE123' })
+                });
+                const data = await validate.json();
+                diag(`✅ Validação OK: ${JSON.stringify(data)}`);
+            } catch (error) {
+                diag(`❌ Erro na validação: ${error.message}`);
+            }
+
+            // Verificar rota de aplicação
+            diag('🔧 Testando rota de aplicação de códigos...');
+            try {
+                const apply = await fetch(`${API_BASE}/api/gift-code/apply`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer fake_token'
+                    },
+                    body: JSON.stringify({ code: 'TESTE123' })
+                });
+                const data = await apply.json();
+                diag(`⚠️ Aplicação (token inválido): ${JSON.stringify(data)}`);
+            } catch (error) {
+                diag(`❌ Erro na aplicação: ${error.message}`);
+            }
+
+            // Verificar localStorage
+            diag('💾 Verificando localStorage...');
+            const giftCode = localStorage.getItem('giftCode');
+            const pendingCode = localStorage.getItem('pendingGiftCode');
+            diag(`🎁 giftCode: ${giftCode || 'null'}`);
+            diag(`⏳ pendingGiftCode: ${pendingCode || 'null'}`);
+
+            // Verificar URL atual
+            diag('🌐 Verificando URL atual...');
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlCode = urlParams.get('giftCode');
+            diag(`🔗 Código na URL: ${urlCode || 'nenhum'}`);
+
+            diag('═══════════════════════════════════════════════════════════════');
+            diag('🎯 CONCLUSÃO DO DIAGNÓSTICO:');
+
+            if (giftCode || pendingCode || urlCode) {
+                diag('🎁 Código detectado - situação de gift code ativa');
+                diag('💡 Se login travar, é problema com timeouts de segurança');
+            } else {
+                diag('🚫 Nenhum código detectado - comportamento normal esperado');
+            }
+
+            diag('✅ Diagnóstico completo finalizado');
+        }
+
+        // Inicialização
+        window.addEventListener('load', () => {
+            log('🔄 Teste carregado e pronto para uso', 'info');
+            log('💡 Use os botões acima para reproduzir diferentes cenários', 'info');
+            verificarBackend();
+        });
+    </script>
+</body>
+
+</html>

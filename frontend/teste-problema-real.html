@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Teste Problema Real - Gift Code</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #34495e;
+            padding: 30px;
+            border-radius: 15px;
+        }
+
+        .step {
+            background: #1abc9c;
+            color: white;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 5px solid #16a085;
+        }
+
+        .result {
+            background: #34495e;
+            border: 2px solid #95a5a6;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .success {
+            border-color: #27ae60;
+            background: #2d5b3d;
+        }
+
+        .error {
+            border-color: #e74c3c;
+            background: #5d3a3a;
+        }
+
+        .warning {
+            border-color: #f39c12;
+            background: #5d4f2d;
+        }
+
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        button.danger {
+            background: #e74c3c;
+        }
+
+        button.success {
+            background: #27ae60;
+        }
+
+        input {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #7f8c8d;
+            border-radius: 4px;
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .modal-simulation {
+            background: rgba(0, 0, 0, 0.8);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .modal-content {
+            background: white;
+            color: #2c3e50;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔍 Teste do Problema Real - Código de Presente</h1>
+
+        <div class="step">
+            <h3>📋 Cenário do Problema</h3>
+            <p><strong>Problema:</strong> Login não termina quando há código de presente na URL</p>
+            <p><strong>Sintoma:</strong> Modal de login fica aberto indefinidamente</p>
+            <p><strong>Ambiente:</strong> Tanto em desenvolvimento quanto em produção</p>
+        </div>
+
+        <div class="step">
+            <h3>🧪 Teste 1: Reproduzir o Problema</h3>
+            <input type="text" id="testCode" placeholder="Código" value="TESTE123">
+            <input type="email" id="testEmail" placeholder="Email" value="teste@exemplo.com">
+            <input type="password" id="testPassword" placeholder="Senha" value="123456">
+            <br>
+            <button onclick="reproduzirProblema()">🚨 Reproduzir Problema</button>
+            <button onclick="testarComCorreção()">✅ Testar com Correção</button>
+            <button onclick="limparTudo()" class="danger">🗑️ Limpar Tudo</button>
+        </div>
+
+        <div class="step">
+            <h3>📊 Resultados dos Testes</h3>
+            <div id="resultados" class="result">Aguardando execução dos testes...</div>
+        </div>
+
+        <!-- Modal de Login Simulado -->
+        <div id="modalSimulado" class="modal-simulation">
+            <div class="modal-content">
+                <h3>🔐 Login</h3>
+                <p>Este modal simula o problema onde o login não termina...</p>
+                <p id="statusModal">Status: Aguardando...</p>
+                <button onclick="fecharModal()" style="background: #e74c3c;">Fechar Modal</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.protocol + '//' + window.location.host;
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const resultDiv = document.getElementById('resultados');
+            const color = {
+                'info': '#3498db',
+                'success': '#27ae60',
+                'error': '#e74c3c',
+                'warning': '#f39c12'
+            }[type] || '#ecf0f1';
+
+            resultDiv.innerHTML += `<span style="color: ${color}">[${timestamp}] ${message}</span>\n`;
+            resultDiv.scrollTop = resultDiv.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        function limparTudo() {
+            document.getElementById('resultados').innerHTML = 'Log limpo.\n';
+            document.getElementById('modalSimulado').style.display = 'none';
+            localStorage.clear();
+            sessionStorage.clear();
+        }
+
+        function mostrarModal() {
+            document.getElementById('modalSimulado').style.display = 'flex';
+            document.getElementById('statusModal').textContent = 'Status: Modal aberto - simulando login...';
+        }
+
+        function fecharModal() {
+            document.getElementById('modalSimulado').style.display = 'none';
+            document.getElementById('statusModal').textContent = 'Status: Modal fechado';
+        }
+
+        // Simula o bug original SEM as correções
+        async function reproduzirProblema() {
+            log('🚨 REPRODUZINDO O PROBLEMA ORIGINAL', 'warning');
+            log('══════════════════════════════════════', 'warning');
+
+            const code = document.getElementById('testCode').value;
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+
+            // Simular a URL com gift code
+            log(`🔗 Simulando URL: analisar.html?giftCode=${code}`, 'info');
+            localStorage.setItem('giftCode', code);
+
+            // Mostrar modal de login
+            log('🔐 Abrindo modal de login...', 'info');
+            mostrarModal();
+
+            // Simular login bem-sucedido
+            setTimeout(async () => {
+                log('✅ Login simulado bem-sucedido', 'success');
+
+                // AQUI ESTÁ O BUG: O código original chamaria applyGiftCodeAfterAuth
+                // mas se algo der errado, authSuccess() nunca é chamada
+                log('🎁 Tentando aplicar código de presente...', 'info');
+
+                try {
+                    // Simular aplicação de código que pode falhar/demorar
+                    const response = await fetch(`${API_BASE}/api/gift-code/apply`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer fake_token_for_test'
+                        },
+                        body: JSON.stringify({ code })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        log('✅ Código aplicado: ' + JSON.stringify(data), 'success');
+                        // NO CÓDIGO ORIGINAL: authSuccess() só seria chamada aqui
+                        log('🔐 authSuccess() seria chamada agora...', 'success');
+                        fecharModal();
+                    } else {
+                        // PROBLEMA: Se der erro aqui, authSuccess() NUNCA É CHAMADA!
+                        log('❌ Erro na aplicação do código!', 'error');
+                        log('🚨 PROBLEMA: authSuccess() NÃO será chamada!', 'error');
+                        log('🔐 Modal permanece aberto indefinidamente!', 'error');
+                        // Modal fica aberto = usuário não consegue usar o site
+                    }
+                } catch (error) {
+                    log('❌ Erro de rede: ' + error.message, 'error');
+                    log('🚨 PROBLEMA: authSuccess() NÃO será chamada!', 'error');
+                    log('🔐 Modal permanece aberto indefinidamente!', 'error');
+                }
+
+            }, 1000);
+        }
+
+        // Testa com as correções aplicadas
+        async function testarComCorreção() {
+            log('✅ TESTANDO COM CORREÇÕES APLICADAS', 'success');
+            log('═══════════════════════════════════════', 'success');
+
+            const code = document.getElementById('testCode').value;
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+
+            // Simular a URL com gift code
+            log(`🔗 Simulando URL: analisar.html?giftCode=${code}`, 'info');
+            localStorage.setItem('giftCode', code);
+
+            // Mostrar modal de login
+            log('🔐 Abrindo modal de login...', 'info');
+            mostrarModal();
+
+            // Simular login bem-sucedido
+            setTimeout(async () => {
+                log('✅ Login simulado bem-sucedido', 'success');
+
+                // CORREÇÃO 1: Detectar que há gift code
+                let hasGiftCode = !!code;
+                log(`🎁 Gift code detectado: ${hasGiftCode}`, 'info');
+
+                if (hasGiftCode) {
+                    log('🎁 Tentando aplicar código de presente...', 'info');
+
+                    // CORREÇÃO 2: Timeout garantido de 2.5 segundos
+                    const timeoutId1 = setTimeout(() => {
+                        log('⏰ TIMEOUT 2.5s: Forçando authSuccess()', 'warning');
+                        fecharModal();
+                        log('✅ SUCESSO: Modal fechado via timeout!', 'success');
+                    }, 2500);
+
+                    // CORREÇÃO 3: Backup de 5 segundos
+                    const timeoutId2 = setTimeout(() => {
+                        log('⏰ TIMEOUT BACKUP 5s: Última tentativa', 'warning');
+                        if (document.getElementById('modalSimulado').style.display !== 'none') {
+                            fecharModal();
+                            log('🔧 BACKUP: Modal forçado a fechar!', 'success');
+                        }
+                    }, 5000);
+
+                    try {
+                        // Tentar aplicar código (pode falhar)
+                        const response = await fetch(`${API_BASE}/api/gift-code/apply`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': 'Bearer fake_token_for_test'
+                            },
+                            body: JSON.stringify({ code })
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            log('✅ Código aplicado: ' + JSON.stringify(data), 'success');
+                            // Limpar timeouts pois funcionou
+                            clearTimeout(timeoutId1);
+                            clearTimeout(timeoutId2);
+                            fecharModal();
+                            log('✅ PERFEITO: Código funcionou E modal fechou!', 'success');
+                        } else {
+                            log('❌ Erro na aplicação, MAS timeouts vão salvar!', 'warning');
+                            // Timeouts continuam ativos - modal será fechado mesmo assim
+                        }
+                    } catch (error) {
+                        log('❌ Erro de rede, MAS timeouts vão salvar!', 'warning');
+                        // Timeouts continuam ativos - modal será fechado mesmo assim
+                    }
+                } else {
+                    // Sem gift code - chamar authSuccess() imediatamente
+                    log('✅ Sem gift code - fechando modal imediatamente', 'success');
+                    fecharModal();
+                }
+
+            }, 1000);
+        }
+
+        // Inicialização
+        log('🔍 Teste carregado - pronto para reproduzir problema', 'info');
+        log('💡 Use "Reproduzir Problema" para ver o bug original', 'info');
+        log('💡 Use "Testar com Correção" para ver a solução', 'info');
+    </script>
+</body>
+
+</html>

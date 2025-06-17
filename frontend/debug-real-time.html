@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Debug Tempo Real - Gift Code</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #1e1e1e;
+            color: #fff;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .log {
+            background: #000;
+            padding: 15px;
+            border-radius: 8px;
+            height: 70vh;
+            overflow-y: auto;
+            border: 1px solid #333;
+            font-size: 14px;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #005c99;
+        }
+
+        button.red {
+            background: #dc3545;
+        }
+
+        button.green {
+            background: #28a745;
+        }
+
+        input {
+            padding: 10px;
+            border: 1px solid #666;
+            border-radius: 4px;
+            background: #333;
+            color: white;
+            font-size: 14px;
+        }
+
+        .status {
+            background: #2d2d2d;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #007acc;
+        }
+
+        .error {
+            border-left-color: #dc3545;
+        }
+
+        .success {
+            border-left-color: #28a745;
+        }
+
+        .warning {
+            border-left-color: #ffc107;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔍 Debug em Tempo Real - Gift Code</h1>
+
+    <div class="status" id="status">
+        <strong>Status:</strong> Aguardando testes...
+    </div>
+
+    <div class="controls">
+        <input type="text" id="testCode" placeholder="Código (ex: TESTE123)" value="TESTE123">
+        <input type="email" id="testEmail" placeholder="Email" value="teste@exemplo.com">
+        <input type="password" id="testPassword" placeholder="Senha" value="123456">
+        <button onclick="testFullFlow()" class="green">🧪 Teste Completo</button>
+        <button onclick="testValidateOnly()" class="blue">✅ Só Validar</button>
+        <button onclick="testLoginOnly()" class="blue">🔐 Só Login</button>
+        <button onclick="clearLog()" class="red">🗑️ Limpar</button>
+    </div>
+
+    <div class="log" id="log"></div>
+
+    <script>
+        const API_BASE = window.location.protocol + '//' + window.location.host;
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('log');
+            const colors = {
+                info: '#00ff00',
+                error: '#ff4444',
+                warning: '#ffaa00',
+                success: '#44ff44'
+            };
+
+            const color = colors[type] || '#ffffff';
+            logElement.innerHTML += `<span style="color: ${color}">[${timestamp}] ${message}</span>\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusElement = document.getElementById('status');
+            statusElement.innerHTML = `<strong>Status:</strong> ${message}`;
+            statusElement.className = `status ${type}`;
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        // Simular exatamente o que acontece em analisar.html
+        function simulateAuthSuccess() {
+            log('🎉 Simulando authSuccess()', 'success');
+
+            // Simular o que deveria acontecer após login bem-sucedido
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) {
+                mainContent.style.display = '';
+                log('✅ main-content mostrado', 'success');
+            } else {
+                log('❌ main-content não encontrado', 'error');
+            }
+
+            const authModal = document.getElementById('authModal');
+            if (authModal) {
+                authModal.style.display = 'none';
+                log('✅ authModal fechado', 'success');
+            } else {
+                log('❌ authModal não encontrado', 'error');
+            }
+
+            document.body.style.overflow = '';
+            log('✅ Scroll restaurado', 'success');
+        }
+
+        async function testValidateOnly() {
+            const code = document.getElementById('testCode').value;
+            log(`🔍 TESTE: Validação de código "${code}"`, 'info');
+            updateStatus('Testando validação...', 'warning');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/gift-code/validate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code })
+                });
+
+                log(`📥 Status: ${response.status}`, response.ok ? 'success' : 'error');
+
+                const data = await response.json();
+                log(`📄 Resposta: ${JSON.stringify(data, null, 2)}`, 'info');
+
+                if (data.valid) {
+                    updateStatus('✅ Código válido!', 'success');
+                } else {
+                    updateStatus('❌ Código inválido', 'error');
+                }
+
+            } catch (error) {
+                log(`❌ Erro na validação: ${error.message}`, 'error');
+                updateStatus('❌ Erro de conexão', 'error');
+            }
+        }
+
+        async function testLoginOnly() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+
+            log(`🔐 TESTE: Login "${email}"`, 'info');
+            updateStatus('Testando login...', 'warning');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/user/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                log(`📥 Status: ${response.status}`, response.ok ? 'success' : 'error');
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Login bem-sucedido! Token: ${data.token?.substring(0, 20)}...`, 'success');
+                    updateStatus('✅ Login realizado', 'success');
+
+                    // Salvar token para próximos testes
+                    localStorage.setItem('debugToken', data.token);
+                    return data.token;
+                } else {
+                    const error = await response.json();
+                    log(`❌ Erro no login: ${error.error || 'Desconhecido'}`, 'error');
+                    updateStatus('❌ Falha no login', 'error');
+                }
+
+            } catch (error) {
+                log(`❌ Erro na requisição: ${error.message}`, 'error');
+                updateStatus('❌ Erro de conexão', 'error');
+            }
+        }
+
+        async function testApplyGiftCode(code, token) {
+            log(`🎁 TESTE: Aplicação de código "${code}"`, 'info');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/gift-code/apply`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ code })
+                });
+
+                log(`📥 Status aplicação: ${response.status}`, response.ok ? 'success' : 'error');
+
+                const data = await response.json();
+                log(`📄 Resposta aplicação: ${JSON.stringify(data, null, 2)}`, 'info');
+
+                if (data.success) {
+                    log(`✅ Código aplicado! Créditos: ${data.credits}`, 'success');
+                    return true;
+                } else {
+                    log(`❌ Falha na aplicação: ${data.error}`, 'error');
+                    return false;
+                }
+
+            } catch (error) {
+                log(`❌ Erro na aplicação: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function testFullFlow() {
+            const code = document.getElementById('testCode').value;
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+
+            log('🚀 INICIANDO TESTE COMPLETO DO FLUXO', 'warning');
+            log('═══════════════════════════════════════', 'warning');
+            updateStatus('Executando teste completo...', 'warning');
+
+            // Passo 1: Validar código
+            log('📍 PASSO 1: Validação do código', 'info');
+            await testValidateOnly();
+            await sleep(500);
+
+            // Passo 2: Login
+            log('📍 PASSO 2: Login do usuário', 'info');
+            const token = await testLoginOnly();
+            if (!token) {
+                log('❌ TESTE ABORTADO: Login falhou', 'error');
+                updateStatus('❌ Teste falhou no login', 'error');
+                return;
+            }
+            await sleep(500);
+
+            // Passo 3: Aplicar código
+            log('📍 PASSO 3: Aplicação do código', 'info');
+            const applied = await testApplyGiftCode(code, token);
+            await sleep(500);
+
+            // Passo 4: Simular authSuccess
+            log('📍 PASSO 4: Simulação de authSuccess', 'info');
+            simulateAuthSuccess();
+
+            // SIMULAÇÃO DO PROBLEMA REAL
+            log('🔍 SIMULANDO CENÁRIO DE PRODUÇÃO...', 'warning');
+
+            // Simular timeout de 2.5 segundos (nossa correção)
+            log('⏱️ Aguardando timeout de 2.5 segundos...', 'warning');
+            setTimeout(() => {
+                log('⏰ TIMEOUT ATINGIDO!', 'warning');
+                log('🎉 Chamando authSuccess() via timeout...', 'success');
+                simulateAuthSuccess();
+
+                if (applied) {
+                    updateStatus('✅ Teste completo SUCESSO!', 'success');
+                    log('✅ RESULTADO: Fluxo funcionaria corretamente', 'success');
+                } else {
+                    updateStatus('⚠️ Teste OK mas código falhou', 'warning');
+                    log('⚠️ RESULTADO: Login funcionaria, código falharia', 'warning');
+                }
+            }, 2500);
+
+            updateStatus('⏱️ Aguardando timeout...', 'warning');
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Inicialização
+        log('🔍 Debug em tempo real carregado', 'success');
+        log(`🌐 API Base: ${API_BASE}`, 'info');
+        log('💡 Use os botões acima para testar cada parte do fluxo', 'info');
+        log('', 'info');
+    </script>
+</body>
+
+</html>

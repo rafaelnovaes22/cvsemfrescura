@@ -994,20 +994,12 @@
 
         // Função para aplicar código de presente após autenticação
         function applyGiftCodeAfterAuth(code) {
-            console.log('🎁 Iniciando aplicação do código:', code);
-
             // Verificar se este código já foi aplicado nesta sessão para evitar duplicação
             const appliedCodes = JSON.parse(sessionStorage.getItem('appliedGiftCodes') || '[]');
             if (appliedCodes.includes(code)) {
                 console.log('🔄 Código já aplicado nesta sessão:', code);
                 return;
             }
-
-            // 🚨 PROTEÇÃO ANTI-TRAVAMENTO: Timeout de segurança para que a função nunca trave
-            const safetyTimeout = setTimeout(() => {
-                console.log('⚠️ SAFETY TIMEOUT: applyGiftCodeAfterAuth demorou muito, continuando...');
-                // Se a função demorar mais de 8 segundos, algo deu errado, mas não travamos
-            }, 8000);
 
             fetch('/api/gift-code/apply', {
                 method: 'POST',
@@ -1049,10 +1041,6 @@
                         // Limpar código após uso bem-sucedido
                         localStorage.removeItem('giftCode');
                         localStorage.removeItem('pendingGiftCode');
-
-                        // Limpar timeout de segurança
-                        clearTimeout(safetyTimeout);
-                        console.log('✅ Código aplicado com sucesso, limpando timeout');
                     } else {
                         // Verificar se é erro de código já utilizado
                         if (data.error && (data.error.includes('já foi utilizado') || data.error.includes('já utilizou') || data.error.includes('inválido ou não pode ser utilizado'))) {
@@ -1093,10 +1081,6 @@
                 .catch(error => {
                     console.error('Erro ao aplicar código:', error);
                     showGiftCodeErrorModal('Erro de conexão. Verifique sua internet e tente novamente.');
-
-                    // Limpar timeout de segurança
-                    clearTimeout(safetyTimeout);
-                    console.log('❌ Erro na aplicação, limpando timeout');
                 });
         }
 
@@ -2103,45 +2087,21 @@
                         const giftCodeFromUrl = urlParams.get('giftCode');
                         const pendingCode = localStorage.getItem('giftCode') || localStorage.getItem('pendingGiftCode');
 
-                        // Flag para rastrear se há código de presente
-                        let hasGiftCode = false;
-
                         // Só aplicar código se:
                         // 1. Há um código na URL atual OU
                         // 2. Há um código pendente e o usuário veio de uma página com código
                         if (giftCodeFromUrl && giftCodeFromUrl.trim() !== '') {
                             // Aplicar código que veio da URL
-                            hasGiftCode = true;
                             applyGiftCodeAfterAuth(giftCodeFromUrl);
                         } else if (pendingCode && pendingCode.trim() !== '' && document.referrer.includes('giftCode=')) {
                             // Só aplicar código pendente se o usuário veio de uma página com código
-                            hasGiftCode = true;
                             applyGiftCodeAfterAuth(pendingCode);
                         } else {
                             // Limpar códigos antigos se não há código válido
                             localStorage.removeItem('giftCode');
                             localStorage.removeItem('pendingGiftCode');
                         }
-
-                        // 🔧 CORREÇÃO CRÍTICA: Garantir que authSuccess seja SEMPRE chamada
-                        if (hasGiftCode) {
-                            // Se há código, aguardar um tempo mas SEMPRE chamar authSuccess
-                            setTimeout(() => {
-                                window.authSuccess();
-                            }, 2500); // 2.5 segundos de timeout
-
-                            // 🚨 CORREÇÃO ULTRA-ROBUSTA: Backup garantido após 5 segundos
-                            setTimeout(() => {
-                                console.log('🚨 TIMEOUT BACKUP: Forçando authSuccess após 5 segundos');
-                                if (document.getElementById('authModal') && document.getElementById('authModal').style.display !== 'none') {
-                                    console.log('🔧 Modal ainda aberto, forçando fechamento');
-                                    window.authSuccess();
-                                }
-                            }, 5000); // 5 segundos como último recurso
-                        } else {
-                            // Se não há código, chamar imediatamente
-                            window.authSuccess();
-                        }
+                        window.authSuccess();
                     })
                     .catch(function (error) {
                         // Verificar se é erro de usuário não encontrado/precisa se cadastrar
@@ -2191,45 +2151,21 @@
                         const giftCodeFromUrl = urlParams.get('giftCode');
                         const pendingCode = localStorage.getItem('giftCode') || localStorage.getItem('pendingGiftCode');
 
-                        // Flag para rastrear se há código de presente
-                        let hasGiftCode = false;
-
                         // Só aplicar código se:
                         // 1. Há um código na URL atual OU
                         // 2. Há um código pendente e o usuário veio de uma página com código
                         if (giftCodeFromUrl && giftCodeFromUrl.trim() !== '') {
                             // Aplicar código que veio da URL
-                            hasGiftCode = true;
                             applyGiftCodeAfterAuth(giftCodeFromUrl);
                         } else if (pendingCode && pendingCode.trim() !== '' && document.referrer.includes('giftCode=')) {
                             // Só aplicar código pendente se o usuário veio de uma página com código
-                            hasGiftCode = true;
                             applyGiftCodeAfterAuth(pendingCode);
                         } else {
                             // Limpar códigos antigos se não há código válido
                             localStorage.removeItem('giftCode');
                             localStorage.removeItem('pendingGiftCode');
                         }
-
-                        // 🔧 CORREÇÃO CRÍTICA: Garantir que authSuccess seja SEMPRE chamada
-                        if (hasGiftCode) {
-                            // Se há código, aguardar um tempo mas SEMPRE chamar authSuccess
-                            setTimeout(() => {
-                                window.authSuccess();
-                            }, 2500); // 2.5 segundos de timeout
-
-                            // 🚨 CORREÇÃO ULTRA-ROBUSTA: Backup garantido após 5 segundos
-                            setTimeout(() => {
-                                console.log('🚨 TIMEOUT BACKUP: Forçando authSuccess após 5 segundos');
-                                if (document.getElementById('authModal') && document.getElementById('authModal').style.display !== 'none') {
-                                    console.log('🔧 Modal ainda aberto, forçando fechamento');
-                                    window.authSuccess();
-                                }
-                            }, 5000); // 5 segundos como último recurso
-                        } else {
-                            // Se não há código, chamar imediatamente
-                            window.authSuccess();
-                        }
+                        window.authSuccess();
                     })
                     .catch(function (error) {
                         // Se falhou no cadastro, mostrar erro de cadastro
