@@ -680,10 +680,10 @@
             }
         }
     </style>
-    <script src="/assets/js/config.js?v=1748114546"></script>
+    <script src="/assets/js/config.js?v=1750119001"></script>
     <!-- Logger Seguro -->
     <script src="/assets/js/lib/secure-logger.js"></script>
-    <script src="/assets/js/auth.js?v=1748114547"></script>
+    <script src="/assets/js/auth.js?v=1750119000"></script>
     <script src="/assets/js/header-new.js?v=1748114561"></script>
 
     <!-- Script para mostrar menu logado INSTANTANEAMENTE -->
@@ -951,9 +951,21 @@
             }, 300);
         };
 
+        // Função para fechar modal de boas-vindas com opção de redirecionar
+        window.closeGiftCodeWelcomeModal = function (redirect = true) {
+            const modal = document.getElementById('giftCodeWelcomeModal');
+            if (modal) modal.remove();
+            // Somente redirecionar se explicitamente solicitado
+            if (redirect) {
+                // Se houver parâmetro returnTo manter, senão ficar na mesma página
+                window.location.href = 'landing.html';
+            }
+        };
+
         // Função para mostrar login com contexto de código
         window.showLoginForGiftCode = function (code) {
-            closeGiftCodeWelcomeModal();
+            // Fechar modal sem redirecionar
+            closeGiftCodeWelcomeModal(false);
             setTimeout(() => {
                 const authModal = document.getElementById('authModal');
                 if (authModal) {
@@ -982,14 +994,6 @@
                     }
                 }
             }, 300);
-        };
-
-        // Função para fechar modal de boas-vindas
-        window.closeGiftCodeWelcomeModal = function () {
-            const modal = document.getElementById('giftCodeWelcomeModal');
-            if (modal) modal.remove();
-            // Redirecionar para a landing
-            window.location.href = 'landing.html';
         };
 
         // Função para aplicar código de presente após autenticação
@@ -2032,17 +2036,33 @@
             const showLoginLink = document.getElementById('showLogin');
             const authError = document.getElementById('authError');
 
+            // 🔧 CORREÇÃO: Função para decidir para onde redirecionar ao fechar modal
+            function handleModalClose() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const loginParam = urlParams.get('login');
+                const giftCodeParam = urlParams.get('giftCode');
+
+                // Se veio de login=true, voltar para landing
+                // Se veio com giftCode, voltar para landing
+                // Caso contrário, comportamento padrão
+                if (loginParam === 'true' || giftCodeParam) {
+                    window.location.href = 'landing.html';
+                } else {
+                    // Se não veio de redirecionamento específico, apenas fechar o modal
+                    document.getElementById('authModal').style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+            }
+
             // Event listener para o botão de fechar do modal de login
             document.getElementById('closeAuthModal').addEventListener('click', function () {
-                // Redirecionar para a landing ao fechar
-                window.location.href = 'landing.html';
+                handleModalClose();
             });
 
             // Event listener para fechar modal clicando no fundo
             document.getElementById('authModal').addEventListener('click', function (e) {
                 if (e.target === this) {
-                    // Redirecionar para a landing ao fechar
-                    window.location.href = 'landing.html';
+                    handleModalClose();
                 }
             });
 
@@ -2052,7 +2072,7 @@
                     // Fechar modal de login se estiver aberto
                     const authModal = document.getElementById('authModal');
                     if (authModal && authModal.style.display === 'flex') {
-                        window.location.href = 'landing.html';
+                        handleModalClose();
                         return;
                     }
 

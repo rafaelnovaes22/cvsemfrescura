@@ -151,7 +151,9 @@ exports.applyCode = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: 'Código aplicado com sucesso! Você recebeu 1 crédito.',
-      credits: newCredits
+      credits: newCredits,
+      creditsAdded: 1,
+      totalCredits: newCredits
     });
   } catch (error) {
     console.error('❌ Erro ao aplicar código de presente:', error);

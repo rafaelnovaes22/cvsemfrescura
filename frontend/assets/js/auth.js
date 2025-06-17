@@ -1,15 +1,47 @@
 // auth.js - Gerenciamento de autenticação e perfil para CV Sem Frescura
 
 // Autenticação de usuários - CV Sem Frescura
-console.log('🔐 Carregando auth.js v2.5...');
+console.log('🔐 Carregando auth.js v2.6...');
+
+// 🔧 CORREÇÃO CRÍTICA: Garantir que CONFIG existe IMEDIATAMENTE
+if (!window.CONFIG) {
+    console.log('🚨 CONFIG não encontrado, criando fallback imediato...');
+
+    // Detectar ambiente
+    const hostname = window.location.hostname;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+
+    // Criar CONFIG mínimo funcional
+    window.CONFIG = {
+        api: {
+            baseUrl: isLocalhost ? 'http://localhost:3000' : '',
+            endpoints: {
+                payment: '/api/payment',
+                user: '/api/user',
+                ats: '/api/ats',
+                config: '/api/config'
+            }
+        },
+        environment: isLocalhost ? 'development' : 'production'
+    };
+
+    console.log('✅ CONFIG fallback criado:', window.CONFIG.api.baseUrl || '[URL relativa]');
+}
 
 // Função para obter a URL da API de forma dinâmica
 const getAuthApiUrl = async () => {
-    // Aguardar CONFIG estar disponível
+    // 🔧 CORREÇÃO: Aguardar CONFIG estar disponível com mais tentativas e fallback
     let attempts = 0;
-    while (!window.CONFIG && attempts < 50) {
+    const maxAttempts = 100; // Aumentado de 50 para 100 (10 segundos)
+
+    while (!window.CONFIG && attempts < maxAttempts) {
         await new Promise(resolve => setTimeout(resolve, 100));
         attempts++;
+
+        // Log de progresso a cada 20 tentativas
+        if (attempts % 20 === 0) {
+            console.log(`⏳ Aguardando CONFIG... tentativa ${attempts}/${maxAttempts}`);
+        }
     }
 
     if (window.CONFIG && window.CONFIG.api && window.CONFIG.api.hasOwnProperty('baseUrl')) {
@@ -26,9 +58,20 @@ const getAuthApiUrl = async () => {
         return baseUrl + '/api/user';
     }
 
-    // Se CONFIG não estiver disponível, falhar explicitamente
-    console.error('❌ CONFIG não disponível em auth!');
-    throw new Error('Configuração não disponível');
+    // 🔧 FALLBACK ROBUSTOS: Se CONFIG ainda não estiver disponível
+    console.warn('⚠️ CONFIG não disponível após', maxAttempts, 'tentativas, usando fallback');
+
+    // Detectar ambiente baseado na URL atual como fallback
+    const hostname = window.location.hostname;
+    const protocol = window.location.protocol;
+
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        console.log('🏠 FALLBACK: Detectado desenvolvimento, usando localhost:3000');
+        return 'http://localhost:3000/api/user';
+    } else {
+        console.log('🚀 FALLBACK: Detectado produção, usando URL relativa');
+        return '/api/user';
+    }
 };
 
 // Cache da URL da API
