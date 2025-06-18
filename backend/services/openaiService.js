@@ -10,11 +10,11 @@ Você é um sistema ATS especialista em análise de currículos e vagas.
 
 1. Extraia e liste de forma COMPLETA, DETALHADA e SEM OMITIR NENHUMA todos os termos relevantes das vagas em "job_keywords". Siga OBRIGATORIAMENTE as regras abaixo:
    - Remova duplicidades contextuais (ex: "roadmap" e "visão e roadmap" → mantenha apenas o termo mais completo; "metodologias ágeis" e "metodologias" → mantenha o termo mais específico).
-   - Agrupe termos semelhantes (ex: "requisitos técnicos", "requisitos funcionais", "requisitos de negócios", "requisitos não funcionais" → "requisitos (técnicos, funcionais, de negócios, não funcionais)").
+   - NÃO agrupe termos. Mantenha cada palavra-chave como termo individual para garantir detecção precisa.
    - Elimine verbos soltos ou termos que não fazem sentido isoladamente (ex: "ouvir", "planejamento", "definir escopo" → mantenha apenas "escopo" se relevante).
    - Mantenha apenas substantivos compostos, nomes de áreas, ferramentas, conceitos completos e termos realmente relevantes.
    - Não repita termos com variação de maiúsculas/minúsculas ou plural/singular.
-   - O resultado deve ser uma lista enxuta, sem repetições, agrupada por contexto quando necessário.
+   - O resultado deve ser uma lista enxuta, sem repetições, com cada termo mantido individualmente.
    - NÃO inclua frases descritivas, apenas termos, tecnologias, competências, ferramentas, cargos, requisitos, etc.
    - NÃO inclua verbos soltos (ex: "Implementar", "Executar", "Comunicar") como palavras-chave. Verbos só devem aparecer se fizerem parte de uma expressão técnica ou termo composto relevante (ex: "Gestão de Projetos", "Aplicar Metodologias Ágeis").
    - NÃO utilize objetos ou listas separadas. Apenas um array único contendo todos os termos relevantes extraídos das vagas.
