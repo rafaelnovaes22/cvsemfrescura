@@ -123,42 +123,64 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Palavras-chave presentes no currículo (comparação direta com texto do currículo)
     const foundKeywordsList = document.getElementById('presentes-keywords');
-    // Exibir diretamente job_keywords_present ou fallback para found_keywords
     if (foundKeywordsList) {
         foundKeywordsList.innerHTML = '';
-        const presentes = atsResult.job_keywords_present && atsResult.job_keywords_present.length
-            ? atsResult.job_keywords_present
-            : (atsResult.found_keywords && atsResult.found_keywords.length ? atsResult.found_keywords : []);
-        if (presentes.length) {
-            presentes.forEach(keyword => {
+
+        // Verificar se temos dados com contagem
+        if (atsResult.job_keywords_present_with_count && atsResult.job_keywords_present_with_count.length > 0) {
+            atsResult.job_keywords_present_with_count.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'keyword-tag';
-                div.innerText = keyword;
+                div.innerHTML = `${item.keyword} <span class="keyword-count">${item.count}x</span>`;
                 foundKeywordsList.appendChild(div);
             });
         } else {
-            foundKeywordsList.innerHTML = '<div style="color:red">Nenhuma palavra-chave da vaga foi identificada no currículo ou resultado não disponível.</div>';
+            // Fallback para formato antigo
+            const presentes = atsResult.job_keywords_present && atsResult.job_keywords_present.length
+                ? atsResult.job_keywords_present
+                : (atsResult.found_keywords && atsResult.found_keywords.length ? atsResult.found_keywords : []);
+            if (presentes.length) {
+                presentes.forEach(keyword => {
+                    const div = document.createElement('div');
+                    div.className = 'keyword-tag';
+                    div.innerText = keyword;
+                    foundKeywordsList.appendChild(div);
+                });
+            } else {
+                foundKeywordsList.innerHTML = '<div style="color:red">Nenhuma palavra-chave da vaga foi identificada no currículo ou resultado não disponível.</div>';
+            }
         }
     }
 
 
     // Palavras-chave ausentes no currículo (comparação direta com texto do currículo)
     const missingKeywordsList = document.getElementById('ausentes-keywords');
-    // Exibir diretamente job_keywords_missing ou fallback para missing_keywords
     if (missingKeywordsList) {
         missingKeywordsList.innerHTML = '';
-        const ausentes = atsResult.job_keywords_missing && atsResult.job_keywords_missing.length
-            ? atsResult.job_keywords_missing
-            : (atsResult.missing_keywords && atsResult.missing_keywords.length ? atsResult.missing_keywords : []);
-        if (ausentes.length) {
-            ausentes.forEach(keyword => {
+
+        // Verificar se temos dados com contagem
+        if (atsResult.job_keywords_missing_with_count && atsResult.job_keywords_missing_with_count.length > 0) {
+            atsResult.job_keywords_missing_with_count.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'keyword-tag';
-                div.innerText = keyword;
+                div.innerHTML = `${item.keyword} <span class="keyword-count">${item.count}x</span>`;
                 missingKeywordsList.appendChild(div);
             });
         } else {
-            missingKeywordsList.innerHTML = '<div style="color:red">Nenhuma palavra-chave ausente identificada ou resultado não disponível.</div>';
+            // Fallback para formato antigo
+            const ausentes = atsResult.job_keywords_missing && atsResult.job_keywords_missing.length
+                ? atsResult.job_keywords_missing
+                : (atsResult.missing_keywords && atsResult.missing_keywords.length ? atsResult.missing_keywords : []);
+            if (ausentes.length) {
+                ausentes.forEach(keyword => {
+                    const div = document.createElement('div');
+                    div.className = 'keyword-tag';
+                    div.innerText = keyword;
+                    missingKeywordsList.appendChild(div);
+                });
+            } else {
+                missingKeywordsList.innerHTML = '<div style="color:red">Nenhuma palavra-chave ausente identificada ou resultado não disponível.</div>';
+            }
         }
     }
 

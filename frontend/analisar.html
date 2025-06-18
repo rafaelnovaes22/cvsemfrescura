@@ -1886,6 +1886,10 @@
                 analyzeBtn.style.opacity = '0.7';
                 analyzeBtn.style.cursor = 'not-allowed';
                 analyzeBtn.style.background = '#6c757d';
+
+                // Limpar atributos de configuração quando não pode ser usado
+                analyzeBtn.removeAttribute('data-analysis-ready');
+                analyzeBtn.removeAttribute('data-payment-ready');
             } else if (!allRequirementsMet) {
                 // Usuário logado mas requisitos não atendidos
                 analyzeBtn.disabled = true;
@@ -1901,6 +1905,10 @@
                 analyzeBtn.style.opacity = '0.7';
                 analyzeBtn.style.cursor = 'not-allowed';
                 analyzeBtn.style.background = '#6c757d';
+
+                // Limpar atributos de configuração quando não pode ser usado
+                analyzeBtn.removeAttribute('data-analysis-ready');
+                analyzeBtn.removeAttribute('data-payment-ready');
             } else if ((typeof user.credits === 'number' ? user.credits : 0) <= 0) {
                 // Usuário sem créditos mas requisitos atendidos
                 analyzeBtn.disabled = false;
@@ -1909,16 +1917,22 @@
                 analyzeBtn.style.cursor = 'pointer';
                 analyzeBtn.style.background = '#FF9800';
 
-                // Remover event listeners antigos e adicionar novo para redirecionar
-                const newBtn = analyzeBtn.cloneNode(true);
-                analyzeBtn.parentNode.replaceChild(newBtn, analyzeBtn);
-                newBtn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    // Mostrar modal de confirmação antes de redirecionar
-                    if (confirm('Você preencheu tudo! 🎉\n\nPara analisar seu currículo, você precisa comprar créditos.\n\nDeseja ir para a página de pagamento agora?')) {
-                        window.location.href = 'payment.html';
-                    }
-                });
+                // Limpar atributo de análise quando o botão está em modo pagamento
+                analyzeBtn.removeAttribute('data-analysis-ready');
+
+                // Configurar evento de pagamento apenas se não foi configurado ainda
+                if (!analyzeBtn.hasAttribute('data-payment-ready')) {
+                    // Marcar como configurado para pagamento
+                    analyzeBtn.setAttribute('data-payment-ready', 'true');
+
+                    analyzeBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        // Mostrar modal de confirmação antes de redirecionar
+                        if (confirm('Você preencheu tudo! 🎉\n\nPara analisar seu currículo, você precisa comprar créditos.\n\nDeseja ir para a página de pagamento agora?')) {
+                            window.location.href = 'payment.html';
+                        }
+                    });
+                }
             } else {
                 // Tudo OK - pode analisar
                 analyzeBtn.disabled = false;
@@ -1927,17 +1941,33 @@
                 analyzeBtn.style.cursor = 'pointer';
                 analyzeBtn.style.background = 'var(--primary-dark)';
 
-                // Remover event listeners antigos e adicionar novo para análise
-                const newBtn = analyzeBtn.cloneNode(true);
-                analyzeBtn.parentNode.replaceChild(newBtn, analyzeBtn);
-                newBtn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    if (window.performAnalysis) {
-                        window.performAnalysis();
-                    } else {
-                        console.error('Função performAnalysis não encontrada');
-                    }
-                });
+                // Limpar atributo de pagamento quando o botão está em modo análise
+                analyzeBtn.removeAttribute('data-payment-ready');
+
+                // Configurar o evento de análise apenas se não foi configurado ainda
+                if (!analyzeBtn.hasAttribute('data-analysis-ready')) {
+                    // Marcar como configurado para evitar duplicação
+                    analyzeBtn.setAttribute('data-analysis-ready', 'true');
+
+                    // Adicionar event listener apenas uma vez
+                    analyzeBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        console.log('🎯 Botão de análise clicado');
+
+                        // Verificar se o botão está habilitado antes de prosseguir
+                        if (analyzeBtn.disabled) {
+                            console.log('⏸️ Botão desabilitado, ignorando clique');
+                            return;
+                        }
+
+                        if (window.performAnalysis) {
+                            console.log('▶️ Executando performAnalysis...');
+                            window.performAnalysis();
+                        } else {
+                            console.error('❌ Função performAnalysis não encontrada');
+                        }
+                    });
+                }
             }
         };
 
@@ -2361,8 +2391,83 @@
             }
         });
     </script>
-</body>
 
-</html>
+    <!-- Função global performAnalysis -->
+    <script>
+        window.performAnalysis = function () {
+            console.log('🚀 performAnalysis() chamada');
+
+            // Verificar autenticação
+            if (!window.auth || !window.auth.getToken()) {
+                console.log('❌ Usuário não autenticado');
+                // Mostrar modal de autenticação
+                const authModal = document.getElementById('authModal');
+                if (authModal) {
+                    authModal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                }
+                return;
+            }
+
+            // Obter arquivo selecionado
+            const fileInput = document.getElementById('fileInput');
+            const selectedFile = fileInput ? fileInput.files[0] : null;
+
+            // Coletar links das vagas
+            let jobLinks = [];
+            document.querySelectorAll('.job-link-input').forEach(input => {
+                if (input.value.trim()) {
+                    jobLinks.push(input.value.trim());
+                }
+            });
+
+            console.log('📁 Arquivo selecionado:', selectedFile?.name);
+            console.log('🔗 Links das vagas:', jobLinks);
+
+            // Validação
+            if (!selectedFile) {
+                alert('Selecione um currículo para análise.');
+                return;
+            }
+
+            if (jobLinks.length === 0) {
+                alert('Informe pelo menos um link de vaga para análise.');
+                return;
+            }
+
+            // Processar o arquivo selecionado
+            console.log('📊 Iniciando processamento...');
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const fileContentBase64 = e.target.result;
+                try {
+                    // Salvar dados na sessionStorage
+                    sessionStorage.setItem('atsFile', selectedFile.name);
+                    sessionStorage.setItem('atsFileContent', fileContentBase64);
+                    sessionStorage.setItem('atsJobLinks', JSON.stringify(jobLinks));
+
+                    console.log('✅ Dados salvos, redirecionando...');
+
+                    // Redirecionar para página de loading
+                    window.location.href = 'loading.html';
+                } catch (err) {
+                    console.error('❌ Erro ao salvar dados:', err);
+                    alert('Erro ao salvar dados para análise. Tente novamente.');
+                }
+            };
+
+            reader.onerror = function () {
+                console.error('❌ Erro ao ler o arquivo');
+                alert('Erro ao ler o arquivo. Tente outro formato.');
+            };
+
+            // Iniciar a leitura do arquivo
+            reader.readAsDataURL(selectedFile);
+        };
+
+        console.log('✅ Função performAnalysis definida globalmente');
+    </script>
+</body>
 
 </html>

@@ -63,6 +63,16 @@ exports.analyze = async (req, res) => {
     const textExtractor = require('../utils/textExtractor');
     const resumeText = await textExtractor.extract(resumePath);
 
+    // Criar jobsText concatenando todas as descrições das vagas
+    let jobsText = '';
+    if (result.jobs && Array.isArray(result.jobs)) {
+      jobsText = result.jobs
+        .map(job => (job.description || job.title || '').trim())
+        .filter(text => text.length > 0)
+        .join('\n\n---\n\n');
+    }
+    console.log(`[ATS] jobsText criado com ${jobsText.length} caracteres de ${result.jobs?.length || 0} vagas`);
+
     // Análise específica para Gupy (se detectarmos vagas da Gupy)
     const gupyJobs = jobLinks.filter(link =>
       link.includes('gupy.io') || link.includes('gupy.com')
@@ -150,6 +160,18 @@ exports.analyze = async (req, res) => {
 
       const presentes = filterPresentKeywords(jobKeywords, resumeText);
       const ausentes = jobKeywords.filter(k => !presentes.includes(k));
+
+      // Adicionar contagem para palavras presentes
+      result.job_keywords_present_with_count = keywordCounts.filter(item =>
+        presentes.includes(item.keyword)
+      );
+
+      // Adicionar contagem para palavras ausentes
+      result.job_keywords_missing_with_count = keywordCounts.filter(item =>
+        ausentes.includes(item.keyword)
+      );
+
+      // Manter compatibilidade com versões anteriores
       result.job_keywords_present = presentes;
       result.job_keywords_missing = ausentes;
 

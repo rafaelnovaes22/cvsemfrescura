@@ -26,12 +26,145 @@ function singularPluralForms(word) {
 }
 
 /**
+ * Mapas de idiomas e níveis para reconhecimento inteligente
+ */
+const languageMap = {
+  'inglês': ['inglês', 'ingles', 'english'],
+  'espanhol': ['espanhol', 'spanish', 'español'],
+  'francês': ['francês', 'frances', 'french', 'français'],
+  'alemão': ['alemão', 'alemao', 'german', 'deutsch'],
+  'italiano': ['italiano', 'italian'],
+  'português': ['português', 'portugues', 'portuguese'],
+  'mandarim': ['mandarim', 'chinês', 'chines', 'mandarin', 'chinese'],
+  'japonês': ['japonês', 'japones', 'japanese'],
+  'coreano': ['coreano', 'korean'],
+  'russo': ['russo', 'russian']
+};
+
+const levelMap = {
+  'básico': ['básico', 'basico', 'basic', 'beginner', 'iniciante', 'elementar'],
+  'intermediário': ['intermediário', 'intermediario', 'intermediate', 'médio', 'medio'],
+  'avançado': ['avançado', 'avancado', 'advanced', 'superior'],
+  'fluente': ['fluente', 'fluent', 'nativo', 'native', 'proficiente', 'proficient']
+};
+
+/**
+ * Verifica se um idioma específico está presente no currículo, considerando níveis
+ */
+function checkLanguageInResume(requestedLanguage, resumeText) {
+  const normResume = normalize(resumeText);
+  const requestedLang = normalize(requestedLanguage);
+
+  // Primeiro, verificar se é uma palavra-chave de idioma
+  let targetLanguage = null;
+  let requestedLevel = null;
+
+  // Identificar se a palavra-chave contém um idioma conhecido
+  for (const [lang, variations] of Object.entries(languageMap)) {
+    for (const variation of variations) {
+      if (requestedLang.includes(normalize(variation))) {
+        targetLanguage = lang;
+        break;
+      }
+    }
+    if (targetLanguage) break;
+  }
+
+  // Se não é um idioma, usar verificação padrão
+  if (!targetLanguage) {
+    return false;
+  }
+
+  // Identificar se há um nível específico na requisição
+  for (const [level, variations] of Object.entries(levelMap)) {
+    for (const variation of variations) {
+      if (requestedLang.includes(normalize(variation))) {
+        requestedLevel = level;
+        break;
+      }
+    }
+    if (requestedLevel) break;
+  }
+
+  // Procurar o idioma no currículo
+  const languageVariations = languageMap[targetLanguage];
+  let foundLanguage = false;
+  let foundLevel = null;
+
+  // Verificar se o idioma está presente
+  for (const variation of languageVariations) {
+    const regex = new RegExp(`\\b${normalize(variation)}\\b`, 'i');
+    if (regex.test(normResume)) {
+      foundLanguage = true;
+      break;
+    }
+  }
+
+  if (!foundLanguage) {
+    return false;
+  }
+
+  // Se não foi solicitado nível específico, idioma presente é suficiente
+  if (!requestedLevel) {
+    return true;
+  }
+
+  // Procurar o nível no currículo (busca em contexto próximo ao idioma)
+  for (const variation of languageVariations) {
+    // Buscar em um contexto de ~100 caracteres ao redor do idioma
+    const langRegex = new RegExp(`(.{0,100}\\b${normalize(variation)}\\b.{0,100})`, 'gi');
+    const matches = normResume.match(langRegex);
+
+    if (matches) {
+      for (const match of matches) {
+        // Verificar se há algum nível mencionado no contexto
+        for (const [level, levelVariations] of Object.entries(levelMap)) {
+          for (const levelVar of levelVariations) {
+            if (match.includes(normalize(levelVar))) {
+              foundLevel = level;
+              break;
+            }
+          }
+          if (foundLevel) break;
+        }
+        if (foundLevel) break;
+      }
+    }
+  }
+
+  // Se não encontrou nível específico, considerar que atende qualquer requisição
+  if (!foundLevel) {
+    return true;
+  }
+
+  // Verificar hierarquia de níveis (avançado > intermediário > básico)
+  const levelHierarchy = {
+    'básico': 1,
+    'intermediário': 2,
+    'avançado': 3,
+    'fluente': 4
+  };
+
+  const foundLevelValue = levelHierarchy[foundLevel] || 1;
+  const requestedLevelValue = levelHierarchy[requestedLevel] || 1;
+
+  // Retorna true se o nível encontrado é igual ou superior ao solicitado
+  return foundLevelValue >= requestedLevelValue;
+}
+
+/**
  * Verifica se a palavra-chave está presente no texto do currículo
- * Usa stemmer para aceitar variações simples
+ * Usa stemmer para aceitar variações simples e lógica especial para idiomas
  */
 function keywordInResume(keyword, resumeText) {
   const normResume = normalize(resumeText);
-  // Gera formas singular/plural para busca
+
+  // Verificação especial para idiomas
+  if (checkLanguageInResume(keyword, resumeText)) {
+    return true;
+  }
+
+  // Verificação padrão para outras palavras-chave
   const forms = singularPluralForms(normalize(keyword));
   for (const form of forms) {
     // Regex para palavra inteira (\b) ignorando caixa
