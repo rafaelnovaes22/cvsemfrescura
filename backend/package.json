@@ -19,6 +19,7 @@
     "security:generate-key": "npm run migrate-railway generate-key"
   },
   "dependencies": {
+    "@mendable/firecrawl-js": "^1.25.5",
     "axios": "^1.6.7",
     "bcrypt": "^6.0.0",
     "cheerio": "^1.0.0",
