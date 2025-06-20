@@ -153,10 +153,10 @@ Este projeto segue as melhores práticas de desenvolvimento:
 
 ## 📄 Licença
 
-[Especificar licença]
+MIT
 
 ---
 
-**Desenvolvido por:** [Seu Nome]  
-**Contato:** [Seu Email]  
-**LinkedIn:** [Seu LinkedIn] 
+**Desenvolvido por:** Rafael de Novaes
+**Contato:** rafaeldenovaes@gmail.com
+**LinkedIn:** https://www.linkedin.com/in/rafaeldenovaes/
