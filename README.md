@@ -158,5 +158,7 @@ MIT
 ---
 
 **Desenvolvido por:** Rafael de Novaes
+
 **Contato:** rafaeldenovaes@gmail.com
+
 **LinkedIn:** https://www.linkedin.com/in/rafaeldenovaes/
