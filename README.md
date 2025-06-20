@@ -1,187 +1,162 @@
-# CV Sem Frescura 🎯
+# Sistema ATS - Análise Inteligente de Currículos
 
-> **TL;DR**: `docker compose up` → `http://localhost:8080` (30 segundos)
+Sistema completo de análise de currículos utilizando inteligência artificial, desenvolvido com Node.js e integração OpenAI para otimização de processos de recrutamento.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js](https://img.shields.io/badge/Node.js-18.x-green.svg)](https://nodejs.org/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://docker.com/)
+## 🚀 Funcionalidades Principais
 
-## ⚡ Quick Start (30 segundos)
+- **Análise Inteligente**: Processamento de currículos em PDF/DOC com IA
+- **Sistema ATS**: Compatibilidade e otimização para sistemas de rastreamento
+- **Dashboard Administrativo**: Interface completa para gestão
+- **Sistema de Pagamentos**: Integração com Stripe
+- **Autenticação Segura**: JWT com criptografia avançada
+- **API RESTful**: Endpoints documentados e seguros
 
-```bash
-git clone https://github.com/seu-usuario/cv-sem-frescura.git
-cd cv-sem-frescura
-docker compose up
+## 🛠️ Tecnologias Utilizadas
+
+### Backend
+- **Node.js** + **Express.js**
+- **Sequelize ORM** (SQLite/PostgreSQL)
+- **OpenAI API** para análise de texto
+- **Stripe** para processamento de pagamentos
+- **JWT** para autenticação
+- **Multer** para upload de arquivos
+- **Winston** para logging
+
+### Frontend
+- **HTML5/CSS3/JavaScript** (Vanilla)
+- **Design Responsivo**
+- **PWA** (Progressive Web App)
+- **Service Worker** para cache
+
+### DevOps & Infraestrutura
+- **Docker** com multi-stage builds
+- **Railway** para deploy em produção
+- **Nginx** como proxy reverso
+- **GitHub Actions** para CI/CD
+
+## 📁 Estrutura do Projeto
+
+```
+├── backend/
+│   ├── controllers/     # Controladores da API
+│   ├── models/         # Modelos do banco de dados
+│   ├── routes/         # Rotas da API
+│   ├── services/       # Lógica de negócio
+│   ├── utils/          # Utilitários e middlewares
+│   ├── config/         # Configurações
+│   └── migrations/     # Migrations do banco
+├── frontend/
+│   ├── assets/         # CSS, JS e imagens
+│   ├── *.html          # Páginas da aplicação
+│   └── manifest.json   # Configuração PWA
+├── docs/               # Documentação do projeto
+├── scripts/            # Scripts de deploy e automação
+└── tests/              # Testes automatizados
 ```
 
-**🎉 Pronto!** Acesse http://localhost:8080
+## 🔧 Instalação e Configuração
 
-## 🎯 Para Recrutadores
+### Pré-requisitos
+- Node.js 18+
+- SQLite3 ou PostgreSQL
+- Conta OpenAI com API key
+- Conta Stripe (para pagamentos)
 
-**📋 Checklist de 5 minutos:**
-1. ✅ `docker compose up` funciona
-2. ✅ Sistema completo (Frontend + Backend + DB)
-3. ✅ APIs integradas (OpenAI + Stripe)
-4. ✅ Código limpo e documentado
-5. ✅ Pronto para produção
+### Instalação Local
 
-**📊 Ver**: [docs/PARA_RECRUTADORES.md](docs/PARA_RECRUTADORES.md)
-
-## 💡 Sobre o Projeto
-
-**CV Sem Frescura** é uma plataforma SaaS de análise de currículos com IA. Sistema completo de pagamentos, usuários e análises inteligentes.
-
-### ✨ Funcionalidades
-
-- **🧠 Análise IA**: OpenAI GPT-4 para feedback detalhado
-- **💳 Pagamentos**: Stripe com checkout guest/usuário
-- **👤 Autenticação**: JWT + sessões seguras
-- **📱 Responsivo**: Design moderno mobile-first
-- **⚡ Performance**: Cache Redis + otimizações
-
-## 🏗️ Stack Técnica
-
-- **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
-- **Backend**: Node.js + Express.js + Sequelize ORM
-- **Database**: MySQL 8.0
-- **Cache**: Redis
-- **APIs**: OpenAI GPT-4 + Stripe
-- **Deploy**: Docker + Docker Compose
-
-## 📊 Métricas de Produção
-
-| Métrica | Valor | Status |
-|---------|-------|--------|
-| **Uptime** | 99.9% | ✅ Online |
-| **Performance** | < 200ms | ✅ Otimizado |
-| **Usuários** | 100+ | ✅ Escalável |
-| **Receita** | $500+ | ✅ Monetizado |
-
-## 💰 Custos Operacionais (Real)
-
-| Serviço | Mensal | Observações |
-|---------|--------|-------------|
-| **OpenAI API** | $50-200 | 1000-5000 análises |
-| **Stripe** | 2.9% + $0.30 | Por transação |
-| **VPS** | $20-50 | 2GB RAM, 2 CPUs |
-| **Total** | **$70-250** | Baseado no volume |
-
-## 🖥️ Requisitos
-
-### Desenvolvimento
-- **Docker**: 20.10+
-- **RAM**: 4GB
-- **CPU**: 2 cores
-
-### Produção
-- **RAM**: 2GB (mín), 4GB (rec)
-- **CPU**: 2 cores (mín), 4 cores (rec)
-- **Storage**: 20GB SSD
-- **Load**: 500+ usuários simultâneos
-
-## 🚀 Deploy
-
-### Desenvolvimento
 ```bash
-# Automático com hot reload
-docker compose up
+# Clone o repositório
+git clone [url-do-repositorio]
+cd repository
+
+# Instale as dependências do backend
+cd backend
+npm install
+
+# Configure as variáveis de ambiente
+cp env.example .env
+# Edite o arquivo .env com suas configurações
+
+# Execute as migrações
+npm run migrate
+
+# Inicie o servidor
+npm start
 ```
 
-### Produção
+### Docker
+
 ```bash
-# Deploy automatizado
-./scripts/deploy.sh production
+# Build e execução com Docker Compose
+docker-compose up --build
 ```
 
-### Configuração
+## 🚀 Deploy em Produção
+
+O projeto está configurado para deploy automático no Railway:
+
 ```bash
-# Configure no arquivo .env
-OPENAI_API_KEY=sk-...           # Obrigatório
-STRIPE_SECRET_KEY=sk_live_...   # Obrigatório  
-STRIPE_WEBHOOK_SECRET=whsec_... # Obrigatório
-JWT_SECRET=sua_chave_segura     # Obrigatório
+# Deploy via Railway CLI
+railway deploy
 ```
 
-## 🧪 Testes
+Consulte `docs/deployment/` para instruções detalhadas.
 
-```bash
-# Testar Docker completo
-./scripts/test-docker.sh
+## 📋 Principais Endpoints da API
 
-# Quick start automático
-./scripts/quick-start.sh
-
-# Verificar funcionamento
-curl http://localhost:3000/health
-curl http://localhost:8080
 ```
-
-## 📈 Monitoramento
-
-### Health Checks
-- **Backend**: http://localhost:3000/health
-- **Frontend**: http://localhost:8080
-- **Database**: Automático via Sequelize
-- **Redis**: Automático via health endpoint
-
-### Logs
-```bash
-# Logs em tempo real
-docker compose logs -f
-
-# Por serviço
-docker compose logs backend
-docker compose logs mysql
+POST /api/auth/login       # Autenticação de usuário
+POST /api/auth/register    # Registro de novo usuário
+POST /api/analysis/upload  # Upload e análise de currículo
+GET  /api/analysis/history # Histórico de análises
+POST /api/payment/create   # Criar sessão de pagamento
+GET  /api/admin/users      # Gestão de usuários (admin)
 ```
 
 ## 🔐 Segurança
 
-- ✅ **JWT Authentication** com refresh tokens
-- ✅ **Rate Limiting** em APIs sensíveis
-- ✅ **Input Sanitization** contra XSS/SQL Injection
-- ✅ **HTTPS** obrigatório em produção
-- ✅ **Security Headers** configurados
-- ✅ **Stripe Webhooks** validados
+- Criptografia AES-256 para dados sensíveis
+- Validação e sanitização de inputs
+- Rate limiting para APIs
+- CORS configurado adequadamente
+- Headers de segurança com Helmet
+- Logs de auditoria completos
 
-## 📁 Estrutura
+## 🧪 Testes
 
+```bash
+# Executar todos os testes
+npm test
+
+# Testes específicos
+npm run test:api
+npm run test:auth
+npm run test:integration
 ```
-cv-sem-frescura/
-├── 🐳 docker-compose.yml     # Orquestração completa
-├── 📄 README.md              # Este arquivo
-├── 📁 backend/               # API Node.js + Express
-├── 📁 frontend/              # Interface web + Nginx
-├── 📁 docs/                  # Documentação técnica
-├── 📁 tests/                 # Testes automatizados
-├── 📁 scripts/               # Deploy + automação
-├── 📁 .github/workflows/     # CI/CD
-└── 📄 LICENSE                # MIT License
-```
+
+## 📊 Monitoramento
+
+- Logs estruturados com Winston
+- Métricas de performance
+- Alertas de erro automáticos
+- Dashboard de monitoramento
 
 ## 🤝 Contribuição
 
-1. Fork o projeto
-2. `git checkout -b feature/nova-funcionalidade`
-3. `git commit -m 'Adiciona funcionalidade X'`
-4. `git push origin feature/nova-funcionalidade`
-5. Abra um Pull Request
+Este projeto segue as melhores práticas de desenvolvimento:
+
+- Código limpo e bem documentado
+- Testes automatizados
+- Commits semânticos
+- Code review obrigatório
+- CI/CD automatizado
 
 ## 📄 Licença
 
-**MIT License** - uso livre para portfólio e projetos comerciais.
-
-## 🎯 Demonstração
-
-- **🌐 Produção**: https://cvsemfrescura.com
-- **💻 Local**: `docker compose up` → http://localhost:8080
-- **👔 Recrutadores**: [docs/PARA_RECRUTADORES.md](docs/PARA_RECRUTADORES.md)
-
-## 👨‍💻 Contato
-
-**Rafael de Novaes**  
-📧 rafael_novaes22@hotmail.com  
-🔗 [LinkedIn](https://linkedin.com/in/rafael-novaes)
+[Especificar licença]
 
 ---
 
-⭐ **Star este projeto se foi útil para você!** 
+**Desenvolvido por:** [Seu Nome]  
+**Contato:** [Seu Email]  
+**LinkedIn:** [Seu LinkedIn] 
