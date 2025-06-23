@@ -1,14 +1,72 @@
 const axios = require('axios');
 const claudeService = require('./claudeService');
+const rateLimitMonitor = require('./rateLimitMonitor');
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_URL = 'https://api.openai.com/v1/chat/completions';
+
+// Configurações de retry e rate limiting
+const RETRY_CONFIG = {
+  maxRetries: 3,
+  baseDelay: 1000, // 1 segundo
+  maxDelay: 30000, // 30 segundos
+  backoffMultiplier: 2
+};
+
+// Função para esperar com backoff exponencial
+async function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Função para calcular delay com backoff exponencial
+function calculateDelay(attempt) {
+  const delay = Math.min(
+    RETRY_CONFIG.baseDelay * Math.pow(RETRY_CONFIG.backoffMultiplier, attempt),
+    RETRY_CONFIG.maxDelay
+  );
+  // Adiciona jitter (variação aleatória) para evitar thundering herd
+  return delay + Math.random() * 1000;
+}
+
+// Função para verificar se o erro é retriable
+function isRetriableError(error) {
+  if (!error.response) return false;
+
+  const status = error.response.status;
+  // Códigos de erro que justificam retry
+  return [
+    429, // Rate limit exceeded
+    500, // Internal server error
+    502, // Bad gateway
+    503, // Service unavailable
+    504  // Gateway timeout
+  ].includes(status);
+}
+
+// Função para extrair informações de rate limiting do header
+function getRateLimitInfo(error) {
+  if (!error.response || !error.response.headers) return null;
+
+  const headers = error.response.headers;
+  return {
+    remaining: headers['x-ratelimit-remaining'],
+    reset: headers['x-ratelimit-reset'],
+    resetTime: headers['x-ratelimit-reset-time']
+  };
+}
 
 function buildPrompt(jobsText, resumeText) {
   return `Responda sempre em português do Brasil.
 Você é um sistema ATS especialista em análise de currículos e vagas.
 
 1. Extraia e liste de forma COMPLETA, DETALHADA e SEM OMITIR NENHUMA todos os termos relevantes das vagas em "job_keywords". Siga OBRIGATORIAMENTE as regras abaixo:
+   
+   INSTRUÇÕES CRÍTICAS PARA COMPLETUDE:
+   - NUNCA pare de extrair palavras-chave até ter analisado COMPLETAMENTE todo o texto das vagas
+   - Se encontrar muitas palavras-chave, continue listando TODAS - não resuma ou omita
+   - Prefira ser ABRANGENTE a ser conciso - liste TODAS as palavras-chave encontradas
+   - Se uma vaga tem 50+ termos relevantes, liste TODOS os 50+ termos
+   
    - Remova duplicidades contextuais (ex: "roadmap" e "visão e roadmap" → mantenha apenas o termo mais completo; "metodologias ágeis" e "metodologias" → mantenha o termo mais específico).
    - NÃO agrupe termos. Mantenha cada palavra-chave como termo individual para garantir detecção precisa.
    - Elimine verbos soltos ou termos que não fazem sentido isoladamente (ex: "ouvir", "planejamento", "definir escopo" → mantenha apenas "escopo" se relevante).
@@ -117,16 +175,45 @@ Responda em JSON, SEMPRE incluindo TODAS as chaves abaixo, mesmo que alguma este
 
 exports.extractATSData = async (jobsText, resumeText) => {
   const prompt = buildPrompt(jobsText, resumeText);
+  const estimatedTokens = Math.ceil(prompt.length / 4) + 8000; // Estimativa: 4 chars por token + output
+
   console.log('[OpenAI] Tamanho do prompt:', prompt.length, 'caracteres');
+  console.log('[OpenAI] Tokens estimados:', estimatedTokens);
+
+  // Verificar rate limits antes de tentar
+  const recommendation = rateLimitMonitor.getRecommendedService(estimatedTokens);
+  console.log('[Rate Monitor]', recommendation.reason);
+
+  // Se recomenda usar Claude direto, use Claude
+  if (recommendation.service === 'claude') {
+    console.log('[Strategy] Indo direto para Claude devido a rate limits');
+    try {
+      const claudeRaw = await claudeService.extractATSDataClaude(prompt);
+      console.log('[Claude] Resposta recebida com sucesso (escolha estratégica)');
+
+      let text = claudeRaw.trim();
+      if (text.startsWith('```json')) text = text.slice(7);
+      else if (text.startsWith('```')) text = text.slice(3);
+      text = text.trim();
+      if (text.endsWith('```')) text = text.slice(0, -3);
+      text = text.trim();
+
+      return JSON.parse(text);
+    } catch (errClaude) {
+      console.error('[Claude] Falha na escolha estratégica:', errClaude.message);
+      // Continua para tentar OpenAI mesmo assim
+    }
+  }
 
   const requestConfig = {
-    model: 'gpt-4-turbo-2024-04-09',
+    model: 'gpt-4o',
     messages: [
       { role: 'system', content: 'Você é um ATS especialista.' },
       { role: 'user', content: prompt }
     ],
     temperature: 0.1,
-    max_tokens: 4096 // Limite máximo do GPT-4 Turbo
+    max_tokens: 8000,
+    timeout: 60000
   };
 
   console.log('[OpenAI] Configuração:', {
@@ -136,47 +223,117 @@ exports.extractATSData = async (jobsText, resumeText) => {
     system: 'Você é um ATS especialista.'
   });
 
-  try {
-    const response = await axios.post(
-      OPENAI_URL,
-      requestConfig,
-      {
-        headers: {
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
-          'Content-Type': 'application/json'
+  // Implementar retry com backoff exponencial
+  for (let attempt = 0; attempt <= RETRY_CONFIG.maxRetries; attempt++) {
+    try {
+      const response = await axios.post(
+        OPENAI_URL,
+        requestConfig,
+        {
+          headers: {
+            'Authorization': `Bearer ${OPENAI_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          timeout: 60000
+        }
+      );
+
+      // Atualizar monitor de rate limits com headers da resposta
+      if (response.headers) {
+        rateLimitMonitor.updateOpenAILimits(response.headers);
+      }
+
+      // Registrar uso bem-sucedido
+      rateLimitMonitor.recordOpenAIUsage(estimatedTokens);
+
+      // Tenta parsear JSON da resposta
+      let text = response.data.choices[0].message.content;
+      console.log(`[OpenAI] Resposta recebida com sucesso (tentativa ${attempt + 1})`);
+
+      // Remove blocos markdown e crases
+      text = text.trim();
+      if (text.startsWith('```json')) text = text.slice(7);
+      else if (text.startsWith('```')) text = text.slice(3);
+      text = text.trim();
+      if (text.endsWith('```')) text = text.slice(0, -3);
+      text = text.trim();
+
+      // Faz o parse do JSON limpo
+      try {
+        return JSON.parse(text);
+      } catch (parseError) {
+        console.error('[OpenAI] Erro ao fazer parse do JSON:', parseError.message);
+        console.error('[OpenAI] Texto recebido:', text);
+        throw parseError;
+      }
+
+    } catch (error) {
+      const isLastAttempt = attempt === RETRY_CONFIG.maxRetries;
+      const isRetriable = isRetriableError(error);
+      const rateLimitInfo = getRateLimitInfo(error);
+
+      console.error(`[OpenAI] Erro na tentativa ${attempt + 1}:`, error.message);
+
+      if (error.response && error.response.status) {
+        console.error(`[OpenAI] Status HTTP: ${error.response.status}`);
+
+        // Atualizar monitor mesmo em caso de erro
+        if (error.response.headers) {
+          rateLimitMonitor.updateOpenAILimits(error.response.headers);
         }
       }
-    );
 
-    // Tenta parsear JSON da resposta
-    let text = response.data.choices[0].message.content;
-    console.log('[OpenAI] Resposta recebida com sucesso');
+      // Log informações de rate limit se disponíveis
+      if (rateLimitInfo) {
+        console.log('[OpenAI] Rate limit info:', rateLimitInfo);
+      }
 
-    // Remove blocos markdown e crases
-    text = text.trim();
+      // Se não é retriable ou é a última tentativa, pula para o fallback
+      if (!isRetriable || isLastAttempt) {
+        console.error('[OpenAI] Falha final, tentando fallback com Claude 3 Sonnet:', error.message);
+
+        // Log estatísticas de uso para debug
+        const usageStats = rateLimitMonitor.getUsageStats();
+        console.log('[Rate Monitor] Estatísticas de uso:', usageStats.openai);
+        break;
+      }
+
+      // Calcular delay para próxima tentativa
+      let delay = calculateDelay(attempt);
+
+      // Para erro 429, usar um delay maior ou baseado no reset time
+      if (error.response && error.response.status === 429) {
+        const waitTime = rateLimitMonitor.getOpenAIWaitTime();
+        delay = Math.max(delay, waitTime);
+      }
+
+      console.log(`[OpenAI] Rate limit atingido. Aguardando ${Math.round(delay / 1000)}s antes da próxima tentativa...`);
+      await sleep(delay);
+    }
+  }
+
+  // Fallback para Claude se todas as tentativas falharam
+  try {
+    console.log('[Claude] Iniciando fallback após falha do OpenAI');
+    const claudeRaw = await claudeService.extractATSDataClaude(prompt);
+    console.log('[Claude] Resposta recebida com sucesso (fallback)');
+
+    let text = claudeRaw.trim();
     if (text.startsWith('```json')) text = text.slice(7);
     else if (text.startsWith('```')) text = text.slice(3);
     text = text.trim();
     if (text.endsWith('```')) text = text.slice(0, -3);
     text = text.trim();
 
-    // Faz o parse do JSON limpo
-    return JSON.parse(text);
-  } catch (e) {
-    console.error('[OpenAI] Falha, tentando fallback com Claude 3 Sonnet:', e.message);
-    // Fallback para Claude
     try {
-      const claudeRaw = await claudeService.extractATSDataClaude(prompt);
-      console.log('[Claude] Resposta recebida com sucesso (fallback)');
-      let text = claudeRaw.trim();
-      if (text.startsWith('```json')) text = text.slice(7);
-      else if (text.startsWith('```')) text = text.slice(3);
-      text = text.trim();
-      if (text.endsWith('```')) text = text.slice(0, -3);
-      text = text.trim();
       return JSON.parse(text);
-    } catch (errClaude) {
-      throw new Error('Erro ao processar resposta da Claude: ' + errClaude.message);
+    } catch (parseError) {
+      console.error('[Claude] Erro ao fazer parse do JSON:', parseError.message);
+      console.error('[Claude] Texto recebido:', text);
+      throw parseError;
     }
+  } catch (errClaude) {
+    console.error('[Claude] Fallback também falhou:', errClaude.message);
+    throw new Error(`Ambos os serviços falharam. OpenAI: Rate limit. Claude: ${errClaude.message}`);
   }
 };

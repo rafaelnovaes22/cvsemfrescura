@@ -263,6 +263,12 @@ document.addEventListener('DOMContentLoaded', function () {
     if (conclusion && atsResult.conclusion) {
         conclusion.innerText = atsResult.conclusion;
     }
+
+    // Dicas de Otimização ATS (nova funcionalidade)
+    displayATSOptimizationTips(atsResult);
+
+    // Estatísticas de relevância
+    displayRelevanceStatistics(atsResult);
 });
 
 // Função para exibir scores de compatibilidade
@@ -576,6 +582,114 @@ function formatarNota(nota) {
             <span style="color: ${cor}; font-size: 13px; font-weight: 600; background: ${cor}15; padding: 4px 8px; border-radius: 12px;">${texto}</span>
         </div>
     `;
+}
+
+// Função para exibir dicas de otimização ATS específicas
+function displayATSOptimizationTips(atsResult) {
+    const container = document.getElementById('ats-optimization-tips');
+    const section = document.getElementById('ats-optimization-section');
+
+    if (!container || !section) return;
+
+    // Verificar se há dicas de otimização
+    if (!atsResult.ats_optimization_tips || !Array.isArray(atsResult.ats_optimization_tips)) {
+        section.style.display = 'none';
+        return;
+    }
+
+    // Mostrar a seção
+    section.style.display = 'block';
+    container.innerHTML = '';
+
+    // Título da seção
+    const title = document.createElement('h3');
+    title.style.cssText = `
+        color: #583819;
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    `;
+    title.innerHTML = '🚀 Estratégia ATS Inteligente - Fórmula Otimizada';
+    container.appendChild(title);
+
+    // Criar cards para cada dica
+    atsResult.ats_optimization_tips.forEach((tip, index) => {
+        const tipCard = document.createElement('div');
+        tipCard.style.cssText = `
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 2px solid #583819;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        `;
+
+        // Adicionar efeito hover
+        tipCard.addEventListener('mouseenter', () => {
+            tipCard.style.transform = 'translateY(-2px)';
+            tipCard.style.boxShadow = '0 8px 12px rgba(0, 0, 0, 0.15)';
+        });
+
+        tipCard.addEventListener('mouseleave', () => {
+            tipCard.style.transform = 'translateY(0)';
+            tipCard.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+        });
+
+        // Processar diferentes tipos de dicas
+        let content = '';
+
+        if (tip.includes('💡')) {
+            // Estratégia principal
+            content = `<div style="font-size: 16px; line-height: 1.6; color: #1e293b; font-weight: 600;">${tip}</div>`;
+        } else if (tip.includes('🔧')) {
+            // Tecnologias presentes
+            content = `<div style="font-size: 15px; line-height: 1.6; color: #1e293b;">${tip}</div>`;
+        } else if (tip.includes('⚠️')) {
+            // Palavras-chave ausentes
+            content = `<div style="font-size: 15px; line-height: 1.6; color: #dc2626; background: #fef2f2; padding: 16px; border-radius: 8px; border-left: 4px solid #dc2626;">${tip}</div>`;
+        } else if (tip.includes('📝')) {
+            // Exemplos práticos
+            const parts = tip.split('\\n');
+            content = `
+                <div style="font-size: 15px; line-height: 1.6; color: #1e293b;">
+                    <div style="font-weight: 600; margin-bottom: 12px;">${parts[0]}</div>
+                    <div style="background: #f1f5f9; padding: 16px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                        ${parts.slice(1).join('<br><br>').replace(/❌/g, '<span style="color: #dc2626;">❌</span>').replace(/✅/g, '<span style="color: #16a34a;">✅</span>')}
+                    </div>
+                </div>
+            `;
+        } else if (tip.includes('📋')) {
+            // Estrutura recomendada
+            content = `<div style="font-size: 15px; line-height: 1.6; color: #1e293b; background: #f0fdf4; padding: 16px; border-radius: 8px; border-left: 4px solid #16a34a;">${tip}</div>`;
+        } else if (tip.includes('🎯')) {
+            // Densidade inteligente
+            content = `<div style="font-size: 15px; line-height: 1.6; color: #1e293b; background: #fef3c7; padding: 16px; border-radius: 8px; border-left: 4px solid #f59e0b;">${tip}</div>`;
+        } else {
+            // Dica padrão
+            content = `<div style="font-size: 15px; line-height: 1.6; color: #1e293b;">${tip}</div>`;
+        }
+
+        tipCard.innerHTML = content;
+        container.appendChild(tipCard);
+    });
+
+    // Adicionar footer com estatística
+    const footer = document.createElement('div');
+    footer.style.cssText = `
+        background: #583819;
+        color: white;
+        padding: 16px;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: 600;
+        margin-top: 20px;
+    `;
+    footer.innerHTML = '📊 Lembre-se: 92% dos candidatos são rejeitados automaticamente. Essas dicas podem ser o diferencial que você precisa!';
+    container.appendChild(footer);
 }
 
 // Função para exibir estatísticas de relevância
