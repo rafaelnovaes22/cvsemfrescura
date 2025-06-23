@@ -142,35 +142,9 @@ function generateATSOptimizedRecommendations(jobKeywords, resumeText, missingKey
     // Extrair tecnologias presentes no currículo
     const presentTechnologies = extractTechnologiesFromResume(resumeText, jobKeywords);
 
-    // Extrair contextos de experiência
-    const experienceContexts = extractExperienceContext(resumeText);
 
-    // Recomendação principal sobre o problema
-    recommendations.push(
-        "💡 ESTRATÉGIA OTIMIZADA: 92% dos candidatos são rejeitados automaticamente pelo ATS. Seus próximos ajustes podem ser o diferencial entre passar ou ser filtrado antes mesmo de um recrutador ver seu currículo."
-    );
 
-    // Gerar exemplos práticos para tecnologias presentes
-    if (presentTechnologies.length > 0) {
-        const techExamples = generateSpecificTechExamples(presentTechnologies, resumeText);
-        if (techExamples.length > 0) {
-            recommendations.push(
-                `🔧 OTIMIZE SUAS EXPERIÊNCIAS ATUAIS:\n${techExamples.join('\n\n')}`
-            );
-        }
-    }
-
-    // Recomendações específicas para palavras-chave ausentes mais importantes
-    if (missingKeywords && missingKeywords.length > 0) {
-        const missingExamples = generateMissingKeywordExamples(missingKeywords.slice(0, 3), experienceContexts);
-        if (missingExamples.length > 0) {
-            recommendations.push(
-                `⚠️ INCLUA PALAVRAS-CHAVE CRÍTICAS:\n${missingExamples.join('\n\n')}`
-            );
-        }
-    }
-
-    // Exemplos de densidade inteligente baseados no currículo
+    // Exemplos de densidade inteligente baseados no currículo (apenas se existirem)
     const densityExamples = generateDensityExamples(presentTechnologies, resumeText);
     if (densityExamples.length > 0) {
         recommendations.push(
@@ -178,7 +152,7 @@ function generateATSOptimizedRecommendations(jobKeywords, resumeText, missingKey
         );
     }
 
-    // Estrutura prática
+    // Adicionar recomendação de formato otimizado
     recommendations.push(
         "📋 FORMATO OTIMIZADO: Transforme cada linha de experiência em: ação específica → tecnologia exata → resultado quantificado → contexto de aplicação. Evite descrições vagas como 'responsável por' ou 'conhecimento em'."
     );
@@ -209,12 +183,7 @@ function generateSpecificTechExamples(technologies, resumeText) {
         );
     }
 
-    // Power BI/Relatórios
-    if (technologies.includes('powerbi') || normalizedResume.includes('relatório') || normalizedResume.includes('dashboard')) {
-        examples.push(
-            "❌ Evite: 'Criação de relatórios'\n✅ Melhore para: 'Criação de dashboards interativos no Power BI com DAX e medidas calculadas, automatizando análises e reduzindo tempo de tomada de decisão em 50%'"
-        );
-    }
+
 
     // Python/Análise
     if (technologies.includes('python') || normalizedResume.includes('análise') || normalizedResume.includes('automação')) {
@@ -232,11 +201,37 @@ function generateSpecificTechExamples(technologies, resumeText) {
 function generateMissingKeywordExamples(missingKeywords, contexts) {
     const examples = [];
 
+    // Palavras-chave genéricas que devem ser ignoradas nas recomendações
+    const genericKeywordsToSkip = [
+        'viabilidade técnica',
+        'satisfação dos stakeholders',
+        'viabilidade',
+        'stakeholders',
+        'satisfação',
+        'técnica',
+        'corporativo',
+        'empresarial',
+        'organizacional',
+        'institucional',
+        'confluence',
+        'trello',
+        'ferramentas',
+        'tools',
+        'plataforma',
+        'sistemas'
+    ];
+
     missingKeywords.forEach((keyword, index) => {
         if (index >= 2) return; // Máximo 2 exemplos
 
-        let example = "";
         const keywordLower = keyword.toLowerCase();
+
+        // Pular palavras-chave genéricas que não agregam valor
+        if (genericKeywordsToSkip.some(skipWord => keywordLower.includes(skipWord))) {
+            return;
+        }
+
+        let example = "";
 
         // Contextos específicos baseados na palavra-chave
         if (keywordLower.includes('git') || keywordLower.includes('controle')) {
@@ -247,12 +242,31 @@ function generateMissingKeywordExamples(missingKeywords, contexts) {
             example = `💼 ${keyword}: "Desenvolvimento de APIs REST seguras com autenticação JWT, servindo 10k+ requisições diárias com tempo de resposta inferior a 200ms"`;
         } else if (keywordLower.includes('docker') || keywordLower.includes('container')) {
             example = `💼 ${keyword}: "Containerização de aplicações com Docker, reduzindo tempo de deploy em 70% e garantindo consistência entre ambientes de desenvolvimento e produção"`;
+        } else if (keywordLower.includes('python')) {
+            example = `💼 ${keyword}: "Desenvolvimento de scripts Python para automação de processos, processando datasets de 10k+ registros e reduzindo tempo de análise em 50%"`;
+        } else if (keywordLower.includes('java') && !keywordLower.includes('javascript')) {
+            example = `💼 ${keyword}: "Desenvolvimento de aplicações Java enterprise com Spring Framework, atendendo 1000+ usuários simultâneos com alta disponibilidade"`;
+        } else if (keywordLower.includes('sql') || keywordLower.includes('banco')) {
+            example = `💼 ${keyword}: "Otimização de consultas SQL e modelagem de banco de dados, melhorando performance de queries em 40% em ambientes de produção"`;
+        } else if (keywordLower.includes('cloud') || keywordLower.includes('aws') || keywordLower.includes('azure')) {
+            example = `💼 ${keyword}: "Implementação de soluções em nuvem ${keyword}, reduzindo custos de infraestrutura em 30% e aumentando escalabilidade do sistema"`;
+        } else if (keywordLower.includes('teste') || keywordLower.includes('test')) {
+            example = `💼 ${keyword}: "Implementação de testes automatizados ${keyword}, aumentando cobertura de testes para 85% e reduzindo bugs em produção em 40%"`;
+        } else if (keywordLower.includes('liderança') || keywordLower.includes('gestão') || keywordLower.includes('coordenação')) {
+            example = `💼 ${keyword}: "Exercício de ${keyword} em equipes de 5+ pessoas, coordenando entregas de projetos críticos e melhorando produtividade da equipe em 25%"`;
         } else {
-            // Exemplo genérico mas específico
-            example = `💼 ${keyword}: "Implementação de ${keyword} em projetos corporativos, otimizando processos e aumentando eficiência operacional em X%, com foco em resultados mensuráveis"`;
+            // Para palavras-chave técnicas específicas, usar formato mais específico
+            if (keyword.length > 3 && !keywordLower.includes(' ')) {
+                example = `💼 ${keyword}: "Experiência prática com ${keyword}, aplicando em projetos reais para otimização de performance e melhoria de resultados operacionais"`;
+            } else {
+                // Pular exemplos muito genéricos
+                return;
+            }
         }
 
-        examples.push(example);
+        if (example) {
+            examples.push(example);
+        }
     });
 
     return examples;

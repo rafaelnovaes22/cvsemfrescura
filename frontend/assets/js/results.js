@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
         sessionStorage.removeItem('isHistoricalView');
     }
 
-    // NOVA SEÇÃO: Scores de Compatibilidade por Vaga
+    // NOVA SEÇÃO: Scores de Compatibilidade ATS
     displayCompatibilityScores(atsResult);
 
     // Palavras-chave das vagas (com contagem e ordenação por relevância)
@@ -264,8 +264,7 @@ document.addEventListener('DOMContentLoaded', function () {
         conclusion.innerText = atsResult.conclusion;
     }
 
-    // Dicas de Otimização ATS (nova funcionalidade)
-    displayATSOptimizationTips(atsResult);
+
 
     // Estatísticas de relevância
     displayRelevanceStatistics(atsResult);
@@ -316,15 +315,20 @@ function displayCompatibilityScores(atsResult) {
     else if (atsResult.job_keywords || atsResult.found_keywords || atsResult.analysis_summary) {
         compatibilityContainer.innerHTML = '';
 
+        // Garantir consistência nos dados
+        const presentKeywords = atsResult.job_keywords_present || atsResult.found_keywords || [];
+        const missingKeywords = atsResult.job_keywords_missing || atsResult.missing_keywords || [];
+        const totalKeywords = atsResult.job_keywords?.length || (presentKeywords.length + missingKeywords.length) || 10;
+
         const singleJob = {
             job_title: "Análise Geral do Currículo",
             job_link: "#",
             compatibility_score: calculateOverallScore(atsResult),
             keyword_analysis: {
-                present: atsResult.job_keywords_present || atsResult.found_keywords || [],
-                missing: atsResult.job_keywords_missing || atsResult.missing_keywords || [],
-                density: 0.75,
-                total: (atsResult.job_keywords?.length || 0) + (atsResult.found_keywords?.length || 0)
+                present: presentKeywords,
+                missing: missingKeywords,
+                density: totalKeywords > 0 ? presentKeywords.length / totalKeywords : 0.6,
+                total: totalKeywords
             },
             platform: "Análise Geral",
             recommendations: atsResult.recommendations || []
@@ -340,8 +344,8 @@ function displayCompatibilityScores(atsResult) {
         compatibilityContainer.innerHTML = `
             <div style="text-align: center; padding: 40px; color: #666; background: #f8f9fa; border-radius: 12px; border: 2px dashed #ddd;">
                 <div style="font-size: 48px; margin-bottom: 16px;">📊</div>
-                <h3 style="color: #583819; margin-bottom: 12px;">Score de Compatibilidade</h3>
-                <p>Os scores de compatibilidade serão exibidos aqui após a análise das vagas.</p>
+                <h3 style="color: #583819; margin-bottom: 12px;">Score de Compatibilidade ATS</h3>
+                <p>Os scores de compatibilidade ATS serão exibidos aqui após a análise das vagas.</p>
                 <p style="font-size: 14px; margin-top: 8px; color: #888;">
                     Certifique-se de incluir links de vagas na sua análise para ver os scores individuais.
                 </p>
@@ -374,7 +378,7 @@ function createCompatibilityCard(job, type = 'general') {
         <div class="job-header">
             <div>
                 <div class="job-title">${job.job_title}</div>
-                <div class="job-company">${company}</div>
+                ${type !== 'summary' ? `<div class="job-company">${company}</div>` : ''}
             </div>
             <div class="score-display">
                 <div class="score-number ${scoreClass}">${score}</div>
@@ -390,6 +394,17 @@ function createCompatibilityCard(job, type = 'general') {
             ${scoreText}
         </div>
         
+        ${type === 'summary' ? `
+            <div style="margin: 16px 0; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e5e7eb;">
+                <p style="font-size: 13px; color: #666; margin: 0; line-height: 1.4;">
+                    <strong>Score de Compatibilidade ATS:</strong> Calculado com base na quantidade de palavras-chave presentes vs ausentes no seu currículo. Este score reflete especificamente o alinhamento com os filtros automáticos dos sistemas ATS.
+                </p>
+                <p style="font-size: 12px; color: #888; margin: 8px 0 0 0; line-height: 1.3;">
+                    <em>Nota: A conclusão textual pode considerar outros fatores qualitativos além do match de palavras-chave.</em>
+                </p>
+            </div>
+        ` : ''}
+        
         <div class="compatibility-details">
             <div class="detail-item">
                 <span class="detail-label">Match de palavras-chave</span>
@@ -403,10 +418,12 @@ function createCompatibilityCard(job, type = 'general') {
                 <span class="detail-label">Palavras ausentes</span>
                 <span class="detail-value" style="color: #ef4444;">${missingCount}</span>
             </div>
-            <div class="detail-item">
-                <span class="detail-label">Plataforma</span>
-                <span class="detail-value">${platform}</span>
-            </div>
+            ${type !== 'summary' ? `
+                <div class="detail-item">
+                    <span class="detail-label">Plataforma</span>
+                    <span class="detail-value">${platform}</span>
+                </div>
+            ` : ''}
         </div>
         
         ${type === 'gupy' ? `
@@ -459,6 +476,9 @@ function getScoreText(score) {
 
 function extractCompanyFromUrl(url) {
     try {
+        // Se não há URL válida, não retornar empresa
+        if (!url || url === '#') return '';
+
         const domain = new URL(url).hostname;
         if (domain.includes('gupy.io')) return 'Gupy';
         if (domain.includes('linkedin.com')) return 'LinkedIn';
@@ -535,20 +555,25 @@ function calculateKeywordDensity(atsResult, job) {
 }
 
 function calculateOverallScore(atsResult) {
-    let score = 60; // Base score para análise geral
+    // Usar dados consistentes para o cálculo
+    const presentKeywords = atsResult.job_keywords_present || atsResult.found_keywords || [];
+    const missingKeywords = atsResult.job_keywords_missing || atsResult.missing_keywords || [];
+    const totalKeywords = atsResult.job_keywords?.length || (presentKeywords.length + missingKeywords.length) || 10;
 
-    // Baseado na quantidade de palavras-chave encontradas
-    const present = atsResult.job_keywords_present?.length || atsResult.found_keywords?.length || 0;
-    const missing = atsResult.job_keywords_missing?.length || atsResult.missing_keywords?.length || 0;
-    const total = present + missing || 10;
+    // Score baseado apenas no match de palavras-chave (mais simples e consistente)
+    const matchRatio = totalKeywords > 0 ? presentKeywords.length / totalKeywords : 0.0;
+    let score = matchRatio * 100;
 
-    const matchRatio = total > 0 ? present / total : 0.6;
-    score = matchRatio * 100;
+    // Pequenos ajustes baseados na qualidade das seções (máximo 10 pontos extras)
+    if (atsResult.resumo?.nota) {
+        const resumoScore = parseFloat(atsResult.resumo.nota) || 7;
+        score += Math.max(0, (resumoScore - 7) * 2); // Máximo +6 pontos
+    }
 
-    // Ajuste baseado na qualidade geral das seções
-    if (atsResult.resumo?.nota) score += (parseFloat(atsResult.resumo.nota) - 7) * 2;
-    if (atsResult.experiencia_profissional?.nota) score += (parseFloat(atsResult.experiencia_profissional.nota) - 7) * 3;
-    if (atsResult.formacao?.nota) score += (parseFloat(atsResult.formacao.nota) - 7) * 1;
+    if (atsResult.experiencia_profissional?.nota) {
+        const expScore = parseFloat(atsResult.experiencia_profissional.nota) || 7;
+        score += Math.max(0, (expScore - 7) * 2); // Máximo +6 pontos
+    }
 
     return Math.min(100, Math.max(0, Math.round(score)));
 }
@@ -584,113 +609,7 @@ function formatarNota(nota) {
     `;
 }
 
-// Função para exibir dicas de otimização ATS específicas
-function displayATSOptimizationTips(atsResult) {
-    const container = document.getElementById('ats-optimization-tips');
-    const section = document.getElementById('ats-optimization-section');
 
-    if (!container || !section) return;
-
-    // Verificar se há dicas de otimização
-    if (!atsResult.ats_optimization_tips || !Array.isArray(atsResult.ats_optimization_tips)) {
-        section.style.display = 'none';
-        return;
-    }
-
-    // Mostrar a seção
-    section.style.display = 'block';
-    container.innerHTML = '';
-
-    // Título da seção
-    const title = document.createElement('h3');
-    title.style.cssText = `
-        color: #583819;
-        font-size: 20px;
-        font-weight: 700;
-        margin-bottom: 20px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    `;
-    title.innerHTML = '🚀 Estratégia ATS Inteligente - Fórmula Otimizada';
-    container.appendChild(title);
-
-    // Criar cards para cada dica
-    atsResult.ats_optimization_tips.forEach((tip, index) => {
-        const tipCard = document.createElement('div');
-        tipCard.style.cssText = `
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            border: 2px solid #583819;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        `;
-
-        // Adicionar efeito hover
-        tipCard.addEventListener('mouseenter', () => {
-            tipCard.style.transform = 'translateY(-2px)';
-            tipCard.style.boxShadow = '0 8px 12px rgba(0, 0, 0, 0.15)';
-        });
-
-        tipCard.addEventListener('mouseleave', () => {
-            tipCard.style.transform = 'translateY(0)';
-            tipCard.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
-        });
-
-        // Processar diferentes tipos de dicas
-        let content = '';
-
-        if (tip.includes('💡')) {
-            // Estratégia principal
-            content = `<div style="font-size: 16px; line-height: 1.6; color: #1e293b; font-weight: 600;">${tip}</div>`;
-        } else if (tip.includes('🔧')) {
-            // Tecnologias presentes
-            content = `<div style="font-size: 15px; line-height: 1.6; color: #1e293b;">${tip}</div>`;
-        } else if (tip.includes('⚠️')) {
-            // Palavras-chave ausentes
-            content = `<div style="font-size: 15px; line-height: 1.6; color: #dc2626; background: #fef2f2; padding: 16px; border-radius: 8px; border-left: 4px solid #dc2626;">${tip}</div>`;
-        } else if (tip.includes('📝')) {
-            // Exemplos práticos
-            const parts = tip.split('\\n');
-            content = `
-                <div style="font-size: 15px; line-height: 1.6; color: #1e293b;">
-                    <div style="font-weight: 600; margin-bottom: 12px;">${parts[0]}</div>
-                    <div style="background: #f1f5f9; padding: 16px; border-radius: 8px; border-left: 4px solid #3b82f6;">
-                        ${parts.slice(1).join('<br><br>').replace(/❌/g, '<span style="color: #dc2626;">❌</span>').replace(/✅/g, '<span style="color: #16a34a;">✅</span>')}
-                    </div>
-                </div>
-            `;
-        } else if (tip.includes('📋')) {
-            // Estrutura recomendada
-            content = `<div style="font-size: 15px; line-height: 1.6; color: #1e293b; background: #f0fdf4; padding: 16px; border-radius: 8px; border-left: 4px solid #16a34a;">${tip}</div>`;
-        } else if (tip.includes('🎯')) {
-            // Densidade inteligente
-            content = `<div style="font-size: 15px; line-height: 1.6; color: #1e293b; background: #fef3c7; padding: 16px; border-radius: 8px; border-left: 4px solid #f59e0b;">${tip}</div>`;
-        } else {
-            // Dica padrão
-            content = `<div style="font-size: 15px; line-height: 1.6; color: #1e293b;">${tip}</div>`;
-        }
-
-        tipCard.innerHTML = content;
-        container.appendChild(tipCard);
-    });
-
-    // Adicionar footer com estatística
-    const footer = document.createElement('div');
-    footer.style.cssText = `
-        background: #583819;
-        color: white;
-        padding: 16px;
-        border-radius: 8px;
-        text-align: center;
-        font-weight: 600;
-        margin-top: 20px;
-    `;
-    footer.innerHTML = '📊 Lembre-se: 92% dos candidatos são rejeitados automaticamente. Essas dicas podem ser o diferencial que você precisa!';
-    container.appendChild(footer);
-}
 
 // Função para exibir estatísticas de relevância
 function displayRelevanceStatistics(atsResult) {

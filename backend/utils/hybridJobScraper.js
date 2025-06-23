@@ -1,26 +1,19 @@
-const firecrawlService = require('../services/firecrawlService');
 const relevantJobScraper = require('./relevantJobScraper');
 const scrapingConfig = require('../config/scraping');
 
 /**
- * Scraper Híbrido - FIRECRAWL FIRST Strategy
+ * Scraper Híbrido Simplificado - Apenas Legacy
  * 
- * Nova Estratégia Simplificada:
- * 1. SEMPRE tentar Firecrawl primeiro
- * 2. Validar se extraiu informações essenciais:
- *    - Título da vaga
- *    - Responsabilidades e atribuições
- *    - Requisitos e qualificações
- * 3. Usar Legacy apenas se Firecrawl falhar na validação
+ * Estratégia Simples:
+ * 1. Usar apenas o scraper legacy
+ * 2. Validar se extraiu informações essenciais
  */
 
 class HybridJobScraper {
     constructor() {
         this.stats = {
             totalRequests: 0,
-            firecrawlSuccess: 0,
-            firecrawlFailures: 0,
-            legacyFallback: 0,
+            legacySuccess: 0,
             legacyFailures: 0,
             avgResponseTime: 0,
             essentialInfoSuccess: 0,
@@ -30,86 +23,42 @@ class HybridJobScraper {
     }
 
     /**
-     * Scraping principal - FIRECRAWL FIRST
+     * Scraping principal - Apenas Legacy
      */
     async scrapeJobUrl(url, options = {}) {
         const startTime = Date.now();
         this.stats.totalRequests++;
 
         try {
-            console.log(`[HybridScraper] 🚀 Iniciando FIRECRAWL FIRST: ${url}`);
+            console.log(`[HybridScraper] 🚀 Iniciando scraping legacy: ${url}`);
 
             let result;
-            let method = 'firecrawl';
+            let method = 'legacy';
             let success = false;
 
-            // PASSO 1: SEMPRE tentar Firecrawl primeiro
             try {
-                console.log(`[HybridScraper] 🔥 Tentando Firecrawl...`);
-                result = await this.scrapeWithFirecrawl(url, options);
+                console.log(`[HybridScraper] 🔍 Tentando scraper legacy...`);
+                result = await this.scrapeWithLegacy(url, options);
 
-                // PASSO 2: Validar informações essenciais
-                if (result && result.hasEssentialInfo) {
-                    console.log(`[HybridScraper] ✅ Firecrawl SUCESSO com informações essenciais!`);
-                    this.stats.firecrawlSuccess++;
+                // Validar informações essenciais
+                result.hasEssentialInfo = this.validateLegacyResult(result);
+
+                console.log(`[HybridScraper] ✅ Legacy concluído (Info essencial: ${result.hasEssentialInfo})`);
+                this.stats.legacySuccess++;
+                if (result.hasEssentialInfo) {
                     this.stats.essentialInfoSuccess++;
-                    success = true;
                 } else {
-                    console.warn(`[HybridScraper] ⚠️  Firecrawl não extraiu informações essenciais`);
                     this.stats.essentialInfoFailures++;
-                    throw new Error('Informações essenciais incompletas');
                 }
+                success = true;
 
-            } catch (firecrawlError) {
-                console.warn(`[HybridScraper] ❌ Firecrawl falhou: ${firecrawlError.message}`);
-                this.stats.firecrawlFailures++;
-
-                // PASSO 3: Fallback para Legacy (se configurado)
-                if (scrapingConfig.strategy?.fallbackToLegacy && !options.noFallback) {
-                    console.log(`[HybridScraper] 🔄 Tentando fallback para Legacy...`);
-
-                    try {
-                        result = await this.scrapeWithLegacy(url, { ...options, isFallback: true });
-
-                        // Adicionar flag de informações essenciais baseado em heurística
-                        result.hasEssentialInfo = this.validateLegacyResult(result);
-
-                        if (result.hasEssentialInfo) {
-                            console.log(`[HybridScraper] ✅ Legacy fallback SUCESSO!`);
-                            this.stats.legacyFallback++;
-                            this.stats.essentialInfoSuccess++;
-                            method = 'legacy';
-                            success = true;
-                        } else {
-                            console.warn(`[HybridScraper] ⚠️  Legacy também com informações incompletas`);
-                            this.stats.legacyFailures++;
-                            throw new Error('Legacy também falhou na validação');
-                        }
-
-                    } catch (legacyError) {
-                        console.error(`[HybridScraper] ❌ Legacy fallback falhou: ${legacyError.message}`);
-                        this.stats.legacyFailures++;
-
-                        // Retornar resultado do Firecrawl mesmo incompleto
-                        if (result) {
-                            console.log(`[HybridScraper] 📋 Retornando resultado parcial do Firecrawl`);
-                            method = 'firecrawl_partial';
-                        } else {
-                            throw new Error(`Ambas estratégias falharam. Firecrawl: ${firecrawlError.message}, Legacy: ${legacyError.message}`);
-                        }
-                    }
-                } else {
-                    // Retornar resultado do Firecrawl mesmo incompleto
-                    if (result) {
-                        console.log(`[HybridScraper] 📋 Retornando resultado parcial do Firecrawl (fallback desabilitado)`);
-                        method = 'firecrawl_partial';
-                    } else {
-                        throw firecrawlError;
-                    }
-                }
+            } catch (legacyError) {
+                console.error(`[HybridScraper] ❌ Legacy falhou: ${legacyError.message}`);
+                this.stats.legacyFailures++;
+                throw legacyError;
             }
 
-            // PASSO 4: Processar e retornar resultado final
+            // Processar e retornar resultado final
             const duration = Date.now() - startTime;
             this.updateStats(duration);
 
@@ -118,7 +67,7 @@ class HybridJobScraper {
                 scrapingMethod: method,
                 processingTime: `${duration}ms`,
                 timestamp: new Date().toISOString(),
-                strategy: 'firecrawl_first',
+                strategy: 'legacy_only',
                 success: success
             };
 
@@ -137,11 +86,11 @@ class HybridJobScraper {
     }
 
     /**
-     * Processar múltiplas URLs com estratégia FIRECRAWL FIRST
+     * Processar múltiplas URLs
      */
     async extractMultiple(urls, options = {}) {
         try {
-            console.log(`[HybridScraper] 🚀 FIRECRAWL FIRST em lote: ${urls.length} URLs`);
+            console.log(`[HybridScraper] 🚀 Processamento em lote: ${urls.length} URLs`);
 
             const results = [];
             const concurrency = options.concurrency || 3;
@@ -192,88 +141,90 @@ class HybridJobScraper {
     }
 
     /**
-     * Scraping com Firecrawl
-     */
-    async scrapeWithFirecrawl(url, options = {}) {
-        return await firecrawlService.scrapeUrl(url, {
-            formats: ['markdown'], // Apenas markdown para evitar erro de schema
-            onlyMainContent: true,
-            ...options
-        });
-    }
-
-    /**
-     * Scraping com Legacy
+     * Scraping com sistema legacy
      */
     async scrapeWithLegacy(url, options = {}) {
         try {
-            const text = await relevantJobScraper.extractRelevantSections(url);
+            const extractedText = await relevantJobScraper.extractRelevantSections(url);
 
+            if (typeof extractedText !== 'string') {
+                throw new Error('Resultado inválido do scraper legacy');
+            }
+
+            // Normalizar resultado
             return {
-                title: this.extractTitleFromText(text),
-                description: text,
-                responsibilities: [],
+                content: extractedText,
+                title: this.extractTitleFromText(extractedText),
+                description: extractedText,
                 requirements: [],
-                fullText: text,
-                platform: 'legacy',
-                scrapedAt: new Date().toISOString(),
-                hasEssentialInfo: false // será validado depois
+                responsibilities: [],
+                metadata: {},
+                extractedAt: new Date().toISOString(),
+                source: 'legacy',
+                url: url
             };
+
         } catch (error) {
-            console.error(`[HybridScraper] Erro no scraper legacy: ${error.message}`);
+            console.error(`[HybridScraper] Erro no scraper legacy:`, error);
             throw error;
         }
     }
 
     /**
-     * Validar resultado do Legacy
+     * Validar se o resultado legacy tem informações essenciais
      */
     validateLegacyResult(result) {
-        if (!result || !result.fullText) return false;
-
-        const text = result.fullText.toLowerCase();
-        const minTextLength = 200; // mínimo de texto
-
-        // Verificar se tem texto suficiente
-        if (result.fullText.length < minTextLength) {
-            console.log(`[HybridScraper] Legacy: texto muito pequeno (${result.fullText.length} chars)`);
+        if (!result || typeof result !== 'object') {
             return false;
         }
 
-        // Heurística simples para verificar se parece uma vaga
+        const content = result.content || '';
+        const title = result.title;
+
+        // Verificar título
+        const hasTitle = title && title.trim().length > 3 &&
+            !title.toLowerCase().includes('não identificado');
+
+        // Verificar conteúdo mínimo
+        const hasContent = content && content.length > 100;
+
+        // Verificar palavras-chave indicativas de vaga
         const jobKeywords = [
-            'responsabilidades', 'requisitos', 'experiência', 'vaga',
-            'responsibilities', 'requirements', 'experience', 'job',
-            'qualificações', 'atividades', 'função', 'cargo'
+            'responsabilidades', 'requisitos', 'qualificações', 'experiência',
+            'conhecimento', 'habilidades', 'competências', 'atribuições',
+            'salário', 'benefícios', 'vaga', 'cargo', 'função', 'posição'
         ];
 
-        const hasJobKeywords = jobKeywords.some(keyword => text.includes(keyword));
+        const contentLower = content.toLowerCase();
+        const hasJobKeywords = jobKeywords.some(keyword =>
+            contentLower.includes(keyword)
+        );
 
-        console.log(`[HybridScraper] Legacy validation: ${hasJobKeywords ? '✅' : '❌'} (${result.fullText.length} chars)`);
+        const isValid = hasTitle && hasContent && hasJobKeywords;
 
-        return hasJobKeywords;
+        console.log(`[HybridScraper] Validação: título=${hasTitle}, conteúdo=${hasContent}, keywords=${hasJobKeywords} -> ${isValid}`);
+
+        return isValid;
     }
 
     /**
-     * Extrair título do texto (heurística simples)
+     * Extrair título do texto quando não identificado
      */
     extractTitleFromText(text) {
-        if (!text) return '';
+        if (!text) return 'Título não identificado';
 
-        const lines = text.split('\n').filter(line => line.trim());
+        const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
 
-        // Procurar primeira linha que parece um título
-        for (const line of lines.slice(0, 10)) { // apenas primeiras 10 linhas
-            const trimmed = line.trim();
-            if (trimmed.length > 10 && trimmed.length < 200) {
-                // Se não tem pontuação no final, provavelmente é título
-                if (!trimmed.endsWith('.') && !trimmed.endsWith('!') && !trimmed.endsWith('?')) {
-                    return trimmed;
+        for (const line of lines.slice(0, 10)) { // Verificar apenas as primeiras 10 linhas
+            if (line.length > 10 && line.length < 100) {
+                // Procurar por padrões de título
+                if (line.match(/\b(desenvolvedor|programador|analista|gerente|coordenador|especialista|consultor|assistente)\b/i)) {
+                    return line;
                 }
             }
         }
 
-        return lines[0]?.trim().substring(0, 100) || '';
+        return lines[0] || 'Título não identificado';
     }
 
     /**
@@ -283,78 +234,70 @@ class HybridJobScraper {
         const successful = results.filter(r => r.success);
         const failed = results.filter(r => !r.success);
 
-        const essentialInfoCount = successful.filter(r => r.hasEssentialInfo).length;
-
         return {
+            total: results.length,
+            successful: successful.length,
+            failed: failed.length,
+            successRate: results.length > 0 ? ((successful.length / results.length) * 100).toFixed(1) : 0,
             results: successful,
             errors: failed,
-            summary: {
-                total: results.length,
-                successful: successful.length,
-                failed: failed.length,
-                successRate: `${((successful.length / results.length) * 100).toFixed(1)}%`,
-                essentialInfo: essentialInfoCount,
-                essentialInfoRate: `${((essentialInfoCount / successful.length) * 100).toFixed(1)}%`
-            }
+            stats: this.getStats(),
+            processedAt: new Date().toISOString()
         };
     }
 
     /**
-     * Atualizar estatísticas
+     * Atualizar estatísticas de performance
      */
     updateStats(duration) {
-        // Calcular média de tempo de resposta
-        const currentAvg = this.stats.avgResponseTime;
-        const totalRequests = this.stats.totalRequests;
-
-        this.stats.avgResponseTime = ((currentAvg * (totalRequests - 1)) + duration) / totalRequests;
+        this.stats.avgResponseTime =
+            (this.stats.avgResponseTime * (this.stats.totalRequests - 1) + duration) / this.stats.totalRequests;
     }
 
     /**
-     * Obter estatísticas detalhadas
+     * Obter estatísticas de uso
      */
     getStats() {
-        const totalAttempts = this.stats.firecrawlSuccess + this.stats.firecrawlFailures;
-        const firecrawlSuccessRate = totalAttempts > 0 ?
-            ((this.stats.firecrawlSuccess / totalAttempts) * 100).toFixed(1) : 0;
-
-        const essentialTotal = this.stats.essentialInfoSuccess + this.stats.essentialInfoFailures;
-        const essentialSuccessRate = essentialTotal > 0 ?
-            ((this.stats.essentialInfoSuccess / essentialTotal) * 100).toFixed(1) : 0;
+        const totalAttempts = this.stats.legacySuccess + this.stats.legacyFailures;
+        const legacySuccessRate = totalAttempts > 0 ?
+            ((this.stats.legacySuccess / totalAttempts) * 100).toFixed(1) : 0;
 
         return {
-            ...this.stats,
-            avgResponseTime: Math.round(this.stats.avgResponseTime),
-            firecrawlSuccessRate: `${firecrawlSuccessRate}%`,
-            essentialInfoRate: `${essentialSuccessRate}%`,
-            uptime: Date.now() - this.stats.lastReset.getTime()
+            totalRequests: this.stats.totalRequests,
+            legacySuccess: this.stats.legacySuccess,
+            legacyFailures: this.stats.legacyFailures,
+            legacySuccessRate: `${legacySuccessRate}%`,
+            essentialInfoSuccess: this.stats.essentialInfoSuccess,
+            essentialInfoFailures: this.stats.essentialInfoFailures,
+            avgResponseTime: `${Math.round(this.stats.avgResponseTime)}ms`,
+            uptime: `${Math.round((Date.now() - this.stats.lastReset) / 1000)}s`,
+            lastReset: this.stats.lastReset.toISOString()
         };
     }
 
     /**
-     * Health check do scraper híbrido
+     * Health check do serviço
      */
     async healthCheck() {
         try {
-            const firecrawlHealth = await firecrawlService.healthCheck();
+            const stats = this.getStats();
 
             return {
-                status: firecrawlHealth.status === 'healthy' ? 'ready' : 'limited',
-                firecrawl: firecrawlHealth,
-                strategy: 'firecrawl_first',
-                stats: this.getStats(),
-                capabilities: {
-                    firecrawl: firecrawlHealth.status === 'healthy',
-                    legacy: true, // sempre disponível
-                    batchProcessing: true,
-                    essentialValidation: true
-                }
+                status: 'ready',
+                strategy: 'legacy_only',
+                components: {
+                    legacy: true
+                },
+                stats: stats,
+                timestamp: new Date().toISOString()
             };
+
         } catch (error) {
+            console.error('[HybridScraper] Erro no health check:', error);
             return {
                 status: 'error',
                 error: error.message,
-                strategy: 'firecrawl_first'
+                timestamp: new Date().toISOString()
             };
         }
     }
@@ -365,9 +308,7 @@ class HybridJobScraper {
     resetStats() {
         this.stats = {
             totalRequests: 0,
-            firecrawlSuccess: 0,
-            firecrawlFailures: 0,
-            legacyFallback: 0,
+            legacySuccess: 0,
             legacyFailures: 0,
             avgResponseTime: 0,
             essentialInfoSuccess: 0,
