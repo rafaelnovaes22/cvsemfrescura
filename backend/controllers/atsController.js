@@ -3,6 +3,7 @@ const GupyOptimizationService = require('../services/gupyOptimizationService');
 const fs = require('fs');
 const User = require('../models/user'); // Importando o modelo de usuário para gerenciar créditos
 const AnalysisResults = require('../models/AnalysisResults'); // Importando o modelo para salvar análises
+const { generateATSOptimizedRecommendations } = require('../services/atsOptimizationService');
 
 exports.analyze = async (req, res) => {
   try {
@@ -145,20 +146,25 @@ exports.analyze = async (req, res) => {
     }
 
     // Cruzamento real: só palavras da vaga encontradas no currículo
-    const { filterPresentKeywords, deduplicateKeywords, countKeywordOccurrences } = require('../services/atsKeywordVerifier');
-    if (result.job_keywords && Array.isArray(result.job_keywords)) {
+    const { filterPresentKeywords, deduplicateKeywords, countKeywordOccurrences, deduplicateKeywordCounts } = require('../services/atsKeywordVerifier');
+    if (result.job_keywords && Array.isArray(result.job_keywords) && result.jobsText) {
       // Extrai as palavras-chave da vaga e remove duplicidades
       let jobKeywords = result.job_keywords;
       jobKeywords = deduplicateKeywords(jobKeywords);
 
-      // Contar ocorrências das palavras-chave nas vagas
-      const keywordCounts = countKeywordOccurrences(jobKeywords, jobsText);
+      // Contar ocorrências das palavras-chave nas vagas usando o jobsText do result
+      // Conta quantas vezes cada palavra-chave aparece
+      const rawKeywordCounts = countKeywordOccurrences(jobKeywords, result.jobsText);
+
+      // Consolida palavras-chave hierárquicas (ex: "escopo" + "definir escopo")
+      const keywordCounts = deduplicateKeywordCounts(rawKeywordCounts);
+
       result.job_keywords_with_count = keywordCounts;
 
       // Atualizar job_keywords com ordem de relevância (apenas as palavras-chave, sem contagem)
       result.job_keywords = keywordCounts.map(item => item.keyword);
 
-      const presentes = filterPresentKeywords(jobKeywords, resumeText);
+      const presentes = filterPresentKeywords(jobKeywords, result.resumeText);
       const ausentes = jobKeywords.filter(k => !presentes.includes(k));
 
       // Adicionar contagem para palavras presentes
@@ -183,6 +189,29 @@ exports.analyze = async (req, res) => {
         missing_in_resume: ausentes.length,
         match_percentage: keywordCounts.length > 0 ? Math.round((presentes.length / keywordCounts.length) * 100) : 0
       };
+
+      // Limpar dados internos antes de enviar ao frontend
+      delete result.jobsText;
+      delete result.resumeText;
+    }
+
+    // Gerar recomendações otimizadas para ATS com a fórmula específica
+    if (result.job_keywords && result.missing_keywords) {
+      const atsOptimizedRecommendations = generateATSOptimizedRecommendations(
+        result.job_keywords,
+        result.resumeText || '',
+        result.missing_keywords
+      );
+
+      // Adicionar às recomendações existentes
+      if (result.recommendations && Array.isArray(result.recommendations)) {
+        result.recommendations.push(...atsOptimizedRecommendations);
+      } else {
+        result.recommendations = atsOptimizedRecommendations;
+      }
+
+      // Criar uma seção específica para recomendações ATS
+      result.ats_optimization_tips = atsOptimizedRecommendations;
     }
 
     // Decrementar créditos do usuário após análise bem-sucedida

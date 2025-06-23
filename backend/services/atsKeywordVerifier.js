@@ -176,6 +176,7 @@ function keywordInResume(keyword, resumeText) {
 
 /**
  * Conta quantas vezes cada palavra-chave aparece no texto das vagas
+ * INCLUINDO todas as variações preposicionais para calcular relevância real
  * @param {string[]} keywords - Array de palavras-chave
  * @param {string} jobsText - Texto de todas as vagas concatenadas
  * @returns {Object[]} Array de objetos com keyword e count, ordenado por relevância (count descendente)
@@ -185,15 +186,36 @@ function countKeywordOccurrences(keywords, jobsText) {
   const keywordCounts = [];
 
   keywords.forEach(keyword => {
-    const forms = singularPluralForms(normalize(keyword));
     let totalCount = 0;
 
+    // 1. Contar variações de singular/plural
+    const forms = singularPluralForms(normalize(keyword));
     forms.forEach(form => {
       const regex = new RegExp(`\\b${form}\\b`, 'gi');
       const matches = normJobsText.match(regex);
       if (matches) {
         totalCount += matches.length;
       }
+    });
+
+    // 2. Contar variações preposicionais (se existirem)
+    const prepositionVariations = generatePrepositionVariations(keyword);
+
+    // Para cada variação preposicional
+    prepositionVariations.forEach(variation => {
+      // Pular a versão já contada acima
+      const normalizedKeyword = normalize(keyword);
+      if (variation === normalizedKeyword) return;
+
+      // Contar esta variação preposicional (singular/plural também)
+      const variationForms = singularPluralForms(variation);
+      variationForms.forEach(form => {
+        const regex = new RegExp(`\\b${form}\\b`, 'gi');
+        const matches = normJobsText.match(regex);
+        if (matches) {
+          totalCount += matches.length;
+        }
+      });
     });
 
     keywordCounts.push({
@@ -221,14 +243,213 @@ function filterPresentKeywords(jobKeywordsPresent, resumeText) {
   return jobKeywordsPresent.filter(keyword => keywordInResume(keyword, resumeText));
 }
 
+/**
+ * Normaliza palavras-chave para deduplicação, tratando variações preposicionais
+ */
+function normalizeForDeduplication(keyword) {
+  let normalized = normalize(keyword);
+
+  // Tratar variações preposicionais comuns
+  // "gestão do backlog" -> "gestão de backlog"
+  // "análise da performance" -> "análise de performance"
+  // "desenvolvimento dos sistemas" -> "desenvolvimento de sistemas"
+
+  const prepositionMap = {
+    ' do ': ' de ',     // gestão do -> gestão de
+    ' da ': ' de ',     // análise da -> análise de  
+    ' dos ': ' de ',    // gestão dos -> gestão de
+    ' das ': ' de ',    // análise das -> análise de
+    ' no ': ' em ',     // trabalho no -> trabalho em
+    ' na ': ' em ',     // experiência na -> experiência em
+    ' nos ': ' em ',    // experiência nos -> experiência em
+    ' nas ': ' em ',    // trabalho nas -> trabalho em
+    ' ao ': ' a ',      // relacionado ao -> relacionado a
+    ' aos ': ' a ',     // relacionado aos -> relacionado a
+    ' às ': ' a ',      // relacionado às -> relacionado a
+    ' à ': ' a '        // relacionado à -> relacionado a
+  };
+
+  // Aplicar mapeamento de preposições
+  for (const [from, to] of Object.entries(prepositionMap)) {
+    normalized = normalized.replace(new RegExp(from, 'g'), to);
+  }
+
+  // Remover espaços extras que podem ter sido criados
+  normalized = normalized.replace(/\s+/g, ' ').trim();
+
+  return normalized;
+}
+
 function deduplicateKeywords(keywords) {
-  // Remove duplicidades, ignorando caixa e acentos
+  // Remove duplicidades, ignorando caixa, acentos E variações preposicionais
   const seen = new Set();
-  return keywords.filter(kw => {
-    const norm = normalize(kw);
-    if (seen.has(norm)) return false;
-    seen.add(norm);
-    return true;
+  const result = [];
+
+  keywords.forEach(kw => {
+    const norm = normalizeForDeduplication(kw);
+    if (!seen.has(norm)) {
+      seen.add(norm);
+      result.push(kw); // Manter a palavra-chave original, não a normalizada
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Remove duplicatas de palavras-chave similares com consolidação hierárquica
+ * @param {Object[]} keywordCounts - Array com {keyword, count}
+ * @returns {Object[]} Array dedupe e consolidado
+ */
+function deduplicateKeywordCounts(keywordCounts) {
+  // Primeiro, consolidar palavras-chave hierárquicas
+  const hierarchicallyConsolidated = consolidateHierarchicalKeywords(keywordCounts);
+
+  // Depois, remover duplicatas por normalização de preposições
+  const groups = new Map();
+
+  hierarchicallyConsolidated.forEach(item => {
+    const normalizedKey = normalizeForDeduplication(item.keyword);
+
+    if (groups.has(normalizedKey)) {
+      // Se já existe, manter o que tem maior count ou alfabeticamente primeiro
+      const existing = groups.get(normalizedKey);
+      if (item.count > existing.count ||
+        (item.count === existing.count && item.keyword < existing.keyword)) {
+        groups.set(normalizedKey, item);
+      }
+    } else {
+      groups.set(normalizedKey, item);
+    }
+  });
+
+  return Array.from(groups.values()).sort((a, b) => {
+    if (b.count !== a.count) {
+      return b.count - a.count;
+    }
+    return a.keyword.localeCompare(b.keyword, 'pt-BR');
+  });
+}
+
+/**
+ * Gera todas as variações preposicionais possíveis de uma palavra-chave
+ * para contagem mais precisa de relevância
+ */
+function generatePrepositionVariations(keyword) {
+  const normalized = normalize(keyword);
+  const variations = new Set([normalized]); // Começar com a versão normalizada
+
+  // Mapas de variações bidirecionais
+  const prepositionVariations = [
+    [' de ', ' do ', ' da ', ' dos ', ' das '],
+    [' em ', ' no ', ' na ', ' nos ', ' nas '],
+    [' a ', ' ao ', ' aos ', ' às ', ' à '],
+    [' com ', ' com o ', ' com a ', ' com os ', ' com as ']
+  ];
+
+  // Para cada grupo de preposições
+  prepositionVariations.forEach(group => {
+    // Se a palavra-chave contém alguma preposição do grupo
+    group.forEach(prep => {
+      if (normalized.includes(prep)) {
+        // Gerar variações com todas as outras preposições do grupo
+        group.forEach(altPrep => {
+          if (prep !== altPrep) {
+            const variation = normalized.replace(new RegExp(prep, 'g'), altPrep);
+            variations.add(variation);
+          }
+        });
+      }
+    });
+  });
+
+  return Array.from(variations);
+}
+
+/**
+ * Consolida palavras-chave hierárquicas APENAS quando há certeza semântica
+ * Ex: "escopo" + "definir escopo" → "escopo" (verbo + substantivo = mesmo conceito)
+ * NÃO consolida: "gestão" + "gestão de projetos" (conceitos diferentes!)
+ * @param {Object[]} keywordCounts - Array com {keyword, count}
+ * @returns {Object[]} Array consolidado
+ */
+function consolidateHierarchicalKeywords(keywordCounts) {
+  // Ordenar por comprimento (palavras mais curtas primeiro)
+  const sorted = [...keywordCounts].sort((a, b) => a.keyword.length - b.keyword.length);
+  const consolidated = [];
+  const processed = new Set();
+
+  // Padrões seguros para consolidação (verbo + substantivo)
+  const safeConsolidationPatterns = [
+    // Verbos de ação + substantivo = mesmo conceito
+    /^(definir|elaborar|criar|desenvolver|implementar|executar|realizar|fazer|construir|estabelecer|determinar|especificar)\s+(.+)$/i,
+    // Adjetivos modificadores simples + substantivo = mesmo conceito  
+    /^(novo|nova|novos|novas|atual|atuais|principal|principais|básico|básica|básicos|básicas)\s+(.+)$/i,
+    // Artigos + substantivo = mesmo conceito
+    /^(o|a|os|as|um|uma|uns|umas)\s+(.+)$/i
+  ];
+
+  sorted.forEach(parentItem => {
+    if (processed.has(parentItem.keyword)) return;
+
+    let totalCount = parentItem.count;
+    const children = [];
+
+    // Procurar palavras-chave que contêm a palavra atual
+    sorted.forEach(childItem => {
+      if (childItem.keyword === parentItem.keyword || processed.has(childItem.keyword)) return;
+
+      const parentNorm = normalize(parentItem.keyword);
+      const childNorm = normalize(childItem.keyword);
+
+      // Verificar se é uma consolidação segura
+      let shouldConsolidate = false;
+
+      // 1. Verificar padrões seguros (verbo + substantivo, etc.)
+      for (const pattern of safeConsolidationPatterns) {
+        const match = childNorm.match(pattern);
+        if (match) {
+          const extractedConcept = normalize(match[2]); // O substantivo/conceito principal
+
+          // Se o conceito extraído é igual ao pai, é seguro consolidar
+          if (extractedConcept === parentNorm) {
+            shouldConsolidate = true;
+            break;
+          }
+        }
+      }
+
+      // 2. Casos especiais: plural/singular exato
+      if (!shouldConsolidate) {
+        const parentForms = singularPluralForms(parentNorm);
+        if (parentForms.includes(childNorm) || parentForms.some(pf => childNorm === pf)) {
+          shouldConsolidate = true;
+        }
+      }
+
+      if (shouldConsolidate) {
+        totalCount += childItem.count;
+        children.push(childItem.keyword);
+        processed.add(childItem.keyword);
+      }
+    });
+
+    // Adicionar o item consolidado
+    consolidated.push({
+      keyword: parentItem.keyword,
+      count: totalCount,
+      ...(children.length > 0 && { consolidatedFrom: children })
+    });
+
+    processed.add(parentItem.keyword);
+  });
+
+  // Re-ordenar por relevância (count descendente)
+  return consolidated.sort((a, b) => {
+    if (b.count !== a.count) {
+      return b.count - a.count;
+    }
+    return a.keyword.localeCompare(b.keyword, 'pt-BR');
   });
 }
 
@@ -236,5 +457,8 @@ module.exports = {
   filterPresentKeywords,
   keywordInResume,
   deduplicateKeywords,
+  deduplicateKeywordCounts,
   countKeywordOccurrences,
+  generatePrepositionVariations,
+  consolidateHierarchicalKeywords,
 };

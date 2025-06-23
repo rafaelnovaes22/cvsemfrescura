@@ -2,7 +2,7 @@ const axios = require('axios');
 
 const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY;
 const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
-const CLAUDE_MODEL = 'claude-3-5-sonnet-20241022'; // 160k tokens, disponível e de alta qualidade
+const CLAUDE_MODEL = 'claude-3-7-sonnet-latest'; // 160k tokens, disponível e de alta qualidade
 
 /**
  * Envia prompt para o Claude 3 Sonnet e retorna a resposta do modelo.
@@ -19,7 +19,7 @@ exports.extractATSDataClaude = async function (prompt) {
 
   const body = {
     model: CLAUDE_MODEL,
-    max_tokens: 4096, // Alinhado com OpenAI para consistência
+    max_tokens: 8000, // Corrigido para formato numérico correto
     temperature: 0.1, // Mesma temperatura do OpenAI para consistência
     system: 'Você é um ATS especialista.', // Mesmo system message do OpenAI
     messages: [
@@ -30,7 +30,7 @@ exports.extractATSDataClaude = async function (prompt) {
   console.log('[Claude] Configuração:', {
     model: CLAUDE_MODEL,
     temperature: 0.1,
-    max_tokens: 4096,
+    max_tokens: 8000,
     system: 'Você é um ATS especialista.'
   });
 

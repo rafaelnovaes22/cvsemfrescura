@@ -166,6 +166,7 @@ app.use('/api/password-reset', require('./routes/passwordReset'));
 app.use('/api/contact', require('./routes/contact')); // Recuperação de senha
 app.use('/api/admin', require('./routes/admin')); // Rotas administrativas
 app.use('/api/config', require('./routes/config')); // ✅ Configurações dinâmicas
+app.use('/api/debug', require('./routes/debug')); // ✅ Debug e monitoramento
 app.use('/health', require('./routes/health')); // Health check endpoint
 
 // ✅ API health check para Railway
