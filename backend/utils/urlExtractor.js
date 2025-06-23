@@ -3,25 +3,24 @@ const hybridScraper = require('./hybridJobScraper');
 const scrapingConfig = require('../config/scraping');
 
 /**
- * Extração de múltiplas URLs com estratégia FIRECRAWL FIRST
+ * Extração de múltiplas URLs com scraper legacy
  * 
- * SEMPRE tenta Firecrawl primeiro para todas as URLs
- * Fallback para legacy apenas se Firecrawl falhar na validação de conteúdo essencial
+ * Usa apenas o scraper legacy para extrair conteúdo das URLs
  */
 exports.extractMultiple = async (links, options = {}) => {
   try {
-    console.log(`[URLExtractor] 🚀 FIRECRAWL FIRST: ${links.length} URLs`);
+    console.log(`[URLExtractor] 🚀 Iniciando extração: ${links.length} URLs`);
 
-    // Usar SEMPRE o scraper híbrido (que implementa FIRECRAWL FIRST)
+    // Usar o scraper híbrido (agora simplificado para apenas legacy)
     const result = await hybridScraper.extractMultiple(links, {
       ...options,
-      strategy: 'firecrawl_first'
+      strategy: 'legacy_only'
     });
 
     // Se o resultado tem estrutura detalhada, processar adequadamente
     if (result && result.results) {
-      console.log(`[URLExtractor] ✅ Processadas ${result.summary.successful}/${result.summary.total} URLs`);
-      console.log(`[URLExtractor] 📊 Info essencial: ${result.summary.essentialInfo}/${result.summary.successful} (${result.summary.essentialInfoRate})`);
+      console.log(`[URLExtractor] ✅ Processadas ${result.successful}/${result.total} URLs`);
+      console.log(`[URLExtractor] 📊 Taxa de sucesso: ${result.successRate}%`);
 
       // Extrair textos para compatibilidade com sistema atual
       const texts = result.results.map(item => {
@@ -44,9 +43,9 @@ exports.extractMultiple = async (links, options = {}) => {
           combinedText += `DESCRIÇÃO:\n${item.description}\n\n`;
         }
 
-        // Fallback para fullText se não tem estrutura
-        if (!combinedText.trim() && item.fullText) {
-          combinedText = item.fullText;
+        // Fallback para content se não tem estrutura
+        if (!combinedText.trim() && item.content) {
+          combinedText = item.content;
         }
 
         return combinedText || item.text || '';
@@ -55,7 +54,12 @@ exports.extractMultiple = async (links, options = {}) => {
       const finalText = texts.join('\n---\n');
 
       // Adicionar metadados úteis como propriedades
-      finalText.extractionStats = result.summary;
+      finalText.extractionStats = {
+        total: result.total,
+        successful: result.successful,
+        failed: result.failed,
+        successRate: result.successRate
+      };
       finalText.detailedResults = result.results;
 
       return finalText;
@@ -66,7 +70,7 @@ exports.extractMultiple = async (links, options = {}) => {
     }
 
   } catch (error) {
-    console.error('[URLExtractor] ❌ Erro no FIRECRAWL FIRST, fallback para legacy:', error.message);
+    console.error('[URLExtractor] ❌ Erro no scraping, tentando fallback legacy:', error.message);
     return await this.extractMultipleLegacy(links);
   }
 };

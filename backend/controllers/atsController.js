@@ -1,9 +1,9 @@
 const atsService = require('../services/atsService');
 const GupyOptimizationService = require('../services/gupyOptimizationService');
+const { generateATSOptimizedRecommendations } = require('../services/atsOptimizationService');
 const fs = require('fs');
 const User = require('../models/user'); // Importando o modelo de usuário para gerenciar créditos
 const AnalysisResults = require('../models/AnalysisResults'); // Importando o modelo para salvar análises
-const { generateATSOptimizedRecommendations } = require('../services/atsOptimizationService');
 
 exports.analyze = async (req, res) => {
   try {
@@ -190,29 +190,63 @@ exports.analyze = async (req, res) => {
         match_percentage: keywordCounts.length > 0 ? Math.round((presentes.length / keywordCounts.length) * 100) : 0
       };
 
+      // Atualizar a conclusão para refletir os dados reais processados pelo backend
+      const matchPercentage = result.keyword_statistics.match_percentage;
+      const totalKeywords = keywordCounts.length;
+      const presentCount = presentes.length;
+      const missingCount = ausentes.length;
+
+      // Gerar conclusão consistente com os dados reais
+      let matchQuality;
+      if (matchPercentage >= 80) {
+        matchQuality = "excelente aderência";
+      } else if (matchPercentage >= 60) {
+        matchQuality = "boa aderência";
+      } else if (matchPercentage >= 40) {
+        matchQuality = "aderência moderada";
+      } else if (matchPercentage >= 20) {
+        matchQuality = "aderência básica";
+      } else {
+        matchQuality = "aderência limitada";
+      }
+
+      result.conclusion = `O currículo apresenta ${matchQuality} às vagas analisadas, com ${matchPercentage}% das palavras-chave presentes (${presentCount} de ${totalKeywords} palavras-chave identificadas). ${matchPercentage >= 60
+        ? `O perfil demonstra boa compatibilidade com os requisitos identificados.`
+        : `Há oportunidades significativas de melhoria para aumentar a compatibilidade.`
+        } ${missingCount > 0
+          ? `As principais áreas de desenvolvimento incluem as ${missingCount} palavras-chave ausentes identificadas na análise.`
+          : 'O currículo atende bem aos requisitos técnicos das vagas.'
+        } ${matchPercentage >= 80
+          ? 'Com pequenos ajustes, o currículo tem excelente potencial para se destacar.'
+          : matchPercentage >= 40
+            ? 'Com ajustes focados nas palavras-chave ausentes, o currículo pode se tornar mais competitivo.'
+            : 'É recomendado revisar e incluir mais palavras-chave relevantes para melhorar significativamente a compatibilidade.'
+        }`;
+
+      // Gerar recomendações otimizadas usando o atsOptimizationService
+      try {
+        const optimizedRecommendations = generateATSOptimizedRecommendations(
+          jobKeywords,
+          resumeText,
+          ausentes
+        );
+
+        // Adicionar as recomendações otimizadas ao resultado
+        if (!result.recommendations) {
+          result.recommendations = [];
+        }
+        result.recommendations = result.recommendations.concat(optimizedRecommendations);
+      } catch (optErr) {
+        console.error('[ATS] Erro ao gerar recomendações otimizadas:', optErr);
+        // Não interromper o fluxo se houver erro
+      }
+
       // Limpar dados internos antes de enviar ao frontend
       delete result.jobsText;
       delete result.resumeText;
     }
 
-    // Gerar recomendações otimizadas para ATS com a fórmula específica
-    if (result.job_keywords && result.missing_keywords) {
-      const atsOptimizedRecommendations = generateATSOptimizedRecommendations(
-        result.job_keywords,
-        result.resumeText || '',
-        result.missing_keywords
-      );
 
-      // Adicionar às recomendações existentes
-      if (result.recommendations && Array.isArray(result.recommendations)) {
-        result.recommendations.push(...atsOptimizedRecommendations);
-      } else {
-        result.recommendations = atsOptimizedRecommendations;
-      }
-
-      // Criar uma seção específica para recomendações ATS
-      result.ats_optimization_tips = atsOptimizedRecommendations;
-    }
 
     // Decrementar créditos do usuário após análise bem-sucedida
     try {
