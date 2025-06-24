@@ -825,7 +825,7 @@
         // Função para mostrar modal de boas-vindas com código válido
         function showGiftCodeWelcomeModal(code, credits) {
             const modalHTML = `
-                <div id="giftCodeWelcomeModal" onclick="if(event.target === this) window.location.href='landing.html'" style="
+                <div id="giftCodeWelcomeModal" onclick="if(event.target === this) closeGiftCodeWelcomeModal()" style="
                     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
                     background: rgba(0,0,0,0.7); display: flex; align-items: center; 
                     justify-content: center; z-index: 10000; cursor: pointer;
@@ -835,7 +835,7 @@
                         box-shadow: 0 25px 50px rgba(0,0,0,0.4); animation: modalSlideIn 0.4s ease;
                         overflow: hidden; position: relative; cursor: default;
                     ">
-                        <button onclick="closeGiftCodeWelcomeModal()" style="
+                        <button onclick="closeGiftCodeWelcomeModal(false)" style="
                             position: absolute; top: 16px; right: 20px; background: rgba(255,255,255,0.2); 
                             border: none; font-size: 24px; color: white; cursor: pointer; 
                             width: 36px; height: 36px; display: flex; align-items: center; 
@@ -920,7 +920,7 @@
 
         // Função para mostrar cadastro com contexto de código
         window.showRegisterForGiftCode = function (code) {
-            closeGiftCodeWelcomeModal();
+            closeGiftCodeWelcomeModal(false); // 🔧 CORREÇÃO: Não redirecionar para landing
             setTimeout(() => {
                 const authModal = document.getElementById('authModal');
                 if (authModal) {
@@ -965,12 +965,11 @@
         };
 
         // Função para fechar modal de boas-vindas com opção de redirecionar
-        window.closeGiftCodeWelcomeModal = function (redirect = true) {
+        window.closeGiftCodeWelcomeModal = function (redirect = false) {
             const modal = document.getElementById('giftCodeWelcomeModal');
             if (modal) modal.remove();
-            // Somente redirecionar se explicitamente solicitado
+            // 🔧 CORREÇÃO: Por padrão NÃO redirecionar, apenas quando explicitamente solicitado
             if (redirect) {
-                // Se houver parâmetro returnTo manter, senão ficar na mesma página
                 window.location.href = 'landing.html';
             }
         };
@@ -2112,10 +2111,24 @@
                 if (mainContent) mainContent.style.filter = '';
                 if (header) header.style.filter = '';
 
+                // 🎁 CORREÇÃO CRÍTICA: Verificar se usuário está no processo de cadastro com código de presente
+                const registerForm = document.getElementById('registerForm');
+                const isRegisterFormVisible = registerForm && registerForm.style.display !== 'none';
+                const hasGiftCodeContext = localStorage.getItem('pendingGiftCode') || localStorage.getItem('isGiftCodeUser');
+
+                // Se está no cadastro com código de presente, NÃO redirecionar para landing
+                if (isRegisterFormVisible && hasGiftCodeContext && giftCodeParam) {
+                    console.log('🎁 Usuário está se cadastrando com código de presente - não redirecionar');
+                    // Apenas fechar o modal sem redirecionar
+                    document.getElementById('authModal').style.display = 'none';
+                    document.body.style.overflow = '';
+                    return;
+                }
+
                 // Se veio de login=true, voltar para landing
-                // Se veio com giftCode, voltar para landing
+                // Se veio com giftCode mas não está no cadastro, voltar para landing
                 // Caso contrário, comportamento padrão
-                if (loginParam === 'true' || giftCodeParam) {
+                if (loginParam === 'true' || (giftCodeParam && !hasGiftCodeContext)) {
                     window.location.href = 'landing.html';
                 } else {
                     // Se não veio de redirecionamento específico, apenas fechar o modal
@@ -2126,23 +2139,71 @@
 
             // Event listener para o botão de fechar do modal de login
             document.getElementById('closeAuthModal').addEventListener('click', function () {
-                handleModalClose();
+                // 🎁 PROTEÇÃO: Verificar se usuário está no cadastro com código de presente
+                const registerForm = document.getElementById('registerForm');
+                const isRegisterFormVisible = registerForm && registerForm.style.display !== 'none';
+                const hasGiftCodeContext = localStorage.getItem('pendingGiftCode') || localStorage.getItem('isGiftCodeUser');
+
+                // Se está no cadastro com código, não usar handleModalClose para evitar redirecionamento
+                if (isRegisterFormVisible && hasGiftCodeContext) {
+                    console.log('🎁 Botão X clicado durante cadastro com código - não redirecionar');
+                    document.getElementById('authModal').style.display = 'none';
+                    document.body.style.overflow = '';
+                    const mainContent = document.querySelector('.main-content');
+                    const header = document.querySelector('header');
+                    if (mainContent) mainContent.style.filter = '';
+                    if (header) header.style.filter = '';
+                } else {
+                    handleModalClose();
+                }
             });
 
             // Event listener para fechar modal clicando no fundo
             document.getElementById('authModal').addEventListener('click', function (e) {
                 if (e.target === this) {
-                    handleModalClose();
+                    // 🎁 PROTEÇÃO: Verificar se usuário está no cadastro com código de presente
+                    const registerForm = document.getElementById('registerForm');
+                    const isRegisterFormVisible = registerForm && registerForm.style.display !== 'none';
+                    const hasGiftCodeContext = localStorage.getItem('pendingGiftCode') || localStorage.getItem('isGiftCodeUser');
+
+                    // Se está no cadastro com código, não usar handleModalClose para evitar redirecionamento
+                    if (isRegisterFormVisible && hasGiftCodeContext) {
+                        console.log('🎁 Click no fundo durante cadastro com código - não redirecionar');
+                        document.getElementById('authModal').style.display = 'none';
+                        document.body.style.overflow = '';
+                        const mainContent = document.querySelector('.main-content');
+                        const header = document.querySelector('header');
+                        if (mainContent) mainContent.style.filter = '';
+                        if (header) header.style.filter = '';
+                    } else {
+                        handleModalClose();
+                    }
                 }
             });
 
             // Event listener global para tecla ESC fechar modais
             document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') {
+                    // 🎁 PROTEÇÃO: Verificar se usuário está no cadastro com código de presente
+                    const registerForm = document.getElementById('registerForm');
+                    const isRegisterFormVisible = registerForm && registerForm.style.display !== 'none';
+                    const hasGiftCodeContext = localStorage.getItem('pendingGiftCode') || localStorage.getItem('isGiftCodeUser');
+
                     // Fechar modal de login se estiver aberto
                     const authModal = document.getElementById('authModal');
                     if (authModal && authModal.style.display === 'flex') {
-                        handleModalClose();
+                        // Se está no cadastro com código, não usar handleModalClose para evitar redirecionamento
+                        if (isRegisterFormVisible && hasGiftCodeContext) {
+                            console.log('🎁 ESC pressionado durante cadastro com código - não redirecionar');
+                            authModal.style.display = 'none';
+                            document.body.style.overflow = '';
+                            const mainContent = document.querySelector('.main-content');
+                            const header = document.querySelector('header');
+                            if (mainContent) mainContent.style.filter = '';
+                            if (header) header.style.filter = '';
+                        } else {
+                            handleModalClose();
+                        }
                         return;
                     }
 

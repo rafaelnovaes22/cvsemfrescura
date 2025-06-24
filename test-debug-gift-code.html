@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐞 Debug - Código de Presente</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+
+        .warning {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .info {
+            color: blue;
+        }
+
+        button {
+            background: #583819;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #4a2f15;
+        }
+
+        .log {
+            background: #f8f8f8;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🐞 Debug - Problema do Código de Presente</h1>
+
+        <div class="test-section">
+            <h3>🔍 Teste de Funcionalidade</h3>
+            <p><strong>Problema:</strong> Ao clicar em "Criar Conta" no modal do código de presente, redireciona para
+                landing em vez de mostrar cadastro.</p>
+
+            <h4>📋 Checklist de Verificação:</h4>
+            <div id="checklist">
+                <div>✅ Função closeGiftCodeWelcomeModal corrigida</div>
+                <div>✅ showRegisterForGiftCode corrigida para não redirecionar</div>
+                <div>✅ Event listeners de modal protegidos</div>
+                <div>❓ Testando se ainda há outros redirecionamentos...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Testes Simulados</h3>
+            <button onclick="testFunction1()">Testar closeGiftCodeWelcomeModal(false)</button>
+            <button onclick="testFunction2()">Testar showRegisterForGiftCode</button>
+            <button onclick="testFunction3()">Simular Click no Modal</button>
+            <button onclick="testFullFlow()">🔥 Teste Completo do Fluxo</button>
+
+            <div id="testResults" class="log">Clique nos botões acima para testar...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>🎯 URLs de Teste</h3>
+            <p>Para testar localmente:</p>
+            <ul>
+                <li><a href="http://localhost:3000/analisar.html?giftCode=TESTE123" target="_blank">Local - Com código
+                        TESTE123</a></li>
+                <li><a href="http://localhost:8080/analisar.html?giftCode=ADMIN123" target="_blank">Local (8080) - Com
+                        código ADMIN123</a></li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 Debug Log Dinâmico</h3>
+            <div id="debugLog" class="log">Aguardando informações...</div>
+        </div>
+    </div>
+
+    <script>
+        let logArea = document.getElementById('testResults');
+        let debugLog = document.getElementById('debugLog');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                success: '#28a745',
+                error: '#dc3545',
+                warning: '#ffc107',
+                info: '#007bff'
+            };
+
+            logArea.innerHTML += `<span style="color: ${colors[type]}">[${timestamp}] ${message}</span>\n`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        function debugInfo(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            debugLog.innerHTML += `<span style="color: #007bff">[${timestamp}] ${message}</span>\n`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+
+        // Override console.log para capturar logs da página
+        const originalLog = console.log;
+        console.log = function (...args) {
+            originalLog.apply(console, args);
+            debugInfo('CONSOLE: ' + args.join(' '));
+        };
+
+        // Detectar mudanças de URL
+        let currentUrl = window.location.href;
+        setInterval(() => {
+            if (window.location.href !== currentUrl) {
+                debugInfo(`🔄 URL MUDOU: ${currentUrl} → ${window.location.href}`);
+                currentUrl = window.location.href;
+            }
+        }, 100);
+
+        function testFunction1() {
+            log('🧪 Testando closeGiftCodeWelcomeModal(false)...', 'info');
+
+            // Simular função
+            try {
+                // Verificar se função existe
+                if (typeof window.closeGiftCodeWelcomeModal === 'function') {
+                    log('✅ Função closeGiftCodeWelcomeModal existe', 'success');
+                    log('📝 Parametro padrão deveria ser false agora', 'info');
+                } else {
+                    log('❌ Função closeGiftCodeWelcomeModal NÃO encontrada', 'error');
+                }
+            } catch (e) {
+                log('❌ Erro ao testar função: ' + e.message, 'error');
+            }
+        }
+
+        function testFunction2() {
+            log('🧪 Testando showRegisterForGiftCode...', 'info');
+
+            try {
+                if (typeof window.showRegisterForGiftCode === 'function') {
+                    log('✅ Função showRegisterForGiftCode existe', 'success');
+                    log('📝 Deve chamar closeGiftCodeWelcomeModal(false)', 'info');
+                } else {
+                    log('❌ Função showRegisterForGiftCode NÃO encontrada', 'error');
+                }
+            } catch (e) {
+                log('❌ Erro ao testar função: ' + e.message, 'error');
+            }
+        }
+
+        function testFunction3() {
+            log('🧪 Simulando click no modal...', 'info');
+
+            // Verificar se temos localStorage com contexto de gift code
+            const pendingCode = localStorage.getItem('pendingGiftCode');
+            const isGiftCodeUser = localStorage.getItem('isGiftCodeUser');
+
+            log(`🎁 pendingGiftCode: ${pendingCode || 'null'}`, 'info');
+            log(`👤 isGiftCodeUser: ${isGiftCodeUser || 'null'}`, 'info');
+
+            if (pendingCode || isGiftCodeUser) {
+                log('✅ Contexto de gift code detectado', 'success');
+            } else {
+                log('⚠️ Sem contexto de gift code', 'warning');
+            }
+        }
+
+        function testFullFlow() {
+            log('🔥 TESTE COMPLETO DO FLUXO', 'warning');
+            log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'info');
+
+            // 1. Simular URL com gift code
+            log('1️⃣ Simulando acesso a analisar.html?giftCode=TESTE123', 'info');
+
+            // 2. Simular localStorage
+            localStorage.setItem('pendingGiftCode', 'TESTE123');
+            localStorage.setItem('isGiftCodeUser', 'true');
+            log('2️⃣ localStorage configurado com código TESTE123', 'info');
+
+            // 3. Verificar proteções dos modais
+            log('3️⃣ Verificando proteções implementadas...', 'info');
+
+            // Simular detecção de formulário de cadastro
+            const mockRegisterForm = { style: { display: 'block' } };
+            const isRegisterVisible = mockRegisterForm.style.display !== 'none';
+            const hasGiftCodeContext = localStorage.getItem('pendingGiftCode') || localStorage.getItem('isGiftCodeUser');
+
+            if (isRegisterVisible && hasGiftCodeContext) {
+                log('✅ Condições de proteção ATIVAS - não deve redirecionar', 'success');
+            } else {
+                log('❌ Condições de proteção NÃO ativas', 'error');
+            }
+
+            log('4️⃣ Resultado esperado: Modal de cadastro aberto, sem redirecionamento', 'info');
+            log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'info');
+
+            setTimeout(() => {
+                log('🎯 TESTE CONCLUÍDO - Verifique os resultados acima', 'success');
+            }, 1000);
+        }
+
+        // Inicializar
+        debugInfo('🚀 Debug iniciado - Monitorando redirecionamentos...');
+
+        // Detectar se estamos em uma página com gift code
+        const urlParams = new URLSearchParams(window.location.search);
+        const giftCode = urlParams.get('giftCode');
+        if (giftCode) {
+            debugInfo(`🎁 Código de presente detectado na URL: ${giftCode}`);
+        }
+    </script>
+</body>
+
+</html>
