@@ -1,6 +1,5 @@
 const atsService = require('../services/atsService');
 const GupyOptimizationService = require('../services/gupyOptimizationService');
-const { generateATSOptimizedRecommendations } = require('../services/atsOptimizationService');
 const fs = require('fs');
 const User = require('../models/user'); // Importando o modelo de usuário para gerenciar créditos
 const AnalysisResults = require('../models/AnalysisResults'); // Importando o modelo para salvar análises
@@ -223,23 +222,7 @@ exports.analyze = async (req, res) => {
             : 'É recomendado revisar e incluir mais palavras-chave relevantes para melhorar significativamente a compatibilidade.'
         }`;
 
-      // Gerar recomendações otimizadas usando o atsOptimizationService
-      try {
-        const optimizedRecommendations = generateATSOptimizedRecommendations(
-          jobKeywords,
-          resumeText,
-          ausentes
-        );
 
-        // Adicionar as recomendações otimizadas ao resultado
-        if (!result.recommendations) {
-          result.recommendations = [];
-        }
-        result.recommendations = result.recommendations.concat(optimizedRecommendations);
-      } catch (optErr) {
-        console.error('[ATS] Erro ao gerar recomendações otimizadas:', optErr);
-        // Não interromper o fluxo se houver erro
-      }
 
       // Limpar dados internos antes de enviar ao frontend
       delete result.jobsText;
