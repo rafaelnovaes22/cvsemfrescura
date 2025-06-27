@@ -1671,10 +1671,11 @@
                     </div>
 
                     <div class="vagas-progress" id="vagasProgress">
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="progressFill"></div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="progressBar"></div>
                         </div>
-                        <p class="progress-text" id="progressText">Preencha pelo menos 1 vaga para começar a análise</p>
+                        <p class="progress-text" id="progressText">Preencha pelo menos 3 vagas para começar a análise
+                        </p>
                     </div>
                 </div>
                 </section>
@@ -1787,18 +1788,18 @@
                 }
             } else if (filledCount >= 1) {
                 if (filledCount < 3) {
-                    progressText.textContent = `✅ ${filledCount} vaga${filledCount > 1 ? 's' : ''} preenchida${filledCount > 1 ? 's' : ''} - Já pode analisar! Adicione mais para melhor resultado`;
-                    progressText.style.color = '#2e7d32';
+                    progressText.textContent = `⚠️ ${filledCount} vaga${filledCount > 1 ? 's' : ''} preenchida${filledCount > 1 ? 's' : ''} - Precisa de pelo menos 3 vagas para analisar`;
+                    progressText.style.color = '#ff9800';
                 } else if (filledCount < 7) {
                     progressText.textContent = `🚀 ${filledCount}/7 vagas preenchidas - Ótimo! Continue para maximizar a análise`;
-                    progressText.style.color = '#ff9800';
+                    progressText.style.color = '#2e7d32';
                 } else {
                     progressText.textContent = `⭐ ${filledCount}/7 vagas preenchidas - Excelente progresso!`;
-                    progressText.style.color = '#ff9800';
+                    progressText.style.color = '#2e7d32';
                 }
                 progressText.classList.remove('completed');
             } else {
-                progressText.textContent = '📝 Preencha pelo menos 1 vaga para começar a análise';
+                progressText.textContent = '📝 Preencha pelo menos 3 vagas para começar a análise';
                 progressText.classList.remove('completed');
                 progressText.style.color = '#6c757d';
             }
@@ -1842,7 +1843,7 @@
                 }
             });
 
-            const hasMinimumJobs = validJobsCount >= 1;
+            const hasMinimumJobs = validJobsCount >= 3;
             const allRequirementsMet = fileSelected && hasMinimumJobs;
 
             // Controlar visibilidade e conteúdo do banner de créditos
@@ -1894,11 +1895,11 @@
                 analyzeBtn.disabled = true;
 
                 if (!fileSelected && !hasMinimumJobs) {
-                    analyzeBtn.textContent = '📎 Anexe currículo e preencha pelo menos 1 vaga';
+                    analyzeBtn.textContent = '📎 Anexe currículo e preencha pelo menos 3 vagas';
                 } else if (!fileSelected) {
                     analyzeBtn.textContent = '📎 Anexe seu currículo para continuar';
                 } else if (!hasMinimumJobs) {
-                    analyzeBtn.textContent = '📝 Preencha pelo menos 1 vaga para analisar';
+                    analyzeBtn.textContent = '📝 Preencha pelo menos 3 vagas para analisar';
                 }
 
                 analyzeBtn.style.opacity = '0.7';

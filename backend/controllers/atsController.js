@@ -39,6 +39,10 @@ exports.analyze = async (req, res) => {
       console.warn('[ATS] Dados insuficientes: arquivo ou links ausentes.');
       return res.status(400).json({ error: 'Arquivo de currículo ou links de vagas ausentes.' });
     }
+    if (jobLinks.length < 3) {
+      console.warn('[ATS] Limite de vagas insuficiente:', jobLinks.length);
+      return res.status(400).json({ error: 'É necessário incluir pelo menos 3 vagas para uma análise completa.' });
+    }
     if (jobLinks.length > 7) {
       console.warn('[ATS] Limite de vagas excedido:', jobLinks.length);
       return res.status(400).json({ error: 'O limite máximo é de 7 vagas por análise. Remova alguns links e tente novamente.' });
