@@ -61,22 +61,35 @@ Você é um sistema ATS especialista em análise de currículos e vagas.
 
 1. Extraia e liste de forma COMPLETA, DETALHADA e SEM OMITIR NENHUMA todos os termos relevantes das vagas em "job_keywords". Siga OBRIGATORIAMENTE as regras abaixo:
    
+   ⚠️ ATENÇÃO CRÍTICA: Se um termo aparece nas vagas, ele DEVE estar no array job_keywords com pelo menos 1 ocorrência. NÃO pode haver termos com 0x se eles estão nas vagas!
+   
    INSTRUÇÕES CRÍTICAS PARA COMPLETUDE:
    - NUNCA pare de extrair palavras-chave até ter analisado COMPLETAMENTE todo o texto das vagas
    - Se encontrar muitas palavras-chave, continue listando TODAS - não resuma ou omita
    - Prefira ser ABRANGENTE a ser conciso - liste TODAS as palavras-chave encontradas
    - Se uma vaga tem 50+ termos relevantes, liste TODOS os 50+ termos
+   - INCLUA mesmo termos "comuns" como "inglês", "comunicação", "prazos" - se estão nas vagas, são relevantes!
    
-   - Remova duplicidades contextuais (ex: "roadmap" e "visão e roadmap" → mantenha apenas o termo mais completo; "metodologias ágeis" e "metodologias" → mantenha o termo mais específico).
-   - NÃO agrupe termos. Mantenha cada palavra-chave como termo individual para garantir detecção precisa.
-   - Elimine verbos soltos ou termos que não fazem sentido isoladamente (ex: "ouvir", "planejamento", "definir escopo" → mantenha apenas "escopo" se relevante).
-   - Mantenha apenas substantivos compostos, nomes de áreas, ferramentas, conceitos completos e termos realmente relevantes.
-   - Não repita termos com variação de maiúsculas/minúsculas ou plural/singular.
-   - O resultado deve ser uma lista enxuta, sem repetições, com cada termo mantido individualmente.
-   - NÃO inclua frases descritivas, apenas termos, tecnologias, competências, ferramentas, cargos, requisitos, etc.
-   - NÃO inclua verbos soltos (ex: "Implementar", "Executar", "Comunicar") como palavras-chave. Verbos só devem aparecer se fizerem parte de uma expressão técnica ou termo composto relevante (ex: "Gestão de Projetos", "Aplicar Metodologias Ágeis").
-   - NÃO utilize objetos ou listas separadas. Apenas um array único contendo todos os termos relevantes extraídos das vagas.
-   - Ao extrair termos de múltiplas vagas, consolide todos em um ÚNICO array job_keywords, SEM duplicidades. Cada termo deve aparecer apenas uma vez, mesmo que esteja presente em mais de uma vaga ou trecho. Faça a deduplicação após juntar todos os termos das vagas analisadas.
+   REGRAS DE EXTRAÇÃO (SEJA INCLUSIVO, NÃO RESTRITIVO):
+   - EXTRAIA TODOS os termos relevantes: tecnologias, ferramentas, competências, habilidades, qualificações, idiomas, certificações, metodologias, conceitos, áreas de conhecimento, soft skills, hard skills
+   - INCLUA expressões compostas completas (ex: "arquitetura de sistemas", "capacidade analítica", "metodologias ágeis", "gestão de backlog")
+   - INCLUA termos individuais importantes (ex: "inglês", "Scrum", "APIs", "certificações")
+   - INCLUA competências técnicas E comportamentais mencionadas nas vagas
+   - INCLUA qualificações e diferenciais mencionados
+   - MANTENHA cada palavra-chave como termo individual para garantir detecção precisa
+   - Remova apenas duplicidades exatas (mesma palavra/expressão repetida)
+   - Não repita termos com variação de maiúsculas/minúsculas ou plural/singular
+   - Consolide em um ÚNICO array job_keywords, SEM duplicidades
+   
+   EXEMPLOS DO QUE INCLUIR:
+   - Idiomas: "inglês", "inglês intermediário", "inglês avançado"
+   - Tecnologias: "APIs", "bancos de dados", "arquitetura de sistemas", "integrações"
+   - Competências: "capacidade analítica", "comunicação", "liderança", "negociação"
+   - Certificações: "CSPO", "PMP", "PSPO", "certificações"
+   - Metodologias: "Scrum", "Kanban", "metodologias ágeis", "Agile"
+   - Conceitos: "Product Owner", "gestão de backlog", "histórias de usuário"
+   
+   NÃO ELIMINE termos por serem "genéricos" - se estão nas vagas, são relevantes!
 
 2. Para cada palavra-chave extraída da vaga (em "job_keywords"), compare diretamente com TODO o texto do currículo fornecido:
    - Considere como presente APENAS se a expressão da palavra-chave (ou seu plural/singular) aparecer como palavra inteira no texto do currículo, ignorando caixa e acentos. NÃO marque como presente se a palavra-chave for apenas parte de outra palavra, aparecer em contexto amplo, como sinônimo distante, ou como fragmento. NÃO aceite matches por contexto, associação indireta, parte de palavra, ou variações morfológicas que não sejam plural/singular.
@@ -212,8 +225,7 @@ exports.extractATSData = async (jobsText, resumeText) => {
       { role: 'user', content: prompt }
     ],
     temperature: 0.1,
-    max_tokens: 8000,
-    timeout: 60000
+    max_tokens: 8000
   };
 
   console.log('[OpenAI] Configuração:', {
@@ -276,6 +288,31 @@ exports.extractATSData = async (jobsText, resumeText) => {
 
       if (error.response && error.response.status) {
         console.error(`[OpenAI] Status HTTP: ${error.response.status}`);
+
+        // *** LOGGING DETALHADO DO ERRO 400 ***
+        if (error.response.status === 400) {
+          console.error(`[OpenAI] *** ERRO 400 DETALHADO ***`);
+          console.error(`[OpenAI] Dados completos do erro:`, JSON.stringify(error.response.data, null, 2));
+
+          if (error.response.data?.error) {
+            const errorDetails = error.response.data.error;
+            console.error(`[OpenAI] Tipo: ${errorDetails.type}`);
+            console.error(`[OpenAI] Mensagem: ${errorDetails.message}`);
+            console.error(`[OpenAI] Código: ${errorDetails.code || 'N/A'}`);
+            console.error(`[OpenAI] Parâmetro: ${errorDetails.param || 'N/A'}`);
+          }
+        }
+
+        // Logging dos rate limits
+        if (error.response.headers) {
+          const headers = error.response.headers;
+          const rateLimits = {
+            requests: headers['x-ratelimit-remaining-requests'] || 'N/A',
+            tokens: headers['x-ratelimit-remaining-tokens'] || 'N/A',
+            resetIn: headers['x-ratelimit-reset-requests'] || 'N/A'
+          };
+          console.error(`[OpenAI] Rate Limits:`, `requests: ${rateLimits.requests}/5000, tokens: ${rateLimits.tokens}/800000, resetIn: ${rateLimits.resetIn}s`);
+        }
 
         // Atualizar monitor mesmo em caso de erro
         if (error.response.headers) {

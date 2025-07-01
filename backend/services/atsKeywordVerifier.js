@@ -187,35 +187,70 @@ function countKeywordOccurrences(keywords, jobsText) {
 
   keywords.forEach(keyword => {
     let totalCount = 0;
+    const normalizedKeyword = normalize(keyword);
 
-    // 1. Contar variações de singular/plural
-    const forms = singularPluralForms(normalize(keyword));
-    forms.forEach(form => {
-      const regex = new RegExp(`\\b${form}\\b`, 'gi');
-      const matches = normJobsText.match(regex);
-      if (matches) {
-        totalCount += matches.length;
+    // 1. Para expressões compostas (mais de uma palavra), usar busca mais flexível
+    if (normalizedKeyword.includes(' ')) {
+      // Dividir em palavras principais (ignorar conectores)
+      const palavrasPrincipais = normalizedKeyword.split(' ').filter(palavra =>
+        palavra.length > 2 && !['de', 'da', 'do', 'dos', 'das', 'em', 'na', 'no', 'nos', 'nas', 'com', 'para', 'por', 'ao', 'a', 'e', 'ou', 'que', 'se'].includes(palavra)
+      );
+
+      // Se tem palavras principais, verificar se todas aparecem próximas
+      if (palavrasPrincipais.length >= 2) {
+        // Criar regex que permite palavras entre as principais (até 3 palavras de distância)
+        const regexPattern = palavrasPrincipais.map(palavra => `\\b${palavra}\\b`).join('[\\s\\w]{0,20}');
+        const flexibleRegex = new RegExp(regexPattern, 'gi');
+        const matches = normJobsText.match(flexibleRegex);
+        if (matches) {
+          totalCount += matches.length;
+        }
       }
-    });
-
-    // 2. Contar variações preposicionais (se existirem)
-    const prepositionVariations = generatePrepositionVariations(keyword);
-
-    // Para cada variação preposicional
-    prepositionVariations.forEach(variation => {
-      // Pular a versão já contada acima
-      const normalizedKeyword = normalize(keyword);
-      if (variation === normalizedKeyword) return;
-
-      // Contar esta variação preposicional (singular/plural também)
-      const variationForms = singularPluralForms(variation);
-      variationForms.forEach(form => {
+    } else {
+      // 2. Para palavras simples, contar variações de singular/plural
+      const forms = singularPluralForms(normalizedKeyword);
+      forms.forEach(form => {
         const regex = new RegExp(`\\b${form}\\b`, 'gi');
         const matches = normJobsText.match(regex);
         if (matches) {
           totalCount += matches.length;
         }
       });
+    }
+
+    // 3. Contar variações preposicionais (se existirem)
+    const prepositionVariations = generatePrepositionVariations(keyword);
+
+    // Para cada variação preposicional
+    prepositionVariations.forEach(variation => {
+      // Pular a versão já contada acima
+      if (variation === normalizedKeyword) return;
+
+      // Aplicar mesma lógica: flexível para expressões, exata para palavras simples
+      if (variation.includes(' ')) {
+        const palavrasPrincipais = variation.split(' ').filter(palavra =>
+          palavra.length > 2 && !['de', 'da', 'do', 'dos', 'das', 'em', 'na', 'no', 'nos', 'nas', 'com', 'para', 'por', 'ao', 'a', 'e', 'ou', 'que', 'se'].includes(palavra)
+        );
+
+        if (palavrasPrincipais.length >= 2) {
+          const regexPattern = palavrasPrincipais.map(palavra => `\\b${palavra}\\b`).join('[\\s\\w]{0,20}');
+          const flexibleRegex = new RegExp(regexPattern, 'gi');
+          const matches = normJobsText.match(flexibleRegex);
+          if (matches) {
+            totalCount += matches.length;
+          }
+        }
+      } else {
+        // Palavra simples - usar busca exata
+        const variationForms = singularPluralForms(variation);
+        variationForms.forEach(form => {
+          const regex = new RegExp(`\\b${form}\\b`, 'gi');
+          const matches = normJobsText.match(regex);
+          if (matches) {
+            totalCount += matches.length;
+          }
+        });
+      }
     });
 
     keywordCounts.push({
@@ -367,9 +402,9 @@ function generatePrepositionVariations(keyword) {
 }
 
 /**
- * Consolida palavras-chave hierárquicas APENAS quando há certeza semântica
- * Ex: "escopo" + "definir escopo" → "escopo" (verbo + substantivo = mesmo conceito)
- * NÃO consolida: "gestão" + "gestão de projetos" (conceitos diferentes!)
+ * Consolida palavras-chave hierárquicas APENAS quando há certeza semântica absoluta
+ * CORRIGIDO: Consolidação muito mais restritiva para evitar contagens incorretas
+ * Só consolida variações EXATAS (plural/singular e artigos), não mais verbos + substantivos
  * @param {Object[]} keywordCounts - Array com {keyword, count}
  * @returns {Object[]} Array consolidado
  */
@@ -379,13 +414,9 @@ function consolidateHierarchicalKeywords(keywordCounts) {
   const consolidated = [];
   const processed = new Set();
 
-  // Padrões seguros para consolidação (verbo + substantivo)
+  // Padrões MUITO RESTRITIVOS para consolidação - apenas casos óbvios
   const safeConsolidationPatterns = [
-    // Verbos de ação + substantivo = mesmo conceito
-    /^(definir|elaborar|criar|desenvolver|implementar|executar|realizar|fazer|construir|estabelecer|determinar|especificar)\s+(.+)$/i,
-    // Adjetivos modificadores simples + substantivo = mesmo conceito  
-    /^(novo|nova|novos|novas|atual|atuais|principal|principais|básico|básica|básicos|básicas)\s+(.+)$/i,
-    // Artigos + substantivo = mesmo conceito
+    // APENAS artigos simples + substantivo (removido verbos de ação!)
     /^(o|a|os|as|um|uma|uns|umas)\s+(.+)$/i
   ];
 
@@ -405,11 +436,11 @@ function consolidateHierarchicalKeywords(keywordCounts) {
       // Verificar se é uma consolidação segura
       let shouldConsolidate = false;
 
-      // 1. Verificar padrões seguros (verbo + substantivo, etc.)
+      // 1. APENAS casos super seguros (artigos)
       for (const pattern of safeConsolidationPatterns) {
         const match = childNorm.match(pattern);
         if (match) {
-          const extractedConcept = normalize(match[2]); // O substantivo/conceito principal
+          const extractedConcept = normalize(match[2]);
 
           // Se o conceito extraído é igual ao pai, é seguro consolidar
           if (extractedConcept === parentNorm) {
@@ -419,11 +450,24 @@ function consolidateHierarchicalKeywords(keywordCounts) {
         }
       }
 
-      // 2. Casos especiais: plural/singular exato
+      // 2. Casos especiais: plural/singular IDÊNTICO (não semelhante)
       if (!shouldConsolidate) {
         const parentForms = singularPluralForms(parentNorm);
-        if (parentForms.includes(childNorm) || parentForms.some(pf => childNorm === pf)) {
+        // Só consolidar se for EXATAMENTE plural/singular da mesma palavra
+        if (parentForms.includes(childNorm)) {
           shouldConsolidate = true;
+        }
+      }
+
+      // 3. NOVO: Verificação adicional - não consolidar se há palavras extras
+      if (shouldConsolidate) {
+        // Se a palavra-chave child tem palavras extras significativas, NÃO consolidar
+        const parentWords = parentNorm.split(' ').filter(w => w.length > 2);
+        const childWords = childNorm.split(' ').filter(w => w.length > 2);
+
+        // Se child tem mais de 1 palavra extra significativa, é conceito diferente
+        if (childWords.length > parentWords.length + 1) {
+          shouldConsolidate = false;
         }
       }
 
