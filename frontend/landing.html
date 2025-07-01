@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="Otimize seu currículo para sistemas ATS como Gupy. Análise com IA para maximizar suas chances de contratação.">
-    <meta name="keywords" content="currículo, ATS, Gupy, análise IA, otimização cv">
+        content="Otimize seu currículo para sistemas ATS nacionais e internacionais. Análise com IA para maximizar suas chances de contratação.">
+    <meta name="keywords" content="currículo, ATS, análise IA, otimização cv, vagas internacionais, vagas brasil">
     <title>CV Sem Frescura - Otimize seu currículo para sistemas ATS</title>
 
     <!-- Preload critical resources -->
@@ -291,6 +291,7 @@
             grid-template-columns: 1fr 1fr;
             gap: var(--space-16);
             align-items: center;
+            min-height: 500px;
         }
 
         .hero-text {
@@ -371,14 +372,17 @@
 
         .hero-visual {
             position: relative;
+            align-self: start;
+            padding-top: 80px;
         }
 
         .hero-image {
             width: 100%;
             height: auto;
             border-radius: var(--radius-2xl);
-            box-shadow: var(--shadow-xl);
             transition: transform var(--transition-slow);
+            margin: 0;
+            vertical-align: middle;
         }
 
         .hero-image:hover {
@@ -1038,6 +1042,154 @@
             }
         }
 
+        /* Testimonials Section */
+        .testimonials {
+            padding: var(--space-20) 0;
+            background: var(--gray-50);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-8);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .testimonial-card {
+            background: white;
+            border-radius: var(--radius-2xl);
+            padding: var(--space-8);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--gray-200);
+            transition: all var(--transition-normal);
+            position: relative;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .testimonial-content {
+            margin-bottom: var(--space-6);
+            position: relative;
+        }
+
+        .testimonial-quote {
+            position: absolute;
+            top: -20px;
+            left: -10px;
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--primary-200);
+            font-family: Georgia, serif;
+            line-height: 1;
+        }
+
+        .testimonial-text {
+            font-size: 1.125rem;
+            line-height: 1.7;
+            color: var(--gray-700);
+            font-style: italic;
+            margin-left: var(--space-4);
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+            padding-top: var(--space-4);
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-500), var(--accent-500));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .author-info h4 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 2px;
+        }
+
+        .author-role {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+        }
+
+        .testimonial-results {
+            display: flex;
+            gap: var(--space-6);
+            justify-content: center;
+            margin-top: var(--space-4);
+        }
+
+        .result-item {
+            text-align: center;
+            padding: var(--space-3) var(--space-4);
+            background: var(--primary-50);
+            border-radius: var(--radius-lg);
+            min-width: 120px;
+        }
+
+        .result-number {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-600);
+            margin-bottom: 2px;
+        }
+
+        .result-label {
+            font-size: 0.75rem;
+            color: var(--gray-600);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        @media (max-width: 768px) {
+            .testimonials {
+                padding: var(--space-16) 0;
+            }
+
+            .testimonial-card {
+                padding: var(--space-6);
+            }
+
+            .testimonial-text {
+                font-size: 1rem;
+                margin-left: 0;
+            }
+
+            .testimonial-quote {
+                font-size: 3rem;
+                top: -15px;
+                left: -5px;
+            }
+
+            .testimonial-results {
+                flex-direction: column;
+                gap: var(--space-3);
+            }
+
+            .result-item {
+                min-width: auto;
+            }
+        }
+
         /* CTA Section */
         .cta {
             padding: var(--space-20) 0;
@@ -1592,7 +1744,8 @@
                     </h1>
 
                     <p class="hero-description fade-in">
-                        Receba feedback específico sobre cada vaga, análise detalhada de compatibilidade, palavras-chave
+                        Receba feedback abrangente sobre todas as vagas, análise detalhada de compatibilidade,
+                        palavras-chave
                         em falta e
                         sugestões práticas de melhorias para aumentar suas chances. Nossa IA identifica exatamente o que
                         os recrutadores procuram.
@@ -1666,21 +1819,23 @@
                 <div class="feature-card fade-in">
                     <div class="feature-icon">🤖</div>
                     <h3>IA Avançada Especializada</h3>
-                    <p>Nossa inteligência artificial foi treinada especificamente para entender sistemas ATS como Gupy,
-                        analisando milhares de currículos aprovados.</p>
+                    <p>Nossa inteligência artificial foi treinada especificamente para entender sistemas ATS nacionais e
+                        internacionais,
+                        analisando milhares de currículos aprovados em empresas do Brasil e do exterior.</p>
                 </div>
 
                 <div class="feature-card fade-in">
                     <div class="feature-icon">🎯</div>
                     <h3>Análise Profunda</h3>
-                    <p>Nossa IA analisa cada palavra do seu currículo comparando com 1 a 7 vagas simultaneamente.
+                    <p>Nossa IA analisa cada palavra do seu currículo comparando com 3 a 7 vagas simultaneamente.
                         Comece com quantas vagas quiser - quanto mais vagas, mais precisa será a análise.</p>
                 </div>
 
                 <div class="feature-card fade-in">
                     <div class="feature-icon">📊</div>
                     <h3>Relatório Completo</h3>
-                    <p>Receba feedback específico sobre cada vaga, análise detalhada de compatibilidade, palavras-chave
+                    <p>Receba feedback abrangente sobre todas as vagas, análise detalhada de compatibilidade,
+                        palavras-chave
                         em falta e
                         sugestões práticas de melhorias para aumentar suas chances.</p>
                 </div>
@@ -1721,7 +1876,7 @@
                     <div class="step-number">1</div>
                     <h3 class="step-title">Envie seu currículo</h3>
                     <p class="step-description">
-                        Faça upload do seu CV em PDF ou DOCX e adicione de 1 a 7 links das vagas que você quer se
+                        Faça upload do seu CV em PDF ou DOCX e adicione de 3 a 7 links das vagas que você quer se
                         candidatar.
                     </p>
                 </div>
@@ -1762,7 +1917,9 @@
                 <span class="realidade-icon">🔍</span>
                 <h3 class="realidade-title">A Realidade dos Sistemas ATS</h3>
                 <p class="realidade-description">
-                    Em sistemas como Gupy, nossa experiência indica que você deva se inscrever para no máximo 7 vagas por ciclo de 7-10 dias, pois facilita a personalização do currículo. Você pode
+                    Em sistemas ATS nacionais e internacionais, nossa experiência indica que você deva se inscrever para
+                    no máximo 7 vagas
+                    por ciclo de 7-10 dias, pois facilita a personalização do currículo. Você pode
                     começar
                     com menos vagas, mas para aproveitar o período completo e maximizar suas chances, recomendamos usar
                     o limite máximo.
@@ -1774,7 +1931,7 @@
                         <span>Nossa Estratégia:</span>
                     </div>
                     <div class="destaque-content">
-                        Você pode analisar de 1 a 7 vagas por vez. Para maximizar cada ciclo de candidaturas,
+                        Você pode analisar de 3 a 7 vagas por vez. Para maximizar cada ciclo de candidaturas,
                         recomendamos usar todas as 7 vagas possíveis, aumentando suas chances de sucesso e
                         aproveitando 100% da eficiência do sistema.
                     </div>
@@ -1920,6 +2077,50 @@
                                 target="_blank">
                                 <span class="social-icon">💼</span>LinkedIn: Rafael de Novaes
                             </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials" id="testimonials">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">O que nossos usuários dizem</h2>
+                <p class="section-description">
+                    Histórias reais de profissionais que transformaram suas carreiras com nossas análises
+                </p>
+            </div>
+
+            <div class="testimonials-grid">
+                <div class="testimonial-card fade-in">
+                    <div class="testimonial-content">
+                        <div class="testimonial-quote">"</div>
+                        <p class="testimonial-text">
+                            Fiz ajustes no meu currículo com base no resultado do site. Eu utilizei meu currículo em
+                            português em vagas tanto brasileiras quanto gringas. Quando fui fazer os ajustes aproveitei
+                            pra já criar uma versão do meu currículo em inglês e de lá pra cá consegui duas entrevistas
+                            pra gringa. Não tenho aplicado pra vagas BR, então não sei dizer o impacto aqui, mas tem
+                            funcionado para o mercado internacional.
+                        </p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">T</div>
+                        <div class="author-info">
+                            <h4 class="author-name">Thaís Oliveira</h4>
+                            <p class="author-role">Analista de Negócios</p>
+                        </div>
+                    </div>
+                    <div class="testimonial-results">
+                        <div class="result-item">
+                            <span class="result-number">2</span>
+                            <span class="result-label">entrevistas internacionais</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-number">100%</span>
+                            <span class="result-label">de aproveitamento</span>
                         </div>
                     </div>
                 </div>
