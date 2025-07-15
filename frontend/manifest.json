@@ -1,6 +1,6 @@
 {
-    "name": "RH Super Sincero - Análise de CV com IA",
-    "short_name": "RH Super Sincero",
+    "name": "Análise de CV com IA",
+    "short_name": "CV IA",
     "description": "Análise inteligente de currículos com feedback personalizado e otimizações para ATS",
     "version": "3.0.0",
     "start_url": "/",

@@ -15,7 +15,7 @@ const GiftCode = sequelize.define('GiftCode', {
   description: {
     type: DataTypes.STRING,
     allowNull: true,
-    comment: 'Descrição do código (ex: Curso RH Super Sincero, Promoção Black Friday)'
+    comment: 'Descrição do código (ex: Promoção Especial, Desconto Black Friday)'
   },
   isActive: {
     type: DataTypes.BOOLEAN,

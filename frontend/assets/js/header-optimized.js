@@ -143,7 +143,7 @@ class OptimizedHeaderManager {
                     <div class="header-content">
                         <div class="logo-container">
                             <a href="landing.html">
-                                <img src="assets/img/logo.png" alt="RH Super Sincero" class="logo">
+                                <img src="assets/img/logo.png" alt="Logo" class="logo">
                             </a>
                         </div>
                         <nav class="nav" id="headerNav"></nav>

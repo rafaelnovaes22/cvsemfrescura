@@ -88,7 +88,7 @@ return 7; // Até 7 vagas para todos os usuários
 - 🎪 **Demonstração completa** do valor do produto
 - 🔥 **Maior conversão** após experiência premium
 - 📈 **Satisfação aumentada** com códigos gratuitos
-- 🎓 **Alinhamento** com proposta do curso RH Super Sincero
+- 🎓 **Alinhamento** com proposta de códigos promocionais
 
 ---
 
@@ -108,4 +108,4 @@ return 7; // Até 7 vagas para todos os usuários
 - ✅ **Interface premium** sem restrições
 
 **Mensagem atualizada:**
-> 💡 **Dica:** Com código de presente RH Super Sincero, você ganha 1 análise **completa** gratuita! 
+> 💡 **Dica:** Com código promocional, você ganha 1 análise **completa** gratuita! 

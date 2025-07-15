@@ -14,7 +14,7 @@ const testCodes = [
     {
         code: 'RHSUPER2025',
         maxUses: 5,
-        description: 'Código de presente RH Super Sincero',
+        description: 'Código promocional especial',
         status: 'ATIVO'
     },
     {

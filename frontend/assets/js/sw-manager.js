@@ -182,7 +182,7 @@ class ServiceWorkerManager {
                     <strong>Atualização Disponível</strong>
                 </div>
                 <p style="margin: 0 0 1rem 0; opacity: 0.9; font-size: 0.9rem; line-height: 1.4;">
-                    Uma nova versão do RH Super Sincero está disponível com melhorias de performance.
+                    Uma nova versão está disponível com melhorias de performance.
                 </p>
                 <div style="display: flex; gap: 0.5rem;">
                     <button onclick="window.SWManager.applyUpdate()" style="
