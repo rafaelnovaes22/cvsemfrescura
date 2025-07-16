@@ -1,4 +1,4 @@
-// Configurações do Frontend - CV Sem Frescura
+// Configurações do Frontend - destravaCV
 console.log('🔧 Carregando config.js v2.4...');
 
 const CONFIG = {

@@ -172,7 +172,7 @@ app.use('/health', require('./routes/health')); // Health check endpoint
 // ✅ API health check para Railway
 app.get('/api/health', (req, res) => {
   res.json({
-    message: 'CV Sem Frescura API',
+    message: 'destravaCV API',
     status: 'online',
     timestamp: new Date().toISOString(),
     version: '1.0.0'

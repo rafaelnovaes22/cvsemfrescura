@@ -1,5 +1,5 @@
 /**
- * CV Sem Frescura - Estilos para página de resultados
+ * destravaCV - Estilos para página de resultados
  */
 
 /* Estilos para indicador de carregamento */
@@ -14,8 +14,13 @@
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Estilos para barra de progresso */
@@ -111,8 +116,15 @@
 
 /* Animação para cartões de recomendação */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .recommendation-card {
@@ -139,7 +151,7 @@
     .progress-status {
         flex-direction: column;
     }
-    
+
     .progress-logs {
         max-height: 150px;
     }

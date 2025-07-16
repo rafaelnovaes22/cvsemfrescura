@@ -1,4 +1,4 @@
-// Header Padronizado - CV Sem Frescura
+// Header Padronizado - destravaCV
 class HeaderManager {
     constructor() {
         this.header = null;
@@ -311,7 +311,7 @@ class HeaderManager {
                 <div class="header-content">
                     <div class="logo-container">
                         <a href="landing.html">
-                            <img src="assets/img/logo.png" alt="CV Sem Frescura" class="logo">
+                            <img src="assets/img/novo_logo.png" alt="destravaCV" class="logo">
                         </a>
                     </div>
                     <nav class="nav" id="headerNav"></nav>

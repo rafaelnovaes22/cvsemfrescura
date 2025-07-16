@@ -1,5 +1,5 @@
 /**
- * FASE FINAL: SERVICE WORKER MANAGER - CV Sem Frescura
+ * FASE FINAL: SERVICE WORKER MANAGER - destravaCV
  * Registro, Controle e Comunicação com Service Worker
  * Versão: 3.0.0
  */

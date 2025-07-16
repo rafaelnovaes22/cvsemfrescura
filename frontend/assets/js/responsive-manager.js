@@ -1,5 +1,5 @@
 /**
- * FASE 2: RESPONSIVE MANAGER - CV Sem Frescura
+ * FASE 2: RESPONSIVE MANAGER - destravaCV
  * Sistema Inteligente de Responsividade e Detecção de Dispositivos
  * Versão: 2.0.0
  */

@@ -1,4 +1,4 @@
-// onboarding.js - Gerenciamento do fluxo de onboarding para CV Sem Frescura
+// onboarding.js - Gerenciamento do fluxo de onboarding para destravaCV
 
 document.addEventListener('DOMContentLoaded', function () {
     console.log('Onboarding script carregado');
@@ -260,7 +260,7 @@ function showCompletionMessage() {
     welcomeToast.className = 'welcome-toast';
     welcomeToast.innerHTML = `
         <div class="welcome-toast-content">
-            <h3>Seja bem-vindo ao CV Sem Frescura!</h3>
+            <h3>Seja bem-vindo ao destravaCV!</h3>
             <p>Agora você está pronto para analisar seu currículo e encontrar as melhores vagas.</p>
             <button class="welcome-toast-close">Entendi</button>
         </div>

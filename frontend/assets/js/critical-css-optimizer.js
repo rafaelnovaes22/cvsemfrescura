@@ -1,5 +1,5 @@
 /**
- * FASE FINAL: CRITICAL CSS OPTIMIZER - CV Sem Frescura
+ * FASE FINAL: CRITICAL CSS OPTIMIZER - destravaCV
  * Extração Automática + Carregamento Inteligente + Performance
  * Versão: 3.0.0
  */

@@ -37,7 +37,7 @@ const sendPasswordResetEmail = async (email, name, token) => {
     const mailOptions = {
       from: process.env.FROM_EMAIL || 'noreply@cvsemfrescura.com',
       to: email,
-      subject: '🔐 Redefinir Senha - CV Sem Frescura',
+      subject: '🔐 Redefinir Senha - destravaCV',
       html: `
         <!DOCTYPE html>
         <html>
@@ -112,7 +112,7 @@ const sendPasswordResetEmail = async (email, name, token) => {
         <body>
           <div class="container">
             <div class="header">
-              <div class="logo">CV Sem Frescura</div>
+              <div class="logo">destravaCV</div>
             </div>
             
             <h2 class="title">🔐 Redefinir Senha</h2>
@@ -152,14 +152,14 @@ const sendPasswordResetEmail = async (email, name, token) => {
             
             <div class="footer">
               <p>Este email foi enviado automaticamente. Não responda a este email.</p>
-              <p><strong>CV Sem Frescura</strong> - IA a serviço do que importa: você, seu talento, sua carreira.</p>
+              <p><strong>destravaCV</strong> - IA a serviço do que importa: você, seu talento, sua carreira.</p>
             </div>
           </div>
         </body>
         </html>
       `,
       text: `
-        Redefinir Senha - CV Sem Frescura
+        Redefinir Senha - destravaCV
         
         Olá, ${name}!
         
@@ -173,7 +173,7 @@ const sendPasswordResetEmail = async (email, name, token) => {
         - Só pode ser usado uma vez
         - Se você não solicitou esta redefinição, ignore este email
         
-        CV Sem Frescura
+        destravaCV
         IA a serviço do que importa: você, seu talento, sua carreira.
       `
     };
@@ -207,7 +207,7 @@ const sendPasswordChangedEmail = async (email, name) => {
     const mailOptions = {
       from: process.env.FROM_EMAIL || 'noreply@cvsemfrescura.com',
       to: email,
-      subject: '✅ Senha Alterada - CV Sem Frescura',
+      subject: '✅ Senha Alterada - destravaCV',
       html: `
         <!DOCTYPE html>
         <html>
@@ -267,7 +267,7 @@ const sendPasswordChangedEmail = async (email, name) => {
         <body>
           <div class="container">
             <div class="header">
-              <div class="logo">CV Sem Frescura</div>
+              <div class="logo">destravaCV</div>
             </div>
             
             <h2 class="title">✅ Senha Alterada com Sucesso</h2>
@@ -281,25 +281,25 @@ const sendPasswordChangedEmail = async (email, name) => {
             
             <p>Se você não fez esta alteração, entre em contato conosco imediatamente.</p>
             
-            <div class="footer">
+                        <div class="footer">
               <p>Este email foi enviado automaticamente. Não responda a este email.</p>
-              <p><strong>CV Sem Frescura</strong> - IA a serviço do que importa: você, seu talento, sua carreira.</p>
+              <p><strong>destravaCV</strong> - IA a serviço do que importa: você, seu talento, sua carreira.</p>
             </div>
           </div>
         </body>
         </html>
-      `,
+        `,
       text: `
-        Senha Alterada - CV Sem Frescura
-        
-        Olá, ${name}!
+          Senha Alterada -           destravaCV
+            
+            Olá, ${name}!
         
         Sua senha foi alterada com sucesso!
         Agora você já pode fazer login com sua nova senha.
         
         Se você não fez esta alteração, entre em contato conosco imediatamente.
         
-        CV Sem Frescura
+        destravaCV
         IA a serviço do que importa: você, seu talento, sua carreira.
       `
     };
@@ -323,7 +323,7 @@ const sendContactEmail = async ({ name, email, subject, message }) => {
       from: process.env.FROM_EMAIL || 'noreply@cvsemfrescura.com.br',
       to: 'contato@cvsemfrescura.com.br',
       replyTo: email,
-      subject: `[CV Sem Frescura] ${subject} - ${name}`,
+      subject: `[destravaCV] ${subject} - ${name}`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -406,7 +406,7 @@ const sendContactEmail = async ({ name, email, subject, message }) => {
         <body>
           <div class="container">
             <div class="header">
-              <div class="logo">CV Sem Frescura</div>
+              <div class="logo">destravaCV</div>
               <h2 class="title">📧 Nova Mensagem de Contato</h2>
             </div>
             
@@ -445,14 +445,14 @@ const sendContactEmail = async ({ name, email, subject, message }) => {
             
             <div class="footer">
               <p>Este email foi enviado automaticamente pelo formulário de contato do site.</p>
-              <p><strong>CV Sem Frescura</strong> - Sistema de Contato</p>
+              <p><strong>destravaCV</strong> - Sistema de Contato</p>
             </div>
           </div>
         </body>
         </html>
       `,
       text: `
-        Nova Mensagem de Contato - CV Sem Frescura
+          Nova Mensagem de Contato - destravaCV
         
         Nome: ${name}
         Email: ${email}

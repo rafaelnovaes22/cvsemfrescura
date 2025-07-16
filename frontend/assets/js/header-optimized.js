@@ -1,4 +1,4 @@
-// Header Otimizado - CV Sem Frescura (Versão Performance v4.0)
+// Header Otimizado - destravaCV (Versão Performance v4.0)
 console.log('🚀 Carregando header-optimized.js v4.0 - PERFORMANCE TOTAL');
 
 class OptimizedHeaderManager {
@@ -143,7 +143,7 @@ class OptimizedHeaderManager {
                     <div class="header-content">
                         <div class="logo-container">
                             <a href="landing.html">
-                                <img src="assets/img/logo.png" alt="Logo" class="logo">
+                                <img src="assets/img/novo_logo.png" alt="Logo" class="logo">
                             </a>
                         </div>
                         <nav class="nav" id="headerNav"></nav>

@@ -1,6 +1,6 @@
-// auth.js - Gerenciamento de autenticação e perfil para CV Sem Frescura
+// auth.js - Gerenciamento de autenticação e perfil para destravaCV
 
-// Autenticação de usuários - CV Sem Frescura
+// Autenticação de usuários - destravaCV
 console.log('🔐 Carregando auth.js v2.6...');
 
 // 🔧 CORREÇÃO CRÍTICA: Garantir que CONFIG existe IMEDIATAMENTE

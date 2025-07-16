@@ -1,5 +1,5 @@
 /**
- * FASE FINAL: SERVICE WORKER AVANÇADO - CV Sem Frescura
+ * FASE FINAL: SERVICE WORKER AVANÇADO - destravaCV
  * Cache Inteligente + Estratégias de Rede + Suporte Offline
  * Versão: 3.0.0
  */
@@ -21,7 +21,7 @@ const CRITICAL_RESOURCES = [
     '/assets/js/performance-optimizer.js',
     '/assets/js/responsive-manager.js',
     '/assets/js/auth-optimized.js',
-    '/assets/img/logo.png',
+    '/assets/img/novo_logo.png',
     '/assets/img/logo-optimized.svg',
     '/manifest.json'
 ];
@@ -380,7 +380,7 @@ async function handleOfflineResponse(request) {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Offline - CV Sem Frescura</title>
+                <title>Offline - destravaCV</title>
                 <style>
                     body {
                         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -429,7 +429,7 @@ async function handleOfflineResponse(request) {
                 <div class="offline-container">
                     <div class="offline-icon">📱</div>
                     <h1>Você está offline</h1>
-                    <p>Não foi possível conectar ao CV Sem Frescura. Verifique sua conexão com a internet e tente novamente.</p>
+                    <p>Não foi possível conectar ao destravaCV. Verifique sua conexão com a internet e tente novamente.</p>
                     <button class="retry-btn" onclick="window.location.reload()">
                         Tentar Novamente
                     </button>

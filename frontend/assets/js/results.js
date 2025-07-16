@@ -1,4 +1,4 @@
-// results.js - Integração frontend ATS para CV Sem Frescura
+// results.js - Integração frontend ATS para destravaCV
 // Este script busca os dados de análise na sessionStorage e popula a página de resultados
 // Se não houver dados na sessionStorage, pode buscar da API futuramente
 

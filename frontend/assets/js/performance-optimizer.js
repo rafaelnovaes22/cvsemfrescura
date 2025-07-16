@@ -1,4 +1,4 @@
-// Performance Optimizer - CV Sem Frescura
+// Performance Optimizer - destravaCV
 // Otimizações críticas para melhorar Core Web Vitals
 
 console.log('⚡ Performance Optimizer v1.0 carregado');

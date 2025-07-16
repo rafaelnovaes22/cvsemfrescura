@@ -1,4 +1,4 @@
-// Central Version Management - CV Sem Frescura
+// Central Version Management - destravaCV
 // 🔄 Para atualizar versão: apenas mudar os valores abaixo
 
 const CV_VERSION = {
@@ -51,7 +51,7 @@ window.updateVersion = function (newVersion = null) {
 };
 
 // Log da versão atual
-console.log(`🏷️ CV Sem Frescura v${CV_VERSION.app} - Build ${CV_VERSION.timestamp}`);
+console.log(`🏷️ destravaCV v${CV_VERSION.app} - Build ${CV_VERSION.timestamp}`);
 console.log('💡 Para atualizar versão: updateVersion("2.5.0") no console');
 
 // Exportar globalmente

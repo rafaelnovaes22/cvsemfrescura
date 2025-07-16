@@ -1,5 +1,5 @@
 // auth-optimized.js - Versão otimizada do sistema de autenticação
-// CV Sem Frescura - Foco em performance e menor bundle size
+// destravaCV - Foco em performance e menor bundle size
 
 console.log('🔐 Auth Optimized v1.0 carregado');
 

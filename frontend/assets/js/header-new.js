@@ -1,4 +1,4 @@
-// Header Padronizado - CV Sem Frescura (Versão 3.0 - INSTANTÂNEO TOTAL)
+// Header Padronizado - destravaCV (Versão 3.0 - INSTANTÂNEO TOTAL)
 console.log('🚀 Carregando header-new.js v3.0 - INSTANTÂNEO TOTAL');
 
 class HeaderManager {
@@ -247,7 +247,7 @@ class HeaderManager {
             ">
                 <div>
                     <a href="landing.html">
-                        <img src="assets/img/logo.png" alt="CV Sem Frescura" style="height: 48px; width: auto;">
+                        <img src="assets/img/novo_logo.png" alt="destravaCV" style="height: 48px; width: auto;">
                     </a>
                 </div>
                 <nav style="display: flex; gap: 2rem;" id="headerNav"></nav>
