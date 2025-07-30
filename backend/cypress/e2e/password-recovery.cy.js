@@ -11,7 +11,7 @@ describe('Password Recovery Flow', () => {
 
   before(() => {
     // Registrar usuário de teste
-    cy.request('POST', `${Cypress.env('apiUrl')}/auth/register`, testUser);
+    cy.request('POST', `${Cypress.env('apiUrl')}/user/register`, testUser);
   });
 
   describe('Forgot Password Page', () => {
@@ -75,7 +75,7 @@ describe('Password Recovery Flow', () => {
   describe('Reset Password Page', () => {
     before(() => {
       // Simular obtenção do token de reset
-      cy.request('POST', `${Cypress.env('apiUrl')}/auth/forgot-password`, {
+      cy.request('POST', `${Cypress.env('apiUrl')}/password-reset/forgot-password`, {
         email: testUser.email
       }).then((response) => {
         // Em um ambiente real, o token viria por email

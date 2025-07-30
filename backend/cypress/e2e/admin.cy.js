@@ -16,15 +16,15 @@ describe('Admin Flow', () => {
 
   before(() => {
     // Fazer login como admin
-    cy.request('POST', `${Cypress.env('apiUrl')}/auth/login`, adminUser)
+    cy.request('POST', `${Cypress.env('apiUrl')}/user/login`, adminUser)
       .then((response) => {
         adminToken = response.body.token;
       });
       
     // Criar e fazer login de usuário regular
-    cy.request('POST', `${Cypress.env('apiUrl')}/auth/register`, regularUser)
+    cy.request('POST', `${Cypress.env('apiUrl')}/user/register`, regularUser)
       .then(() => {
-        return cy.request('POST', `${Cypress.env('apiUrl')}/auth/login`, {
+        return cy.request('POST', `${Cypress.env('apiUrl')}/user/login`, {
           email: regularUser.email,
           password: regularUser.password
         });

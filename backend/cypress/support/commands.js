@@ -10,7 +10,7 @@
 
 // Custom command for user login
 Cypress.Commands.add('login', (email, password) => {
-  cy.request('POST', `${Cypress.env('apiUrl')}/auth/login`, {
+  cy.request('POST', `${Cypress.env('apiUrl')}/user/login`, {
     email: email || Cypress.env('testEmail'),
     password: password || Cypress.env('testPassword')
   }).then((response) => {
@@ -37,7 +37,7 @@ Cypress.Commands.add('register', (userData) => {
   
   const user = { ...defaultUser, ...userData };
   
-  cy.request('POST', `${Cypress.env('apiUrl')}/auth/register`, user)
+  cy.request('POST', `${Cypress.env('apiUrl')}/user/register`, user)
     .then((response) => {
       expect(response.status).to.eq(201);
       return response.body;
