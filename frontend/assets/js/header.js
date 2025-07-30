@@ -281,7 +281,7 @@ class HeaderManager {
             console.log('📄 HTML carregado, tamanho:', headerHTML.length);
 
             const headerContainer = document.createElement('div');
-            headerContainer.innerHTML = headerHTML;
+            headerContainer.innerHTML = Sanitizer.sanitizeHtml(headerHTML, ['div', 'nav', 'a', 'span', 'i', 'button', 'ul', 'li', 'img', 'header', 'h1', 'h2', 'h3']);
 
             const headerElement = headerContainer.querySelector('.header');
             console.log('🔍 Elemento header encontrado:', !!headerElement);
@@ -467,9 +467,9 @@ class HeaderManager {
                 ];
         }
 
-        nav.innerHTML = navItems.map(item =>
+        nav.innerHTML = Sanitizer.sanitizeHtml(navItems.map(item =>
             `<a href="${item.href}" class="nav-link">${item.text}</a>`
-        ).join('');
+        ).join(''), ['a']);
     }
 
     getCurrentPage() {

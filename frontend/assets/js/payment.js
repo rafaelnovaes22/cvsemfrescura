@@ -65,7 +65,7 @@ const payment = (() => {
 
       // Mostrar mensagem de erro para o usuário
       safeUpdateElement('paymentMessage', (el) => {
-        el.innerHTML = `
+        el.innerHTML = Sanitizer.sanitizeHtml(`
           <div class="payment-error-message">
             <h4>❌ Erro na configuração do pagamento</h4>
             <p>Não foi possível conectar com o sistema de pagamentos.</p>
@@ -77,7 +77,7 @@ const payment = (() => {
             </ul>
             <p><small>Erro: ${error.message}</small></p>
           </div>
-        `;
+        `, ['div', 'h4', 'p', 'strong', 'ul', 'li', 'small']);
         el.className = 'message error';
         el.style.display = 'block';
       });
@@ -103,7 +103,7 @@ const payment = (() => {
 
       // Mostrar mensagem de erro quando Stripe não carrega
       safeUpdateElement('paymentMessage', (el) => {
-        el.innerHTML = `
+        el.innerHTML = Sanitizer.sanitizeHtml(`
           <div class="payment-error-message">
             <h4>❌ Erro na conexão com sistema de pagamento</h4>
             <p>Não foi possível carregar o processador de pagamentos.</p>
@@ -114,7 +114,7 @@ const payment = (() => {
               <li>📧 Entrar em contato com o suporte se persistir</li>
             </ul>
           </div>
-        `;
+        `, ['div', 'h4', 'p', 'strong', 'ul', 'li']);
         el.className = 'message error';
         el.style.display = 'block';
       });
@@ -131,7 +131,7 @@ const payment = (() => {
 
       // Limpar container apenas se necessário
       if (paymentContainer.children.length > 0) {
-        paymentContainer.innerHTML = '';
+        paymentContainer.textContent = '';
       }
 
       // Configuração compatível com Stripe Elements mais recente
@@ -276,7 +276,7 @@ const payment = (() => {
 
       // Mostrar mensagem de erro quando há problema na inicialização
       safeUpdateElement('paymentMessage', (el) => {
-        el.innerHTML = `
+        el.innerHTML = Sanitizer.sanitizeHtml(`
           <div class="payment-error-message">
             <h4>❌ Erro ao carregar formulário de pagamento</h4>
             <p>Houve um problema ao inicializar o sistema de pagamentos.</p>
@@ -288,7 +288,7 @@ const payment = (() => {
               <li>📧 Entrar em contato com o suporte</li>
             </ul>
           </div>
-        `;
+        `, ['div', 'h4', 'p', 'strong', 'ul', 'li']);
         el.className = 'message error';
         el.style.display = 'block';
       });
@@ -635,13 +635,13 @@ const payment = (() => {
 
       // Mostrar mensagem de sucesso antes de redirecionar
       safeUpdateElement('paymentMessage', (el) => {
-        el.innerHTML = `
+        el.innerHTML = Sanitizer.sanitizeHtml(`
             <div class="payment-success-message">
               <h4>✅ Pagamento realizado com sucesso!</h4>
               <p>${guestData ? 'Sua conta foi criada e os créditos adicionados.' : 'Seus créditos foram adicionados à sua conta.'}</p>
               <p>Redirecionando...</p>
             </div>
-          `;
+          `, ['div', 'h4', 'p']);
         el.className = 'message success';
         el.style.display = 'block';
       });
@@ -707,7 +707,7 @@ const payment = (() => {
       }
 
       safeUpdateElement('paymentMessage', (el) => {
-        el.innerHTML = `
+        el.innerHTML = Sanitizer.sanitizeHtml(`
           <div class="payment-error-message">
             <h4>❌ ${errorType === 'warning' ? 'Atenção' : 'Erro no pagamento'}</h4>
             <p>${errorMessage}</p>
@@ -716,7 +716,7 @@ const payment = (() => {
             '<p><small>Se o problema persistir, tente outro método de pagamento ou entre em contato conosco.</small></p>'
           }
           </div>
-        `;
+        `, ['div', 'h4', 'p', 'small']);
         el.className = `message ${errorType}`;
         el.style.display = 'block';
       });

@@ -258,13 +258,13 @@ async function completeOnboarding(isSkipped = false) {
 function showCompletionMessage() {
     const welcomeToast = document.createElement('div');
     welcomeToast.className = 'welcome-toast';
-    welcomeToast.innerHTML = `
+    welcomeToast.innerHTML = Sanitizer.sanitizeHtml(`
         <div class="welcome-toast-content">
             <h3>Seja bem-vindo ao destravaCV!</h3>
             <p>Agora você está pronto para analisar seu currículo e encontrar as melhores vagas.</p>
             <button class="welcome-toast-close">Entendi</button>
         </div>
-    `;
+    `, ['div', 'h3', 'p', 'button']);
 
     document.body.appendChild(welcomeToast);
 
