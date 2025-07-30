@@ -1,0 +1,62 @@
+⚠️ ENCRYPTION_KEY não configurada. Usando chave temporária para desenvolvimento.
+[32minfo[39m: Ambiente de desenvolvimento detectado - usando SQLite como fallback {"service":"cv-sem-frescura","timestamp":"2025-07-30T16:23:18.651Z"}
+[32minfo[39m: SQLite configurado para desenvolvimento {"service":"cv-sem-frescura","timestamp":"2025-07-30T16:23:18.669Z"}
+Modelo User importado: OK
+🌍 Detectando ambiente...
+📊 NODE_ENV: development
+🚂 RAILWAY_ENVIRONMENT: undefined
+🏠 Local: true
+🚀 Produção: false
+ℹ️ Descriptografia desabilitada ou não necessária
+ℹ️ Usando chaves diretamente do ambiente
+🔍 [DEBUG] SecretKey length: 27
+🔍 [DEBUG] SecretKey masked: your*******************here
+🔍 [DEBUG] Valid Stripe key: false
+🔧 [LOCAL] Configuração para desenvolvimento
+✅ Configuração carregada:
+🔑 Stripe environment: unknown
+🔑 Stripe keys configured: true
+🗄️ Database type: sqlite
+🌐 CORS origins: [
+  'http://localhost:8080',
+  'http://localhost:3000',
+  'http://127.0.0.1:8080',
+  'http://localhost:8080'
+]
+[STRIPE] 🔍 Chave original: your_strip...
+[STRIPE] 🧹 Chave limpa: your_strip...
+[STRIPE] 🔍 Length original vs limpa: 27 vs 27
+[STRIPE] ⚠️ STRIPE_SECRET_KEY não configurada ou inválida.
+[STRIPE] 🔍 Debug - secretKey exists: true
+[STRIPE] 🔍 Debug - secretKey type: string
+[STRIPE] 🔍 Debug - secretKey length: 27
+[STRIPE] 🔍 Debug - startsWith sk_: false
+[STRIPE] 🔍 Debug - startsWith rk_: false
+[STRIPE] 🔍 First 20 chars: "your_stripe_secret_k"
+Modelo User importado: OK
+✅ Banco de dados sincronizado com segurança
+📊 Tabelas criadas se necessário, sem alterar estruturas existentes
+🚀 ATS backend rodando na porta 3001
+🌐 Frontend servido em: http://localhost:3001
+✅ Servidor pronto para teste de validação!
+[32minfo[39m: HTTP Request {"duration":"3ms","ip":"::1","method":"GET","service":"cv-sem-frescura","status":200,"timestamp":"2025-07-30T16:23:19.369Z","url":"/api/health","userAgent":"curl/8.12.1"}
+[32minfo[39m: HTTP Request {"duration":"4ms","ip":"::ffff:127.0.0.1","method":"GET","service":"cv-sem-frescura","status":200,"timestamp":"2025-07-30T16:23:22.475Z","url":"/register","userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36"}
+[32minfo[39m: HTTP Request {"duration":"1ms","ip":"::ffff:127.0.0.1","method":"GET","service":"cv-sem-frescura","status":200,"timestamp":"2025-07-30T16:23:22.514Z","url":"/assets/img/logo-optimized.svg","userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36"}
+[32minfo[39m: HTTP Request {"duration":"3ms","ip":"::ffff:127.0.0.1","method":"GET","service":"cv-sem-frescura","status":200,"timestamp":"2025-07-30T16:23:22.525Z","url":"/assets/css/header.css","userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36"}
+[32minfo[39m: HTTP Request {"duration":"2ms","ip":"::ffff:127.0.0.1","method":"GET","service":"cv-sem-frescura","status":200,"timestamp":"2025-07-30T16:23:22.531Z","url":"/assets/js/lib/secure-logger.js","userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36"}
+[32minfo[39m: HTTP Request {"duration":"12ms","ip":"::ffff:127.0.0.1","method":"GET","service":"cv-sem-frescura","status":200,"timestamp":"2025-07-30T16:23:22.535Z","url":"/assets/img/novo_logo_site.png","userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36"}
+[32minfo[39m: HTTP Request {"duration":"14ms","ip":"::ffff:127.0.0.1","method":"GET","service":"cv-sem-frescura","status":200,"timestamp":"2025-07-30T16:23:22.537Z","url":"/assets/img/novo_logo.png","userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36"}
+[32minfo[39m: HTTP Request {"duration":"14ms","ip":"::ffff:127.0.0.1","method":"GET","service":"cv-sem-frescura","status":200,"timestamp":"2025-07-30T16:23:22.540Z","url":"/assets/img/novo_logo_fundo.png","userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36"}
+[32minfo[39m: HTTP Request {"duration":"2ms","ip":"::ffff:127.0.0.1","method":"GET","service":"cv-sem-frescura","status":200,"timestamp":"2025-07-30T16:23:22.555Z","url":"[DADOS_SENSÍVEIS_REMOVIDOS]","userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36"}
+[32minfo[39m: HTTP Request {"duration":"3ms","ip":"::ffff:127.0.0.1","method":"GET","service":"cv-sem-frescura","status":200,"timestamp":"2025-07-30T16:23:22.561Z","url":"/assets/js/header-new.js?v=1748114561","userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36"}
+[32minfo[39m: HTTP Request {"duration":"3ms","ip":"::ffff:127.0.0.1","method":"GET","service":"cv-sem-frescura","status":200,"timestamp":"2025-07-30T16:23:22.562Z","url":"/assets/js/utils/sanitizer.js","userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36"}
+[32minfo[39m: HTTP Request {"duration":"2ms","ip":"::ffff:127.0.0.1","method":"GET","service":"cv-sem-frescura","status":200,"timestamp":"2025-07-30T16:23:33.131Z","url":"/register","userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36"}
+[32minfo[39m: HTTP Request {"duration":"1ms","ip":"::ffff:127.0.0.1","method":"GET","service":"cv-sem-frescura","status":200,"timestamp":"2025-07-30T16:23:43.465Z","url":"/register","userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36"}
+[32minfo[39m: HTTP Request {"duration":"1ms","ip":"::ffff:127.0.0.1","method":"GET","service":"cv-sem-frescura","status":200,"timestamp":"2025-07-30T16:23:53.744Z","url":"/register","userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36"}
+[32minfo[39m: HTTP Request {"duration":"2ms","ip":"::ffff:127.0.0.1","method":"GET","service":"cv-sem-frescura","status":200,"timestamp":"2025-07-30T16:24:04.093Z","url":"/register","userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36"}
+[32minfo[39m: HTTP Request {"duration":"2ms","ip":"::ffff:127.0.0.1","method":"GET","service":"cv-sem-frescura","status":200,"timestamp":"2025-07-30T16:24:14.408Z","url":"/register","userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36"}
+[32minfo[39m: HTTP Request {"duration":"8ms","ip":"::ffff:127.0.0.1","method":"POST","service":"cv-sem-frescura","status":404,"timestamp":"2025-07-30T16:24:14.506Z","url":"[DADOS_SENSÍVEIS_REMOVIDOS]","userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36"}
+[32minfo[39m: HTTP Request {"duration":"0ms","ip":"::ffff:127.0.0.1","method":"POST","service":"cv-sem-frescura","status":404,"timestamp":"2025-07-30T16:24:14.741Z","url":"[DADOS_SENSÍVEIS_REMOVIDOS]","userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36"}
+[32minfo[39m: HTTP Request {"duration":"0ms","ip":"::ffff:127.0.0.1","method":"POST","service":"cv-sem-frescura","status":404,"timestamp":"2025-07-30T16:24:14.931Z","url":"[DADOS_SENSÍVEIS_REMOVIDOS]","userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36"}
+[32minfo[39m: HTTP Request {"duration":"1ms","ip":"::ffff:127.0.0.1","method":"POST","service":"cv-sem-frescura","status":404,"timestamp":"2025-07-30T16:24:15.144Z","url":"[DADOS_SENSÍVEIS_REMOVIDOS]","userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36"}
+[32minfo[39m: HTTP Request {"duration":"1ms","ip":"::ffff:127.0.0.1","method":"POST","service":"cv-sem-frescura","status":404,"timestamp":"2025-07-30T16:24:15.309Z","url":"[DADOS_SENSÍVEIS_REMOVIDOS]","userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36"}

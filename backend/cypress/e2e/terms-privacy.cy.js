@@ -137,9 +137,9 @@ describe('Terms and Privacy Flow', () => {
 
     before(() => {
       // Registrar e fazer login
-      cy.request('POST', `${Cypress.env('apiUrl')}/auth/register`, testUser)
+      cy.request('POST', `${Cypress.env('apiUrl')}/user/register`, testUser)
         .then(() => {
-          return cy.request('POST', `${Cypress.env('apiUrl')}/auth/login`, {
+          return cy.request('POST', `${Cypress.env('apiUrl')}/user/login`, {
             email: testUser.email,
             password: testUser.password
           });
