@@ -209,14 +209,12 @@ describe('User Controller', () => {
   describe('getCredits', () => {
     it('should return user credits successfully', async () => {
       req.user = { id: 1 };
-      const mockUser = { credits: 10 };
+      const mockUser = { id: 1, credits: 10 };
       User.findByPk.mockResolvedValue(mockUser);
 
       await userController.getCredits(req, res);
 
-      expect(User.findByPk).toHaveBeenCalledWith(1, {
-        attributes: ['credits']
-      });
+      expect(User.findByPk).toHaveBeenCalledWith(1);
       expect(res.json).toHaveBeenCalledWith({ credits: 10 });
     });
 
