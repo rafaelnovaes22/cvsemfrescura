@@ -8,7 +8,7 @@ describe('Authentication Flow', () => {
 
   describe('User Registration through Login Page', () => {
     beforeEach(() => {
-      cy.visit('/login');
+      cy.visit('/analisar.html?login=true');
     });
 
     it('should display login form with option to register', () => {
@@ -55,7 +55,7 @@ describe('Authentication Flow', () => {
       cy.get('button[type="submit"]').click();
       
       // Should show success message or redirect
-      cy.url().should('not.contain', '/login');
+      cy.url().should('not.contain', 'login=true');
     });
 
     it('should show error for duplicate email', () => {
@@ -63,7 +63,7 @@ describe('Authentication Flow', () => {
       cy.register(testUser);
       
       // Try to register again with same email
-      cy.visit('/login');
+      cy.visit('/analisar.html?login=true');
       cy.contains('Cadastre-se').click();
       cy.get('input[name="name"]').type(testUser.name);
       cy.get('input[name="email"]').type(testUser.email);
@@ -79,7 +79,7 @@ describe('Authentication Flow', () => {
     beforeEach(() => {
       // Register a user first
       cy.register();
-      cy.visit('/login');
+      cy.visit('/analisar.html?login=true');
     });
 
     it('should display login form', () => {
@@ -103,7 +103,7 @@ describe('Authentication Flow', () => {
       cy.get('button[type="submit"]').click();
       
       // Should redirect to dashboard
-      cy.url().should('not.contain', '/login');
+      cy.url().should('not.contain', 'login=true');
       cy.contains('Dashboard').should('be.visible');
     });
 
@@ -126,7 +126,7 @@ describe('Authentication Flow', () => {
       
       cy.reload();
       // Should still be logged in
-      cy.url().should('not.contain', '/login');
+      cy.url().should('not.contain', 'login=true');
     });
   });
 
@@ -142,7 +142,7 @@ describe('Authentication Flow', () => {
 
     it('should successfully logout', () => {
       cy.get('[data-cy="logout-button"]').click();
-      cy.url().should('contain', '/login');
+      cy.url().should('contain', 'login=true');
       cy.get('input[name="email"]').should('be.visible');
     });
 
@@ -159,7 +159,7 @@ describe('Authentication Flow', () => {
   describe('Password Reset', () => {
     beforeEach(() => {
       cy.register();
-      cy.visit('/login');
+      cy.visit('/analisar.html?login=true');
     });
 
     it('should display password reset form', () => {
@@ -206,7 +206,7 @@ describe('Authentication Flow', () => {
     it('should maintain session on page refresh', () => {
       cy.visit('/dashboard');
       cy.reload();
-      cy.url().should('not.contain', '/login');
+      cy.url().should('not.contain', 'login=true');
       cy.contains('Dashboard').should('be.visible');
     });
 
@@ -217,7 +217,7 @@ describe('Authentication Flow', () => {
       });
       
       cy.visit('/dashboard');
-      cy.url().should('contain', '/login');
+      cy.url().should('contain', 'login=true');
     });
 
     it('should handle concurrent sessions', () => {
@@ -229,7 +229,7 @@ describe('Authentication Flow', () => {
       
       // Current session should be updated
       cy.reload();
-      cy.url().should('not.contain', '/login');
+      cy.url().should('not.contain', 'login=true');
     });
 
     it('should clear session on browser close (session storage)', () => {
@@ -245,7 +245,7 @@ describe('Authentication Flow', () => {
       });
       
       cy.reload();
-      cy.url().should('contain', '/login');
+      cy.url().should('contain', 'login=true');
     });
   });
 });
