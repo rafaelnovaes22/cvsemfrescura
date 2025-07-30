@@ -7064,3 +7064,4 @@
 {"duration":"1ms","ip":"::1","level":"info","message":"HTTP Request","method":"GET","service":"cv-sem-frescura","status":200,"timestamp":"2025-07-16T23:58:17.816Z","url":"/assets/img/favicon.png","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"}
 {"level":"info","message":"Usando SQLite para desenvolvimento local","service":"cv-sem-frescura","timestamp":"2025-07-30T15:11:35.135Z"}
 {"level":"info","message":"Usando SQLite para desenvolvimento local","service":"cv-sem-frescura","timestamp":"2025-07-30T15:11:35.241Z"}
+{"level":"info","message":"Usando SQLite para desenvolvimento local","service":"cv-sem-frescura","timestamp":"2025-07-30T15:16:44.101Z"}
