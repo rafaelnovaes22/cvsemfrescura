@@ -1,0 +1,1024 @@
+
+DevTools listening on ws://127.0.0.1:46497/devtools/browser/95ec6ec8-01a1-4e04-806c-a0e0915154c4
+
+================================================================================
+
+  (Run Starting)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Cypress:        14.5.3                                                                         │
+  │ Browser:        Electron 130 (headless)                                                        │
+  │ Node Version:   v22.16.0 (/home/ubuntu/.nvm/versions/node/v22.16.0/bin/node)                   │
+  │ Specs:          12 found (admin.cy.js, auth-updated.cy.js, auth.cy.js, contact.cy.js, cv-analy │
+  │                 sis-complete.cy.js, cv-generation.cy.js, faq.cy.js, gift-code.cy.js, history.c │
+  │                 y.js, password-recovery.cy.js, payment.cy.js, terms-privacy.cy.js)             │
+  │ Searched:       cypress/e2e/**/*.cy.{js,jsx,ts,tsx}                                            │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  admin.cy.js                                                                    (1 of 12)
+
+
+  Admin Flow
+    1) "before all" hook for "should deny access to admin page for non-authenticated users"
+    2) "after all" hook for "should deny access to admin page for non-authenticated users"
+
+
+  0 passing (237ms)
+  2 failing
+
+  1) Admin Flow
+       Admin Access Control
+         "before all" hook for "should deny access to admin page for non-authenticated users":
+     CypressError: `cy.request()` failed on:
+
+http://localhost:3001/api/user/login
+
+The response we received from your web server was:
+
+  > 400: Bad Request
+
+This was considered a failure because the status code was not `2xx` or `3xx`.
+
+If you do not want status codes to cause failures pass the option: `failOnStatusCode: false`
+
+-----------------------------------------------------------
+
+The request we sent was:
+
+Method: POST
+URL: http://localhost:3001/api/user/login
+Headers: {
+  "Connection": "keep-alive",
+  "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36",
+  "accept": "*/*",
+  "accept-encoding": "gzip, deflate",
+  "content-type": "application/json",
+  "content-length": 66
+}
+Body: {"email":"admin@cvsemfrescura.com","password":"AdminPassword123!"}
+
+-----------------------------------------------------------
+
+The response we got was:
+
+Status: 400 - Bad Request
+Headers: {
+  "content-security-policy": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' https://js.stripe.com;img-src 'self' data: https:;connect-src 'self' https://api.openai.com https://api.stripe.com;font-src 'self' https://fonts.gstatic.com;object-src 'none';upgrade-insecure-requests;base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none'",
+  "cross-origin-opener-policy": "same-origin",
+  "cross-origin-resource-policy": "same-origin",
+  "origin-agent-cluster": "?1",
+  "referrer-policy": "no-referrer",
+  "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+  "x-content-type-options": "nosniff",
+  "x-dns-prefetch-control": "off",
+  "x-download-options": "noopen",
+  "x-frame-options": "SAMEORIGIN",
+  "x-permitted-cross-domain-policies": "none",
+  "x-xss-protection": "0",
+  "access-control-allow-origin": "*",
+  "access-control-allow-credentials": "true",
+  "content-type": "application/json; charset=utf-8",
+  "content-length": "158",
+  "etag": "W/\"9e-Ogrc9wEnesje3GshpCqSjXobaeE\"",
+  "date": "Wed, 30 Jul 2025 17:32:52 GMT",
+  "connection": "keep-alive",
+  "keep-alive": "timeout=5"
+}
+Body: {
+  "error": "Este email ainda não está cadastrado no sistema. Por favor, clique em \"Criar Conta\" para fazer seu cadastro primeiro.",
+  "needsRegistration": true
+}
+
+
+https://on.cypress.io/request
+
+Because this error occurred during a `before all` hook we are skipping the remaining tests in the current suite: `Admin Flow`
+      at <unknown> (http://localhost:3001/__cypress/runner/cypress_runner.js:136330:72)
+      at tryCatcher (http://localhost:3001/__cypress/runner/cypress_runner.js:1777:23)
+      at Promise._settlePromiseFromHandler (http://localhost:3001/__cypress/runner/cypress_runner.js:1489:31)
+      at Promise._settlePromise (http://localhost:3001/__cypress/runner/cypress_runner.js:1546:18)
+      at Promise._settlePromise0 (http://localhost:3001/__cypress/runner/cypress_runner.js:1591:10)
+      at Promise._settlePromises (http://localhost:3001/__cypress/runner/cypress_runner.js:1671:18)
+      at _drainQueueStep (http://localhost:3001/__cypress/runner/cypress_runner.js:2377:12)
+      at _drainQueue (http://localhost:3001/__cypress/runner/cypress_runner.js:2370:9)
+      at Async._drainQueues (http://localhost:3001/__cypress/runner/cypress_runner.js:2386:5)
+      at Async.drainQueues (http://localhost:3001/__cypress/runner/cypress_runner.js:2256:14)
+  From Your Spec Code:
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/admin.cy.js:19:7)
+
+  2) Admin Flow
+       Admin Access Control
+         "after all" hook for "should deny access to admin page for non-authenticated users":
+     CypressError: `cy.request()` failed on:
+
+http://localhost:3001/api/test/cleanup
+
+The response we received from your web server was:
+
+  > 404: Not Found
+
+This was considered a failure because the status code was not `2xx` or `3xx`.
+
+If you do not want status codes to cause failures pass the option: `failOnStatusCode: false`
+
+-----------------------------------------------------------
+
+The request we sent was:
+
+Method: DELETE
+URL: http://localhost:3001/api/test/cleanup
+Headers: {
+  "Connection": "keep-alive",
+  "Authorization": "Bearer undefined",
+  "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36",
+  "accept": "*/*",
+  "accept-encoding": "gzip, deflate",
+  "content-type": "application/json",
+  "content-length": 50
+}
+Body: {"email":"regular.test.1753896772209@example.com"}
+
+-----------------------------------------------------------
+
+The response we got was:
+
+Status: 404 - Not Found
+Headers: {
+  "content-security-policy": "default-src 'none'",
+  "cross-origin-opener-policy": "same-origin",
+  "cross-origin-resource-policy": "same-origin",
+  "origin-agent-cluster": "?1",
+  "referrer-policy": "no-referrer",
+  "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+  "x-content-type-options": "nosniff",
+  "x-dns-prefetch-control": "off",
+  "x-download-options": "noopen",
+  "x-frame-options": "SAMEORIGIN",
+  "x-permitted-cross-domain-policies": "none",
+  "x-xss-protection": "0",
+  "access-control-allow-origin": "*",
+  "access-control-allow-credentials": "true",
+  "content-type": "text/html; charset=utf-8",
+  "content-length": "158",
+  "date": "Wed, 30 Jul 2025 17:32:52 GMT",
+  "connection": "keep-alive",
+  "keep-alive": "timeout=5"
+}
+Body: <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot DELETE /api/test/cleanup</pre>
+</body>
+</html>
+
+https://on.cypress.io/request
+
+Because this error occurred during a `after all` hook we are skipping the remaining tests in the current suite: `Admin Flow`
+      at <unknown> (http://localhost:3001/__cypress/runner/cypress_runner.js:136330:72)
+      at tryCatcher (http://localhost:3001/__cypress/runner/cypress_runner.js:1777:23)
+      at Promise._settlePromiseFromHandler (http://localhost:3001/__cypress/runner/cypress_runner.js:1489:31)
+      at Promise._settlePromise (http://localhost:3001/__cypress/runner/cypress_runner.js:1546:18)
+      at Promise._settlePromise0 (http://localhost:3001/__cypress/runner/cypress_runner.js:1591:10)
+      at Promise._settlePromises (http://localhost:3001/__cypress/runner/cypress_runner.js:1671:18)
+      at _drainQueueStep (http://localhost:3001/__cypress/runner/cypress_runner.js:2377:12)
+      at _drainQueue (http://localhost:3001/__cypress/runner/cypress_runner.js:2370:9)
+      at Async._drainQueues (http://localhost:3001/__cypress/runner/cypress_runner.js:2386:5)
+      at Async.drainQueues (http://localhost:3001/__cypress/runner/cypress_runner.js:2256:14)
+  From Your Spec Code:
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/admin.cy.js:345:7)
+
+
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        30                                                                               │
+  │ Passing:      0                                                                                │
+  │ Failing:      1                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      29                                                                               │
+  │ Screenshots:  2                                                                                │
+  │ Video:        true                                                                             │
+  │ Duration:     0 seconds                                                                        │
+  │ Spec Ran:     admin.cy.js                                                                      │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+  (Screenshots)
+
+  -  /workspace/backend/cypress/screenshots/admin.cy.js/Admin Flow -- should deny acc     (1280x720)
+     ess to admin page for non-authenticated users -- before all hook (failed).png                  
+  -  /workspace/backend/cypress/screenshots/admin.cy.js/Admin Flow -- should deny acc     (1280x720)
+     ess to admin page for non-authenticated users -- after all hook (failed).png                   
+
+
+  (Video)
+
+  -  Video output: /workspace/backend/cypress/videos/admin.cy.js.mp4
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  auth-updated.cy.js                                                             (2 of 12)
+
+
+  Authentication Flow - Modal Based
+    User Registration through Modal
+Starting test: should display login modal with option to register
+      1) should display login modal with option to register
+Completed test: should display login modal with option to register
+Starting test: should switch to registration form when clicking register
+Completed test: should switch to registration form when clicking register
+      ✓ should switch to registration form when clicking register (186ms)
+Starting test: should register a new user successfully
+      2) should register a new user successfully
+Completed test: should register a new user successfully
+    User Login through Modal
+Starting test: should display login form in modal
+      3) should display login form in modal
+Completed test: should display login form in modal
+Starting test: should show error for invalid credentials
+      4) "before each" hook for "should show error for invalid credentials"
+Completed test: should show error for invalid credentials
+    Password Reset through Modal
+Starting test: should show forgot password option
+      5) "before each" hook for "should show forgot password option"
+Completed test: should show forgot password option
+    Session Management
+Starting test: should maintain session after login
+      6) "before each" hook for "should maintain session after login"
+Completed test: should maintain session after login
+
+
+  1 passing (32s)
+  6 failing
+
+  1) Authentication Flow - Modal Based
+       User Registration through Modal
+         should display login modal with option to register:
+     AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Não tem uma conta?' but never did.
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/auth-updated.cy.js:19:40)
+
+  2) Authentication Flow - Modal Based
+       User Registration through Modal
+         should register a new user successfully:
+     AssertionError: Timed out retrying after 10000ms: Expected to find element: `#registerForm input[name="name"]`, but never found it.
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/auth-updated.cy.js:35:9)
+
+  3) Authentication Flow - Modal Based
+       User Login through Modal
+         should display login form in modal:
+     AssertionError: Timed out retrying after 10000ms: Expected to find element: `#loginForm input[name="email"]`, but never found it.
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/auth-updated.cy.js:59:47)
+
+  4) Authentication Flow - Modal Based
+       User Login through Modal
+         "before each" hook for "should show error for invalid credentials":
+     CypressError: `cy.request()` failed on:
+
+http://localhost:3001/api/user/register
+
+The response we received from your web server was:
+
+  > 400: Bad Request
+
+This was considered a failure because the status code was not `2xx` or `3xx`.
+
+If you do not want status codes to cause failures pass the option: `failOnStatusCode: false`
+
+-----------------------------------------------------------
+
+The request we sent was:
+
+Method: POST
+URL: http://localhost:3001/api/user/register
+Headers: {
+  "Connection": "keep-alive",
+  "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36",
+  "accept": "*/*",
+  "accept-encoding": "gzip, deflate",
+  "content-type": "application/json",
+  "content-length": 121
+}
+Body: {"name":"E2E Test User","email":"e2e.test.1753896774571@example.com","password":"TestPassword123!","phone":"11987654321"}
+
+-----------------------------------------------------------
+
+The response we got was:
+
+Status: 400 - Bad Request
+Headers: {
+  "content-security-policy": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' https://js.stripe.com;img-src 'self' data: https:;connect-src 'self' https://api.openai.com https://api.stripe.com;font-src 'self' https://fonts.gstatic.com;object-src 'none';upgrade-insecure-requests;base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none'",
+  "cross-origin-opener-policy": "same-origin",
+  "cross-origin-resource-policy": "same-origin",
+  "origin-agent-cluster": "?1",
+  "referrer-policy": "no-referrer",
+  "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+  "x-content-type-options": "nosniff",
+  "x-dns-prefetch-control": "off",
+  "x-download-options": "noopen",
+  "x-frame-options": "SAMEORIGIN",
+  "x-permitted-cross-domain-policies": "none",
+  "x-xss-protection": "0",
+  "access-control-allow-origin": "*",
+  "access-control-allow-credentials": "true",
+  "content-type": "application/json; charset=utf-8",
+  "content-length": "33",
+  "etag": "W/\"21-+7HHFfFT5cNTh3xzIQS+DGwctdU\"",
+  "date": "Wed, 30 Jul 2025 17:33:25 GMT",
+  "connection": "keep-alive",
+  "keep-alive": "timeout=5"
+}
+Body: {
+  "error": "Email já cadastrado."
+}
+
+
+https://on.cypress.io/request
+
+Because this error occurred during a `before each` hook we are skipping the remaining tests in the current suite: `User Login through Modal`
+      at <unknown> (http://localhost:3001/__cypress/runner/cypress_runner.js:136330:72)
+      at tryCatcher (http://localhost:3001/__cypress/runner/cypress_runner.js:1777:23)
+      at Promise._settlePromiseFromHandler (http://localhost:3001/__cypress/runner/cypress_runner.js:1489:31)
+      at Promise._settlePromise (http://localhost:3001/__cypress/runner/cypress_runner.js:1546:18)
+      at Promise._settlePromise0 (http://localhost:3001/__cypress/runner/cypress_runner.js:1591:10)
+      at Promise._settlePromises (http://localhost:3001/__cypress/runner/cypress_runner.js:1671:18)
+      at _drainQueueStep (http://localhost:3001/__cypress/runner/cypress_runner.js:2377:12)
+      at _drainQueue (http://localhost:3001/__cypress/runner/cypress_runner.js:2370:9)
+      at Async._drainQueues (http://localhost:3001/__cypress/runner/cypress_runner.js:2386:5)
+      at Async.drainQueues (http://localhost:3001/__cypress/runner/cypress_runner.js:2256:14)
+  From Your Spec Code:
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/support/commands.js:40:5)
+      at wrapped (http://localhost:3001/__cypress/runner/cypress_runner.js:141524:43)
+
+  5) Authentication Flow - Modal Based
+       Password Reset through Modal
+         "before each" hook for "should show forgot password option":
+     CypressError: `cy.request()` failed on:
+
+http://localhost:3001/api/user/register
+
+The response we received from your web server was:
+
+  > 400: Bad Request
+
+This was considered a failure because the status code was not `2xx` or `3xx`.
+
+If you do not want status codes to cause failures pass the option: `failOnStatusCode: false`
+
+-----------------------------------------------------------
+
+The request we sent was:
+
+Method: POST
+URL: http://localhost:3001/api/user/register
+Headers: {
+  "Connection": "keep-alive",
+  "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36",
+  "accept": "*/*",
+  "accept-encoding": "gzip, deflate",
+  "content-type": "application/json",
+  "content-length": 121
+}
+Body: {"name":"E2E Test User","email":"e2e.test.1753896774571@example.com","password":"TestPassword123!","phone":"11987654321"}
+
+-----------------------------------------------------------
+
+The response we got was:
+
+Status: 400 - Bad Request
+Headers: {
+  "content-security-policy": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' https://js.stripe.com;img-src 'self' data: https:;connect-src 'self' https://api.openai.com https://api.stripe.com;font-src 'self' https://fonts.gstatic.com;object-src 'none';upgrade-insecure-requests;base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none'",
+  "cross-origin-opener-policy": "same-origin",
+  "cross-origin-resource-policy": "same-origin",
+  "origin-agent-cluster": "?1",
+  "referrer-policy": "no-referrer",
+  "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+  "x-content-type-options": "nosniff",
+  "x-dns-prefetch-control": "off",
+  "x-download-options": "noopen",
+  "x-frame-options": "SAMEORIGIN",
+  "x-permitted-cross-domain-policies": "none",
+  "x-xss-protection": "0",
+  "access-control-allow-origin": "*",
+  "access-control-allow-credentials": "true",
+  "content-type": "application/json; charset=utf-8",
+  "content-length": "33",
+  "etag": "W/\"21-+7HHFfFT5cNTh3xzIQS+DGwctdU\"",
+  "date": "Wed, 30 Jul 2025 17:33:26 GMT",
+  "connection": "keep-alive",
+  "keep-alive": "timeout=5"
+}
+Body: {
+  "error": "Email já cadastrado."
+}
+
+
+https://on.cypress.io/request
+
+Because this error occurred during a `before each` hook we are skipping the remaining tests in the current suite: `Password Reset through Modal`
+      at <unknown> (http://localhost:3001/__cypress/runner/cypress_runner.js:136330:72)
+      at tryCatcher (http://localhost:3001/__cypress/runner/cypress_runner.js:1777:23)
+      at Promise._settlePromiseFromHandler (http://localhost:3001/__cypress/runner/cypress_runner.js:1489:31)
+      at Promise._settlePromise (http://localhost:3001/__cypress/runner/cypress_runner.js:1546:18)
+      at Promise._settlePromise0 (http://localhost:3001/__cypress/runner/cypress_runner.js:1591:10)
+      at Promise._settlePromises (http://localhost:3001/__cypress/runner/cypress_runner.js:1671:18)
+      at _drainQueueStep (http://localhost:3001/__cypress/runner/cypress_runner.js:2377:12)
+      at _drainQueue (http://localhost:3001/__cypress/runner/cypress_runner.js:2370:9)
+      at Async._drainQueues (http://localhost:3001/__cypress/runner/cypress_runner.js:2386:5)
+      at Async.drainQueues (http://localhost:3001/__cypress/runner/cypress_runner.js:2256:14)
+  From Your Spec Code:
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/support/commands.js:40:5)
+      at wrapped (http://localhost:3001/__cypress/runner/cypress_runner.js:141524:43)
+
+  6) Authentication Flow - Modal Based
+       Session Management
+         "before each" hook for "should maintain session after login":
+     CypressError: `cy.request()` failed on:
+
+http://localhost:3001/api/user/register
+
+The response we received from your web server was:
+
+  > 400: Bad Request
+
+This was considered a failure because the status code was not `2xx` or `3xx`.
+
+If you do not want status codes to cause failures pass the option: `failOnStatusCode: false`
+
+-----------------------------------------------------------
+
+The request we sent was:
+
+Method: POST
+URL: http://localhost:3001/api/user/register
+Headers: {
+  "Connection": "keep-alive",
+  "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36",
+  "accept": "*/*",
+  "accept-encoding": "gzip, deflate",
+  "content-type": "application/json",
+  "content-length": 121
+}
+Body: {"name":"E2E Test User","email":"e2e.test.1753896774571@example.com","password":"TestPassword123!","phone":"11987654321"}
+
+-----------------------------------------------------------
+
+The response we got was:
+
+Status: 400 - Bad Request
+Headers: {
+  "content-security-policy": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' https://js.stripe.com;img-src 'self' data: https:;connect-src 'self' https://api.openai.com https://api.stripe.com;font-src 'self' https://fonts.gstatic.com;object-src 'none';upgrade-insecure-requests;base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none'",
+  "cross-origin-opener-policy": "same-origin",
+  "cross-origin-resource-policy": "same-origin",
+  "origin-agent-cluster": "?1",
+  "referrer-policy": "no-referrer",
+  "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+  "x-content-type-options": "nosniff",
+  "x-dns-prefetch-control": "off",
+  "x-download-options": "noopen",
+  "x-frame-options": "SAMEORIGIN",
+  "x-permitted-cross-domain-policies": "none",
+  "x-xss-protection": "0",
+  "access-control-allow-origin": "*",
+  "access-control-allow-credentials": "true",
+  "content-type": "application/json; charset=utf-8",
+  "content-length": "33",
+  "etag": "W/\"21-+7HHFfFT5cNTh3xzIQS+DGwctdU\"",
+  "date": "Wed, 30 Jul 2025 17:33:26 GMT",
+  "connection": "keep-alive",
+  "keep-alive": "timeout=5"
+}
+Body: {
+  "error": "Email já cadastrado."
+}
+
+
+https://on.cypress.io/request
+
+Because this error occurred during a `before each` hook we are skipping the remaining tests in the current suite: `Session Management`
+      at <unknown> (http://localhost:3001/__cypress/runner/cypress_runner.js:136330:72)
+      at tryCatcher (http://localhost:3001/__cypress/runner/cypress_runner.js:1777:23)
+      at Promise._settlePromiseFromHandler (http://localhost:3001/__cypress/runner/cypress_runner.js:1489:31)
+      at Promise._settlePromise (http://localhost:3001/__cypress/runner/cypress_runner.js:1546:18)
+      at Promise._settlePromise0 (http://localhost:3001/__cypress/runner/cypress_runner.js:1591:10)
+      at Promise._settlePromises (http://localhost:3001/__cypress/runner/cypress_runner.js:1671:18)
+      at _drainQueueStep (http://localhost:3001/__cypress/runner/cypress_runner.js:2377:12)
+      at _drainQueue (http://localhost:3001/__cypress/runner/cypress_runner.js:2370:9)
+      at Async._drainQueues (http://localhost:3001/__cypress/runner/cypress_runner.js:2386:5)
+      at Async.drainQueues (http://localhost:3001/__cypress/runner/cypress_runner.js:2256:14)
+  From Your Spec Code:
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/support/commands.js:40:5)
+      at wrapped (http://localhost:3001/__cypress/runner/cypress_runner.js:141524:43)
+
+
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        12                                                                               │
+  │ Passing:      1                                                                                │
+  │ Failing:      6                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      5                                                                                │
+  │ Screenshots:  6                                                                                │
+  │ Video:        true                                                                             │
+  │ Duration:     31 seconds                                                                       │
+  │ Spec Ran:     auth-updated.cy.js                                                               │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+  (Screenshots)
+
+  -  /workspace/backend/cypress/screenshots/auth-updated.cy.js/Authentication Flow -      (1280x720)
+     Modal Based -- User Registration through Modal -- should display login modal wit               
+     h option to register (failed).png                                                              
+  -  /workspace/backend/cypress/screenshots/auth-updated.cy.js/Authentication Flow -      (1280x720)
+     Modal Based -- User Registration through Modal -- should register a new user suc               
+     cessfully (failed).png                                                                         
+  -  /workspace/backend/cypress/screenshots/auth-updated.cy.js/Authentication Flow -      (1280x720)
+     Modal Based -- User Login through Modal -- should display login form in modal (f               
+     ailed).png                                                                                     
+  -  /workspace/backend/cypress/screenshots/auth-updated.cy.js/Authentication Flow -      (1280x720)
+     Modal Based -- User Login through Modal -- should show error for invalid credent               
+     ials -- before each hook (failed).png                                                          
+  -  /workspace/backend/cypress/screenshots/auth-updated.cy.js/Authentication Flow -      (1280x720)
+     Modal Based -- Password Reset through Modal -- should show forgot password optio               
+     n -- before each hook (failed).png                                                             
+  -  /workspace/backend/cypress/screenshots/auth-updated.cy.js/Authentication Flow -      (1280x720)
+     Modal Based -- Session Management -- should maintain session after login -- befo               
+     re each hook (failed).png                                                                      
+
+
+  (Video)
+
+  -  Video output: /workspace/backend/cypress/videos/auth-updated.cy.js.mp4
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  auth.cy.js                                                                     (3 of 12)
+
+
+  Authentication Flow
+    User Registration through Login Page
+Starting test: should display login form with option to register
+      1) should display login form with option to register
+Completed test: should display login form with option to register
+Starting test: should switch to registration form when clicking register
+      2) should switch to registration form when clicking register
+Completed test: should switch to registration form when clicking register
+Starting test: should show validation errors for empty fields
+      3) should show validation errors for empty fields
+Completed test: should show validation errors for empty fields
+Starting test: should show validation error for invalid email
+      4) should show validation error for invalid email
+Completed test: should show validation error for invalid email
+Starting test: should show validation error for weak password
+      5) should show validation error for weak password
+Completed test: should show validation error for weak password
+Starting test: should successfully register a new user
+      6) should successfully register a new user
+Completed test: should successfully register a new user
+Starting test: should show error for duplicate email
+      7) should show error for duplicate email
+Completed test: should show error for duplicate email
+    User Login
+Starting test: should display login form
+      8) should display login form
+Completed test: should display login form
+Starting test: should show error for invalid credentials
+      9) should show error for invalid credentials
+Completed test: should show error for invalid credentials
+Starting test: should successfully login with valid credentials
+      10) should successfully login with valid credentials
+Completed test: should successfully login with valid credentials
+Starting test: should show password visibility toggle
+      11) should show password visibility toggle
+Completed test: should show password visibility toggle
+Starting test: should remember user with "Remember me" checkbox
+      12) should remember user with "Remember me" checkbox
+Completed test: should remember user with "Remember me" checkbox
+    User Logout
+Starting test: should display logout button when logged in
+      13) "before each" hook for "should display logout button when logged in"
+Completed test: should display logout button when logged in
+    Password Reset
+Starting test: should display password reset form
+      14) should display password reset form
+Completed test: should display password reset form
+Starting test: should show validation error for empty email
+      15) should show validation error for empty email
+Completed test: should show validation error for empty email
+Starting test: should show validation error for invalid email
+      16) should show validation error for invalid email
+Completed test: should show validation error for invalid email
+Starting test: should successfully request password reset
+      17) should successfully request password reset
+Completed test: should successfully request password reset
+Starting test: should show error for non-existent email
+      18) should show error for non-existent email
+Completed test: should show error for non-existent email
+    Session Management
+Starting test: should maintain session on page refresh
+      19) "before each" hook for "should maintain session on page refresh"
+Completed test: should maintain session on page refresh
+
+
+  0 passing (3m)
+  19 failing
+
+  1) Authentication Flow
+       User Registration through Login Page
+         should display login form with option to register:
+     AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Não tem uma conta?' but never did.
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/auth.cy.js:16:40)
+
+  2) Authentication Flow
+       User Registration through Login Page
+         should switch to registration form when clicking register:
+     AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name="name"]`, but never found it.
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/auth.cy.js:22:35)
+
+  3) Authentication Flow
+       User Registration through Login Page
+         should show validation errors for empty fields:
+     CypressError: `cy.click()` can only be called on a single element. Your subject contained 2 elements. Pass `{ multiple: true }` if you want to serially click each element.
+
+https://on.cypress.io/click
+      at mouseAction (http://localhost:3001/__cypress/runner/cypress_runner.js:113980:68)
+      at Context.click (http://localhost:3001/__cypress/runner/cypress_runner.js:114147:14)
+      at wrapped (http://localhost:3001/__cypress/runner/cypress_runner.js:141532:19)
+  From Your Spec Code:
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/auth.cy.js:30:38)
+
+  4) Authentication Flow
+       User Registration through Login Page
+         should show validation error for invalid email:
+     AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name="email"]`, but never found it.
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/auth.cy.js:36:9)
+
+  5) Authentication Flow
+       User Registration through Login Page
+         should show validation error for weak password:
+     AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name="password"]`, but never found it.
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/auth.cy.js:43:9)
+
+  6) Authentication Flow
+       User Registration through Login Page
+         should successfully register a new user:
+     AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name="name"]`, but never found it.
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/auth.cy.js:50:9)
+
+  7) Authentication Flow
+       User Registration through Login Page
+         should show error for duplicate email:
+     AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name="name"]`, but never found it.
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/auth.cy.js:68:9)
+
+  8) Authentication Flow
+       User Login
+         should display login form:
+     AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name="email"]`, but never found it.
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/auth.cy.js:87:36)
+
+  9) Authentication Flow
+       User Login
+         should show error for invalid credentials:
+     AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name="email"]`, but never found it.
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/auth.cy.js:93:9)
+
+  10) Authentication Flow
+       User Login
+         should successfully login with valid credentials:
+     AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name="email"]`, but never found it.
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/auth.cy.js:101:9)
+
+  11) Authentication Flow
+       User Login
+         should show password visibility toggle:
+     AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name="password"]`, but never found it.
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/auth.cy.js:111:39)
+
+  12) Authentication Flow
+       User Login
+         should remember user with "Remember me" checkbox:
+     AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[type="checkbox"]`, but never found it.
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/auth.cy.js:117:9)
+
+  13) Authentication Flow
+       User Logout
+         "before each" hook for "should display logout button when logged in":
+     CypressError: `cy.request()` failed on:
+
+http://localhost:3001/api/user/login
+
+The response we received from your web server was:
+
+  > 400: Bad Request
+
+This was considered a failure because the status code was not `2xx` or `3xx`.
+
+If you do not want status codes to cause failures pass the option: `failOnStatusCode: false`
+
+-----------------------------------------------------------
+
+The request we sent was:
+
+Method: POST
+URL: http://localhost:3001/api/user/login
+Headers: {
+  "Connection": "keep-alive",
+  "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36",
+  "accept": "*/*",
+  "accept-encoding": "gzip, deflate",
+  "content-type": "application/json",
+  "content-length": 52
+}
+Body: {"email":"test@example.com","password":"Test123!@#"}
+
+-----------------------------------------------------------
+
+The response we got was:
+
+Status: 400 - Bad Request
+Headers: {
+  "content-security-policy": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' https://js.stripe.com;img-src 'self' data: https:;connect-src 'self' https://api.openai.com https://api.stripe.com;font-src 'self' https://fonts.gstatic.com;object-src 'none';upgrade-insecure-requests;base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none'",
+  "cross-origin-opener-policy": "same-origin",
+  "cross-origin-resource-policy": "same-origin",
+  "origin-agent-cluster": "?1",
+  "referrer-policy": "no-referrer",
+  "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+  "x-content-type-options": "nosniff",
+  "x-dns-prefetch-control": "off",
+  "x-download-options": "noopen",
+  "x-frame-options": "SAMEORIGIN",
+  "x-permitted-cross-domain-policies": "none",
+  "x-xss-protection": "0",
+  "access-control-allow-origin": "*",
+  "access-control-allow-credentials": "true",
+  "content-type": "application/json; charset=utf-8",
+  "content-length": "158",
+  "etag": "W/\"9e-Ogrc9wEnesje3GshpCqSjXobaeE\"",
+  "date": "Wed, 30 Jul 2025 17:35:23 GMT",
+  "connection": "keep-alive",
+  "keep-alive": "timeout=5"
+}
+Body: {
+  "error": "Este email ainda não está cadastrado no sistema. Por favor, clique em \"Criar Conta\" para fazer seu cadastro primeiro.",
+  "needsRegistration": true
+}
+
+
+https://on.cypress.io/request
+
+Because this error occurred during a `before each` hook we are skipping the remaining tests in the current suite: `User Logout`
+      at <unknown> (http://localhost:3001/__cypress/runner/cypress_runner.js:136330:72)
+      at tryCatcher (http://localhost:3001/__cypress/runner/cypress_runner.js:1777:23)
+      at Promise._settlePromiseFromHandler (http://localhost:3001/__cypress/runner/cypress_runner.js:1489:31)
+      at Promise._settlePromise (http://localhost:3001/__cypress/runner/cypress_runner.js:1546:18)
+      at Promise._settlePromise0 (http://localhost:3001/__cypress/runner/cypress_runner.js:1591:10)
+      at Promise._settlePromises (http://localhost:3001/__cypress/runner/cypress_runner.js:1671:18)
+      at _drainQueueStep (http://localhost:3001/__cypress/runner/cypress_runner.js:2377:12)
+      at _drainQueue (http://localhost:3001/__cypress/runner/cypress_runner.js:2370:9)
+      at Async._drainQueues (http://localhost:3001/__cypress/runner/cypress_runner.js:2386:5)
+      at Async.drainQueues (http://localhost:3001/__cypress/runner/cypress_runner.js:2256:14)
+  From Your Spec Code:
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/support/commands.js:13:5)
+      at wrapped (http://localhost:3001/__cypress/runner/cypress_runner.js:141524:43)
+
+  14) Authentication Flow
+       Password Reset
+         should display password reset form:
+     AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Esqueceu sua senha?' but never did.
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/auth.cy.js:166:9)
+
+  15) Authentication Flow
+       Password Reset
+         should show validation error for empty email:
+     AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Esqueceu sua senha?' but never did.
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/auth.cy.js:172:9)
+
+  16) Authentication Flow
+       Password Reset
+         should show validation error for invalid email:
+     AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Esqueceu sua senha?' but never did.
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/auth.cy.js:178:9)
+
+  17) Authentication Flow
+       Password Reset
+         should successfully request password reset:
+     AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Esqueceu sua senha?' but never did.
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/auth.cy.js:185:9)
+
+  18) Authentication Flow
+       Password Reset
+         should show error for non-existent email:
+     AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Esqueceu sua senha?' but never did.
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/e2e/auth.cy.js:193:9)
+
+  19) Authentication Flow
+       Session Management
+         "before each" hook for "should maintain session on page refresh":
+     CypressError: `cy.request()` failed on:
+
+http://localhost:3001/api/user/login
+
+The response we received from your web server was:
+
+  > 400: Bad Request
+
+This was considered a failure because the status code was not `2xx` or `3xx`.
+
+If you do not want status codes to cause failures pass the option: `failOnStatusCode: false`
+
+-----------------------------------------------------------
+
+The request we sent was:
+
+Method: POST
+URL: http://localhost:3001/api/user/login
+Headers: {
+  "Connection": "keep-alive",
+  "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/14.5.3 Chrome/130.0.6723.137 Electron/33.2.1 Safari/537.36",
+  "accept": "*/*",
+  "accept-encoding": "gzip, deflate",
+  "content-type": "application/json",
+  "content-length": 52
+}
+Body: {"email":"test@example.com","password":"Test123!@#"}
+
+-----------------------------------------------------------
+
+The response we got was:
+
+Status: 400 - Bad Request
+Headers: {
+  "content-security-policy": "default-src 'self';style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-inline' https://js.stripe.com;img-src 'self' data: https:;connect-src 'self' https://api.openai.com https://api.stripe.com;font-src 'self' https://fonts.gstatic.com;object-src 'none';upgrade-insecure-requests;base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none'",
+  "cross-origin-opener-policy": "same-origin",
+  "cross-origin-resource-policy": "same-origin",
+  "origin-agent-cluster": "?1",
+  "referrer-policy": "no-referrer",
+  "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+  "x-content-type-options": "nosniff",
+  "x-dns-prefetch-control": "off",
+  "x-download-options": "noopen",
+  "x-frame-options": "SAMEORIGIN",
+  "x-permitted-cross-domain-policies": "none",
+  "x-xss-protection": "0",
+  "access-control-allow-origin": "*",
+  "access-control-allow-credentials": "true",
+  "content-type": "application/json; charset=utf-8",
+  "content-length": "158",
+  "etag": "W/\"9e-Ogrc9wEnesje3GshpCqSjXobaeE\"",
+  "date": "Wed, 30 Jul 2025 17:36:15 GMT",
+  "connection": "keep-alive",
+  "keep-alive": "timeout=5"
+}
+Body: {
+  "error": "Este email ainda não está cadastrado no sistema. Por favor, clique em \"Criar Conta\" para fazer seu cadastro primeiro.",
+  "needsRegistration": true
+}
+
+
+https://on.cypress.io/request
+
+Because this error occurred during a `before each` hook we are skipping the remaining tests in the current suite: `Session Management`
+      at <unknown> (http://localhost:3001/__cypress/runner/cypress_runner.js:136330:72)
+      at tryCatcher (http://localhost:3001/__cypress/runner/cypress_runner.js:1777:23)
+      at Promise._settlePromiseFromHandler (http://localhost:3001/__cypress/runner/cypress_runner.js:1489:31)
+      at Promise._settlePromise (http://localhost:3001/__cypress/runner/cypress_runner.js:1546:18)
+      at Promise._settlePromise0 (http://localhost:3001/__cypress/runner/cypress_runner.js:1591:10)
+      at Promise._settlePromises (http://localhost:3001/__cypress/runner/cypress_runner.js:1671:18)
+      at _drainQueueStep (http://localhost:3001/__cypress/runner/cypress_runner.js:2377:12)
+      at _drainQueue (http://localhost:3001/__cypress/runner/cypress_runner.js:2370:9)
+      at Async._drainQueues (http://localhost:3001/__cypress/runner/cypress_runner.js:2386:5)
+      at Async.drainQueues (http://localhost:3001/__cypress/runner/cypress_runner.js:2256:14)
+  From Your Spec Code:
+      at Context.eval (webpack://cvsemfrescura-backend/./cypress/support/commands.js:13:5)
+      at wrapped (http://localhost:3001/__cypress/runner/cypress_runner.js:141524:43)
+
+
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        24                                                                               │
+  │ Passing:      0                                                                                │
+  │ Failing:      19                                                                               │
+  │ Pending:      0                                                                                │
+  │ Skipped:      5                                                                                │
+  │ Screenshots:  19                                                                               │
+  │ Video:        true                                                                             │
+  │ Duration:     2 minutes, 47 seconds                                                            │
+  │ Spec Ran:     auth.cy.js                                                                       │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+  (Screenshots)
+
+  -  /workspace/backend/cypress/screenshots/auth.cy.js/Authentication Flow -- User Re     (1280x720)
+     gistration through Login Page -- should display login form with option to regist               
+     er (failed).png                                                                                
+  -  /workspace/backend/cypress/screenshots/auth.cy.js/Authentication Flow -- User Re     (1280x720)
+     gistration through Login Page -- should switch to registration form when clickin               
+     g register (failed).png                                                                        
+  -  /workspace/backend/cypress/screenshots/auth.cy.js/Authentication Flow -- User Re     (1280x720)
+     gistration through Login Page -- should show validation errors for empty fields                
+     (failed).png                                                                                   
+  -  /workspace/backend/cypress/screenshots/auth.cy.js/Authentication Flow -- User Re     (1280x720)
+     gistration through Login Page -- should show validation error for invalid email                
+     (failed).png                                                                                   
+  -  /workspace/backend/cypress/screenshots/auth.cy.js/Authentication Flow -- User Re     (1280x720)
+     gistration through Login Page -- should show validation error for weak password                
+     (failed).png                                                                                   
+  -  /workspace/backend/cypress/screenshots/auth.cy.js/Authentication Flow -- User Re     (1280x720)
+     gistration through Login Page -- should successfully register a new user (failed               
+     ).png                                                                                          
+  -  /workspace/backend/cypress/screenshots/auth.cy.js/Authentication Flow -- User Re     (1280x720)
+     gistration through Login Page -- should show error for duplicate email (failed).               
+     png                                                                                            
+  -  /workspace/backend/cypress/screenshots/auth.cy.js/Authentication Flow -- User Lo     (1280x720)
+     gin -- should display login form (failed).png                                                  
+  -  /workspace/backend/cypress/screenshots/auth.cy.js/Authentication Flow -- User Lo     (1280x720)
+     gin -- should show error for invalid credentials (failed).png                                  
+  -  /workspace/backend/cypress/screenshots/auth.cy.js/Authentication Flow -- User Lo     (1280x720)
+     gin -- should successfully login with valid credentials (failed).png                           
+  -  /workspace/backend/cypress/screenshots/auth.cy.js/Authentication Flow -- User Lo     (1280x720)
+     gin -- should show password visibility toggle (failed).png                                     
+  -  /workspace/backend/cypress/screenshots/auth.cy.js/Authentication Flow -- User Lo     (1280x720)
+     gin -- should remember user with Remember me checkbox (failed).png                             
+  -  /workspace/backend/cypress/screenshots/auth.cy.js/Authentication Flow -- User Lo     (1280x720)
+     gout -- should display logout button when logged in -- before each hook (failed)               
+     .png                                                                                           
+  -  /workspace/backend/cypress/screenshots/auth.cy.js/Authentication Flow -- Passwor     (1280x720)
+     d Reset -- should display password reset form (failed).png                                     
+  -  /workspace/backend/cypress/screenshots/auth.cy.js/Authentication Flow -- Passwor     (1280x720)
+     d Reset -- should show validation error for empty email (failed).png                           
+  -  /workspace/backend/cypress/screenshots/auth.cy.js/Authentication Flow -- Passwor     (1280x720)
+     d Reset -- should show validation error for invalid email (failed).png                         
+  -  /workspace/backend/cypress/screenshots/auth.cy.js/Authentication Flow -- Passwor     (1280x720)
+     d Reset -- should successfully request password reset (failed).png                             
+  -  /workspace/backend/cypress/screenshots/auth.cy.js/Authentication Flow -- Passwor     (1280x720)
+     d Reset -- should show error for non-existent email (failed).png                               
+  -  /workspace/backend/cypress/screenshots/auth.cy.js/Authentication Flow -- Session     (1280x720)
+      Management -- should maintain session on page refresh -- before each hook (fail               
+     ed).png                                                                                        
+
+
+  (Video)
+
+  -  Video output: /workspace/backend/cypress/videos/auth.cy.js.mp4
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  contact.cy.js                                                                  (4 of 12)
+
+
+  Contact/Support Flow
+    Contact Page Access
+Starting test: should access contact page without authentication
+Completed test: should access contact page without authentication
+      ✓ should access contact page without authentication (268ms)
+Starting test: should pre-fill form for authenticated users
+      1) should pre-fill form for authenticated users
+Completed test: should pre-fill form for authenticated users
+    Contact Form Validation
+Starting test: should display contact form elements
+      2) should display contact form elements
+Completed test: should display contact form elements
+Starting test: should show validation errors for empty required fields
+      3) should show validation errors for empty required fields
+Completed test: should show validation errors for empty required fields
+Starting test: should validate email format
+      4) should validate email format
+Completed test: should validate email format
+Starting test: should validate message length
+      5) should validate message length
+Completed test: should validate message length
+Starting test: should show character count for message
+      6) should show character count for message
+Completed test: should show character count for message
+    Contact Form Categories
+Starting test: should display all contact categories
+      7) should display all contact categories
+Completed test: should display all contact categories
+Starting test: should show additional fields for technical support
+      8) should show additional fields for technical support
+Completed test: should show additional fields for technical support
+Starting test: should show urgency field for complaints
+      9) should show urgency field for complaints
+Completed test: should show urgency field for complaints
+    Contact Form Submission
+Starting test: should successfully submit contact form
