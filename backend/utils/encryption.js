@@ -183,9 +183,10 @@ function containsSensitiveData(text) {
 /**
  * Sanitiza logs removendo dados sensíveis
  * @param {any} data - Dados a serem sanitizados
+ * @param {Set} seen - Set para rastrear objetos já visitados (evitar ciclos)
  * @returns {any} - Dados sanitizados
  */
-function sanitizeForLog(data) {
+function sanitizeForLog(data, seen = new Set()) {
     if (!data) return data;
 
     if (typeof data === 'string') {
@@ -196,26 +197,36 @@ function sanitizeForLog(data) {
     }
 
     if (typeof data === 'object') {
+        // Verifica se já processamos este objeto (evita ciclos)
+        if (seen.has(data)) {
+            return '[REFERÊNCIA_CIRCULAR]';
+        }
+        seen.add(data);
+
         const sanitized = Array.isArray(data) ? [] : {};
 
-        for (const [key, value] of Object.entries(data)) {
-            const keyLower = key.toLowerCase();
+        try {
+            for (const [key, value] of Object.entries(data)) {
+                const keyLower = key.toLowerCase();
 
-            // Chaves que devem ser sempre mascaradas
-            if (keyLower.includes('key') ||
-                keyLower.includes('secret') ||
-                keyLower.includes('token') ||
-                keyLower.includes('password') ||
-                keyLower.includes('auth')) {
+                // Chaves que devem ser sempre mascaradas
+                if (keyLower.includes('key') ||
+                    keyLower.includes('secret') ||
+                    keyLower.includes('token') ||
+                    keyLower.includes('password') ||
+                    keyLower.includes('auth')) {
 
-                if (typeof value === 'string') {
-                    sanitized[key] = maskKey(value);
+                    if (typeof value === 'string') {
+                        sanitized[key] = maskKey(value);
+                    } else {
+                        sanitized[key] = '[DADOS_SENSÍVEIS]';
+                    }
                 } else {
-                    sanitized[key] = '[DADOS_SENSÍVEIS]';
+                    sanitized[key] = sanitizeForLog(value, seen);
                 }
-            } else {
-                sanitized[key] = sanitizeForLog(value);
             }
+        } catch (e) {
+            return '[ERRO_AO_SANITIZAR]';
         }
 
         return sanitized;
