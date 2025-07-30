@@ -1,21 +1,12 @@
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
-// DEBUG: Verificar JWT_SECRET
-console.log('🔍 JWT_SECRET está definido?', process.env.JWT_SECRET ? 'SIM ✅' : 'NÃO ❌');
+// Validação de JWT_SECRET sem expor informações
 if (!process.env.JWT_SECRET) {
-  console.log('❌ ERRO: JWT_SECRET não encontrado no .env');
-  console.log('❌ Isso causará erro 401 em todas as requisições autenticadas');
-  console.log('⚠️  JWT_SECRET não definido. Usando secret temporário para desenvolvimento.');
-  console.log('⚠️  DEFINA JWT_SECRET no arquivo .env para produção!');
+  const { logger } = require('./utils/logger');
+  logger.error('JWT_SECRET não configurado - usando valor temporário');
   process.env.JWT_SECRET = 'desenvolvimento_jwt_secret_temporario_minimo_32_caracteres_12345';
 }
-
-// DEBUG: Verificar configurações de proxy e rate limiting
-console.log('🔍 NODE_ENV:', process.env.NODE_ENV);
-console.log('🔍 Trust Proxy habilitado:', process.env.NODE_ENV === 'production' ? 'SIM (1)' : 'SIM (true)');
-console.log('🔍 Rate Limit Window:', parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, 'ms');
-console.log('🔍 Rate Limit Max:', parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, 'requests');
 
 const express = require('express');
 const cors = require('cors');
@@ -59,8 +50,24 @@ if (process.env.NODE_ENV === 'production') {
 
 // Segurança - Headers HTTP
 app.use(helmet({
-  contentSecurityPolicy: false, // Desabilitar CSP para não quebrar o frontend
-  crossOriginEmbedderPolicy: false
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"], // Permitir estilos inline por enquanto
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com"], // Stripe
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https://api.openai.com", "https://api.stripe.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  }
 }));
 
 // Rate limiting - configurações mais permissivas para desenvolvimento
