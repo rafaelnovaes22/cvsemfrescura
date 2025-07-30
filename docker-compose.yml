@@ -30,7 +30,7 @@ services:
       DB_NAME: ${DB_NAME:-cv_sem_frescura}
       DB_USER: ${DB_USER:-cvuser}
       DB_PASSWORD: ${DB_PASSWORD:-cvpass123}
-      JWT_SECRET: ${JWT_SECRET:-2f24d5f16d2d677e9b3fa7e86299fce814e4cf3fc9d75cdcd09a881a484f2e357f983996e3559f53ab646fae167388ee58883cc5e9b0539f5ffeea906bef6448}
+      JWT_SECRET: ${JWT_SECRET:-your_jwt_secret_here_min_32_chars}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-sk-your_openai_api_key_here}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_your_stripe_secret_key_here}
       STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-pk_test_your_stripe_publishable_key_here}
@@ -41,7 +41,7 @@ services:
       SMTP_HOST: smtp.sendgrid.net
       SMTP_PORT: 587
       SMTP_USER: apikey
-      SMTP_PASS: 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
+      SMTP_PASS: ${SMTP_PASS:-your_sendgrid_api_key_here}
       FROM_EMAIL: noreply@cvsemfrescura.com.br
       # Zoho para RECEBIMENTO (emails de contato)
       CONTACT_EMAIL: contato@cvsemfrescura.com.br
