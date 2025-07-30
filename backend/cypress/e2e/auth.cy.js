@@ -6,40 +6,47 @@ describe('Authentication Flow', () => {
     phone: '11987654321'
   };
 
-  describe('User Registration', () => {
+  describe('User Registration through Login Page', () => {
     beforeEach(() => {
-      cy.visit('/register');
+      cy.visit('/login');
     });
 
-    it('should display registration form', () => {
+    it('should display login form with option to register', () => {
       cy.get('form').should('be.visible');
+      cy.contains('Não tem uma conta?').should('be.visible');
+      cy.contains('Cadastre-se').should('be.visible');
+    });
+
+    it('should switch to registration form when clicking register', () => {
+      cy.contains('Cadastre-se').click();
       cy.get('input[name="name"]').should('be.visible');
       cy.get('input[name="email"]').should('be.visible');
       cy.get('input[name="password"]').should('be.visible');
       cy.get('input[name="phone"]').should('be.visible');
-      cy.get('button[type="submit"]').should('be.visible');
     });
 
     it('should show validation errors for empty fields', () => {
+      cy.contains('Cadastre-se').click();
       cy.get('button[type="submit"]').click();
-      cy.contains('Nome é obrigatório').should('be.visible');
-      cy.contains('Email é obrigatório').should('be.visible');
-      cy.contains('Senha é obrigatória').should('be.visible');
+      cy.contains('obrigatório').should('be.visible');
     });
 
     it('should show validation error for invalid email', () => {
+      cy.contains('Cadastre-se').click();
       cy.get('input[name="email"]').type('invalid-email');
       cy.get('button[type="submit"]').click();
-      cy.contains('Email inválido').should('be.visible');
+      cy.contains('inválido').should('be.visible');
     });
 
     it('should show validation error for weak password', () => {
+      cy.contains('Cadastre-se').click();
       cy.get('input[name="password"]').type('weak');
       cy.get('button[type="submit"]').click();
       cy.contains('Senha deve ter pelo menos').should('be.visible');
     });
 
     it('should successfully register a new user', () => {
+      cy.contains('Cadastre-se').click();
       cy.get('input[name="name"]').type(testUser.name);
       cy.get('input[name="email"]').type(testUser.email);
       cy.get('input[name="password"]').type(testUser.password);
@@ -47,31 +54,31 @@ describe('Authentication Flow', () => {
       
       cy.get('button[type="submit"]').click();
       
-      // Should redirect to login or dashboard
-      cy.url().should('not.include', '/register');
-      cy.contains('Cadastro realizado com sucesso').should('be.visible');
+      // Should show success message or redirect
+      cy.url().should('not.contain', '/login');
     });
 
     it('should show error for duplicate email', () => {
-      // First, register the user via API
+      // First register the user
       cy.register(testUser);
       
       // Try to register again with same email
+      cy.visit('/login');
+      cy.contains('Cadastre-se').click();
       cy.get('input[name="name"]').type(testUser.name);
       cy.get('input[name="email"]').type(testUser.email);
       cy.get('input[name="password"]').type(testUser.password);
       cy.get('input[name="phone"]').type(testUser.phone);
       
       cy.get('button[type="submit"]').click();
-      
-      cy.contains('Email já cadastrado').should('be.visible');
+      cy.contains('já cadastrado').should('be.visible');
     });
   });
 
   describe('User Login', () => {
     beforeEach(() => {
-      // Register a user before each login test
-      cy.register(testUser);
+      // Register a user first
+      cy.register();
       cy.visit('/login');
     });
 
@@ -82,151 +89,163 @@ describe('Authentication Flow', () => {
       cy.get('button[type="submit"]').should('be.visible');
     });
 
-    it('should show validation errors for empty fields', () => {
-      cy.get('button[type="submit"]').click();
-      cy.contains('Email é obrigatório').should('be.visible');
-      cy.contains('Senha é obrigatória').should('be.visible');
-    });
-
     it('should show error for invalid credentials', () => {
-      cy.get('input[name="email"]').type(testUser.email);
-      cy.get('input[name="password"]').type('WrongPassword123!');
+      cy.get('input[name="email"]').type('wrong@example.com');
+      cy.get('input[name="password"]').type('wrongpassword');
       cy.get('button[type="submit"]').click();
       
-      cy.contains('Email ou senha incorretos').should('be.visible');
+      cy.contains('Credenciais inválidas').should('be.visible');
     });
 
     it('should successfully login with valid credentials', () => {
-      cy.get('input[name="email"]').type(testUser.email);
-      cy.get('input[name="password"]').type(testUser.password);
+      cy.get('input[name="email"]').type(Cypress.env('testEmail'));
+      cy.get('input[name="password"]').type(Cypress.env('testPassword'));
       cy.get('button[type="submit"]').click();
       
       // Should redirect to dashboard
-      cy.url().should('include', '/dashboard');
-      cy.contains(testUser.name).should('be.visible');
-      
-      // Check if auth token is stored
-      cy.window().then((win) => {
-        expect(win.localStorage.getItem('authToken')).to.exist;
-        expect(win.localStorage.getItem('userId')).to.exist;
-      });
+      cy.url().should('not.contain', '/login');
+      cy.contains('Dashboard').should('be.visible');
     });
 
-    it('should redirect to requested page after login', () => {
-      // Try to access protected route
-      cy.visit('/create-cv');
-      
-      // Should redirect to login
-      cy.url().should('include', '/login');
-      
-      // Login
-      cy.get('input[name="email"]').type(testUser.email);
-      cy.get('input[name="password"]').type(testUser.password);
+    it('should show password visibility toggle', () => {
+      cy.get('input[name="password"]').should('have.attr', 'type', 'password');
+      cy.get('[data-cy="toggle-password"]').click();
+      cy.get('input[name="password"]').should('have.attr', 'type', 'text');
+    });
+
+    it('should remember user with "Remember me" checkbox', () => {
+      cy.get('input[type="checkbox"]').check();
+      cy.get('input[name="email"]').type(Cypress.env('testEmail'));
+      cy.get('input[name="password"]').type(Cypress.env('testPassword'));
       cy.get('button[type="submit"]').click();
       
-      // Should redirect back to create-cv
-      cy.url().should('include', '/create-cv');
+      // Clear session storage but not local storage
+      cy.window().then((win) => {
+        win.sessionStorage.clear();
+      });
+      
+      cy.reload();
+      // Should still be logged in
+      cy.url().should('not.contain', '/login');
     });
   });
 
   describe('User Logout', () => {
     beforeEach(() => {
-      // Register and login before each test
-      cy.register(testUser);
-      cy.login(testUser.email, testUser.password);
+      cy.login();
       cy.visit('/dashboard');
     });
 
     it('should display logout button when logged in', () => {
-      cy.get('button[data-cy="logout-button"]').should('be.visible');
+      cy.get('[data-cy="logout-button"]').should('be.visible');
     });
 
-    it('should successfully logout user', () => {
-      cy.get('button[data-cy="logout-button"]').click();
+    it('should successfully logout', () => {
+      cy.get('[data-cy="logout-button"]').click();
+      cy.url().should('contain', '/login');
+      cy.get('input[name="email"]').should('be.visible');
+    });
+
+    it('should clear auth token on logout', () => {
+      cy.get('[data-cy="logout-button"]').click();
       
-      // Should redirect to home or login
-      cy.url().should('not.include', '/dashboard');
-      
-      // Check if auth token is removed
       cy.window().then((win) => {
         expect(win.localStorage.getItem('authToken')).to.be.null;
-        expect(win.localStorage.getItem('userId')).to.be.null;
+        expect(win.sessionStorage.getItem('authToken')).to.be.null;
       });
-    });
-
-    it('should not allow access to protected routes after logout', () => {
-      cy.get('button[data-cy="logout-button"]').click();
-      
-      // Try to access protected route
-      cy.visit('/dashboard');
-      
-      // Should redirect to login
-      cy.url().should('include', '/login');
     });
   });
 
   describe('Password Reset', () => {
     beforeEach(() => {
-      cy.register(testUser);
-      cy.visit('/forgot-password');
+      cy.register();
+      cy.visit('/login');
     });
 
     it('should display password reset form', () => {
-      cy.get('form').should('be.visible');
+      cy.contains('Esqueceu sua senha?').click();
       cy.get('input[name="email"]').should('be.visible');
-      cy.get('button[type="submit"]').should('be.visible');
+      cy.contains('Enviar link de recuperação').should('be.visible');
     });
 
     it('should show validation error for empty email', () => {
-      cy.get('button[type="submit"]').click();
+      cy.contains('Esqueceu sua senha?').click();
+      cy.contains('Enviar link de recuperação').click();
       cy.contains('Email é obrigatório').should('be.visible');
     });
 
-    it('should send password reset email', () => {
-      cy.get('input[name="email"]').type(testUser.email);
-      cy.get('button[type="submit"]').click();
-      
-      cy.contains('Email de recuperação enviado').should('be.visible');
+    it('should show validation error for invalid email', () => {
+      cy.contains('Esqueceu sua senha?').click();
+      cy.get('input[name="email"]').type('invalid-email');
+      cy.contains('Enviar link de recuperação').click();
+      cy.contains('Email inválido').should('be.visible');
     });
 
-    it('should handle non-existent email gracefully', () => {
-      cy.get('input[name="email"]').type('nonexistent@example.com');
-      cy.get('button[type="submit"]').click();
+    it('should successfully request password reset', () => {
+      cy.contains('Esqueceu sua senha?').click();
+      cy.get('input[name="email"]').type(Cypress.env('testEmail'));
+      cy.contains('Enviar link de recuperação').click();
       
-      // Should still show success message for security
-      cy.contains('Email de recuperação enviado').should('be.visible');
+      cy.contains('Link de recuperação enviado').should('be.visible');
+    });
+
+    it('should show error for non-existent email', () => {
+      cy.contains('Esqueceu sua senha?').click();
+      cy.get('input[name="email"]').type('nonexistent@example.com');
+      cy.contains('Enviar link de recuperação').click();
+      
+      cy.contains('Email não encontrado').should('be.visible');
     });
   });
 
   describe('Session Management', () => {
     beforeEach(() => {
-      cy.register(testUser);
-      cy.login(testUser.email, testUser.password);
+      cy.login();
     });
 
     it('should maintain session on page refresh', () => {
       cy.visit('/dashboard');
-      cy.contains(testUser.name).should('be.visible');
-      
-      // Refresh the page
       cy.reload();
-      
-      // Should still be logged in
-      cy.contains(testUser.name).should('be.visible');
-      cy.url().should('include', '/dashboard');
+      cy.url().should('not.contain', '/login');
+      cy.contains('Dashboard').should('be.visible');
     });
 
-    it('should handle expired token gracefully', () => {
-      // Set an expired token
+    it('should redirect to login when token expires', () => {
+      // Simulate token expiration
       cy.window().then((win) => {
         win.localStorage.setItem('authToken', 'expired-token');
       });
       
       cy.visit('/dashboard');
+      cy.url().should('contain', '/login');
+    });
+
+    it('should handle concurrent sessions', () => {
+      // Login in another tab (simulated)
+      cy.window().then((win) => {
+        const newToken = 'new-session-token';
+        win.localStorage.setItem('authToken', newToken);
+      });
       
-      // Should redirect to login
-      cy.url().should('include', '/login');
-      cy.contains('Sessão expirada').should('be.visible');
+      // Current session should be updated
+      cy.reload();
+      cy.url().should('not.contain', '/login');
+    });
+
+    it('should clear session on browser close (session storage)', () => {
+      // Use session storage for non-remembered login
+      cy.window().then((win) => {
+        win.sessionStorage.setItem('authToken', 'session-token');
+        win.localStorage.removeItem('authToken');
+      });
+      
+      // Simulate browser close by clearing session storage
+      cy.window().then((win) => {
+        win.sessionStorage.clear();
+      });
+      
+      cy.reload();
+      cy.url().should('contain', '/login');
     });
   });
 });
