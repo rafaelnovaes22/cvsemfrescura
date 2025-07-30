@@ -1,0 +1,4 @@
+This file simulates a large PDF that exceeds the size limit.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+[Repeated content to simulate large file - in real tests this would be a large file]
+This content is repeated many times to simulate a large file size for testing file size limits.
