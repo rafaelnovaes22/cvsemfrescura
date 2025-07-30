@@ -29,12 +29,12 @@ const transactionHistory = (() => {
       // Verificar autenticação antes de fazer a requisição
       const token = getAuthToken();
       if (!token) {
-        historyContainer.innerHTML = '<p class="error-state">Você precisa estar logado para ver o histórico.</p>';
+        historyContainer.innerHTML = Sanitizer.sanitizeHtml('<p class="error-state">Você precisa estar logado para ver o histórico.</p>', ['p']);
         return;
       }
 
       // Exibir mensagem de carregamento
-      historyContainer.innerHTML = '<p class="loading">Carregando histórico de transações...</p>';
+      historyContainer.innerHTML = Sanitizer.sanitizeHtml('<p class="loading">Carregando histórico de transações...</p>', ['p']);
 
       const apiBaseUrl = (() => {
         // CONFIG sempre está disponível - usar sempre
@@ -55,7 +55,7 @@ const transactionHistory = (() => {
 
       if (!response.ok) {
         if (response.status === 401) {
-          historyContainer.innerHTML = '<p class="error-state">Sessão expirada. Faça login novamente.</p>';
+          historyContainer.innerHTML = Sanitizer.sanitizeHtml('<p class="error-state">Sessão expirada. Faça login novamente.</p>', ['p']);
           // Limpar dados de autenticação inválidos
           if (window.auth && window.auth.clearAuth) {
             window.auth.clearAuth();
@@ -68,7 +68,7 @@ const transactionHistory = (() => {
       const transactions = await response.json();
 
       if (transactions.length === 0) {
-        historyContainer.innerHTML = '<p class="empty-state">Você ainda não possui transações.</p>';
+        historyContainer.innerHTML = Sanitizer.sanitizeHtml('<p class="empty-state">Você ainda não possui transações.</p>', ['p']);
         return;
       }
 
@@ -123,11 +123,13 @@ const transactionHistory = (() => {
         </table>
       `;
 
-      historyContainer.innerHTML = tableHtml;
+      historyContainer.innerHTML = Sanitizer.sanitizeHtml(tableHtml, ['table', 'thead', 'tbody', 'tr', 'th', 'td', 'span', 'i']);
     } catch (error) {
       console.error('Erro ao carregar histórico:', error);
-      document.getElementById('transaction-history').innerHTML =
-        `<p class="error-state">Erro ao carregar histórico: ${error.message}</p>`;
+      document.getElementById('transaction-history').innerHTML = Sanitizer.sanitizeHtml(
+        '<p class="error-state">Erro ao carregar histórico. Tente novamente mais tarde.</p>',
+        ['p']
+      );
     }
   };
 
@@ -140,12 +142,12 @@ const transactionHistory = (() => {
       // Verificar autenticação antes de fazer a requisição
       const token = getAuthToken();
       if (!token) {
-        analysisContainer.innerHTML = '<p class="error-state">Você precisa estar logado para ver o histórico.</p>';
+        analysisContainer.innerHTML = Sanitizer.sanitizeHtml('<p class="error-state">Você precisa estar logado para ver o histórico.</p>', ['p']);
         return;
       }
 
       // Exibir mensagem de carregamento
-      analysisContainer.innerHTML = '<p class="loading">Carregando histórico de análises...</p>';
+      analysisContainer.innerHTML = Sanitizer.sanitizeHtml('<p class="loading">Carregando histórico de análises...</p>', ['p']);
 
       const apiBaseUrl = (() => {
         // CONFIG sempre está disponível - usar sempre
@@ -166,7 +168,7 @@ const transactionHistory = (() => {
 
       if (!response.ok) {
         if (response.status === 401) {
-          analysisContainer.innerHTML = '<p class="error-state">Sessão expirada. Faça login novamente.</p>';
+          analysisContainer.innerHTML = Sanitizer.sanitizeHtml('<p class="error-state">Sessão expirada. Faça login novamente.</p>', ['p']);
           // Limpar dados de autenticação inválidos
           if (window.auth && window.auth.clearAuth) {
             window.auth.clearAuth();
@@ -179,29 +181,17 @@ const transactionHistory = (() => {
       const analyses = await response.json();
 
       if (analyses.length === 0) {
-        analysisContainer.innerHTML = `
-          <div class="empty-state" style="text-align: center; padding: 40px 20px;">
-            <div style="font-size: 48px; margin-bottom: 16px;">📊</div>
-            <h3 style="color: var(--primary); margin-bottom: 12px;">Nenhuma análise encontrada</h3>
-            <p style="color: #6b7280; margin-bottom: 24px;">
-              Você ainda não realizou nenhuma análise de currículo. 
-              Que tal fazer sua primeira análise agora?
-            </p>
-            <a href="analisar.html" style="
-              display: inline-block; 
-              background: var(--primary); 
-              color: white; 
-              padding: 12px 24px; 
-              border-radius: 8px; 
-              text-decoration: none; 
-              font-weight: 600;
-              transition: background-color 0.3s;
-            " onmouseover="this.style.backgroundColor='var(--primary-dark)'" 
-              onmouseout="this.style.backgroundColor='var(--primary)'">
-              🚀 Fazer primeira análise
+        analysisContainer.innerHTML = Sanitizer.sanitizeHtml(`
+          <p class="empty-state">
+            <i class="fas fa-file-alt" style="font-size: 48px; color: #e0e0e0; margin-bottom: 16px;"></i>
+            <br>
+            Você ainda não realizou nenhuma análise.
+            <br>
+            <a href="/analisar.html" style="color: #10b981; text-decoration: none; font-weight: 500; margin-top: 8px; display: inline-block;">
+              Fazer primeira análise →
             </a>
-          </div>
-        `;
+          </p>
+        `, ['p', 'i', 'br', 'a']);
         return;
       }
 
@@ -246,11 +236,13 @@ const transactionHistory = (() => {
         </table>
       `;
 
-      analysisContainer.innerHTML = tableHtml;
+      analysisContainer.innerHTML = Sanitizer.sanitizeHtml(tableHtml, ['table', 'thead', 'tbody', 'tr', 'th', 'td', 'span', 'button', 'i', 'a']);
     } catch (error) {
       console.error('Erro ao carregar análises:', error);
-      document.getElementById('analysis-history').innerHTML =
-        `<p class="error-state">Erro ao carregar histórico de análises: ${error.message}</p>`;
+      document.getElementById('analysis-history').innerHTML = Sanitizer.sanitizeHtml(
+        '<p class="error-state">Erro ao carregar histórico. Tente novamente mais tarde.</p>',
+        ['p']
+      );
     }
   };
 

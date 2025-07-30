@@ -218,7 +218,7 @@ class HeaderManager {
 
             const headerHTML = await response.text();
             const headerContainer = document.createElement('div');
-            headerContainer.innerHTML = headerHTML;
+            headerContainer.innerHTML = Sanitizer.sanitizeHtml(headerHTML, ['div', 'nav', 'a', 'span', 'i', 'button', 'ul', 'li', 'img', 'header', 'h1', 'h2', 'h3']);
             const headerElement = headerContainer.querySelector('.header');
 
             if (headerElement && document.body) {
@@ -597,12 +597,12 @@ class HeaderManager {
                 break;
         }
 
-        nav.innerHTML = navItems.map(item =>
+        nav.innerHTML = Sanitizer.sanitizeHtml(navItems.map(item =>
             `<a href="${item.href}" style="
                 color: #3f3f46; text-decoration: none; font-weight: 500; 
                 font-size: 0.95rem; padding: 0.5rem 0; transition: color 0.15s;
             " onmouseover="this.style.color='#583819'" onmouseout="this.style.color='#3f3f46'">${item.text}</a>`
-        ).join('');
+        ).join(''), ['a']);
     }
 
     getCurrentPage() {

@@ -68,11 +68,11 @@ document.addEventListener('DOMContentLoaded', function () {
             `;
 
             // Adicionar um pequeno efeito de brilho
-            historicalBadge.innerHTML = `
+            historicalBadge.innerHTML = Sanitizer.sanitizeHtml(`
                 <span style="font-size: 16px;">📋</span>
                 <span>Análise do histórico - consulta gratuita</span>
                 <span style="font-size: 12px; opacity: 0.8; margin-left: 8px;">✨ Sem consumo de créditos</span>
-            `;
+            `, ['span']);
 
             analysisInfo.appendChild(historicalBadge);
         }
@@ -80,8 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Modificar o título para indicar que é histórico
         const pageTitle = document.querySelector('.page-title');
         if (pageTitle) {
-            pageTitle.innerHTML = `📋 Análise de Currículo <small style="font-size: 0.6em; color: #166534; font-weight: 500;">(Histórico)</small>`;
-        }
+            pageTitle.innerHTML = Sanitizer.sanitizeHtml(`📋 Análise de Currículo <small style="font-size: 0.6em; color: #166534; font-weight: 500;">(Histórico)</small>`, ['small']);
     }
 
     // Limpar flag de visualização histórica após carregar
@@ -95,14 +94,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // Palavras-chave das vagas (com contagem e ordenação por relevância)
     const jobKeywordsList = document.getElementById('vaga-keywords');
     if (jobKeywordsList) {
-        jobKeywordsList.innerHTML = '';
+        jobKeywordsList.textContent = '';
 
         // Verificar se temos dados com contagem
         if (atsResult.job_keywords_with_count && atsResult.job_keywords_with_count.length > 0) {
             atsResult.job_keywords_with_count.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'keyword-tag';
-                div.innerHTML = `${item.keyword} <span class="keyword-count">${item.count}x</span>`;
+                div.innerHTML = Sanitizer.sanitizeHtml(`${item.keyword} <span class="keyword-count">${item.count}x</span>`, ['span']);
                 jobKeywordsList.appendChild(div);
             });
 
@@ -117,21 +116,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 jobKeywordsList.appendChild(div);
             });
         } else {
-            jobKeywordsList.innerHTML = '<div style="color: #666; font-style: italic;">Nenhuma palavra-chave identificada nas vagas.</div>';
+            jobKeywordsList.innerHTML = Sanitizer.sanitizeHtml('<div style="color: #666; font-style: italic;">Nenhuma palavra-chave identificada nas vagas.</div>', ['div']);
         }
     }
 
     // Palavras-chave presentes no currículo (comparação direta com texto do currículo)
     const foundKeywordsList = document.getElementById('presentes-keywords');
     if (foundKeywordsList) {
-        foundKeywordsList.innerHTML = '';
+        foundKeywordsList.textContent = '';
 
         // Verificar se temos dados com contagem
         if (atsResult.job_keywords_present_with_count && atsResult.job_keywords_present_with_count.length > 0) {
             atsResult.job_keywords_present_with_count.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'keyword-tag';
-                div.innerHTML = `${item.keyword} <span class="keyword-count">${item.count}x</span>`;
+                div.innerHTML = Sanitizer.sanitizeHtml(`${item.keyword} <span class="keyword-count">${item.count}x</span>`, ['span']);
                 foundKeywordsList.appendChild(div);
             });
         } else {
@@ -147,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     foundKeywordsList.appendChild(div);
                 });
             } else {
-                foundKeywordsList.innerHTML = '<div style="color:red">Nenhuma palavra-chave da vaga foi identificada no currículo ou resultado não disponível.</div>';
+                foundKeywordsList.innerHTML = Sanitizer.sanitizeHtml('<div style="color:red">Nenhuma palavra-chave da vaga foi identificada no currículo ou resultado não disponível.</div>', ['div']);
             }
         }
     }
@@ -156,14 +155,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // Palavras-chave ausentes no currículo (comparação direta com texto do currículo)
     const missingKeywordsList = document.getElementById('ausentes-keywords');
     if (missingKeywordsList) {
-        missingKeywordsList.innerHTML = '';
+        missingKeywordsList.textContent = '';
 
         // Verificar se temos dados com contagem
         if (atsResult.job_keywords_missing_with_count && atsResult.job_keywords_missing_with_count.length > 0) {
             atsResult.job_keywords_missing_with_count.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'keyword-tag';
-                div.innerHTML = `${item.keyword} <span class="keyword-count">${item.count}x</span>`;
+                div.innerHTML = Sanitizer.sanitizeHtml(`${item.keyword} <span class="keyword-count">${item.count}x</span>`, ['span']);
                 missingKeywordsList.appendChild(div);
             });
         } else {
@@ -179,7 +178,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     missingKeywordsList.appendChild(div);
                 });
             } else {
-                missingKeywordsList.innerHTML = '<div style="color:red">Nenhuma palavra-chave ausente identificada ou resultado não disponível.</div>';
+                missingKeywordsList.innerHTML = Sanitizer.sanitizeHtml('<div style="color:red">Nenhuma palavra-chave ausente identificada ou resultado não disponível.</div>', ['div']);
             }
         }
     }
@@ -188,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Recomendações
     const recommendationsList = document.getElementById('recommendations-list');
     if (recommendationsList && atsResult.recommendations) {
-        recommendationsList.innerHTML = '';
+        recommendationsList.textContent = '';
         atsResult.recommendations.forEach(rec => {
             const li = document.createElement('li');
             li.innerText = rec;
@@ -214,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (notaElem) {
                 const nota = parseFloat(avaliacao.nota) || 0;
                 const notaFormatada = formatarNota(nota);
-                notaElem.innerHTML = notaFormatada;
+                notaElem.innerHTML = Sanitizer.sanitizeHtml(notaFormatada, ['span']);
             }
 
             // Texto de avaliação + sugestões
@@ -236,24 +235,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else if (avaliacao.sugestoes) {
                     html += `<div style="background: #f8fafc; border-left: 4px solid #583819; padding: 12px; border-radius: 4px; margin-top: 12px;">${avaliacao.sugestoes}</div>`;
                 }
-                textoElem.innerHTML = html;
+                textoElem.innerHTML = Sanitizer.sanitizeHtml(html, ['div', 'strong', 'ul', 'li', 'span']);
             }
         } else {
             // Se não há dados da análise, mostrar mensagem padrão
             const notaElem = document.getElementById(campo.nota);
             if (notaElem) {
-                notaElem.innerHTML = '<span style="color: #999;">N/A</span>';
+                notaElem.innerHTML = Sanitizer.sanitizeHtml('<span style="color: #999;">N/A</span>', ['span']);
             }
 
             const textoElem = document.getElementById(campo.texto);
             if (textoElem) {
-                textoElem.innerHTML = `
+                textoElem.innerHTML = Sanitizer.sanitizeHtml(`
                     <div style="text-align: center; padding: 20px; color: #666; background: #f9f9f9; border-radius: 8px; border: 2px dashed #ddd;">
                         <div style="font-size: 24px; margin-bottom: 8px;">⏳</div>
                         <p>Análise de ${campo.titulo} não disponível.</p>
                         <p style="font-size: 14px; margin-top: 4px;">Esta seção será avaliada em análises futuras.</p>
                     </div>
-                `;
+                `, ['div', 'p', 'span']);
             }
         }
     });
@@ -279,7 +278,7 @@ function displayCompatibilityScores(atsResult) {
 
     // Método 1: Análise específica do Gupy (mais precisa)
     if (atsResult.gupy_optimization && atsResult.gupy_optimization.length > 0) {
-        compatibilityContainer.innerHTML = '';
+        compatibilityContainer.textContent = '';
 
         atsResult.gupy_optimization.forEach(job => {
             const card = createCompatibilityCard(job, 'gupy');
@@ -289,7 +288,7 @@ function displayCompatibilityScores(atsResult) {
     }
     // Método 2: Análise geral com jobs
     else if (atsResult.jobs && atsResult.jobs.length > 0) {
-        compatibilityContainer.innerHTML = '';
+        compatibilityContainer.textContent = '';
 
         atsResult.jobs.forEach((job, index) => {
             const enhancedJob = {
@@ -313,7 +312,7 @@ function displayCompatibilityScores(atsResult) {
     }
     // Método 3: Criar score único se houver dados de análise
     else if (atsResult.job_keywords || atsResult.found_keywords || atsResult.analysis_summary) {
-        compatibilityContainer.innerHTML = '';
+        compatibilityContainer.textContent = '';
 
         // Garantir consistência nos dados
         const presentKeywords = atsResult.job_keywords_present || atsResult.found_keywords || [];
@@ -341,7 +340,7 @@ function displayCompatibilityScores(atsResult) {
 
     // Se não houver dados suficientes
     if (!hasScores) {
-        compatibilityContainer.innerHTML = `
+        compatibilityContainer.innerHTML = Sanitizer.sanitizeHtml(`
             <div style="text-align: center; padding: 40px; color: #666; background: #f8f9fa; border-radius: 12px; border: 2px dashed #ddd;">
                 <div style="font-size: 48px; margin-bottom: 16px;">📊</div>
                 <h3 style="color: #583819; margin-bottom: 12px;">Score de Compatibilidade ATS</h3>
@@ -350,7 +349,7 @@ function displayCompatibilityScores(atsResult) {
                     Certifique-se de incluir links de vagas na sua análise para ver os scores individuais.
                 </p>
             </div>
-        `;
+        `, ['div', 'h3', 'p', 'span']);
     }
 }
 
@@ -374,7 +373,7 @@ function createCompatibilityCard(job, type = 'general') {
     const totalKeywords = job.keyword_analysis?.total || (presentCount + missingCount);
     const matchPercentage = totalKeywords > 0 ? Math.round((presentCount / totalKeywords) * 100) : 0;
 
-    card.innerHTML = `
+    card.innerHTML = Sanitizer.sanitizeHtml(`
         <div class="job-header">
             <div>
                 <div class="job-title">${job.job_title}</div>
@@ -447,7 +446,7 @@ function createCompatibilityCard(job, type = 'general') {
                 </a>
             </div>
         ` : ''}
-    `;
+    `, ['div', 'span', 'a', 'p', 'strong', 'em', 'div', 'h3', 'h4', 'p', 'small', 'div', 'ul', 'li']);
 
     return card;
 }
@@ -600,13 +599,13 @@ function formatarNota(nota) {
         emoji = '🌱';
     }
 
-    return `
+    return Sanitizer.sanitizeHtml(`
         <div style="display: flex; align-items: center; gap: 8px;">
             <span style="font-size: 18px;">${emoji}</span>
             <span style="color: ${cor}; font-weight: 700; font-size: 16px;">${notaNum}/10</span>
             <span style="color: ${cor}; font-size: 13px; font-weight: 600; background: ${cor}15; padding: 4px 8px; border-radius: 12px;">${texto}</span>
         </div>
-    `;
+    `, ['div', 'span', 'strong', 'em']);
 }
 
 
