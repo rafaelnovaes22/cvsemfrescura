@@ -1,0 +1,41 @@
+{
+  "fullName": "João Silva Santos",
+  "email": "joao.silva@example.com",
+  "phone": "(11) 98765-4321",
+  "address": "Rua das Flores, 123 - São Paulo, SP",
+  "linkedin": "linkedin.com/in/joaosilva",
+  "objective": "Busco oportunidade como Desenvolvedor Full Stack para aplicar meus conhecimentos em React e Node.js, contribuindo para o crescimento da empresa através de soluções inovadoras.",
+  "experience": [
+    {
+      "position": "Desenvolvedor Full Stack",
+      "company": "Tech Solutions Ltda",
+      "period": "2022 - Presente",
+      "description": "Desenvolvimento de aplicações web usando React, Node.js e MongoDB. Responsável pela arquitetura de microserviços e implementação de CI/CD."
+    },
+    {
+      "position": "Desenvolvedor Junior",
+      "company": "StartUp XYZ",
+      "period": "2020 - 2022",
+      "description": "Manutenção e desenvolvimento de features em aplicações web. Trabalho com metodologias ágeis e pair programming."
+    }
+  ],
+  "education": [
+    {
+      "degree": "Bacharelado em Ciência da Computação",
+      "institution": "Universidade Federal de São Paulo",
+      "period": "2016 - 2020"
+    }
+  ],
+  "skills": ["JavaScript", "React", "Node.js", "MongoDB", "Git", "Docker", "AWS", "TypeScript"],
+  "languages": [
+    { "language": "Inglês", "level": "Avançado" },
+    { "language": "Espanhol", "level": "Intermediário" }
+  ],
+  "certifications": [
+    {
+      "name": "AWS Certified Developer",
+      "issuer": "Amazon Web Services",
+      "year": "2023"
+    }
+  ]
+}

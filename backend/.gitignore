@@ -1,0 +1,7 @@
+
+# Cypress
+backend/cypress/videos/
+backend/cypress/screenshots/
+backend/cypress/downloads/
+backend/cypress.env.json
+*.mp4
