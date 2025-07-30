@@ -1,0 +1,2 @@
+This is an invalid file type for CV upload.
+Should be rejected by the system.

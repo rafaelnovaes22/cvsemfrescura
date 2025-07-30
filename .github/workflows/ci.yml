@@ -12,7 +12,7 @@ jobs:
     
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version: [18.x, 20.x]
     
     steps:
     - uses: actions/checkout@v3
@@ -29,27 +29,151 @@ jobs:
         cd backend
         npm ci
     
-    - name: Run tests
+    - name: Run unit tests
       run: |
         cd backend
         npm test
       env:
         NODE_ENV: test
     
+    - name: Run test coverage
+      run: |
+        cd backend
+        npm run test:coverage || echo "No coverage script found"
+    
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        directory: ./backend/coverage
+        flags: unittests
+        name: codecov-umbrella
+    
     - name: Run linting
       run: |
         cd backend
         npm run lint || echo "No lint script found"
-    
-  deploy:
+
+  e2e-tests:
+    runs-on: ubuntu-latest
     needs: test
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: testpassword
+          MYSQL_DATABASE: testdb
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18.x
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+    
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        npm ci
+    
+    - name: Setup test database
+      run: |
+        cd backend
+        cp .env.example .env.test
+        echo "DB_HOST=localhost" >> .env.test
+        echo "DB_PORT=3306" >> .env.test
+        echo "DB_USER=root" >> .env.test
+        echo "DB_PASSWORD=testpassword" >> .env.test
+        echo "DB_NAME=testdb" >> .env.test
+      env:
+        NODE_ENV: test
+    
+    - name: Start backend server
+      run: |
+        cd backend
+        npm start &
+        sleep 10
+      env:
+        NODE_ENV: test
+        PORT: 3001
+    
+    - name: Run Cypress tests
+      uses: cypress-io/github-action@v5
+      with:
+        working-directory: backend
+        wait-on: 'http://localhost:3001'
+        wait-on-timeout: 120
+        record: false
+        config-file: cypress.config.js
+      env:
+        CYPRESS_baseUrl: http://localhost:3001
+    
+    - name: Upload Cypress screenshots
+      uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: cypress-screenshots
+        path: backend/cypress/screenshots
+    
+    - name: Upload Cypress videos
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: cypress-videos
+        path: backend/cypress/videos
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Run security audit
+      run: |
+        cd backend
+        npm audit --audit-level=moderate || echo "Security vulnerabilities found"
+    
+    - name: Run OWASP dependency check
+      uses: dependency-check/Dependency-Check_Action@main
+      with:
+        project: 'destravaCV'
+        path: '.'
+        format: 'HTML'
+    
+    - name: Upload dependency check results
+      uses: actions/upload-artifact@v3
+      with:
+        name: dependency-check-report
+        path: reports
+
+  deploy:
+    needs: [test, e2e-tests, security-scan]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     
     steps:
     - uses: actions/checkout@v3
     
-    - name: Deploy to production
+    - name: Deploy to Railway
       run: |
-        echo "Deploy script would run here"
-        # Add your deployment commands here 
+        curl -X POST ${{ secrets.RAILWAY_WEBHOOK_URL }}
+      if: env.RAILWAY_WEBHOOK_URL != ''
+    
+    - name: Notify deployment
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        text: 'Deployment to production completed'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+      if: always() && env.SLACK_WEBHOOK != '' 

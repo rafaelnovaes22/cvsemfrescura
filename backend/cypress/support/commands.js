@@ -125,3 +125,60 @@ Cypress.Commands.add('uploadFile', (selector, fileName, fileType = '') => {
     });
   });
 });
+
+// Custom command for uploading CV file
+Cypress.Commands.add('uploadCV', (filePath) => {
+  cy.get('[data-cy="file-upload-input"]').selectFile(filePath, {
+    force: true
+  });
+  
+  // Wait for file to be processed
+  cy.get('[data-cy="file-name"]').should('be.visible');
+});
+
+// Custom command for filling job description
+Cypress.Commands.add('fillJobDescription', (description) => {
+  cy.get('[data-cy="job-description-textarea"]')
+    .clear()
+    .type(description, { delay: 0 });
+});
+
+// Custom command for complete CV analysis
+Cypress.Commands.add('analyzeCV', (cvFile, jobDescription) => {
+  // Upload CV
+  cy.uploadCV(cvFile);
+  
+  // Fill job description
+  cy.fillJobDescription(jobDescription);
+  
+  // Click analyze button
+  cy.get('[data-cy="analyze-button"]').click();
+  
+  // Wait for analysis to complete
+  cy.get('[data-cy="loading-spinner"]', { timeout: 30000 })
+    .should('not.exist');
+});
+
+// Custom command for checking analysis results
+Cypress.Commands.add('checkAnalysisResults', () => {
+  // Verify we're on results page
+  cy.url().should('include', '/results');
+  
+  // Check main elements are visible
+  cy.get('[data-cy="match-score"]').should('be.visible');
+  cy.get('[data-cy="strengths-section"]').should('be.visible');
+  cy.get('[data-cy="improvements-section"]').should('be.visible');
+  cy.get('[data-cy="keywords-section"]').should('be.visible');
+});
+
+// Custom command for mobile viewport testing
+Cypress.Commands.add('testMobileViewport', (device = 'iphone-x') => {
+  cy.viewport(device);
+  
+  // Check mobile-specific elements
+  cy.get('body').then($body => {
+    if ($body.find('[data-cy="mobile-menu-button"]').length > 0) {
+      cy.get('[data-cy="mobile-menu-button"]').should('be.visible');
+    }
+  });
+});
