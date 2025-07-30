@@ -117,14 +117,18 @@ backend/cypress/
 │   ├── payment.cy.js           ✅ Implementado
 │   ├── gift-code.cy.js         ✅ Implementado
 │   ├── cv-generation.cy.js     ✅ Implementado
-│   ├── cv-analysis-complete.cy.js  ✅ Novo
-│   ├── history.cy.js           🚧 Pendente
-│   ├── password-reset.cy.js   🚧 Pendente
+│   ├── cv-analysis-complete.cy.js  ✅ Implementado
+│   ├── history.cy.js           ✅ Implementado
+│   ├── password-reset.cy.js   ✅ Implementado
 │   └── admin-panel.cy.js      🚧 Pendente
 ├── fixtures/
-│   └── test-data.json
+│   ├── sample-cv.pdf          ✅ Criado
+│   ├── sample-cv.docx         ✅ Criado
+│   ├── invalid-file.txt       ✅ Criado
+│   ├── large-cv.pdf           ✅ Criado
+│   └── cv-data.json           ✅ Existente
 └── support/
-    └── commands.js
+    └── commands.js            ✅ Atualizado
 ```
 
 ### Comandos de Teste

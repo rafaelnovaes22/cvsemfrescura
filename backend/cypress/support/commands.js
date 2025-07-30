@@ -182,3 +182,76 @@ Cypress.Commands.add('testMobileViewport', (device = 'iphone-x') => {
     }
   });
 });
+
+// Custom command for switching tabs
+Cypress.Commands.add('switchTab', (tabName) => {
+  cy.get('.tab-button').contains(tabName).click();
+  
+  // Wait for tab content to be visible
+  cy.get('.tab-content').each(($el) => {
+    if ($el.text().includes(tabName)) {
+      cy.wrap($el).should('be.visible');
+    }
+  });
+});
+
+// Custom command for checking transaction details
+Cypress.Commands.add('checkTransaction', (index, expectedData) => {
+  cy.get('.transaction-table tbody tr').eq(index).within(() => {
+    if (expectedData.date) {
+      cy.get('.transaction-date').should('contain', expectedData.date);
+    }
+    if (expectedData.description) {
+      cy.get('td').should('contain', expectedData.description);
+    }
+    if (expectedData.amount) {
+      cy.get('.transaction-amount').should('contain', expectedData.amount);
+    }
+    if (expectedData.status) {
+      cy.get('.status-badge').should('contain', expectedData.status);
+    }
+  });
+});
+
+// Custom command for checking analysis details
+Cypress.Commands.add('checkAnalysis', (index, expectedData) => {
+  cy.get('.analysis-table tbody tr').eq(index).within(() => {
+    if (expectedData.fileName) {
+      cy.get('td').should('contain', expectedData.fileName);
+    }
+    if (expectedData.jobTitle) {
+      cy.get('td').should('contain', expectedData.jobTitle);
+    }
+    if (expectedData.matchScore) {
+      cy.get('.match-score').should('contain', `${expectedData.matchScore}%`);
+    }
+    if (expectedData.jobCount) {
+      cy.get('.job-count-badge').should('contain', `${expectedData.jobCount} vagas`);
+    }
+  });
+});
+
+// Custom command for date filtering
+Cypress.Commands.add('filterByDate', (dateRange) => {
+  cy.get('[data-cy="date-filter"]').select(dateRange);
+  
+  // Wait for table to update
+  cy.wait(500);
+});
+
+// Custom command for searching
+Cypress.Commands.add('searchHistory', (searchTerm) => {
+  cy.get('[data-cy="search-analyses"]').clear().type(searchTerm);
+  
+  // Wait for search results
+  cy.wait(500);
+});
+
+// Custom command for exporting data
+Cypress.Commands.add('exportHistory', (format = 'csv') => {
+  cy.get('[data-cy="export-transactions"]').click();
+  cy.get(`[data-cy="export-${format}"]`).click();
+  
+  // Wait for download
+  cy.wait(1000);
+});
