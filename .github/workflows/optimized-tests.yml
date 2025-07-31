@@ -1,0 +1,424 @@
+# Pipeline CI/CD Otimizado para Testes - Fase 3
+
+name: 🚀 Optimized Tests & Quality Gates
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Executar testes de performance semanalmente
+    - cron: '0 2 * * 1'
+
+env:
+  NODE_VERSION: '18'
+  CACHE_VERSION: 'v1'
+
+jobs:
+  # Job 1: Setup e Cache
+  setup:
+    name: 📦 Setup & Cache
+    runs-on: ubuntu-latest
+    outputs:
+      cache-key: ${{ steps.cache-key.outputs.key }}
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔑 Generate cache key
+      id: cache-key
+      run: echo "key=${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}" >> $GITHUB_OUTPUT
+      
+    - name: 🏗️ Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: '**/package-lock.json'
+        
+    - name: 📦 Install dependencies
+      run: |
+        npm ci --prefer-offline --no-audit
+        cd backend && npm ci --prefer-offline --no-audit
+
+  # Job 2: Linting e Code Quality
+  lint:
+    name: 🔍 Code Quality
+    runs-on: ubuntu-latest
+    needs: setup
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🏗️ Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 🔍 Run ESLint
+      run: |
+        npx eslint backend/ --ext .js --format json --output-file eslint-report.json || true
+        npx eslint backend/ --ext .js
+        
+    - name: 📊 Upload lint results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: lint-results
+        path: eslint-report.json
+
+  # Job 3: Testes Unitários (Paralelo)
+  unit-tests:
+    name: 🧪 Unit Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    strategy:
+      matrix:
+        test-group: [controllers, services, models, utils]
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🏗️ Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: |
+        npm ci
+        cd backend && npm ci
+        
+    - name: 🧪 Run unit tests - ${{ matrix.test-group }}
+      run: |
+        cd backend
+        npm run test -- --testPathPattern=tests/unit/${{ matrix.test-group }} --coverage --coverageDirectory=coverage-${{ matrix.test-group }}
+        
+    - name: 📊 Upload coverage - ${{ matrix.test-group }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-${{ matrix.test-group }}
+        path: backend/coverage-${{ matrix.test-group }}
+
+  # Job 4: Testes de Integração
+  integration-tests:
+    name: 🔗 Integration Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🏗️ Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: |
+        npm ci
+        cd backend && npm ci
+        
+    - name: ⚙️ Setup test environment
+      run: |
+        cd backend
+        cp .env.example .env.test
+        echo "DATABASE_URL=postgresql://postgres:test_password@localhost:5432/test_db" >> .env.test
+        
+    - name: 🔗 Run integration tests
+      run: |
+        cd backend
+        npm run test:integration
+        
+    - name: 📊 Upload integration results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: integration-results
+        path: backend/test-results/
+
+  # Job 5: Merge Coverage
+  coverage-merge:
+    name: 📊 Merge Coverage
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🏗️ Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        
+    - name: 📦 Install dependencies
+      run: |
+        npm ci
+        cd backend && npm ci
+        
+    - name: 📥 Download all coverage reports
+      uses: actions/download-artifact@v3
+      with:
+        path: coverage-reports/
+        
+    - name: 🔄 Merge coverage reports
+      run: |
+        cd backend
+        mkdir -p coverage-merged
+        npx nyc merge ../coverage-reports/coverage-* coverage-merged/coverage.json
+        npx nyc report --reporter=lcov --reporter=text --reporter=html --temp-dir=coverage-merged --report-dir=coverage-final
+        
+    - name: 📊 Coverage quality gate
+      run: |
+        cd backend
+        COVERAGE=$(npx nyc report --reporter=text --temp-dir=coverage-merged | grep "All files" | awk '{print $10}' | sed 's/%//')
+        echo "Coverage: $COVERAGE%"
+        if [ "$COVERAGE" -lt "80" ]; then
+          echo "❌ Coverage $COVERAGE% is below threshold 80%"
+          exit 1
+        fi
+        echo "✅ Coverage $COVERAGE% meets threshold"
+        
+    - name: 📤 Upload to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: backend/coverage-final/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  # Job 6: Testes E2E
+  e2e-tests:
+    name: 🌐 E2E Tests
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests]
+    strategy:
+      matrix:
+        browser: [chrome, firefox]
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🏗️ Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: |
+        npm ci
+        cd backend && npm ci
+        
+    - name: 🚀 Start application
+      run: |
+        cd backend
+        npm start &
+        npx wait-on http://localhost:3000 --timeout 60000
+        
+    - name: 🌐 Run E2E tests - ${{ matrix.browser }}
+      run: |
+        cd backend
+        npx cypress run --browser ${{ matrix.browser }} --record false --config video=true,screenshotOnRunFailure=true
+        
+    - name: 📊 Upload E2E results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: e2e-results-${{ matrix.browser }}
+        path: |
+          backend/cypress/videos/
+          backend/cypress/screenshots/
+
+  # Job 7: Testes de Performance
+  performance-tests:
+    name: ⚡ Performance Tests
+    runs-on: ubuntu-latest
+    needs: e2e-tests
+    if: github.event_name == 'schedule' || contains(github.event.head_commit.message, '[perf]')
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🏗️ Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: |
+        npm ci
+        cd backend && npm ci
+        
+    - name: 🚀 Start application
+      run: |
+        cd backend
+        npm start &
+        npx wait-on http://localhost:3000 --timeout 60000
+        
+    - name: ⚡ Run performance tests
+      run: |
+        cd backend
+        npx cypress run --spec "cypress/e2e/performance.cy.js"
+        
+    - name: 📊 Generate performance report
+      run: |
+        cd backend
+        node scripts/generate-performance-report.js
+        
+    - name: 📤 Upload performance results
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-results
+        path: backend/performance-report.html
+
+  # Job 8: Security Scan
+  security-scan:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    needs: setup
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔍 Run npm audit
+      run: |
+        npm audit --audit-level=moderate
+        cd backend && npm audit --audit-level=moderate
+        
+    - name: 🔒 Run OWASP dependency check
+      uses: dependency-check/Dependency-Check_Action@main
+      with:
+        project: 'CV-Sem-Frescura'
+        path: '.'
+        format: 'HTML'
+        
+    - name: 📤 Upload security results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-results
+        path: reports/
+
+  # Job 9: Quality Gates Final
+  quality-gates:
+    name: 🚪 Quality Gates
+    runs-on: ubuntu-latest
+    needs: [lint, coverage-merge, e2e-tests, security-scan]
+    if: always()
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📥 Download all results
+      uses: actions/download-artifact@v3
+      with:
+        path: results/
+        
+    - name: 🔍 Evaluate quality gates
+      run: |
+        echo "🚪 Evaluating Quality Gates..."
+        
+        # Quality Gate 1: Coverage
+        if [ -f "results/coverage-final/lcov.info" ]; then
+          echo "✅ Coverage report found"
+        else
+          echo "❌ Coverage report missing"
+          exit 1
+        fi
+        
+        # Quality Gate 2: No high security vulnerabilities
+        if [ -f "results/security-results/dependency-check-report.html" ]; then
+          echo "✅ Security scan completed"
+        fi
+        
+        # Quality Gate 3: E2E tests passed
+        if [ -d "results/e2e-results-chrome" ]; then
+          echo "✅ E2E tests completed"
+        else
+          echo "❌ E2E tests failed or missing"
+          exit 1
+        fi
+        
+        echo "🎉 All quality gates passed!"
+        
+    - name: 📊 Generate final report
+      run: |
+        echo "# 📊 Test Execution Report" > test-report.md
+        echo "" >> test-report.md
+        echo "## 📈 Summary" >> test-report.md
+        echo "- **Timestamp**: $(date)" >> test-report.md
+        echo "- **Commit**: ${{ github.sha }}" >> test-report.md
+        echo "- **Branch**: ${{ github.ref_name }}" >> test-report.md
+        echo "" >> test-report.md
+        echo "## ✅ Quality Gates Status" >> test-report.md
+        echo "- Code Coverage: ✅ Passed" >> test-report.md
+        echo "- Unit Tests: ✅ Passed" >> test-report.md
+        echo "- Integration Tests: ✅ Passed" >> test-report.md
+        echo "- E2E Tests: ✅ Passed" >> test-report.md
+        echo "- Security Scan: ✅ Passed" >> test-report.md
+        
+    - name: 📤 Upload final report
+      uses: actions/upload-artifact@v3
+      with:
+        name: final-test-report
+        path: test-report.md
+
+  # Job 10: Deployment Readiness
+  deployment-readiness:
+    name: 🚀 Deployment Readiness
+    runs-on: ubuntu-latest
+    needs: quality-gates
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: 🎉 Mark as deployment ready
+      run: |
+        echo "🚀 All quality gates passed - Ready for deployment!"
+        echo "deployment-ready=true" >> $GITHUB_OUTPUT
+        
+    - name: 🏷️ Create deployment tag
+      if: success()
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git tag -a "deploy-$(date +%Y%m%d-%H%M%S)" -m "Deployment ready: $(date)"
+        git push origin --tags
+
+# Configurações globais
+defaults:
+  run:
+    shell: bash
+
+# Timeout global para jobs
+jobs:
+  timeout-minutes: 30

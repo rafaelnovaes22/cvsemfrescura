@@ -1,0 +1,34 @@
+{
+    "include": [
+        "controllers/**/*.js",
+        "services/**/*.js",
+        "models/**/*.js",
+        "utils/**/*.js",
+        "routes/**/*.js"
+    ],
+    "exclude": [
+        "**/*.test.js",
+        "**/*.spec.js",
+        "**/node_modules/**",
+        "**/cypress/**",
+        "**/temp-scripts/**",
+        "**/debug/**",
+        "**/logs/**",
+        "**/uploads/**",
+        "**/tests/**",
+        "server.js"
+    ],
+    "reporter": [
+        "text",
+        "text-summary",
+        "html",
+        "lcov"
+    ],
+    "check-coverage": true,
+    "lines": 80,
+    "statements": 80,
+    "functions": 75,
+    "branches": 70,
+    "cache": false,
+    "all": true
+}

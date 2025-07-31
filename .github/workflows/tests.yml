@@ -1,0 +1,159 @@
+name: 🧪 Tests & Coverage
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  unit-tests:
+    name: 🔬 Unit Tests
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: backend
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 🧪 Run unit tests
+      run: npm run test:unit
+      env:
+        NODE_ENV: test
+        JWT_SECRET: test-jwt-secret
+        
+    - name: 📊 Generate coverage report
+      run: npm run test:coverage
+      env:
+        NODE_ENV: test
+        JWT_SECRET: test-jwt-secret
+        
+    - name: 📈 Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        directory: backend/coverage
+        flags: unittests
+        fail_ci_if_error: false
+
+  e2e-tests:
+    name: 🔄 E2E Tests
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    
+    defaults:
+      run:
+        working-directory: backend
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 🗄️ Setup test database
+      run: |
+        touch database/test.sqlite
+        npm run migrate || true
+        
+    - name: 🔄 Run E2E tests
+      run: npm run cypress:run
+      env:
+        NODE_ENV: test
+        DATABASE_URL: sqlite:./database/test.sqlite
+
+  coverage-check:
+    name: 📊 Coverage Validation
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    
+    defaults:
+      run:
+        working-directory: backend
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 📊 Check coverage threshold
+      run: |
+        npm run test:coverage
+        echo "✅ Coverage check passed!"
+      env:
+        NODE_ENV: test
+        JWT_SECRET: test-jwt-secret
+        
+    - name: 💬 Comment coverage on PR
+      if: github.event_name == 'pull_request'
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        message: |
+          ## 📊 Test Coverage Report
+          
+          Cobertura atual dos testes unitários:
+          
+          - **Linhas**: Verificar relatório detalhado
+          - **Funções**: Verificar relatório detalhado  
+          - **Branches**: Verificar relatório detalhado
+          
+          📈 [Ver relatório completo nos artifacts](../actions)
+
+  quality-gates:
+    name: 🚪 Quality Gates
+    runs-on: ubuntu-latest
+    needs: [unit-tests, coverage-check]
+    if: always()
+    
+    steps:
+    - name: ✅ All tests passed
+      if: needs.unit-tests.result == 'success' && needs.coverage-check.result == 'success'
+      run: |
+        echo "🎉 Todos os testes passaram!"
+        echo "✅ Cobertura dentro da meta"
+        echo "🚀 Deploy autorizado"
+        
+    - name: ❌ Tests failed
+      if: needs.unit-tests.result == 'failure' || needs.coverage-check.result == 'failure'
+      run: |
+        echo "❌ Testes falharam ou cobertura insuficiente"
+        echo "🚫 Deploy bloqueado"
+        exit 1
