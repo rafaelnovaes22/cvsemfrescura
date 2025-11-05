@@ -583,9 +583,10 @@ class HeaderManager {
 
         switch (currentPage) {
             case 'landing':
+                // Quando estamos NA landing page, usar apenas # (sem landing.html)
                 navItems = [
-                    { href: 'landing.html#features', text: 'Recursos', isAnchor: true },
-                    { href: 'landing.html#how-it-works', text: 'Como Funciona', isAnchor: true }
+                    { href: '#features', text: 'Recursos', isAnchor: true },
+                    { href: '#how-it-works', text: 'Como Funciona', isAnchor: true }
                 ];
                 break;
             default:
@@ -601,26 +602,10 @@ class HeaderManager {
             `<a href="${item.href}" style="
                 color: #3f3f46; text-decoration: none; font-weight: 500; 
                 font-size: 0.95rem; padding: 0.5rem 0; transition: color 0.15s;
-            " onmouseover="this.style.color='#583819'" onmouseout="this.style.color='#3f3f46'" ${item.isAnchor ? 'class="scroll-link"' : ''}>${item.text}</a>`
+            " onmouseover="this.style.color='#583819'" onmouseout="this.style.color='#3f3f46'">${item.text}</a>`
         ).join('');
 
-        // Configurar smooth scroll para links âncora na mesma página
-        if (currentPage === 'landing') {
-            nav.querySelectorAll('a.scroll-link').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const targetId = link.getAttribute('href').split('#')[1];
-                    const targetElement = document.getElementById(targetId);
-                    
-                    if (targetElement) {
-                        targetElement.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                });
-            });
-        }
+        console.log(`✅ Navegação contextual configurada para: ${currentPage}`);
     }
 
     getCurrentPage() {
