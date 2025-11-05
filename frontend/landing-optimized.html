@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Seu CV está sendo ELIMINADO em 6 segundos pela Gupy e outros ATS. Descubra por quê e como fazer o seu passar pelos filtros. +5.000 CVs já aprovados.">
+    <meta name="keywords" content="currículo, ATS, Gupy, Catho, Kenoby, análise IA, otimização cv, vagas brasil">
+    <title>destravaCV - Seu CV está sendo ELIMINADO em 6 segundos | Descubra por quê</title>
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
+        as="style">
+    <link rel="preload" href="assets/img/logo-optimized.svg" as="image">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+
+    <!-- Header CSS -->
+    <link rel="stylesheet" href="assets/css/header.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+
+    <style>
+        /* CSS Reset e Variáveis */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Cores da identidade visual */
+            --cor-marrom-escuro: #512808;
+            --cor-dourado: #bd9e61;
+            --cor-preto: #1f1812;
+            --cor-bege-claro: #d2be99;
+
+            /* Cores de apoio */
+            --cor-sucesso: #4CAF50;
+            --cor-erro: #ff4444;
+            --cor-alerta: #f59e0b;
+            --cor-whatsapp: #25D366;
+
+            /* Sombras */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: var(--cor-preto);
+            background-color: #fff;
+            font-size: 16px;
+            overflow-x: hidden;
+            padding-top: 40px;
+            /* Espaço para a barra de urgência */
+        }
+
+        /* Animações */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 1. BARRA DE URGÊNCIA */
+        .urgency-bar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: linear-gradient(90deg, var(--cor-marrom-escuro), var(--cor-dourado));
+            color: white;
+            padding: 8px;
+            text-align: center;
+            z-index: 9999;
+            font-size: 14px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .urgency-bar .separator {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* 2. HERO SECTION OTIMIZADO */
+        .hero-section {
+            padding: 80px 20px 60px;
+            background: linear-gradient(135deg, var(--cor-bege-claro) 0%, #fff 100%);
+            text-align: center;
+        }
+
+        .anti-gupy-badge {
+            display: inline-block;
+            background: var(--cor-erro);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-bottom: 20px;
+            animation: shake 2s infinite;
+            font-weight: bold;
+        }
+
+        .hero-title {
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--cor-preto);
+            margin-bottom: 10px;
+            line-height: 1.1;
+        }
+
+        .hero-title .strike {
+            color: var(--cor-erro);
+            text-decoration: line-through;
+        }
+
+        .hero-subtitle {
+            font-size: 24px;
+            font-weight: 400;
+            color: var(--cor-marrom-escuro);
+            margin-bottom: 30px;
+        }
+
+        .trust-badges {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-size: 14px;
+            color: var(--cor-marrom-escuro);
+            font-weight: 600;
+        }
+
+        .main-cta {
+            background: linear-gradient(45deg, var(--cor-dourado), var(--cor-marrom-escuro));
+            color: white;
+            font-size: 24px;
+            padding: 20px 40px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(189, 158, 97, 0.3);
+            animation: pulse 2s infinite;
+            transition: all 0.3s;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .main-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(189, 158, 97, 0.4);
+        }
+
+        .main-cta span {
+            display: block;
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .companies-strip {
+            margin-top: 40px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .companies-strip p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .companies-list {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .companies-list span {
+            font-weight: bold;
+            color: var(--cor-marrom-escuro);
+        }
+
+        /* 3. SEÇÃO DE DOR */
+        .pain-section {
+            padding: 60px 20px;
+            background: #fff;
+            text-align: center;
+        }
+
+        .pain-section h2 {
+            font-size: 36px;
+            color: var(--cor-preto);
+            margin-bottom: 40px;
+        }
+
+        .pain-points {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .pain-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid var(--cor-erro);
+            border-radius: 5px;
+        }
+
+        .pain-item span:first-child {
+            font-size: 24px;
+            margin-right: 15px;
+        }
+
+        .pain-item span:last-child {
+            font-size: 18px;
+            color: var(--cor-marrom-escuro);
+        }
+
+        .revelation {
+            margin-top: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #fff4e6, #ffe8cc);
+            border-radius: 10px;
+            border: 2px solid var(--cor-dourado);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .revelation h3 {
+            font-size: 24px;
+            color: var(--cor-marrom-escuro);
+            margin-bottom: 15px;
+        }
+
+        .revelation p {
+            font-size: 20px;
+            color: var(--cor-preto);
+            line-height: 1.6;
+        }
+
+        .revelation p span {
+            color: var(--cor-dourado);
+            font-weight: bold;
+        }
+
+        /* 4. COMPARATIVO ANTES/DEPOIS */
+        .comparison-section {
+            padding: 60px 20px;
+            background: #f8f8f8;
+        }
+
+        .comparison-section h2 {
+            text-align: center;
+            font-size: 36px;
+            color: var(--cor-preto);
+            margin-bottom: 40px;
+        }
+
+        .comparison-container {
+            display: flex;
+            max-width: 1000px;
+            margin: 0 auto;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .comparison-card {
+            flex: 1;
+            padding: 30px;
+            background: #fff;
+            border-radius: 10px;
+            position: relative;
+            min-width: 300px;
+        }
+
+        .before {
+            border: 2px solid var(--cor-erro);
+        }
+
+        .after {
+            background: linear-gradient(135deg, #fff, #f0f9e8);
+            border: 2px solid var(--cor-sucesso);
+        }
+
+        .comparison-badge {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .before .comparison-badge {
+            background: var(--cor-erro);
+        }
+
+        .after .comparison-badge {
+            background: var(--cor-sucesso);
+        }
+
+        .comparison-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        .comparison-list li {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .cta-comparison {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .cta-comparison button {
+            background: linear-gradient(45deg, var(--cor-sucesso), #45a049);
+            color: white;
+            font-size: 20px;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        /* 5. SEÇÃO GUPY ESPECÍFICA */
+        .gupy-section {
+            padding: 60px 20px;
+            background: linear-gradient(135deg, var(--cor-preto), var(--cor-marrom-escuro));
+            color: white;
+            text-align: center;
+        }
+
+        .gupy-badge {
+            display: inline-block;
+            background: var(--cor-erro);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .gupy-section h2 {
+            font-size: 36px;
+            margin-bottom: 30px;
+        }
+
+        .gupy-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .gupy-content p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .gupy-requirements {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .gupy-requirements h3 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .gupy-requirements ul {
+            text-align: left;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .gupy-cta {
+            background: white;
+            color: var(--cor-marrom-escuro);
+            font-size: 20px;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        /* 6. POPUP DE SAÍDA */
+        #exit-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .popup-title {
+            color: var(--cor-erro);
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .popup-text {
+            font-size: 18px;
+            color: var(--cor-marrom-escuro);
+            margin-bottom: 20px;
+        }
+
+        .popup-offer {
+            background: #fff4e6;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .popup-offer p {
+            font-size: 16px;
+            color: var(--cor-preto);
+            margin-bottom: 15px;
+        }
+
+        .popup-offer ul {
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .popup-email {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid var(--cor-dourado);
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .popup-cta {
+            width: 100%;
+            background: linear-gradient(45deg, var(--cor-dourado), var(--cor-marrom-escuro));
+            color: white;
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .popup-dismiss {
+            font-size: 12px;
+            color: #999;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+
+        /* 7. BOTÃO WHATSAPP */
+        .whatsapp-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--cor-whatsapp);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            z-index: 9998;
+            text-decoration: none;
+            animation: bounce 2s infinite;
+        }
+
+        .whatsapp-button:hover {
+            transform: scale(1.1);
+        }
+
+        /* 8. MOBILE OPTIMIZATIONS */
+        .mobile-sticky-cta {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: 35px;
+            }
+
+            .urgency-bar {
+                font-size: 11px !important;
+                padding: 5px !important;
+            }
+
+            .urgency-bar .separator {
+                display: none;
+            }
+
+            .hero-title {
+                font-size: 32px !important;
+            }
+
+            .hero-subtitle {
+                font-size: 18px !important;
+            }
+
+            .main-cta {
+                font-size: 18px !important;
+                padding: 15px 25px !important;
+            }
+
+            .comparison-container {
+                flex-direction: column;
+            }
+
+            .mobile-sticky-cta {
+                display: block !important;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: linear-gradient(45deg, var(--cor-dourado), var(--cor-marrom-escuro));
+                padding: 15px;
+                text-align: center;
+                z-index: 9997;
+                box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.2);
+            }
+
+            .mobile-sticky-cta button {
+                width: 100%;
+                background: white;
+                color: var(--cor-marrom-escuro);
+                padding: 12px;
+                border: none;
+                border-radius: 5px;
+                font-size: 16px;
+                font-weight: bold;
+            }
+        }
+
+        /* Container padrão */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 1. BARRA DE URGÊNCIA -->
+    <div class="urgency-bar">
+        <span class="fire-emoji">🔥</span>
+        <span class="offer-text">HOJE: 43% OFF primeira análise</span>
+        <span class="separator">|</span>
+        <span class="timer">⏰ Termina em: <span id="countdown">23:59:59</span></span>
+        <span class="separator">|</span>
+        <span class="social-proof">👥 <span id="users-online">247</span> pessoas analisando agora</span>
+    </div>
+
+    <!-- Header Original (mantido) -->
+    <header class="header" id="header" style="
+        position: sticky; top: 40px; z-index: 50; 
+        background: rgba(250, 249, 247, 0.95); 
+        backdrop-filter: blur(12px); 
+        border-bottom: 1px solid #e8ddd0;
+    ">
+        <div style="
+            display: flex; align-items: center; justify-content: space-between; 
+            height: 80px; max-width: 1280px; margin: 0 auto; 
+            padding: 0 1.5rem; gap: 2rem;
+        ">
+            <div>
+                <a href="landing-optimized.html">
+                    <img src="assets/img/novo_logo.png" alt="Logo" style="height: 48px; width: auto;">
+                </a>
+            </div>
+            <nav style="display: flex; gap: 2rem;" id="headerNav"></nav>
+            <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <div id="guestActions" style="display: flex; gap: 0.75rem; align-items: center;">
+                    <a href="payment.html" style="
+                        display: inline-flex; align-items: center; gap: 0.5rem;
+                        padding: 0.5rem 1rem; background: #583819; color: white;
+                        border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.8rem;
+                    ">
+                        <span>🚀</span>
+                        <span>Analisar Agora</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. NOVO HERO SECTION -->
+    <section class="hero-section">
+        <div class="container">
+            <!-- Badge Gupy -->
+            <div class="anti-gupy-badge">
+                🤖 FUNCIONA COM GUPY, CATHO E OUTROS ATS
+            </div>
+
+            <!-- Headline Principal -->
+            <h1 class="hero-title">
+                Seu CV está sendo <span class="strike">ELIMINADO</span><br>
+                em 6 segundos
+            </h1>
+
+            <!-- Subheadline -->
+            <h2 class="hero-subtitle">
+                Descubra por que a Gupy rejeita 78% dos currículos<br>
+                <strong>(e como fazer o seu passar pelos filtros)</strong>
+            </h2>
+
+            <!-- Trust Badges -->
+            <div class="trust-badges">
+                <div class="badge">✅ +5.000 CVs aprovados</div>
+                <div class="badge">⚡ Análise em 60 segundos</div>
+                <div class="badge">🎯 98% de precisão ATS</div>
+            </div>
+
+            <!-- CTA Principal -->
+            <div class="cta-container">
+                <a href="payment.html" class="main-cta">
+                    DESCOBRIR AGORA - Teste Grátis
+                    <span>⏰ Oferta válida por 24h apenas</span>
+                </a>
+            </div>
+
+            <!-- Logos das Empresas -->
+            <div class="companies-strip">
+                <p>Nossos usuários foram aprovados em:</p>
+                <div class="companies-list">
+                    <span>Ambev</span>
+                    <span>Nubank</span>
+                    <span>Santander</span>
+                    <span>Stone</span>
+                    <span>iFood</span>
+                    <span>+1.500 empresas</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. SEÇÃO DE DOR -->
+    <section class="pain-section">
+        <div class="container">
+            <h2>😤 Isso soa familiar?</h2>
+
+            <div class="pain-points">
+                <div class="pain-item">
+                    <span>❌</span>
+                    <span>Você envia <strong>dezenas de currículos</strong> e não recebe nenhum retorno</span>
+                </div>
+
+                <div class="pain-item">
+                    <span>❌</span>
+                    <span>Tem <strong>todas as qualificações</strong> mas nunca é chamado para entrevista</span>
+                </div>
+
+                <div class="pain-item">
+                    <span>❌</span>
+                    <span>Vê a <strong>mesma vaga repostada</strong> após sua rejeição</span>
+                </div>
+
+                <div class="pain-item">
+                    <span>❌</span>
+                    <span>Foi <strong>indicado por alguém</strong> mas nem assim foi chamado</span>
+                </div>
+            </div>
+
+            <div class="revelation">
+                <h3>🤖 A Verdade Chocante:</h3>
+                <p>
+                    Você está sendo <strong>eliminado por um ROBÔ</strong> (ATS) em 6 segundos,<br>
+                    antes de qualquer ser humano ver seu currículo.<br>
+                    <span>Especialmente se aplicou pela Gupy, Catho ou Kenoby.</span>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. COMPARATIVO ANTES/DEPOIS -->
+    <section class="comparison-section">
+        <div class="container">
+            <h2>🔄 A Diferença que o DestravaCV Faz</h2>
+
+            <div class="comparison-container">
+                <!-- Lado ANTES -->
+                <div class="comparison-card before">
+                    <div class="comparison-badge">❌ SEM DestravaCV</div>
+
+                    <ul class="comparison-list">
+                        <li>😔 <strong>23%</strong> de compatibilidade ATS</li>
+                        <li>📧 <strong>0</strong> respostas em 50 aplicações</li>
+                        <li>⏱️ <strong>6 segundos</strong> até rejeição</li>
+                        <li>🤷 <strong>Sem saber</strong> o que está errado</li>
+                        <li>💸 <strong>Perdendo</strong> oportunidades</li>
+                    </ul>
+                </div>
+
+                <!-- Lado DEPOIS -->
+                <div class="comparison-card after">
+                    <div class="comparison-badge">✅ COM DestravaCV</div>
+
+                    <ul class="comparison-list">
+                        <li>🚀 <strong>89%</strong> de compatibilidade ATS</li>
+                        <li>📧 <strong>3-5</strong> entrevistas por mês</li>
+                        <li>⚡ <strong>Passa</strong> pela triagem automática</li>
+                        <li>📊 <strong>Relatório</strong> detalhado do que ajustar</li>
+                        <li>💰 <strong>300% mais</strong> chances de contratação</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="cta-comparison">
+                <button onclick="window.location.href='payment.html'">
+                    QUERO AUMENTAR MINHAS CHANCES AGORA →
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. SEÇÃO GUPY ESPECÍFICA -->
+    <section class="gupy-section">
+        <div class="container">
+            <div class="gupy-badge">
+                🤖 ESPECIAL ANTI-GUPY
+            </div>
+
+            <h2>Por que a Gupy Rejeita Seu CV?</h2>
+
+            <div class="gupy-content">
+                <p>
+                    A Gupy é usada por <strong>+1.500 empresas</strong> no Brasil incluindo
+                    Ambev, Santander, Nubank, McDonald's, e elimina <strong>78% dos CVs
+                        automaticamente</strong>.
+                </p>
+
+                <div class="gupy-requirements">
+                    <h3>🔍 O que a Gupy procura (e você não sabe):</h3>
+                    <ul>
+                        <li>✅ Correspondência EXATA de palavras-chave (sinônimos não valem)</li>
+                        <li>✅ Densidade específica de termos (2.7% - 3.2%)</li>
+                        <li>✅ Formatação em texto puro (PDFs bonitos = eliminação)</li>
+                        <li>✅ Ordem cronológica reversa obrigatória</li>
+                        <li>✅ Métricas numéricas em TODAS as experiências</li>
+                    </ul>
+                </div>
+
+                <a href="payment.html" class="gupy-cta">
+                    VENCER A GUPY AGORA →
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seções existentes da landing original (mantidas com ajustes) -->
+    <section class="features" id="features" style="padding: 60px 0; background: white;">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 40px;">
+                <h2 style="font-size: 36px; color: #1f1812; margin-bottom: 10px;">Por que o destravaCV é diferente?</h2>
+                <p style="font-size: 18px; color: #666;">
+                    Entendemos como os sistemas ATS realmente funcionam. Nossa IA analisa e otimiza seu currículo para
+                    maximizar suas chances de passar pelos filtros automáticos.
+                </p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                <div style="background: #f9f9f9; padding: 30px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">🤖</div>
+                    <h3 style="font-size: 20px; margin-bottom: 15px;">IA Avançada Especializada</h3>
+                    <p>Nossa inteligência artificial foi treinada especificamente para entender sistemas ATS nacionais e
+                        internacionais, analisando milhares de currículos aprovados.</p>
+                </div>
+
+                <div style="background: #f9f9f9; padding: 30px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">🎯</div>
+                    <h3 style="font-size: 20px; margin-bottom: 15px;">Análise Profunda</h3>
+                    <p>Nossa IA analisa cada palavra do seu currículo comparando com 3 a 7 vagas simultaneamente.
+                        Quanto mais vagas, mais precisa será a análise.</p>
+                </div>
+
+                <div style="background: #f9f9f9; padding: 30px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">📊</div>
+                    <h3 style="font-size: 20px; margin-bottom: 15px;">Relatório Completo</h3>
+                    <p>Receba feedback abrangente sobre todas as vagas, análise detalhada de compatibilidade,
+                        palavras-chave em falta e sugestões práticas de melhorias.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Final -->
+    <section
+        style="padding: 60px 20px; background: linear-gradient(135deg, #512808, #1f1812); color: white; text-align: center;">
+        <div class="container">
+            <h2 style="font-size: 36px; margin-bottom: 20px;">⏰ Otimize suas próximas oportunidades</h2>
+            <p style="font-size: 18px; margin-bottom: 30px; opacity: 0.9;">
+                Comece analisando seu currículo com quantas vagas quiser. Para máxima eficiência, recomendamos
+                usar até 7 vagas por análise. Cada oportunidade conta.
+            </p>
+
+            <a href="payment.html" style="
+                background: white;
+                color: #512808;
+                padding: 15px 40px;
+                font-size: 20px;
+                font-weight: bold;
+                border-radius: 50px;
+                text-decoration: none;
+                display: inline-block;
+            ">
+                🚀 COMEÇAR AGORA
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer simplificado -->
+    <footer style="background: #1f1812; color: #999; padding: 40px 20px; text-align: center;">
+        <div class="container">
+            <p>© 2025 DestravaCV. Todos os direitos reservados.</p>
+            <div style="margin-top: 20px;">
+                <a href="privacy.html" style="color: #999; margin: 0 10px;">Privacidade</a>
+                <a href="terms.html" style="color: #999; margin: 0 10px;">Termos</a>
+                <a href="contact.html" style="color: #999; margin: 0 10px;">Contato</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 6. POPUP DE SAÍDA -->
+    <div id="exit-popup">
+        <div class="popup-content">
+            <button onclick="closeExitPopup()" class="popup-close">×</button>
+
+            <h2 class="popup-title">🛑 ESPERA! Não vá ainda...</h2>
+
+            <p class="popup-text">
+                Quer pelo menos descobrir <strong>GRATUITAMENTE</strong><br>
+                por que seu CV está sendo rejeitado?
+            </p>
+
+            <div class="popup-offer">
+                <p>📊 Receba um mini-diagnóstico grátis:</p>
+                <ul>
+                    <li>✓ 3 erros principais do seu CV</li>
+                    <li>✓ Score de compatibilidade ATS</li>
+                    <li>✓ 1 dica personalizada</li>
+                </ul>
+            </div>
+
+            <input type="email" placeholder="Seu melhor e-mail" class="popup-email" id="popup-email">
+
+            <button class="popup-cta" onclick="submitPopupEmail()">
+                RECEBER DIAGNÓSTICO GRÁTIS
+            </button>
+
+            <p class="popup-dismiss" onclick="closeExitPopup()">
+                Não, prefiro continuar sendo rejeitado →
+            </p>
+        </div>
+    </div>
+
+    <!-- 7. BOTÃO WHATSAPP -->
+    <a href="https://wa.me/5511949105033?text=Olá! Quero saber mais sobre a análise de CV para Gupy" target="_blank"
+        class="whatsapp-button">
+        <svg viewBox="0 0 24 24" width="35" height="35" fill="white">
+            <path
+                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.149-.67.149-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+        </svg>
+    </a>
+
+    <!-- 8. MOBILE STICKY CTA -->
+    <div class="mobile-sticky-cta">
+        <button onclick="window.location.href='payment.html'">
+            ANALISAR MEU CV AGORA - 43% OFF
+        </button>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/lib/secure-logger.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/header-new.js?v=1748114561"></script>
+
+    <script>
+        // Countdown timer
+        function updateCountdown() {
+            const countdownEl = document.getElementById('countdown');
+            let hours = 23, minutes = 59, seconds = 59;
+
+            setInterval(() => {
+                seconds--;
+                if (seconds < 0) {
+                    seconds = 59;
+                    minutes--;
+                    if (minutes < 0) {
+                        minutes = 59;
+                        hours--;
+                        if (hours < 0) {
+                            hours = 23;
+                        }
+                    }
+                }
+                countdownEl.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // Número de usuários online (simulado)
+        function updateUsersOnline() {
+            const usersEl = document.getElementById('users-online');
+            setInterval(() => {
+                const current = parseInt(usersEl.textContent);
+                const change = Math.floor(Math.random() * 7) - 3; // -3 a +3
+                const newValue = Math.max(198, Math.min(312, current + change));
+                usersEl.textContent = newValue;
+            }, 5000);
+        }
+
+        // Exit Intent Popup
+        let exitIntentShown = false;
+
+        document.addEventListener('mouseleave', function (e) {
+            if (e.clientY <= 0 && !exitIntentShown) {
+                document.getElementById('exit-popup').style.display = 'flex';
+                exitIntentShown = true;
+            }
+        });
+
+        function closeExitPopup() {
+            document.getElementById('exit-popup').style.display = 'none';
+        }
+
+        function submitPopupEmail() {
+            const email = document.getElementById('popup-email').value;
+            if (email) {
+                // Aqui você pode integrar com seu sistema de email
+                console.log('Email capturado:', email);
+                alert('Obrigado! Você receberá o diagnóstico em breve.');
+                closeExitPopup();
+            }
+        }
+
+        // Mobile exit intent (volta do scroll)
+        let lastScrollTop = 0;
+        window.addEventListener('scroll', function () {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollTop < lastScrollTop && scrollTop < 100 && !exitIntentShown) {
+                setTimeout(() => {
+                    document.getElementById('exit-popup').style.display = 'flex';
+                    exitIntentShown = true;
+                }, 1000);
+            }
+            lastScrollTop = scrollTop;
+        });
+
+        // Animação de números crescentes
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            if (!obj) return;
+
+            const range = end - start;
+            const minTimer = 50;
+            let stepTime = Math.abs(Math.floor(duration / range));
+            stepTime = Math.max(stepTime, minTimer);
+            const startTime = new Date().getTime();
+            const endTime = startTime + duration;
+
+            function run() {
+                const now = new Date().getTime();
+                const remaining = Math.max((endTime - now) / duration, 0);
+                const value = Math.round(end - (remaining * range));
+                obj.innerHTML = value.toLocaleString('pt-BR');
+                if (value == end) {
+                    return;
+                }
+                requestAnimationFrame(run);
+            }
+
+            requestAnimationFrame(run);
+        }
+
+        // Inicializar
+        updateCountdown();
+        updateUsersOnline();
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                if (href && href.length > 1) {
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                }
+            });
+        });
+
+        // Teste A/B Setup (exemplo)
+        const variant = Math.random() > 0.5 ? 'A' : 'B';
+
+        if (variant === 'B') {
+            // Aplicar variações para teste
+            const heroTitle = document.querySelector('.hero-title');
+            if (heroTitle) {
+                heroTitle.innerHTML = 'A Gupy está rejeitando seu CV<br>(saiba porquê)';
+            }
+
+            const mainCta = document.querySelector('.main-cta');
+            if (mainCta) {
+                mainCta.innerHTML = 'HACKEAR O SISTEMA AGORA<span>⏰ Oferta válida por 24h apenas</span>';
+            }
+        }
+
+        // Tracking de eventos (integrar com Google Analytics)
+        document.querySelectorAll('.main-cta, .gupy-cta, .popup-cta').forEach(button => {
+            button.addEventListener('click', function () {
+                // gtag('event', 'click', {
+                //     'event_category': 'CTA',
+                //     'event_label': this.textContent
+                // });
+                console.log('CTA clicado:', this.textContent);
+            });
+        });
+    </script>
+</body>
+
+</html>

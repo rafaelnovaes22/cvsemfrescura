@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Simples - Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .success {
+            background: #d4edda;
+        }
+
+        .error {
+            background: #f8d7da;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🧪 Teste Simples - Results Page</h1>
+
+    <div class="section">
+        <h3>📄 Nome do Arquivo</h3>
+        <div id="cv-filename">Carregando...</div>
+    </div>
+
+    <div class="section">
+        <h3>📝 Conclusão</h3>
+        <div id="conclusion">Carregando...</div>
+    </div>
+
+    <div class="section">
+        <h3>📊 Resumo</h3>
+        <div>Nota: <span id="nota-resumo">-</span></div>
+        <div id="texto-resumo">Carregando...</div>
+    </div>
+
+    <div class="section">
+        <h3>🔑 Palavras-chave Presentes</h3>
+        <div id="presentes-keywords">Carregando...</div>
+    </div>
+
+    <div class="section">
+        <h3>❌ Palavras-chave Ausentes</h3>
+        <div id="ausentes-keywords">Carregando...</div>
+    </div>
+
+    <!-- Elementos ocultos necessários -->
+    <div style="display: none;">
+        <div id="compatibility-scores"></div>
+        <div id="vaga-keywords"></div>
+        <div id="recommendations-list"></div>
+        <div id="nota-idiomas"></div>
+        <div id="texto-idiomas"></div>
+        <div id="nota-formacao"></div>
+        <div id="texto-formacao"></div>
+        <div id="nota-habilidades"></div>
+        <div id="texto-habilidades"></div>
+        <div id="nota-pessoais"></div>
+        <div id="texto-pessoais"></div>
+        <div id="nota-experiencia"></div>
+        <div id="texto-experiencia"></div>
+        <div id="relevance-stats"></div>
+        <div id="stat-total"></div>
+        <div id="stat-total-keywords"></div>
+        <div id="stat-occurrences"></div>
+    </div>
+
+    <script src="assets/js/utils/sanitizer.js"></script>
+    <script src="assets/js/utils/history-logger.js"></script>
+
+    <script>
+        // Dados de teste reais (baseados no debug do backend)
+        const realTestData = {
+            conclusion: "O currículo apresenta aderência moderada às vagas analisadas, com 41% das palavras-chave presentes (28 de 68 palavras-chave identificadas). Há oportunidades significativas de melhoria para aumentar a compatibilidade. As principais áreas de desenvolvimento incluem as 40 palavras-chave ausentes identificadas na análise. Com ajustes focados nas palavras-chave ausentes, o currículo pode se tornar mais competitivo.",
+            fileName: "CURRÍCULO Rafael de Novaes - v5.pdf",
+            isHistoricalView: true,
+            resumo: {
+                nota: 8,
+                avaliacao: "O resumo profissional está bem estruturado e apresenta informações relevantes sobre a experiência do candidato.",
+                sugestoes: ["Adicionar mais detalhes sobre conquistas específicas", "Incluir palavras-chave mais técnicas"]
+            },
+            job_keywords_present: ["javascript", "react", "node.js", "html", "css", "git", "api", "frontend", "backend", "desenvolvimento"],
+            job_keywords_missing: ["python", "django", "aws", "docker", "kubernetes", "microservices", "mongodb", "postgresql"],
+            jobs: [
+                { title: "Desenvolvedor Frontend", link: "http://example.com/job1" },
+                { title: "Desenvolvedor Full Stack", link: "http://example.com/job2" }
+            ]
+        };
+
+        // Salvar dados no sessionStorage
+        sessionStorage.setItem('atsResult', JSON.stringify(realTestData));
+        sessionStorage.setItem('fileName', realTestData.fileName);
+        sessionStorage.setItem('isHistoricalView', 'true');
+
+        console.log('✅ Dados de teste salvos no sessionStorage');
+    </script>
+
+    <!-- Versão simplificada do results.js -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('🔄 Iniciando teste simples do results...');
+
+            try {
+                // Tentar carregar dados do sessionStorage
+                const atsResultRaw = sessionStorage.getItem('atsResult');
+                console.log('📄 Raw data exists:', !!atsResultRaw);
+
+                if (!atsResultRaw) {
+                    console.error('❌ Nenhum dado encontrado no sessionStorage');
+                    document.getElementById('conclusion').textContent = 'ERRO: Nenhum dado encontrado';
+                    return;
+                }
+
+                const atsResult = JSON.parse(atsResultRaw);
+                console.log('✅ Dados parseados com sucesso');
+                console.log('📊 Estrutura:', Object.keys(atsResult));
+
+                // Preencher elementos básicos
+                const cvFileName = document.getElementById('cv-filename');
+                if (cvFileName) {
+                    cvFileName.textContent = atsResult.fileName || 'Nome não disponível';
+                    cvFileName.className = 'success';
+                    console.log('✅ Nome do arquivo preenchido');
+                }
+
+                const conclusion = document.getElementById('conclusion');
+                if (conclusion) {
+                    conclusion.textContent = atsResult.conclusion || 'Conclusão não disponível';
+                    conclusion.className = atsResult.conclusion ? 'success' : 'error';
+                    console.log('✅ Conclusão preenchida');
+                }
+
+                // Resumo
+                const notaResumo = document.getElementById('nota-resumo');
+                const textoResumo = document.getElementById('texto-resumo');
+
+                if (atsResult.resumo) {
+                    if (notaResumo) {
+                        notaResumo.textContent = atsResult.resumo.nota + '/10';
+                        notaResumo.parentElement.className = 'success';
+                    }
+                    if (textoResumo) {
+                        textoResumo.textContent = atsResult.resumo.avaliacao || 'Avaliação não disponível';
+                        textoResumo.className = 'success';
+                    }
+                    console.log('✅ Resumo preenchido');
+                } else {
+                    if (textoResumo) {
+                        textoResumo.textContent = 'Resumo não disponível';
+                        textoResumo.className = 'error';
+                    }
+                    console.log('⚠️ Resumo não encontrado');
+                }
+
+                // Palavras-chave presentes
+                const presentesKeywords = document.getElementById('presentes-keywords');
+                if (presentesKeywords && atsResult.job_keywords_present) {
+                    presentesKeywords.innerHTML = atsResult.job_keywords_present
+                        .map(keyword => `<span style="background: #d4edda; padding: 4px 8px; margin: 2px; border-radius: 4px; display: inline-block;">${keyword}</span>`)
+                        .join(' ');
+                    presentesKeywords.className = 'success';
+                    console.log('✅ Palavras-chave presentes preenchidas');
+                } else {
+                    if (presentesKeywords) {
+                        presentesKeywords.textContent = 'Palavras-chave presentes não disponíveis';
+                        presentesKeywords.className = 'error';
+                    }
+                    console.log('⚠️ Palavras-chave presentes não encontradas');
+                }
+
+                // Palavras-chave ausentes
+                const ausentesKeywords = document.getElementById('ausentes-keywords');
+                if (ausentesKeywords && atsResult.job_keywords_missing) {
+                    ausentesKeywords.innerHTML = atsResult.job_keywords_missing
+                        .map(keyword => `<span style="background: #f8d7da; padding: 4px 8px; margin: 2px; border-radius: 4px; display: inline-block;">${keyword}</span>`)
+                        .join(' ');
+                    ausentesKeywords.className = 'success';
+                    console.log('✅ Palavras-chave ausentes preenchidas');
+                } else {
+                    if (ausentesKeywords) {
+                        ausentesKeywords.textContent = 'Palavras-chave ausentes não disponíveis';
+                        ausentesKeywords.className = 'error';
+                    }
+                    console.log('⚠️ Palavras-chave ausentes não encontradas');
+                }
+
+                console.log('🎉 Teste simples concluído com sucesso!');
+
+            } catch (error) {
+                console.error('❌ Erro durante teste:', error);
+                document.getElementById('conclusion').textContent = 'ERRO: ' + error.message;
+                document.getElementById('conclusion').className = 'error';
+            }
+        });
+    </script>
+</body>
+
+</html>

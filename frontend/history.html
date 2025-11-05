@@ -676,10 +676,10 @@
             <!-- Abas para navegar entre transações e análises -->
             <div class="tabs-container">
                 <div class="tabs">
-                    <button class="tab-button active" onclick="switchTab('transactions')">
+                    <button class="tab-button active" data-tab="transactions">
                         💳 Transações
                     </button>
-                    <button class="tab-button" onclick="switchTab('analyses')">
+                    <button class="tab-button" data-tab="analyses">
                         📊 Análises de Currículo
                     </button>
                 </div>
@@ -728,6 +728,36 @@
 
     <!-- Security: XSS Prevention Sanitizer -->
     <script src="/assets/js/utils/sanitizer.js"></script>
+
+    <!-- History Debug Logger -->
+    <script src="/assets/js/utils/history-logger.js"></script>
+
+    <!-- Configurar event listeners para as abas -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Configurar event listeners para os botões das abas
+            const tabButtons = document.querySelectorAll('.tab-button');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const tabName = this.getAttribute('data-tab');
+                    console.log('🔄 Switching to tab:', tabName);
+
+                    // Chamar a função switchTab que já existe no history.js
+                    if (typeof switchTab === 'function') {
+                        // Simular o event.target para a função existente
+                        const fakeEvent = { target: this };
+                        window.event = fakeEvent;
+                        switchTab(tabName);
+                    } else {
+                        console.error('❌ Função switchTab não encontrada!');
+                    }
+                });
+            });
+
+            console.log('✅ Event listeners das abas configurados');
+        });
+    </script>
 
 </body>
 

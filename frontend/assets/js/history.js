@@ -1,5 +1,5 @@
 // Script para gerenciar o histórico de transações e análises
-const transactionHistory = (() => {
+window.transactionHistory = (() => {
   // Função para formatar data
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -27,7 +27,7 @@ const transactionHistory = (() => {
       if (!historyContainer) return;
 
       // Verificar autenticação antes de fazer a requisição
-      const token = getAuthToken();
+      const token = window.getAuthToken();
       if (!token) {
         historyContainer.innerHTML = Sanitizer.sanitizeHtml('<p class="error-state">Você precisa estar logado para ver o histórico.</p>', ['p']);
         return;
@@ -136,17 +136,27 @@ const transactionHistory = (() => {
   // Função para carregar histórico de análises
   const loadAnalyses = async () => {
     try {
+      console.log('🔄 loadAnalyses: Iniciando carregamento das análises...');
+
       const analysisContainer = document.getElementById('analysis-history');
-      if (!analysisContainer) return;
+      if (!analysisContainer) {
+        console.error('❌ loadAnalyses: Container #analysis-history não encontrado!');
+        return;
+      }
+      console.log('✅ loadAnalyses: Container encontrado');
 
       // Verificar autenticação antes de fazer a requisição
-      const token = getAuthToken();
+      const token = window.getAuthToken();
+      console.log('🔑 loadAnalyses: Token obtido:', !!token);
+
       if (!token) {
+        console.error('❌ loadAnalyses: Token não encontrado');
         analysisContainer.innerHTML = Sanitizer.sanitizeHtml('<p class="error-state">Você precisa estar logado para ver o histórico.</p>', ['p']);
         return;
       }
 
       // Exibir mensagem de carregamento
+      console.log('📝 loadAnalyses: Exibindo mensagem de carregamento...');
       analysisContainer.innerHTML = Sanitizer.sanitizeHtml('<p class="loading">Carregando histórico de análises...</p>', ['p']);
 
       const apiBaseUrl = (() => {
@@ -160,13 +170,24 @@ const transactionHistory = (() => {
         console.error('❌ CONFIG não disponível! Isso não deveria acontecer.');
         throw new Error('Configuração não disponível');
       })();
-      const response = await fetch(`${apiBaseUrl}/api/ats/history`, {
+
+      const url = `${apiBaseUrl}/api/ats/history`;
+      console.log('📡 loadAnalyses: Fazendo requisição para:', url);
+      console.log('🔑 loadAnalyses: Usando token:', token.substring(0, 20) + '...');
+
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
+      console.log('📊 loadAnalyses: Status da resposta:', response.status);
+      console.log('📊 loadAnalyses: Response OK:', response.ok);
+
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ loadAnalyses: Erro na resposta:', response.status, errorText);
+
         if (response.status === 401) {
           analysisContainer.innerHTML = Sanitizer.sanitizeHtml('<p class="error-state">Sessão expirada. Faça login novamente.</p>', ['p']);
           // Limpar dados de autenticação inválidos
@@ -175,10 +196,11 @@ const transactionHistory = (() => {
           }
           return;
         }
-        throw new Error('Falha ao carregar histórico de análises');
+        throw new Error(`Falha ao carregar histórico de análises: ${response.status} - ${errorText}`);
       }
 
       const analyses = await response.json();
+      console.log('📋 loadAnalyses: Análises recebidas:', analyses.length);
 
       if (analyses.length === 0) {
         analysisContainer.innerHTML = Sanitizer.sanitizeHtml(`
@@ -196,6 +218,7 @@ const transactionHistory = (() => {
       }
 
       // Construir tabela de análises
+      console.log('🏗️ loadAnalyses: Construindo tabela HTML...');
       let tableHtml = `
         <table class="analysis-table">
           <thead>
@@ -210,7 +233,8 @@ const transactionHistory = (() => {
       `;
 
       // Adicionar cada análise à tabela
-      analyses.forEach(analysis => {
+      console.log('📝 loadAnalyses: Adicionando análises à tabela...');
+      analyses.forEach((analysis, index) => {
         const shortFileName = analysis.fileName && analysis.fileName.length > 30
           ? analysis.fileName.substring(0, 30) + '...'
           : analysis.fileName || 'Não informado';
@@ -223,7 +247,7 @@ const transactionHistory = (() => {
               <span class="job-count-badge">${analysis.jobCount} vaga${analysis.jobCount !== 1 ? 's' : ''}</span>
             </td>
             <td>
-              <button class="view-analysis-btn" onclick="viewAnalysis('${analysis.id}')">
+              <button class="view-analysis-btn" data-analysis-id="${analysis.id}">
                 Ver Análise
               </button>
             </td>
@@ -236,9 +260,50 @@ const transactionHistory = (() => {
         </table>
       `;
 
+      console.log('🔄 loadAnalyses: Inserindo HTML no container...');
       analysisContainer.innerHTML = Sanitizer.sanitizeHtml(tableHtml, ['table', 'thead', 'tbody', 'tr', 'th', 'td', 'span', 'button', 'i', 'a']);
+      console.log('✅ loadAnalyses: HTML inserido com sucesso');
+
+      // Adicionar event listeners para os botões "Ver Análise"
+      const viewButtons = analysisContainer.querySelectorAll('.view-analysis-btn');
+      console.log('🔧 loadAnalyses: Configurando', viewButtons.length, 'botões "Ver Análise"');
+
+      viewButtons.forEach((button, index) => {
+        button.addEventListener('click', function (event) {
+          event.preventDefault(); // Prevenir comportamento padrão
+
+          const analysisId = this.getAttribute('data-analysis-id');
+          console.log('🎯 Botão "Ver Análise" clicado!');
+          console.log('  - Index:', index);
+          console.log('  - Analysis ID:', analysisId);
+          console.log('  - Button element:', this);
+
+          if (!analysisId) {
+            console.error('❌ ID da análise não encontrado no botão!');
+            alert('Erro: ID da análise não encontrado. Tente recarregar a página.');
+            return;
+          }
+
+          // Verificar se a função existe antes de chamar
+          if (typeof window.viewAnalysis === 'function') {
+            console.log('✅ Chamando window.viewAnalysis...');
+            window.viewAnalysis(analysisId);
+          } else if (typeof viewAnalysis === 'function') {
+            console.log('✅ Chamando viewAnalysis...');
+            viewAnalysis(analysisId);
+          } else {
+            console.error('❌ Função viewAnalysis não encontrada!');
+            console.error('❌ window.viewAnalysis:', typeof window.viewAnalysis);
+            console.error('❌ viewAnalysis:', typeof viewAnalysis);
+            alert('Erro: Função de visualização não carregada. Recarregue a página.');
+          }
+        });
+        console.log('✅ Event listener adicionado ao botão', index + 1, 'com ID:', button.getAttribute('data-analysis-id'));
+      });
+
+      console.log('🎉 loadAnalyses: Carregamento completo! Tudo funcionando.');
     } catch (error) {
-      console.error('Erro ao carregar análises:', error);
+      console.error('❌ loadAnalyses: Erro ao carregar análises:', error);
       document.getElementById('analysis-history').innerHTML = Sanitizer.sanitizeHtml(
         '<p class="error-state">Erro ao carregar histórico. Tente novamente mais tarde.</p>',
         ['p']
@@ -268,17 +333,26 @@ function switchTab(tabName) {
 
   // Carregar dados se necessário
   if (tabName === 'transactions') {
-    transactionHistory.loadTransactions();
+    window.transactionHistory.loadTransactions();
   } else if (tabName === 'analyses') {
-    transactionHistory.loadAnalyses();
+    window.transactionHistory.loadAnalyses();
   }
 }
 
-// Função para visualizar uma análise específica
-async function viewAnalysis(analysisId) {
+// Função para visualizar uma análise específica (global)
+window.viewAnalysis = async function (analysisId) {
   try {
+    // Log da ação do usuário
+    if (window.historyLogger) {
+      window.historyLogger.logUserAction('View Analysis Clicked', { analysisId });
+    }
+
+    console.log('🔍 Carregando análise:', analysisId);
+
     // Verificar autenticação antes de fazer a requisição
-    const token = getAuthToken();
+    const token = window.getAuthToken();
+    console.log('🔑 Token disponível:', !!token);
+
     if (!token) {
       alert('Você precisa estar logado para ver a análise.');
       return;
@@ -293,13 +367,44 @@ async function viewAnalysis(analysisId) {
       console.error('❌ CONFIG não disponível em viewAnalysis! Isso não deveria acontecer.');
       throw new Error('Configuração não disponível');
     })();
-    const response = await fetch(`${apiBaseUrl}/api/ats/analysis/${analysisId}`, {
+
+    const endpoint = `${apiBaseUrl}/api/ats/analysis/${analysisId}`;
+    console.log('📡 Fazendo requisição para:', endpoint);
+
+    // Log da chamada da API
+    if (window.historyLogger) {
+      window.historyLogger.logApiCall(endpoint, 'GET');
+    }
+
+    const startTime = Date.now();
+    const response = await fetch(endpoint, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
+    const duration = Date.now() - startTime;
+
+    console.log('📊 Status da resposta:', response.status);
+
+    // Log da resposta da API
+    if (window.historyLogger) {
+      window.historyLogger.logApiResponse(endpoint, response.status, null, duration);
+    }
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Erro da API:', errorText);
+
+      // Log do erro
+      if (window.historyLogger) {
+        window.historyLogger.log('API Error', {
+          endpoint,
+          status: response.status,
+          error: errorText,
+          analysisId
+        }, 'error');
+      }
+
       if (response.status === 401) {
         alert('Sessão expirada. Faça login novamente.');
         // Limpar dados de autenticação inválidos
@@ -308,26 +413,90 @@ async function viewAnalysis(analysisId) {
         }
         return;
       }
-      throw new Error('Falha ao carregar análise');
+
+      throw new Error(`Falha ao carregar análise: ${response.status} - ${errorText}`);
     }
 
     const analysisResult = await response.json();
+    console.log('✅ Análise carregada com sucesso');
+    console.log('📊 Dados da análise recebidos:', analysisResult);
+
+    // Log dos dados recebidos
+    if (window.historyLogger) {
+      window.historyLogger.log('Analysis Data Received', {
+        analysisId,
+        dataKeys: Object.keys(analysisResult || {}),
+        hasConclusion: !!analysisResult.conclusion,
+        hasResumo: !!analysisResult.resumo,
+        hasKeywords: !!(analysisResult.job_keywords_present && analysisResult.job_keywords_present.length > 0),
+        dataSize: JSON.stringify(analysisResult).length
+      }, 'success');
+    }
+
+    // Validar dados antes de salvar
+    if (!analysisResult || typeof analysisResult !== 'object') {
+      throw new Error('Dados da análise são inválidos');
+    }
+
+    // Garantir que os dados essenciais estejam presentes
+    if (!analysisResult.conclusion && !analysisResult.resumo && !analysisResult.job_keywords_present) {
+      console.warn('⚠️ Análise pode estar incompleta, mas prosseguindo...');
+    }
 
     // Salvar resultado na sessionStorage e redirecionar para results.html
-    sessionStorage.setItem('atsResult', JSON.stringify(analysisResult));
-    sessionStorage.setItem('fileName', analysisResult.fileName || 'análise-anterior.pdf');
+    console.log('💾 Salvando no sessionStorage...');
+
+    // Garantir que isHistoricalView está definido
+    analysisResult.isHistoricalView = true;
+
+    const analysisResultString = JSON.stringify(analysisResult);
+    sessionStorage.setItem('atsResult', analysisResultString);
+
+    // O fileName agora vem dentro do analysisResult
+    const fileName = analysisResult.fileName || analysisResult.resumeFileName || 'análise-anterior.pdf';
+    sessionStorage.setItem('fileName', fileName);
     sessionStorage.setItem('isHistoricalView', 'true');
 
-    // Redirecionar para a página de resultados
-    window.location.href = 'results.html';
+    console.log('✅ Dados salvos no sessionStorage:');
+    console.log('  - atsResult size:', analysisResultString.length, 'characters');
+    console.log('  - fileName:', sessionStorage.getItem('fileName'));
+    console.log('  - isHistoricalView:', sessionStorage.getItem('isHistoricalView'));
+    console.log('  - analysisResult keys:', Object.keys(analysisResult));
+    console.log('  - hasConclusion:', !!analysisResult.conclusion);
+    console.log('  - hasResumo:', !!analysisResult.resumo);
+    console.log('  - hasKeywords:', !!(analysisResult.job_keywords_present && analysisResult.job_keywords_present.length > 0));
+
+    // Log do salvamento no sessionStorage
+    if (window.historyLogger) {
+      window.historyLogger.logSessionStorage('SET', 'atsResult', analysisResultString.length);
+      window.historyLogger.logSessionStorage('SET', 'fileName', fileName.length);
+      window.historyLogger.logSessionStorage('SET', 'isHistoricalView', 4);
+
+      window.historyLogger.log('SessionStorage Data Saved', {
+        analysisId,
+        fileName,
+        dataSize: analysisResultString.length,
+        hasRequiredFields: {
+          conclusion: !!analysisResult.conclusion,
+          resumo: !!analysisResult.resumo,
+          keywords: !!(analysisResult.job_keywords_present && analysisResult.job_keywords_present.length > 0)
+        }
+      }, 'success');
+    }
+
+    // Pequeno delay para garantir que os dados foram salvos
+    setTimeout(() => {
+      console.log('🔄 Redirecionando para results.html...');
+      window.location.href = 'results.html';
+    }, 100);
   } catch (error) {
     console.error('Erro ao carregar análise:', error);
     alert('Erro ao carregar análise: ' + error.message);
   }
 }
 
-// Função helper para obter token (disponível globalmente para viewAnalysis)
-function getAuthToken() {
+// Função helper para obter token (disponível globalmente)
+window.getAuthToken = function () {
   if (window.auth && typeof window.auth.getToken === 'function') {
     return window.auth.getToken();
   }
@@ -340,6 +509,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Se estivermos na página de histórico
   if (document.getElementById('transaction-history')) {
     // Carregar transações por padrão (aba ativa)
-    transactionHistory.loadTransactions();
+    window.transactionHistory.loadTransactions();
   }
 });

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Frontend - Histórico</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .log {
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔍 Debug Frontend - Histórico de Análises</h1>
+
+    <div id="logs"></div>
+
+    <button id="testSessionBtn">1. Testar SessionStorage</button>
+    <button id="testAPIBtn">2. Testar API</button>
+    <button id="testViewBtn">3. Testar ViewAnalysis</button>
+    <button id="clearBtn">Limpar Storage</button>
+
+    <!-- Elementos necessários para o results.js -->
+    <div style="display: none;">
+        <div id="conclusion">Carregando...</div>
+        <div id="cv-filename"></div>
+        <div id="compatibility-scores"></div>
+        <div id="vaga-keywords"></div>
+        <div id="presentes-keywords"></div>
+        <div id="ausentes-keywords"></div>
+        <div id="recommendations-list"></div>
+        <div id="nota-resumo"></div>
+        <div id="texto-resumo"></div>
+        <div id="nota-idiomas"></div>
+        <div id="texto-idiomas"></div>
+        <div id="nota-formacao"></div>
+        <div id="texto-formacao"></div>
+        <div id="nota-habilidades"></div>
+        <div id="texto-habilidades"></div>
+        <div id="nota-pessoais"></div>
+        <div id="texto-pessoais"></div>
+        <div id="nota-experiencia"></div>
+        <div id="texto-experiencia"></div>
+        <div id="relevance-stats"></div>
+        <div id="stat-total"></div>
+        <div id="stat-total-keywords"></div>
+        <div id="stat-occurrences"></div>
+    </div>
+
+    <script src="assets/js/utils/sanitizer.js"></script>
+    <script src="assets/js/utils/history-logger.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/auth.js"></script>
+
+    <script>
+        function log(message, type = 'log') {
+            const logsDiv = document.getElementById('logs');
+            const logDiv = document.createElement('div');
+            logDiv.className = `log ${type}`;
+            logDiv.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            logsDiv.appendChild(logDiv);
+            console.log(message);
+        }
+
+        function testSessionStorage() {
+            log('🧪 Testando SessionStorage...', 'log');
+
+            // Dados de teste
+            const testData = {
+                conclusion: "Esta é uma conclusão de teste para verificar se o sistema funciona.",
+                fileName: "teste-curriculo.pdf",
+                isHistoricalView: true,
+                resumo: {
+                    nota: 8.5,
+                    avaliacao: "Resumo bem estruturado",
+                    sugestoes: ["Adicionar mais detalhes"]
+                },
+                job_keywords_present: ["javascript", "react", "node.js"],
+                job_keywords_missing: ["python", "django"],
+                jobs: [{ title: "Desenvolvedor", link: "http://example.com" }]
+            };
+
+            try {
+                sessionStorage.setItem('atsResult', JSON.stringify(testData));
+                sessionStorage.setItem('fileName', 'teste-curriculo.pdf');
+                sessionStorage.setItem('isHistoricalView', 'true');
+
+                log('✅ Dados salvos no sessionStorage', 'success');
+
+                // Verificar se podem ser lidos
+                const retrieved = JSON.parse(sessionStorage.getItem('atsResult'));
+                if (retrieved.conclusion === testData.conclusion) {
+                    log('✅ Dados podem ser lidos corretamente', 'success');
+                } else {
+                    log('❌ Erro ao ler dados do sessionStorage', 'error');
+                }
+
+            } catch (error) {
+                log(`❌ Erro no sessionStorage: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAPI() {
+            log('🌐 Testando API...', 'log');
+
+            try {
+                // Verificar se CONFIG está disponível
+                if (!window.CONFIG) {
+                    log('❌ CONFIG não encontrado', 'error');
+                    return;
+                }
+
+                const baseUrl = window.CONFIG.api.baseUrl;
+                log(`🔧 Base URL: ${baseUrl}`, 'log');
+
+                // Testar histórico
+                const historyUrl = `${baseUrl}/api/ats/history`;
+                log(`📡 Testando: ${historyUrl}`, 'log');
+
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    log('❌ Token não encontrado', 'error');
+                    return;
+                }
+
+                const response = await fetch(historyUrl, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                log(`📊 Status: ${response.status}`, response.ok ? 'success' : 'error');
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ ${data.length} análises encontradas`, 'success');
+
+                    if (data.length > 0) {
+                        const firstId = data[0].id;
+                        log(`🆔 Primeira análise: ${firstId}`, 'log');
+
+                        // Testar análise específica
+                        const analysisUrl = `${baseUrl}/api/ats/analysis/${firstId}`;
+                        const analysisResponse = await fetch(analysisUrl, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+
+                        if (analysisResponse.ok) {
+                            const analysisData = await analysisResponse.json();
+                            log(`✅ Análise específica carregada`, 'success');
+                            log(`📝 Tem conclusão: ${!!analysisData.conclusion}`, 'log');
+
+                            // Salvar no sessionStorage para teste
+                            sessionStorage.setItem('atsResult', JSON.stringify(analysisData));
+                            sessionStorage.setItem('fileName', analysisData.fileName || 'teste.pdf');
+                            sessionStorage.setItem('isHistoricalView', 'true');
+
+                            log('💾 Dados reais salvos no sessionStorage', 'success');
+                        } else {
+                            log(`❌ Erro ao carregar análise: ${analysisResponse.status}`, 'error');
+                        }
+                    }
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Erro na API: ${errorText}`, 'error');
+                }
+
+            } catch (error) {
+                log(`❌ Erro na API: ${error.message}`, 'error');
+            }
+        }
+
+        function testViewAnalysis() {
+            log('🎯 Testando ViewAnalysis...', 'log');
+
+            // Verificar se a função existe
+            if (typeof window.viewAnalysis === 'function') {
+                log('✅ Função viewAnalysis encontrada', 'success');
+
+                // Testar com ID real
+                const testId = '328c0ad4-d927-4dac-95c8-abc8492c4358';
+                log(`🔄 Chamando viewAnalysis(${testId})...`, 'log');
+
+                window.viewAnalysis(testId).then(() => {
+                    log('✅ viewAnalysis executada sem erro', 'success');
+                }).catch(error => {
+                    log(`❌ Erro em viewAnalysis: ${error.message}`, 'error');
+                });
+
+            } else {
+                log('❌ Função viewAnalysis não encontrada', 'error');
+            }
+        }
+
+        function clearStorage() {
+            sessionStorage.clear();
+            localStorage.clear();
+            log('🗑️ Storage limpo', 'warning');
+        }
+
+        // Auto-teste inicial
+        setTimeout(() => {
+            log('🚀 Iniciando debug automático...', 'log');
+
+            // Verificar dependências
+            log(`CONFIG disponível: ${!!window.CONFIG}`, window.CONFIG ? 'success' : 'error');
+            log(`Auth disponível: ${!!window.auth}`, window.auth ? 'success' : 'error');
+            log(`Sanitizer disponível: ${!!window.Sanitizer}`, window.Sanitizer ? 'success' : 'error');
+            log(`HistoryLogger disponível: ${!!window.historyLogger}`, window.historyLogger ? 'success' : 'error');
+
+            // Verificar token
+            const token = localStorage.getItem('token');
+            log(`Token disponível: ${!!token}`, token ? 'success' : 'error');
+
+            if (token) {
+                log(`Token preview: ${token.substring(0, 20)}...`, 'log');
+            }
+
+        }, 1000);
+    </script>
+
+    <!-- Carregar history.js para testar viewAnalysis -->
+    <script src="assets/js/history.js"></script>
+</body>
+
+</html>

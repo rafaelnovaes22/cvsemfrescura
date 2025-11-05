@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Results Page</title>
+</head>
+
+<body>
+    <div id="conclusion">Carregando...</div>
+    <div id="cv-filename">Nome do arquivo</div>
+    <div id="compatibility-scores"></div>
+    <div id="vaga-keywords"></div>
+    <div id="presentes-keywords"></div>
+    <div id="ausentes-keywords"></div>
+    <div id="recommendations-list"></div>
+    <div id="nota-resumo"></div>
+    <div id="texto-resumo"></div>
+    <div id="nota-idiomas"></div>
+    <div id="texto-idiomas"></div>
+    <div id="nota-formacao"></div>
+    <div id="texto-formacao"></div>
+    <div id="nota-habilidades"></div>
+    <div id="texto-habilidades"></div>
+    <div id="nota-pessoais"></div>
+    <div id="texto-pessoais"></div>
+    <div id="nota-experiencia"></div>
+    <div id="texto-experiencia"></div>
+    <div id="relevance-stats"></div>
+    <div id="stat-total"></div>
+    <div id="stat-total-keywords"></div>
+    <div id="stat-occurrences"></div>
+
+    <script src="assets/js/utils/sanitizer.js"></script>
+    <script src="assets/js/utils/history-logger.js"></script>
+
+    <script>
+        // Simular dados de análise histórica no sessionStorage
+        const testAnalysisData = {
+            conclusion: "Esta é uma análise de teste para verificar se a página funciona corretamente.",
+            fileName: "teste-curriculo.pdf",
+            isHistoricalView: true,
+            resumo: {
+                nota: 8.5,
+                avaliacao: "Resumo bem estruturado",
+                sugestoes: ["Adicionar mais detalhes", "Incluir palavras-chave"]
+            },
+            job_keywords_present: ["javascript", "react", "node.js"],
+            job_keywords_missing: ["python", "django", "aws"],
+            jobs: [
+                { title: "Desenvolvedor Frontend", link: "http://example.com/job1" },
+                { title: "Desenvolvedor Full Stack", link: "http://example.com/job2" }
+            ]
+        };
+
+        sessionStorage.setItem('atsResult', JSON.stringify(testAnalysisData));
+        sessionStorage.setItem('fileName', 'teste-curriculo.pdf');
+        sessionStorage.setItem('isHistoricalView', 'true');
+
+        console.log('✅ Dados de teste salvos no sessionStorage');
+    </script>
+
+    <script src="assets/js/results.js"></script>
+
+    <script>
+        // Verificar se a página carregou corretamente
+        setTimeout(() => {
+            const conclusion = document.getElementById('conclusion');
+            if (conclusion && conclusion.textContent !== 'Carregando...') {
+                console.log('✅ Página carregou com sucesso!');
+                console.log('📝 Conclusão:', conclusion.textContent.substring(0, 100) + '...');
+            } else {
+                console.error('❌ Página não carregou corretamente');
+            }
+        }, 2000);
+    </script>
+</body>
+
+</html>

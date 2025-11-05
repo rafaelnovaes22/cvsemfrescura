@@ -252,17 +252,49 @@ exports.analyze = async (req, res) => {
     // Salvar a análise no banco de dados
     try {
       const fileName = req.file?.originalname || 'arquivo.pdf';
-      await AnalysisResults.create({
+
+      // Preparar dados para salvamento
+      const analysisData = {
         userId: userId,
         resumeFileName: fileName,
         resumeContent: resumeText,
         jobUrls: jobLinks,
         result: result
+      };
+
+      console.log(`[ATS] Salvando análise no histórico para usuário ${userId}...`);
+      console.log(`[ATS] Dados a salvar:`, {
+        userId: analysisData.userId,
+        fileName: analysisData.resumeFileName,
+        jobUrlsCount: Array.isArray(analysisData.jobUrls) ? analysisData.jobUrls.length : 0,
+        resultKeys: Object.keys(analysisData.result || {}),
+        hasConclusion: !!(analysisData.result && analysisData.result.conclusion),
+        hasResumo: !!(analysisData.result && analysisData.result.resumo),
+        hasKeywords: !!(analysisData.result && analysisData.result.job_keywords_present)
       });
-      console.log(`[ATS] Análise salva no histórico para o usuário ${userId}`);
+
+      const savedAnalysis = await AnalysisResults.create(analysisData);
+
+      console.log(`[ATS] ✅ Análise salva com sucesso! ID: ${savedAnalysis.id}`);
+
+      // Adicionar ID da análise ao resultado para referência
+      result.savedAnalysisId = savedAnalysis.id;
+
     } catch (saveErr) {
-      console.error('[ATS] Erro ao salvar análise no histórico:', saveErr);
+      console.error('[ATS] ❌ Erro ao salvar análise no histórico:', saveErr);
+      console.error('[ATS] Stack trace:', saveErr.stack);
+
+      // Log detalhado do erro para debug
+      if (saveErr.name === 'SequelizeValidationError') {
+        console.error('[ATS] Erros de validação:', saveErr.errors.map(e => e.message));
+      } else if (saveErr.name === 'SequelizeDatabaseError') {
+        console.error('[ATS] Erro de banco de dados:', saveErr.message);
+      }
+
       // Não interromper o fluxo se houver erro ao salvar
+      // Mas adicionar flag no resultado para indicar que não foi salvo
+      result.historySaveError = true;
+      result.historySaveErrorMessage = saveErr.message;
     }
 
     fs.unlink(resumePath, () => { }); // Limpa upload temporário
@@ -284,34 +316,35 @@ exports.analyze = async (req, res) => {
 // Nova função para buscar análises anteriores sem consumir créditos
 exports.getAnalysisHistory = async (req, res) => {
   try {
+    console.log('[ATS] 📋 Buscando histórico de análises...');
+
     const userId = req.user?.id;
     if (!userId) {
+      console.log('[ATS] ❌ Usuário não autenticado');
       return res.status(401).json({ error: 'Usuário não autenticado.' });
     }
 
-    const analyses = await AnalysisResults.findAll({
-      where: { userId },
-      order: [['createdAt', 'DESC']],
-      limit: 50 // Limitar a 50 análises mais recentes
-    });
+    console.log(`[ATS] 🔍 Buscando análises para usuário ${userId}...`);
 
-    const formattedAnalyses = analyses.map(analysis => ({
-      id: analysis.id,
-      fileName: analysis.resumeFileName,
-      jobUrls: analysis.jobUrls,
-      createdAt: analysis.createdAt,
-      jobCount: Array.isArray(analysis.jobUrls) ? analysis.jobUrls.length : 0,
-      // Resumo básico sem enviar todo o resultado
-      summary: {
-        hasCompatibilityScores: !!(analysis.result && analysis.result.jobs),
-        hasKeywords: !!(analysis.result && analysis.result.job_keywords),
-        hasEvaluations: !!(analysis.result && (analysis.result.resumo || analysis.result.idiomas))
-      }
-    }));
+    // Usar método personalizado do modelo
+    const formattedAnalyses = await AnalysisResults.findUserAnalyses(userId, 50);
+
+    console.log(`[ATS] ✅ Encontradas ${formattedAnalyses.length} análises para o usuário ${userId}`);
+
+    // Log detalhado das análises encontradas
+    if (formattedAnalyses.length > 0) {
+      console.log('[ATS] 📊 Resumo das análises:');
+      formattedAnalyses.slice(0, 3).forEach((analysis, index) => {
+        console.log(`  ${index + 1}. ID: ${analysis.id}, Arquivo: ${analysis.fileName}, Vagas: ${analysis.jobCount}, Data: ${analysis.createdAt}`);
+      });
+    } else {
+      console.log('[ATS] ⚠️ Nenhuma análise encontrada para este usuário');
+    }
 
     res.json(formattedAnalyses);
   } catch (err) {
-    console.error('[ATS] Erro ao buscar histórico:', err);
+    console.error('[ATS] ❌ Erro ao buscar histórico:', err);
+    console.error('[ATS] Stack trace:', err.stack);
     res.status(500).json({ error: 'Erro ao buscar histórico de análises.' });
   }
 };
@@ -322,31 +355,40 @@ exports.getAnalysisById = async (req, res) => {
     const userId = req.user?.id;
     const analysisId = req.params.id;
 
+    console.log(`[ATS] 🔍 Buscando análise específica: ${analysisId} para usuário ${userId}`);
+
     if (!userId) {
+      console.log('[ATS] ❌ Usuário não autenticado');
       return res.status(401).json({ error: 'Usuário não autenticado.' });
     }
 
-    const analysis = await AnalysisResults.findOne({
-      where: {
-        id: analysisId,
-        userId: userId // Garantir que o usuário só acesse suas próprias análises
-      }
-    });
+    if (!analysisId) {
+      console.log('[ATS] ❌ ID da análise não fornecido');
+      return res.status(400).json({ error: 'ID da análise é obrigatório.' });
+    }
 
-    if (!analysis) {
+    // Usar método personalizado do modelo
+    const result = await AnalysisResults.findUserAnalysis(analysisId, userId);
+
+    if (!result) {
+      console.log(`[ATS] ❌ Análise ${analysisId} não encontrada para usuário ${userId}`);
       return res.status(404).json({ error: 'Análise não encontrada.' });
     }
 
-    // Retornar a análise completa sem decrementar créditos
-    const result = analysis.result;
-
-    // Adicionar informação de que é uma consulta histórica
-    result.isHistoricalView = true;
-    result.originalDate = analysis.createdAt;
+    console.log(`[ATS] ✅ Análise histórica encontrada e retornada para usuário ${userId}: ${analysisId}`);
+    console.log(`[ATS] 📊 Dados da análise:`, {
+      hasConclusion: !!result.conclusion,
+      hasResumo: !!result.resumo,
+      hasKeywords: !!(result.job_keywords_present && result.job_keywords_present.length > 0),
+      hasJobs: !!(result.jobs && result.jobs.length > 0),
+      fileName: result.fileName,
+      isHistoricalView: result.isHistoricalView
+    });
 
     res.json(result);
   } catch (err) {
-    console.error('[ATS] Erro ao buscar análise:', err);
+    console.error('[ATS] ❌ Erro ao buscar análise:', err);
+    console.error('[ATS] Stack trace:', err.stack);
     res.status(500).json({ error: 'Erro ao buscar análise.' });
   }
 };

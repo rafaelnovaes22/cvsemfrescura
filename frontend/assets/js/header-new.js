@@ -584,25 +584,43 @@ class HeaderManager {
         switch (currentPage) {
             case 'landing':
                 navItems = [
-                    { href: '#features', text: 'Recursos' },
-                    { href: '#how-it-works', text: 'Como Funciona' }
+                    { href: 'landing.html#features', text: 'Recursos', isAnchor: true },
+                    { href: 'landing.html#how-it-works', text: 'Como Funciona', isAnchor: true }
                 ];
                 break;
             default:
                 navItems = [
-                    { href: 'landing.html', text: 'Início' },
-                    { href: 'analisar.html', text: 'Analisar' },
-                    { href: 'payment.html', text: 'Planos' }
+                    { href: 'landing.html', text: 'Início', isAnchor: false },
+                    { href: 'analisar.html', text: 'Analisar', isAnchor: false },
+                    { href: 'payment.html', text: 'Planos', isAnchor: false }
                 ];
                 break;
         }
 
-        nav.innerHTML = Sanitizer.sanitizeHtml(navItems.map(item =>
+        nav.innerHTML = navItems.map(item =>
             `<a href="${item.href}" style="
                 color: #3f3f46; text-decoration: none; font-weight: 500; 
                 font-size: 0.95rem; padding: 0.5rem 0; transition: color 0.15s;
-            " onmouseover="this.style.color='#583819'" onmouseout="this.style.color='#3f3f46'">${item.text}</a>`
-        ).join(''), ['a']);
+            " onmouseover="this.style.color='#583819'" onmouseout="this.style.color='#3f3f46'" ${item.isAnchor ? 'class="scroll-link"' : ''}>${item.text}</a>`
+        ).join('');
+
+        // Configurar smooth scroll para links âncora na mesma página
+        if (currentPage === 'landing') {
+            nav.querySelectorAll('a.scroll-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').split('#')[1];
+                    const targetElement = document.getElementById(targetId);
+                    
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        }
     }
 
     getCurrentPage() {
