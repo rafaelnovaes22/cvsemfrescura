@@ -2223,23 +2223,31 @@
 
         // Header Scroll Effect - gerenciado pelo header.js
 
-        // Smooth Scroll for Internal Links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const href = this.getAttribute('href');
-
+        // Smooth Scroll for Internal Links - COM EVENT DELEGATION
+        // Isso funciona mesmo para links criados dinamicamente pelo header
+        document.addEventListener('click', function (e) {
+            // Verificar se o elemento clicado é um link com hash
+            const link = e.target.closest('a[href^="#"]');
+            
+            if (link) {
+                const href = link.getAttribute('href');
+                
                 // Verificar se o href é válido (não é apenas "#")
                 if (href && href.length > 1) {
+                    e.preventDefault();
                     const target = document.querySelector(href);
+                    
                     if (target) {
+                        console.log(`🎯 Navegando suavemente para: ${href}`);
                         target.scrollIntoView({
                             behavior: 'smooth',
                             block: 'start'
                         });
+                    } else {
+                        console.warn(`⚠️ Elemento não encontrado: ${href}`);
                     }
                 }
-            });
+            }
         });
 
         // Gift Code Form - Validação em tempo real
