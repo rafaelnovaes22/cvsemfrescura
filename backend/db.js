@@ -4,16 +4,16 @@ const { logger } = require('./utils/logger');
 
 let sequelize;
 
-// Para desenvolvimento local, usar SQLite se DATABASE_URL contém sqlite
-if (process.env.DATABASE_URL && process.env.DATABASE_URL.includes('sqlite')) {
-  logger.info('Usando SQLite para desenvolvimento local');
+// FORÇAR SQLite para desenvolvimento local (sem RAILWAY_ENVIRONMENT)
+if (!process.env.RAILWAY_ENVIRONMENT) {
+  logger.info('Ambiente local detectado - forçando uso de SQLite');
 
   // Configurar SQLite para desenvolvimento
   const dbPath = path.join(__dirname, 'database', 'dev.sqlite');
   sequelize = new Sequelize({
     dialect: 'sqlite',
     storage: dbPath,
-    logging: process.env.NODE_ENV === 'development' ? logger.debug.bind(logger) : false,
+    logging: false, // Desabilitar logs para limpar saída
     pool: {
       max: 5,
       min: 0,
@@ -22,7 +22,7 @@ if (process.env.DATABASE_URL && process.env.DATABASE_URL.includes('sqlite')) {
     }
   });
 
-  logger.info(`Banco de dados SQLite configurado: ${path.basename(dbPath)}`);
+  logger.info(`✅ SQLite configurado: ${path.basename(dbPath)}`);
 } else if (process.env.NODE_ENV === 'development') {
   logger.info('Ambiente de desenvolvimento detectado - usando SQLite como fallback');
 
@@ -57,7 +57,10 @@ if (process.env.DATABASE_URL && process.env.DATABASE_URL.includes('sqlite')) {
       idle: 10000
     },
     dialectOptions: {
-      ssl: false,
+      ssl: process.env.DATABASE_URL ? {
+        require: true,
+        rejectUnauthorized: false
+      } : false
     },
   });
   
