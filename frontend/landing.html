@@ -402,24 +402,30 @@
         .floating-card-1 {
             top: 10%;
             right: -10%;
-            animation: float 3s ease-in-out infinite;
+            animation: floatRotate1 6s ease-in-out infinite;
         }
 
         .floating-card-2 {
             bottom: 15%;
             left: -5%;
-            animation: float 3s ease-in-out infinite reverse;
+            animation: floatRotate2 6s ease-in-out infinite;
         }
 
-        @keyframes float {
-
-            0%,
-            100% {
-                transform: translateY(0px);
+        @keyframes floatRotate1 {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
             }
-
             50% {
-                transform: translateY(-10px);
+                transform: translateY(-15px) rotate(180deg);
+            }
+        }
+
+        @keyframes floatRotate2 {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-15px) rotate(-180deg);
             }
         }
 
@@ -2223,7 +2229,7 @@
 
         // Header Scroll Effect - gerenciado pelo header.js
 
-        // Smooth Scroll for Internal Links - COM EVENT DELEGATION
+        // Smooth Scroll for Internal Links - COM EVENT DELEGATION E OFFSET
         // Isso funciona mesmo para links criados dinamicamente pelo header
         document.addEventListener('click', function (e) {
             // Verificar se o elemento clicado é um link com hash
@@ -2239,9 +2245,17 @@
                     
                     if (target) {
                         console.log(`🎯 Navegando suavemente para: ${href}`);
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
+                        
+                        // Calcular offset do header fixo
+                        const header = document.querySelector('.header');
+                        const headerHeight = header ? header.offsetHeight : 80;
+                        const targetPosition = target.getBoundingClientRect().top + window.pageYOffset;
+                        const offsetPosition = targetPosition - headerHeight - 20; // 20px de margem extra
+                        
+                        // Scroll suave com offset
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
                         });
                     } else {
                         console.warn(`⚠️ Elemento não encontrado: ${href}`);
