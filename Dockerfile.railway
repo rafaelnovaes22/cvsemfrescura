@@ -1,5 +1,5 @@
 # 🚀 Dockerfile para Railway - CV Sem Frescura (Otimizado)
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Instalar curl para healthcheck
 RUN apk add --no-cache curl bash
@@ -7,14 +7,11 @@ RUN apk add --no-cache curl bash
 # Configurar diretório de trabalho
 WORKDIR /app
 
-# Copiar package.json da raiz primeiro para otimizar cache
-COPY package*.json ./
-
 # Copiar package.json do backend
 COPY backend/package*.json ./backend/
 
-# Instalar dependências (postinstall irá instalar as do backend automaticamente)
-RUN npm install
+# Instalar APENAS as dependências do backend (sem package.json da raiz)
+RUN cd backend && npm ci --only=production --ignore-scripts || npm install --only=production
 
 # Copiar o resto do projeto mantendo a estrutura
 COPY . .

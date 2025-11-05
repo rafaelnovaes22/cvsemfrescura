@@ -4,15 +4,14 @@
   "description": "Sistema ATS para análise de currículos com IA - CV Sem Frescura",
   "main": "backend/server.js",
   "engines": {
-    "node": ">=18.0.0",
+    "node": ">=20.0.0",
     "npm": ">=8.0.0"
   },
   "scripts": {
     "start": "node backend/server.js",
     "dev": "cd backend && npm run dev",
     "test": "cd backend && npm run test",
-    "build": "echo 'No build step needed for this project'",
-    "postinstall": "cd backend && npm install"
+    "build": "echo 'No build step needed for this project'"
   },
   "keywords": [
     "ats",
