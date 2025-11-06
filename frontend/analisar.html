@@ -683,6 +683,8 @@
     <script src="/assets/js/config.js?v=1750119001"></script>
     <!-- Logger Seguro -->
     <script src="/assets/js/lib/secure-logger.js"></script>
+    <!-- Security: XSS Prevention Sanitizer (carregado ANTES do header) -->
+    <script src="/assets/js/utils/sanitizer.js"></script>
     <script src="/assets/js/auth.js?v=1750119000"></script>
     <script src="/assets/js/header-new.js?v=1748114561"></script>
 
@@ -2529,9 +2531,6 @@
 
         console.log('✅ Função performAnalysis definida globalmente');
     </script>
-    
-    <!-- Security: XSS Prevention Sanitizer -->
-    <script src="/assets/js/utils/sanitizer.js"></script>
 </body>
 
 </html>
