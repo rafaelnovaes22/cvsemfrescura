@@ -3,18 +3,79 @@
 ## Problema Identificado
 Os botões na página `analisar.html` não estavam funcionando quando acessada com o parâmetro `?giftCode=DESTRAVACV5M3M0K`.
 
-## Causa Raiz
-O arquivo `sanitizer.js` estava sendo carregado **após** o `header-new.js`, que tenta usar o objeto `Sanitizer` na linha 221:
+Especificamente:
+- ❌ Botão "Criar Conta" no modal de gift code
+- ❌ Botão "Já tenho conta" no modal de gift code  
+- ❌ Botão "X" para fechar modal
+- ❌ Todos os event handlers inline (onclick, onmouseover, etc)
 
-```javascript
-headerContainer.innerHTML = Sanitizer.sanitizeHtml(headerHTML, ['div', 'nav', 'a', 'span', 'i', 'button', 'ul', 'li', 'img', 'header', 'h1', 'h2', 'h3']);
+## Causa Raiz
+
+### Problema 1: Content Security Policy (CSP) Restritiva
+A **Content Security Policy** configurada no servidor estava bloqueando:
+
+1. **Event handlers inline** - A diretiva `script-src-attr` estava como `'none'` (padrão do helmet), bloqueando todos os `onclick`, `onmouseover`, etc.
+
+2. **Google Fonts** - A fonte do Google Fonts não estava permitida na `styleSrc`
+
+**Erros no Console:**
+```
+Refused to execute inline event handler because it violates the following 
+Content Security Policy directive: "script-src-attr 'none'".
 ```
 
-Isso causava um erro `Sanitizer is not defined`, que quebrava todo o carregamento de scripts subsequentes, impedindo que os event listeners dos botões fossem configurados.
+### Problema 2: Ordem de Carregamento de Scripts
+O arquivo `sanitizer.js` estava sendo carregado **após** o `header-new.js`, que tenta usar o objeto `Sanitizer`:
+
+```javascript
+headerContainer.innerHTML = Sanitizer.sanitizeHtml(headerHTML, [...]);
+```
+
+Isso causava um erro `Sanitizer is not defined`, que quebrava o carregamento de scripts subsequentes.
 
 ## Solução Aplicada
 
-### Mudança na Ordem de Carregamento dos Scripts
+### 1. Correção da Content Security Policy (backend/server.js)
+
+**ANTES:**
+```javascript
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com"],
+      // script-src-attr estava como 'none' (padrão)
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https://api.openai.com", "https://api.stripe.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  },
+}));
+```
+
+**DEPOIS:**
+```javascript
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"], // ✅ Google Fonts
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com"],
+      scriptSrcAttr: ["'unsafe-inline'"], // ✅ Event handlers inline
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https://api.openai.com", "https://api.stripe.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  },
+}));
+```
+
+### 2. Mudança na Ordem de Carregamento dos Scripts (frontend/analisar.html)
 
 **ANTES:**
 ```html
@@ -38,25 +99,57 @@ Isso causava um erro `Sanitizer is not defined`, que quebrava todo o carregament
 ```
 
 ## Arquivos Modificados
+- `backend/server.js` - Configuração da Content Security Policy
 - `frontend/analisar.html` - Reordenação dos scripts e remoção de duplicação
+
+## ⚠️ IMPORTANTE - Reinicie o Servidor
+
+**Como as alterações foram feitas no `backend/server.js`, você PRECISA reiniciar o servidor Node.js para que as mudanças de CSP entrem em vigor.**
+
+### Como Reiniciar:
+
+**Se estiver usando PM2:**
+```bash
+pm2 restart all
+```
+
+**Se estiver rodando diretamente:**
+```bash
+# Pare o processo atual (Ctrl+C) e execute novamente
+npm start
+# ou
+node backend/server.js
+```
+
+**Em produção (Railway, Heroku, etc):**
+- Faça o deploy das alterações (já enviadas ao Git)
+- O servidor reiniciará automaticamente
 
 ## Como Testar
 
-1. Abra o navegador e acesse: `https://www.destravacv.com.br/analisar.html?giftCode=DESTRAVACV5M3M0K`
+### Pré-requisito: ✅ Servidor reiniciado
 
-2. Verifique que todos os botões estão funcionando:
-   - ✅ Botão "Entrar" no modal
-   - ✅ Botão "Cadastrar" no modal
-   - ✅ Links "Não tem conta? Cadastre-se"
-   - ✅ Links "Já tem conta? Entrar"
+1. **Limpe o cache do navegador** (Ctrl+Shift+Delete) ou abra em modo anônimo
+
+2. Abra o navegador e acesse: `https://www.destravacv.com.br/analisar.html?giftCode=DESTRAVACV5M3M0K`
+
+3. Verifique que todos os botões estão funcionando:
+   - ✅ Botão "X" (fechar) no modal de gift code
    - ✅ Botão "Criar Conta" no modal de gift code
    - ✅ Botão "Já tenho conta" no modal de gift code
+   - ✅ Botão "Entrar" no modal de autenticação
+   - ✅ Botão "Cadastrar" no modal de autenticação
+   - ✅ Links "Não tem conta? Cadastre-se"
+   - ✅ Links "Já tem conta? Entrar"
    - ✅ Dropdown do menu de usuário (se logado)
-   - ✅ Botões do header (logo, navegação)
+   - ✅ Todos os event handlers (onmouseover, onclick, etc)
 
-3. Abra o Console do Navegador (F12) e verifique que não há erros JavaScript
+4. Abra o Console do Navegador (F12) e verifique que:
+   - ❌ Não há erros de CSP
+   - ❌ Não há erros JavaScript
+   - ✅ Google Fonts carrega corretamente
 
-4. Teste o fluxo completo:
+5. Teste o fluxo completo:
    - Acesse com o gift code
    - Clique em "Criar Conta" ou "Já tenho conta"
    - Preencha o formulário
@@ -73,8 +166,12 @@ Para evitar que esse tipo de erro aconteça novamente:
 4. **Monitore o console do navegador** para erros JavaScript
 
 ## Data da Correção
-06 de Novembro de 2025
+07 de Novembro de 2025
 
 ## Status
-✅ CORRIGIDO - Pronto para produção
+✅ CORRIGIDO - Aguardando reinício do servidor em produção
+
+## Commits
+- `57cd714b` - Correção da ordem de carregamento do sanitizer.js
+- `3d5dd57b` - Correção da Content Security Policy (CSP)
 
