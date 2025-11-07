@@ -2127,15 +2127,35 @@
                     return;
                 }
 
+                // 🔧 NOVA CORREÇÃO: Verificar se o usuário não está autenticado
+                const isAuthenticated = auth && auth.getToken();
+                
+                // 🔧 NOVA CORREÇÃO: Verificar se o conteúdo está escondido (display: none)
+                const isContentHidden = mainContent && (mainContent.style.display === 'none' || 
+                    window.getComputedStyle(mainContent).display === 'none');
+
+                // Se usuário não está autenticado E o conteúdo está escondido, redirecionar para landing
+                if (!isAuthenticated && isContentHidden) {
+                    console.log('🏠 Usuário não autenticado e conteúdo escondido - redirecionando para landing');
+                    window.location.href = 'landing.html';
+                    return;
+                }
+
                 // Se veio de login=true, voltar para landing
                 // Se veio com giftCode mas não está no cadastro, voltar para landing
-                // Caso contrário, comportamento padrão
                 if (loginParam === 'true' || (giftCodeParam && !hasGiftCodeContext)) {
                     window.location.href = 'landing.html';
                 } else {
-                    // Se não veio de redirecionamento específico, apenas fechar o modal
+                    // Se não veio de redirecionamento específico E usuário está autenticado, apenas fechar o modal
                     document.getElementById('authModal').style.display = 'none';
                     document.body.style.overflow = '';
+                    
+                    // Garantir que o conteúdo esteja visível se o usuário está autenticado
+                    if (isAuthenticated && mainContent) {
+                        mainContent.style.display = '';
+                        const footer = document.querySelector('footer');
+                        if (footer) footer.style.display = '';
+                    }
                 }
             }
 
