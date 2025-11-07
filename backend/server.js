@@ -53,8 +53,9 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"], // Permitir estilos inline por enquanto
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"], // Permitir estilos inline e Google Fonts
       scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com"], // Stripe
+      scriptSrcAttr: ["'unsafe-inline'"], // Permitir event handlers inline (onclick, onmouseover, etc)
       imgSrc: ["'self'", "data:", "https:"],
       connectSrc: ["'self'", "https://api.openai.com", "https://api.stripe.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
