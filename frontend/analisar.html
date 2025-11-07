@@ -2157,71 +2157,26 @@
 
             // Event listener para o botão de fechar do modal de login
             document.getElementById('closeAuthModal').addEventListener('click', function () {
-                // 🎁 PROTEÇÃO: Verificar se usuário está no cadastro com código de presente
-                const registerForm = document.getElementById('registerForm');
-                const isRegisterFormVisible = registerForm && registerForm.style.display !== 'none';
-                const hasGiftCodeContext = localStorage.getItem('pendingGiftCode') || localStorage.getItem('isGiftCodeUser');
-
-                // Se está no cadastro com código, não usar handleModalClose para evitar redirecionamento
-                if (isRegisterFormVisible && hasGiftCodeContext) {
-                    console.log('🎁 Botão X clicado durante cadastro com código - não redirecionar');
-                    document.getElementById('authModal').style.display = 'none';
-                    document.body.style.overflow = '';
-                    const mainContent = document.querySelector('.main-content');
-                    const header = document.querySelector('header');
-                    if (mainContent) mainContent.style.filter = '';
-                    if (header) header.style.filter = '';
-                } else {
-                    handleModalClose();
-                }
+                // Sempre usar handleModalClose - ele tem toda a lógica necessária
+                handleModalClose();
             });
 
             // Event listener para fechar modal clicando no fundo
             document.getElementById('authModal').addEventListener('click', function (e) {
                 if (e.target === this) {
-                    // 🎁 PROTEÇÃO: Verificar se usuário está no cadastro com código de presente
-                    const registerForm = document.getElementById('registerForm');
-                    const isRegisterFormVisible = registerForm && registerForm.style.display !== 'none';
-                    const hasGiftCodeContext = localStorage.getItem('pendingGiftCode') || localStorage.getItem('isGiftCodeUser');
-
-                    // Se está no cadastro com código, não usar handleModalClose para evitar redirecionamento
-                    if (isRegisterFormVisible && hasGiftCodeContext) {
-                        console.log('🎁 Click no fundo durante cadastro com código - não redirecionar');
-                        document.getElementById('authModal').style.display = 'none';
-                        document.body.style.overflow = '';
-                        const mainContent = document.querySelector('.main-content');
-                        const header = document.querySelector('header');
-                        if (mainContent) mainContent.style.filter = '';
-                        if (header) header.style.filter = '';
-                    } else {
-                        handleModalClose();
-                    }
+                    // Sempre usar handleModalClose - ele tem toda a lógica necessária
+                    handleModalClose();
                 }
             });
 
             // Event listener global para tecla ESC fechar modais
             document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') {
-                    // 🎁 PROTEÇÃO: Verificar se usuário está no cadastro com código de presente
-                    const registerForm = document.getElementById('registerForm');
-                    const isRegisterFormVisible = registerForm && registerForm.style.display !== 'none';
-                    const hasGiftCodeContext = localStorage.getItem('pendingGiftCode') || localStorage.getItem('isGiftCodeUser');
-
                     // Fechar modal de login se estiver aberto
                     const authModal = document.getElementById('authModal');
                     if (authModal && authModal.style.display === 'flex') {
-                        // Se está no cadastro com código, não usar handleModalClose para evitar redirecionamento
-                        if (isRegisterFormVisible && hasGiftCodeContext) {
-                            console.log('🎁 ESC pressionado durante cadastro com código - não redirecionar');
-                            authModal.style.display = 'none';
-                            document.body.style.overflow = '';
-                            const mainContent = document.querySelector('.main-content');
-                            const header = document.querySelector('header');
-                            if (mainContent) mainContent.style.filter = '';
-                            if (header) header.style.filter = '';
-                        } else {
-                            handleModalClose();
-                        }
+                        // Sempre usar handleModalClose - ele tem toda a lógica necessária
+                        handleModalClose();
                         return;
                     }
 
