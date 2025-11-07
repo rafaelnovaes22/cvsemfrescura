@@ -2113,45 +2113,41 @@
                 if (mainContent) mainContent.style.filter = '';
                 if (header) header.style.filter = '';
 
+                // 🔧 NOVA CORREÇÃO: Verificar se o usuário está autenticado
+                const isAuthenticated = auth && auth.getToken();
+
                 // 🎁 CORREÇÃO CRÍTICA: Verificar se usuário está no processo de cadastro com código de presente
                 const registerForm = document.getElementById('registerForm');
                 const isRegisterFormVisible = registerForm && registerForm.style.display !== 'none';
                 const hasGiftCodeContext = localStorage.getItem('pendingGiftCode') || localStorage.getItem('isGiftCodeUser');
 
-                // Se está no cadastro com código de presente, NÃO redirecionar para landing
-                if (isRegisterFormVisible && hasGiftCodeContext && giftCodeParam) {
-                    console.log('🎁 Usuário está se cadastrando com código de presente - não redirecionar');
+                // Se está no cadastro com código de presente E está autenticado, NÃO redirecionar
+                if (isRegisterFormVisible && hasGiftCodeContext && giftCodeParam && isAuthenticated) {
+                    console.log('🎁 Usuário autenticado no fluxo de código de presente - não redirecionar');
                     // Apenas fechar o modal sem redirecionar
                     document.getElementById('authModal').style.display = 'none';
                     document.body.style.overflow = '';
                     return;
                 }
 
-                // 🔧 NOVA CORREÇÃO: Verificar se o usuário não está autenticado
-                const isAuthenticated = auth && auth.getToken();
-                
-                // 🔧 NOVA CORREÇÃO: Verificar se o conteúdo está escondido (display: none)
-                const isContentHidden = mainContent && (mainContent.style.display === 'none' || 
-                    window.getComputedStyle(mainContent).display === 'none');
-
-                // Se usuário não está autenticado E o conteúdo está escondido, redirecionar para landing
-                if (!isAuthenticated && isContentHidden) {
-                    console.log('🏠 Usuário não autenticado e conteúdo escondido - redirecionando para landing');
+                // 🔧 LÓGICA PRINCIPAL: Se usuário NÃO está autenticado, sempre redirecionar para landing
+                if (!isAuthenticated) {
+                    console.log('🏠 Usuário não autenticado - redirecionando para landing');
                     window.location.href = 'landing.html';
                     return;
                 }
 
+                // Se chegou aqui, usuário ESTÁ autenticado
                 // Se veio de login=true, voltar para landing
-                // Se veio com giftCode mas não está no cadastro, voltar para landing
-                if (loginParam === 'true' || (giftCodeParam && !hasGiftCodeContext)) {
+                if (loginParam === 'true') {
                     window.location.href = 'landing.html';
                 } else {
-                    // Se não veio de redirecionamento específico E usuário está autenticado, apenas fechar o modal
+                    // Usuário autenticado e não veio de redirecionamento - apenas fechar modal
                     document.getElementById('authModal').style.display = 'none';
                     document.body.style.overflow = '';
                     
-                    // Garantir que o conteúdo esteja visível se o usuário está autenticado
-                    if (isAuthenticated && mainContent) {
+                    // Garantir que o conteúdo esteja visível
+                    if (mainContent) {
                         mainContent.style.display = '';
                         const footer = document.querySelector('footer');
                         if (footer) footer.style.display = '';
